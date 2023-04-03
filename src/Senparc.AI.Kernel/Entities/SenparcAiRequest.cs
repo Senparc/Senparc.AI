@@ -1,4 +1,7 @@
+using Microsoft.SemanticKernel.Orchestration;
+using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
+using Senparc.AI.Kernel.Entities;
 
 namespace Senparc.AI.Kernel
 {
@@ -19,5 +22,14 @@ namespace Senparc.AI.Kernel
         /// <inheritdoc/>
         /// </summary>
         public string RequestContent { get; set; }
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public ParameterConfig ParameterConfig { get; set; }
+
+        /// <summary>
+        /// иообнд
+        /// </summary>
+       public IAiContext<ContextVariables> IAiContext { get; set; }
     }
 }

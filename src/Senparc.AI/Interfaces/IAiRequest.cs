@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Senparc.AI.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -21,5 +22,13 @@ namespace Senparc.AI.Interfaces
         /// 请求内容，如 prompt
         /// </summary>
         string RequestContent { get; set; }
+        /// <summary>
+        /// 参数定义
+        /// </summary>
+        ParameterConfig ParameterConfig { get; set; }
+        /// <summary>
+        /// 上下文
+        /// </summary>
+        IAiContext IAiContext { get; set; }
     }
 }

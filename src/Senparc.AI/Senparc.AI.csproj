@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<Nullable>enable</Nullable>
+		<LangVersion>10.0</LangVersion>
 		<Version>0.1.0-beta01</Version>
 		<AssemblyName>Senparc.AI</AssemblyName>
 		<RootNamespace>Senparc.AI</RootNamespace>
