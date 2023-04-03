@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Nullable>enable</Nullable>
+		<Version>0.1.0-beta01</Version>
+		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
+		<RootNamespace>Senparc.AI.Kernel</RootNamespace>
+		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
+		<Description>
+			Senparc.AI 核心模块，目前为快速迭代，和 Senaprc.Weixin.AI 一起维护，V2.0 后期将独立项目
+			https://github.com/Senparc/Senaprc.Weixin.AI
+		</Description>
+		<Copyright>Senparc Copyright © 2004~2023</Copyright>
+		<PackageTags>
+			Senparc,AI,Kernel,C#,AIGC,AGI,LLM,emantic-kernel
+		</PackageTags>
+		<Authors>Jeffrey Su</Authors>
+		<Owners>Senparc</Owners>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<ProjectUrl>https://github.com/Senparc/Senparc.AI.Kernel</ProjectUrl>
+		<Title>Senparc.AI.Kernel.dll</Title>
+		<Summary>Senparc.AI 核心模块</Summary>
+		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI.Kernel</PackageProjectUrl>
+		<PackageIcon>icon.jpg</PackageIcon>
+		<PackageReleaseNotes>
+			v0.1.0 创世
+
+		</PackageReleaseNotes>
+		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
+		<Configurations>Debug;Release;Test</Configurations>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+		<OutputPath>..\..\BuildOutPut\</OutputPath>
+		<DocumentationFile>..\..\BuildOutPut\netstandard2.1\Senparc.AI.Kernel.xml</DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SemanticKernel" Version="0.9.61.1-preview" />
+		<PackageReference Include="Senparc.CO2NET" Version="2.1.7.3" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />
+	</ItemGroup>
+</Project>

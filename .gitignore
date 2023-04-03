@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+.vs/
+bin/
+obj/
+.user
+/BuildOutPut
+/.DS_Store
+appsettings.test.json
