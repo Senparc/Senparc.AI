@@ -25,7 +25,7 @@ namespace Senparc.AI.Kernel
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public ParameterConfig ParameterConfig { get; set; }
+        public PromptConfigParameter ParameterConfig { get; set; }
 
         /// <summary>
         /// иообнд

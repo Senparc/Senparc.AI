@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
     <ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />
   </ItemGroup>
 

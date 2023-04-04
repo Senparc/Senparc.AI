@@ -26,7 +26,7 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// 参数定义
         /// </summary>
-        ParameterConfig ParameterConfig { get; set; }
+        PromptConfigParameter ParameterConfig { get; set; }
         /// <summary>
         /// 上下文
         /// </summary>

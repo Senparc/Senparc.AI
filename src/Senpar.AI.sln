@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Senparc.AI.Tests", "Senparc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Senparc.AI.Kernel.Tests", "Senparc.AI.Kernel.Tests\Senparc.AI.Kernel.Tests.csproj", "{39F931E9-FF7A-4D62-87D2-6E4BF386C3BB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{758253C7-033C-4D73-B58A-BBB2EB57B873}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

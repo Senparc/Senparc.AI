@@ -1,10 +1,10 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
-using Senparc.AI.Helpers;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Entities;
+using Senparc.AI.Kernel.Helpers;
 using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel
@@ -12,7 +12,8 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// SenmanticKernel ´¦ÀíÆ÷
     /// </summary>
-    public class SemanticAiHandler : IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext, ContextVariables>
+    public class SemanticAiHandler : 
+        IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext, ContextVariables>
     {
         private readonly SemanticKernelHelper _skHandler;
         private readonly IKernel _kernel;
@@ -50,9 +51,9 @@ ChatBot:";
             {
                 Completion =
                         {
-                            MaxTokens = request.ParameterConfig.MaxTokens,
-                            Temperature = request.ParameterConfig.Temperature,
-                            TopP = request.ParameterConfig.TopP,
+                            MaxTokens = request.ParameterConfig.MaxTokens.Value,
+                            Temperature = request.ParameterConfig.Temperature.Value,
+                            TopP = request.ParameterConfig.TopP.Value,
                         }
             };
 
