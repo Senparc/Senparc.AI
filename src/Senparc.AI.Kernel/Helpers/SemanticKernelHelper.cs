@@ -2,7 +2,9 @@
 using Microsoft.SemanticKernel.AI.OpenAI.HttpSchema;
 using Microsoft.SemanticKernel.AI.OpenAI.Services;
 using Microsoft.SemanticKernel.Configuration;
+using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
+using Polly;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
@@ -12,6 +14,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel.Helpers
 {
@@ -179,19 +182,39 @@ namespace Senparc.AI.Kernel.Helpers
             return iWantToConfig;
         }
 
-        public static IWantTo RegisterSemanticFunction(this SemanticKernelHelper helper, PromptConfigParameter  promptConfigPara, string? modelName = null)
+        public static async Task<IWantTo> RegisterSemanticFunctionAsync(this SemanticKernelHelper helper, PromptConfigParameter promptConfigPara, string? skPrompt = null, string? modelName = null)
         {
+            skPrompt ??= skPrompt = @"
+ChatBot can have a conversation with you about any topic.
+It can give explicit instructions or say 'I don't know' if it does not have an answer.
+
+{{$history}}
+Human: {{$human_input}}
+ChatBot:";
+
             var promptConfig = new PromptTemplateConfig
             {
                 Completion =
                     {
-                        MaxTokens = 2000,
-                        Temperature = 0.7,
-                        TopP = 0.5,
+                             MaxTokens = promptConfigPara.MaxTokens.Value,
+                            Temperature = promptConfigPara.Temperature.Value,
+                            TopP = promptConfigPara.TopP.Value,
                     }
             };
 
+            var kernel = helper.GetKernel();
+            var promptTemplate = new PromptTemplate(skPrompt, promptConfig, kernel);
+            var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
+            var chatFunction = kernel.RegisterSemanticFunction("ChatBot", "Chat", functionConfig);
+
+            var context = new ContextVariables();
+            
+            var history = "";
+            context.Set("history", history);
+
             return new IWantTo(helper);
         }
+
+        //TODO: Run
     }
 }

@@ -12,7 +12,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// SenmanticKernel ´¦ÀíÆ÷
     /// </summary>
-    public class SemanticAiHandler : 
+    public class SemanticAiHandler :
         IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext, ContextVariables>
     {
         private readonly SemanticKernelHelper _skHandler;
