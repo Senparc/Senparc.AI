@@ -4,6 +4,7 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using Senparc.AI.Helpers;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
+using Senparc.AI.Kernel.Entities;
 using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel
@@ -11,7 +12,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// SenmanticKernel ´¦ÀíÆ÷
     /// </summary>
-    public class SemanticAiHandler : IAiHandler<SenparcAiResult>
+    public class SemanticAiHandler : IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext, ContextVariables>
     {
         private readonly SemanticKernelHelper _skHandler;
         private readonly IKernel _kernel;
@@ -27,7 +28,7 @@ namespace Senparc.AI.Kernel
         /// </summary>
         /// <param name="request"><inheritdoc/></param>
         /// <returns></returns>
-        public SenparcAiResult Run(IAiRequest request)
+        public SenparcAiResult Run(SenparcAiRequest request)
         {
             _skHandler.Config(request.UserId, request.ModelName, _kernel);
 
@@ -35,7 +36,7 @@ namespace Senparc.AI.Kernel
             return senparcAiResult;
         }
 
-        public async Task<SenparcAiResult> Chatasync(IAiRequest request, string skillName, string functionName, string skPrompt = null)
+        public async Task<SenparcAiResult> Chatasync(SenparcAiRequest request, string skillName, string functionName, string skPrompt = null)
         {
             skPrompt ??= @"
 ChatBot can have a conversation with you about any topic.
@@ -69,7 +70,7 @@ ChatBot:";
             {
                 Output = botAnswer.Result
             };
-
+            return result;
         }
     }
 

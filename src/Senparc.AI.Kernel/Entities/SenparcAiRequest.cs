@@ -8,7 +8,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public class SenparcAiRequest: IAiRequest
+    public class SenparcAiRequest: IAiRequest<ContextVariables>
     {
         /// <summary>
         /// <inheritdoc/>
