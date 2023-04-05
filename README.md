@@ -38,12 +38,10 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 Senparc.AI 使用了创新的对话式编程体验，您无需了解过多不同平台、SDK 的详细用法，只需要按照自己的想法进行定义和编程，最后接收结果，以目前最火的聊天场景（Chat）为例：
 
 ```C#
-//创建 AI Handler 处理器（也可以通过工厂依赖注入）
+// 创建 AI Handler 处理器（也可以通过工厂依赖注入）
 var handler = new SemanticAiHandler();
-var userId = "JeffreySu";//区分用户
-var modelName = "text-davinci-003";//默认使用模型
 
-//定义 AI 接口调用参数和 Token 限制等
+// 定义 AI 接口调用参数和 Token 限制等
 var promptParameter = new PromptConfigParameter()
 {
     MaxTokens = 2000,
@@ -51,15 +49,17 @@ var promptParameter = new PromptConfigParameter()
     TopP = 0.5,
 };
 
-//准备运行
+// 准备运行
+var userId = "JeffreySu";//区分用户
+var modelName = "text-davinci-003";//默认使用模型
 var iWantToRun = await handler.IWantTo()
                     .Config(userId, modelName)
                     .RegisterSemanticFunctionAsync(promptParameter);
 
+
+// 输入/提问并获取结果
 var prompt = "请问中国有多少人口？";
 var aiRequest = iWantToRun.GetRequest(prompt);
-
-//获取结果
 var aiResult = await iWantToRun.RunAsync(aiRequest);
 
 //aiResult.Result 结果：中国的人口约为13.8亿。
