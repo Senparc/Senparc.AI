@@ -79,6 +79,9 @@ namespace Senparc.AI.Kernel.Helpers
 
             var serviceId = GetServiceId(userId, modelName);
             var senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
+
+            //TODO:AddTextCompletion也要独立出来
+
             switch (senparcAiSetting.AiPlatform)
             {
                 case AiPlatform.OpenAI:

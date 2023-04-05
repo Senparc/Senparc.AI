@@ -20,8 +20,4 @@
     <ProjectReference Include="..\Senparc.AI.Tests\Senparc.AI.Tests.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Handlers\" />
-  </ItemGroup>
-
 </Project>

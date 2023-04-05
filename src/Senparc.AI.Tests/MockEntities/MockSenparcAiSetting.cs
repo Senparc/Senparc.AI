@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel.Tests.MockEntities
 {
-    public class MockSenparcAiSetting:ISenparcAiSetting
+    public class MockSenparcAiSetting : ISenparcAiSetting
     {
         /// <summary>
         /// <inheritdoc/>
@@ -38,5 +38,10 @@ namespace Senparc.AI.Kernel.Tests.MockEntities
         /// <inheritdoc/>
         /// </summary>
         public string OrgaizationId { get; set; }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public string AzureOpenAIApiVersion { get; set; }
     }
 }

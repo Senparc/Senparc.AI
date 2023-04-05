@@ -32,12 +32,12 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
 
-        public IWantTo Config(string userId, string modelName)
-        {
-            UserId = userId;
-            ModelName = modelName;
-            return this;
-        }
+        //public IWantTo Config(string userId, string modelName)
+        //{
+        //    UserId = userId;
+        //    ModelName = modelName;
+        //    return this;
+        //}
     }
 
     public class IWantToConfig
@@ -59,7 +59,7 @@ namespace Senparc.AI.Kernel.Handlers
         public SenparcAiContext AiContext { get; set; }
         public IWanToRun(IWantTo iWantTo)
         {
-            IWantTo = IWantTo;
+            IWantTo = iWantTo;
         }
     }
 }

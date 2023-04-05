@@ -10,6 +10,7 @@ namespace Senparc.AI.Kernel
     /// </summary>
     public class SenparcAiRequest: IAiRequest<ContextVariables>
     {
+
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
@@ -31,5 +32,15 @@ namespace Senparc.AI.Kernel
         /// иообнд
         /// </summary>
        public IAiContext<ContextVariables> IAiContext { get; set; }
+
+        public SenparcAiRequest(string userId, string modelName, string requestContent, PromptConfigParameter parameterConfig)
+        {
+            UserId = userId;
+            ModelName = modelName;
+            RequestContent = requestContent;
+            ParameterConfig = parameterConfig;
+            IAiContext = new SenparcAiContext();
+        }
+
     }
 }

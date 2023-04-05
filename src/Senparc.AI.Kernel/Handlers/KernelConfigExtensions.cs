@@ -116,9 +116,8 @@ ChatBot:";
             var botAnswer = await kernel.RunAsync(context, function);
 
             //获取历史信息
-            string history = string.Empty;
             var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
-            if (!context.Get(serviceId, out history))
+            if (!context.Get(serviceId, out string history))
             {
                 history = "";
             }
