@@ -76,8 +76,6 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         {
             //创建 AI Handler 处理器（也可以通过工厂依赖注入）
             var handler = new SemanticAiHandler();
-            var userId = "JeffreySu";//区分用户
-            var modelName = "text-davinci-003";//默认使用模型
 
             //定义 AI 接口调用参数和 Token 限制等
             var promptParameter = new PromptConfigParameter()
@@ -88,14 +86,15 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             };
 
             //准备运行
+            var userId = "JeffreySu";//区分用户
+            var modelName = "text-davinci-003";//默认使用模型
             var iWantToRun = await handler.IWantTo()
                                 .Config(userId, modelName)
                                 .RegisterSemanticFunctionAsync(promptParameter);
 
+            // 输入/提问并获取结果
             var prompt = "请问中国有多少人口？";
             var aiRequest = iWantToRun.GetRequest(prompt);
-
-            //获取结果
             var aiResult = await iWantToRun.RunAsync(aiRequest);
 
             //aiResult.Result 结果：中国的人口约为13.8亿。
