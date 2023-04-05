@@ -44,9 +44,9 @@ namespace Senparc.AI.Kernel
         public async Task<IWantToRun> ChatConfigAsync(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
         {
             var iWantToRun = await _skHandler
-                                        .IWantTo()
-                                        .Config("Jeffrey", "text-davinci-003")
-                                        .RegisterSemanticFunctionAsync(promptConfigParameter);
+                                    .IWantTo()
+                                    .Config("Jeffrey", "text-davinci-003")
+                                    .RegisterSemanticFunctionAsync(promptConfigParameter);
             return iWantToRun;
         }
 
@@ -59,7 +59,8 @@ namespace Senparc.AI.Kernel
             //    TopP = 0.5,
             //};
 
-            var aiResult = await iWantToRun.RunAsync(request.RequestContent/*"What's the population on the earth?"*/);
+            var aiResult = await iWantToRun
+                                    .RunAsync(request.RequestContent);
 
             return aiResult;
         }
