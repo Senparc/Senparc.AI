@@ -8,10 +8,12 @@ using Polly;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
+using Senparc.AI.Kernel.Entities;
 using Senparc.CO2NET;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -126,10 +128,23 @@ namespace Senparc.AI.Kernel.Helpers
     public class IWantToConfig
     {
         public IWantTo IWantTo { get; set; }
+        public string UserId { get; set; }
+        public string ModelName { get; set; }
 
         public IWantToConfig(IWantTo iWantTo)
         {
             IWantTo = iWantTo;
+        }
+    }
+
+    public class IWanToRun
+    {
+        public IWantTo IWantTo { get; set; }
+        public ISKFunction ISKFunction { get; set; }
+        public SenparcAiContext AiContext { get; set; }
+        public IWanToRun(IWantTo iWantTo)
+        {
+            IWantTo = IWantTo;
         }
     }
 
@@ -145,6 +160,8 @@ namespace Senparc.AI.Kernel.Helpers
         {
             var kernel = iWantTo.SemanticKernelHelper.Config(userId, modelName);
             iWantTo.Kernel = kernel;//进行 Config 必须提供 Kernel
+            iWantTo.UserId = userId;
+            iWantTo.ModelName = modelName;
             return new IWantToConfig(iWantTo);
         }
 
@@ -182,9 +199,9 @@ namespace Senparc.AI.Kernel.Helpers
             return iWantToConfig;
         }
 
-        public static async Task<IWantTo> RegisterSemanticFunctionAsync(this SemanticKernelHelper helper, PromptConfigParameter promptConfigPara, string? skPrompt = null, string? modelName = null)
+        public static async Task<IWanToRun> RegisterSemanticFunctionAsync(this IWantToConfig iWantToConfig, PromptConfigParameter promptConfigPara, string? skPrompt = null)
         {
-            skPrompt ??= skPrompt = @"
+            skPrompt ??= @"
 ChatBot can have a conversation with you about any topic.
 It can give explicit instructions or say 'I don't know' if it does not have an answer.
 
@@ -202,19 +219,58 @@ ChatBot:";
                     }
             };
 
+            var iWantTo = iWantToConfig.IWantTo;
+            var helper = iWantTo.SemanticKernelHelper;
             var kernel = helper.GetKernel();
             var promptTemplate = new PromptTemplate(skPrompt, promptConfig, kernel);
             var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
             var chatFunction = kernel.RegisterSemanticFunction("ChatBot", "Chat", functionConfig);
 
-            var context = new ContextVariables();
-            
-            var history = "";
-            context.Set("history", history);
+            var aiContext = new SenparcAiContext();
 
-            return new IWantTo(helper);
+            var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
+            var history = "";
+            aiContext.SubContext.Set(serviceId, history);
+
+            return new IWanToRun(new IWantTo(helper))
+            {
+                ISKFunction = chatFunction,
+                AiContext = aiContext
+            };
         }
 
-        //TODO: Run
+        public static async Task<SenparcAiResult> RunAsync(this IWanToRun iWanToRun, string prompt)
+        {
+            var helper = iWanToRun.IWantTo.SemanticKernelHelper;
+            var kernel = helper.Kernel;
+            var function = iWanToRun.ISKFunction;
+            var context = iWanToRun.AiContext.SubContext;
+            var iWantTo = iWanToRun.IWantTo;
+
+            //设置最新的人类对话
+            context.Set("human_input", prompt);
+
+            var botAnswer = await kernel.RunAsync(context, function);
+
+            //获取历史信息
+            string history = string.Empty;
+            var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
+            if (!context.Get(serviceId, out history))
+            {
+                history = "";
+            }
+            //添加新信息
+            history += $"\nHuman: {prompt}\nMelody: {botAnswer}\n";
+            //设置历史信息
+            context.Set("history", history);
+
+            var result = new SenparcAiResult()
+            {
+                Input = prompt,
+                Output = botAnswer.Result
+            };
+            return result;
+        }
     }
+
 }
