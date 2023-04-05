@@ -13,10 +13,23 @@ namespace Senparc.AI.Kernel.Handlers
 {
     public static class KernelConfigExtension
     {
-        public static IWantTo IWantTo(this SemanticKernelHelper sKHelper)
+        //public static IWantTo IWantTo(this SemanticKernelHelper sKHelper)
+        //{
+        //    var iWantTo = new IWantTo(sKHelper);
+        //    return iWantTo;
+        //}
+
+        public static IWantTo IWantTo(this SemanticAiHandler handler)
         {
-            var iWantTo = new IWantTo(sKHelper);
+            var iWantTo = new IWantTo(handler);
             return iWantTo;
+        }
+
+        public static SenparcAiRequest GetRequest(this IWantToRun iWantToRun, string requestContent)
+        {
+            var iWantTo = iWantToRun.IWantTo;
+            var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter);
+            return request;
         }
 
         public static IWantToConfig Config(this IWantTo iWantTo, string userId, string modelName)
@@ -84,6 +97,7 @@ ChatBot:";
 
             var iWantTo = iWantToConfig.IWantTo;
             var helper = iWantTo.SemanticKernelHelper;
+            var handler = iWantTo.SemanticAiHandler;
             var kernel = helper.GetKernel();
             var promptTemplate = new PromptTemplate(skPrompt, promptConfig, kernel);
             var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
@@ -96,20 +110,22 @@ ChatBot:";
             var history = "";
             aiContext.SubContext.Set(serviceId, history);
 
-            return new IWantToRun(new IWantTo(helper))
+            return new IWantToRun(new IWantTo(handler))
             {
                 ISKFunction = chatFunction,
-                AiContext = aiContext
+                AiContext = aiContext,
+                PromptConfigParameter = promptConfigPara
             };
         }
 
-        public static async Task<SenparcAiResult> RunAsync(this IWantToRun iWanToRun, string prompt)
+        public static async Task<SenparcAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
         {
             var helper = iWanToRun.IWantTo.SemanticKernelHelper;
             var kernel = helper.Kernel;
             var function = iWanToRun.ISKFunction;
             var context = iWanToRun.AiContext.SubContext;
             var iWantTo = iWanToRun.IWantTo;
+            var prompt = request.RequestContent;
 
             //设置最新的人类对话
             context.Set("human_input", prompt);

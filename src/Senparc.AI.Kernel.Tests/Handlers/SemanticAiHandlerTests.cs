@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Senparc.AI.Kernel.Handlers;
 
 namespace Senparc.AI.Kernel.Tests.Handlers
 {
@@ -68,6 +69,37 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             await Console.Out.WriteLineAsync($"第四轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
             await Console.Out.WriteLineAsync("Q: " + result.Input);
             await Console.Out.WriteLineAsync("A: " + result.Output);
+        }
+
+        [TestMethod]
+        public async Task ReadMeDemoTest()
+        {
+            //创建 AI Handler 处理器（也可以通过工厂依赖注入）
+            var handler = new SemanticAiHandler();
+            var userId = "JeffreySu";//区分用户
+            var modelName = "text-davinci-003";//默认使用模型
+
+            //定义 AI 接口调用参数和 Token 限制等
+            var promptParameter = new PromptConfigParameter()
+            {
+                MaxTokens = 2000,
+                Temperature = 0.7,
+                TopP = 0.5,
+            };
+
+            //准备运行
+            var iWantToRun = await handler.IWantTo()
+                                .Config(userId, modelName)
+                                .RegisterSemanticFunctionAsync(promptParameter);
+
+            var prompt = "请问中国有多少人口？";
+            var aiRequest = iWantToRun.GetRequest(prompt);
+
+            //获取结果
+            var aiResult = await iWantToRun.RunAsync(aiRequest);
+
+            //aiResult.Result 结果：中国的人口约为13.8亿。
+            await Console.Out.WriteLineAsync(aiResult.ToJson(true));
         }
     }
 }

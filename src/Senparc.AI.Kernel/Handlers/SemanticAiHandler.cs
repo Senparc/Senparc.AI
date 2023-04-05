@@ -17,13 +17,13 @@ namespace Senparc.AI.Kernel
     public class SemanticAiHandler :
         IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext, ContextVariables>
     {
-        private readonly SemanticKernelHelper _skHandler;
+        public SemanticKernelHelper SemanticKernelHelper { get; set; }
         private readonly IKernel _kernel;
 
-        public SemanticAiHandler(SemanticKernelHelper semanticAiHandler = null)
+        public SemanticAiHandler(SemanticKernelHelper semanticAiHelper = null)
         {
-            _skHandler = semanticAiHandler ?? new SemanticKernelHelper();
-            _kernel = _skHandler.GetKernel();
+            SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper();
+            _kernel = SemanticKernelHelper.GetKernel();
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Senparc.AI.Kernel
         public SenparcAiResult Run(SenparcAiRequest request)
         {
             //TODO:此方法暂时还不能用
-            _skHandler.Config(request.UserId, request.ModelName, _kernel);
+            SemanticKernelHelper.Config(request.UserId, request.ModelName, _kernel);
 
             var senparcAiResult = new SenparcAiResult();
             return senparcAiResult;
@@ -43,9 +43,8 @@ namespace Senparc.AI.Kernel
 
         public async Task<IWantToRun> ChatConfigAsync(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
         {
-            var iWantToRun = await _skHandler
-                                    .IWantTo()
-                                    .Config("Jeffrey", "text-davinci-003")
+            var iWantToRun = await this.IWantTo()
+                                    .Config(userId, modelName)
                                     .RegisterSemanticFunctionAsync(promptConfigParameter);
             return iWantToRun;
         }
@@ -59,8 +58,7 @@ namespace Senparc.AI.Kernel
             //    TopP = 0.5,
             //};
 
-            var aiResult = await iWantToRun
-                                    .RunAsync(request.RequestContent);
+            var aiResult = await iWantToRun.RunAsync(request);
 
             return aiResult;
         }
