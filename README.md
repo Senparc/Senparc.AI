@@ -66,9 +66,11 @@ var prompt = "请问中国有多少人口？";
 var aiRequest = iWantToRun.GetRequest(prompt);
 var aiResult = await iWantToRun.RunAsync(aiRequest);
 
-//aiResult.Result 结果：中国的人口约为13.8亿。
-await Console.Out.WriteLineAsync(aiResult.ToJson(true));
+//aiResult.Output 结果：中国的人口约为13.8亿。
 ```
+
+<img width="623" alt="image" src="https://user-images.githubusercontent.com/2281927/230152103-3486fbfc-2426-407c-bcb6-74d4485eaf91.png">
+
 
 ## TODO:
 1. 实现更多模型和模式的匹配。
