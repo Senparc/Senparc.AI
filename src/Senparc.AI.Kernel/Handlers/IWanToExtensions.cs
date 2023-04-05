@@ -51,12 +51,12 @@ namespace Senparc.AI.Kernel.Handlers
         }
     }
 
-    public class IWanToRun
+    public class IWantToRun
     {
         public IWantTo IWantTo { get; set; }
         public ISKFunction ISKFunction { get; set; }
         public SenparcAiContext AiContext { get; set; }
-        public IWanToRun(IWantTo iWantTo)
+        public IWantToRun(IWantTo iWantTo)
         {
             IWantTo = iWantTo;
         }

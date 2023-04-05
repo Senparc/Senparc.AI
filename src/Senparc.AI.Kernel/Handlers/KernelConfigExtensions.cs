@@ -62,7 +62,7 @@ namespace Senparc.AI.Kernel.Handlers
             return iWantToConfig;
         }
 
-        public static async Task<IWanToRun> RegisterSemanticFunctionAsync(this IWantToConfig iWantToConfig, PromptConfigParameter promptConfigPara, string? skPrompt = null)
+        public static async Task<IWantToRun> RegisterSemanticFunctionAsync(this IWantToConfig iWantToConfig, PromptConfigParameter promptConfigPara, string? skPrompt = null)
         {
             skPrompt ??= @"
 ChatBot can have a conversation with you about any topic.
@@ -96,14 +96,14 @@ ChatBot:";
             var history = "";
             aiContext.SubContext.Set(serviceId, history);
 
-            return new IWanToRun(new IWantTo(helper))
+            return new IWantToRun(new IWantTo(helper))
             {
                 ISKFunction = chatFunction,
                 AiContext = aiContext
             };
         }
 
-        public static async Task<SenparcAiResult> RunAsync(this IWanToRun iWanToRun, string prompt)
+        public static async Task<SenparcAiResult> RunAsync(this IWantToRun iWanToRun, string prompt)
         {
             var helper = iWanToRun.IWantTo.SemanticKernelHelper;
             var kernel = helper.Kernel;

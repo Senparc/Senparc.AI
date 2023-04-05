@@ -20,9 +20,9 @@ namespace Senparc.AI.Kernel
         private readonly SemanticKernelHelper _skHandler;
         private readonly IKernel _kernel;
 
-        public SemanticAiHandler(SemanticKernelHelper semanticAiHandler=null)
+        public SemanticAiHandler(SemanticKernelHelper semanticAiHandler = null)
         {
-            _skHandler = semanticAiHandler?? new SemanticKernelHelper();
+            _skHandler = semanticAiHandler ?? new SemanticKernelHelper();
             _kernel = _skHandler.GetKernel();
         }
 
@@ -33,44 +33,35 @@ namespace Senparc.AI.Kernel
         /// <returns></returns>
         public SenparcAiResult Run(SenparcAiRequest request)
         {
+            //TODO:此方法暂时还不能用
             _skHandler.Config(request.UserId, request.ModelName, _kernel);
 
             var senparcAiResult = new SenparcAiResult();
             return senparcAiResult;
         }
 
-        public async Task<SenparcAiResult> ChatAsync(SenparcAiRequest request, string skillName, string functionName, string skPrompt = null)
-        {
-            var parameter = new PromptConfigParameter()
-            {
-                MaxTokens = 2000,
-                Temperature = 0.7,
-                TopP = 0.5,
-            };
 
-           var aiResult = _skHandler
-                       .IWantTo()
-                       .Config("Jeffrey", "text-davinci-003")
-                       .RegisterSemanticFunctionAsync(parameter).GetAwaiter().GetResult()
-                       .RunAsync("What's the population on the earth?").GetAwaiter().GetResult();
+        public async Task<IWantToRun> ChatConfigAsync(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
+        {
+            var iWantToRun = await _skHandler
+                                        .IWantTo()
+                                        .Config("Jeffrey", "text-davinci-003")
+                                        .RegisterSemanticFunctionAsync(promptConfigParameter);
+            return iWantToRun;
+        }
+
+        public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, SenparcAiRequest request/*, string skillName, string functionName, string skPrompt = null*/)
+        {
+            //var parameter = new PromptConfigParameter()
+            //{
+            //    MaxTokens = 2000,
+            //    Temperature = 0.7,
+            //    TopP = 0.5,
+            //};
+
+            var aiResult = await iWantToRun.RunAsync(request.RequestContent/*"What's the population on the earth?"*/);
 
             return aiResult;
-
-            //var promptTemplate = new PromptTemplate(skPrompt, promptConfig, _kernel);
-            //var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
-
-            //var chatFunction = _kernel.RegisterSemanticFunction(skillName, functionName, functionConfig);
-
-            //var subRequest = request as SenparcAiRequest;
-            //var context = subRequest.IAiContext;
-
-            //var botAnswer = await _kernel.RunAsync(context.SubContext, chatFunction);
-
-            //var result = new SenparcAiResult()
-            //{
-            //    Output = botAnswer.Result
-            //};
-            //return result;
         }
     }
 
