@@ -45,7 +45,7 @@ namespace Senparc.AI.Kernel
         {
             var iWantToRun = await _skHandler
                                     .IWantTo()
-                                    .Config("Jeffrey", "text-davinci-003")
+                                    .Config(userId, modelName)
                                     .RegisterSemanticFunctionAsync(promptConfigParameter);
             return iWantToRun;
         }
