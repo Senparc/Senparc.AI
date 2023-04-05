@@ -5,6 +5,7 @@ using Senparc.AI.Kernel.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Senparc.AI.Entities;
 
 namespace Senparc.AI.Kernel.Handlers
 {
@@ -14,6 +15,7 @@ namespace Senparc.AI.Kernel.Handlers
         public IKernel Kernel { get; set; }
         public KernelConfig KernelConfig { get; set; }
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
+        public SemanticAiHandler SemanticAiHandler { get; set; }
 
         public string UserId { get; set; }
         public string ModelName { get; set; }
@@ -25,9 +27,10 @@ namespace Senparc.AI.Kernel.Handlers
             KernelConfig = kernelConfig;
         }
 
-        public IWantTo(SemanticKernelHelper semanticKernelHelper)
+        public IWantTo(SemanticAiHandler handler)
         {
-            SemanticKernelHelper = semanticKernelHelper;
+            SemanticAiHandler = handler;
+            SemanticKernelHelper = handler.SemanticKernelHelper;
         }
 
 
@@ -56,6 +59,7 @@ namespace Senparc.AI.Kernel.Handlers
         public IWantTo IWantTo { get; set; }
         public ISKFunction ISKFunction { get; set; }
         public SenparcAiContext AiContext { get; set; }
+        public PromptConfigParameter PromptConfigParameter { get; set; }
         public IWantToRun(IWantTo iWantTo)
         {
             IWantTo = iWantTo;
