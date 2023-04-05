@@ -1,7 +1,4 @@
 ﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI.OpenAI.HttpSchema;
-using Microsoft.SemanticKernel.AI.OpenAI.Services;
-using Microsoft.SemanticKernel.Configuration;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using Polly;
@@ -85,10 +82,10 @@ namespace Senparc.AI.Kernel.Helpers
             switch (senparcAiSetting.AiPlatform)
             {
                 case AiPlatform.OpenAI:
-                    kernel.Config.AddAzureOpenAITextCompletion(serviceId, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey);
+                    kernel.Config.AddOpenAITextCompletionService(serviceId, modelName, senparcAiSetting.ApiKey, senparcAiSetting.OrgaizationId);
                     break;
                 case AiPlatform.AzureOpenAI:
-                    kernel.Config.AddOpenAITextCompletion(serviceId, modelName, senparcAiSetting.ApiKey, senparcAiSetting.OrgaizationId);
+                    kernel.Config.AddAzureOpenAITextCompletionService(serviceId, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey);
                     break;
                 default:
                     throw new Senparc.AI.Exceptions.SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{senparcAiSetting.AiPlatform}");

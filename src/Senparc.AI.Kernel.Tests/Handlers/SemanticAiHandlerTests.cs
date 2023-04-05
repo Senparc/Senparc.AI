@@ -34,6 +34,9 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             Console.WriteLine(result.ToJson(true));
             Assert.IsNotNull(result.Output);
 
+            Assert.IsTrue(result.Output.Length > 0);
+            Assert.IsTrue(result.LastException == null);
+
         }
     }
 }

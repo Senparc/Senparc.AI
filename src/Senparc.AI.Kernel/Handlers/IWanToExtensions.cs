@@ -1,5 +1,4 @@
-﻿using Microsoft.SemanticKernel.Configuration;
-using Microsoft.SemanticKernel.Orchestration;
+﻿using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Helpers;

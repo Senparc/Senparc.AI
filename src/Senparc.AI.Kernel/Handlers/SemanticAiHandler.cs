@@ -48,7 +48,8 @@ namespace Senparc.AI.Kernel
                 TopP = 0.5,
             };
 
-           var aiResult = _skHandler.IWantTo()
+           var aiResult = _skHandler
+                       .IWantTo()
                        .Config("Jeffrey", "text-davinci-003")
                        .RegisterSemanticFunctionAsync(parameter).GetAwaiter().GetResult()
                        .RunAsync("What's the population on the earth?").GetAwaiter().GetResult();

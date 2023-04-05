@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticKernel.AI.OpenAI.Services;
+﻿using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
@@ -47,7 +47,7 @@ namespace Senparc.AI.Kernel.Handlers
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
-            kernel.Config.AddTextCompletion(serviceId, k =>
+            kernel.Config.AddTextCompletionService(serviceId, k =>
                 aiPlatForm switch
                 {
                     AiPlatform.OpenAI => new OpenAITextCompletion(modelName, aiSetting.ApiKey, aiSetting.OrgaizationId),
@@ -76,9 +76,9 @@ ChatBot:";
             {
                 Completion =
                     {
-                             MaxTokens = promptConfigPara.MaxTokens.Value,
-                            Temperature = promptConfigPara.Temperature.Value,
-                            TopP = promptConfigPara.TopP.Value,
+                        MaxTokens = promptConfigPara.MaxTokens.Value,
+                        Temperature = promptConfigPara.Temperature.Value,
+                        TopP = promptConfigPara.TopP.Value,
                     }
             };
 
@@ -87,6 +87,7 @@ ChatBot:";
             var kernel = helper.GetKernel();
             var promptTemplate = new PromptTemplate(skPrompt, promptConfig, kernel);
             var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
+            //TODO:提供自定义的skillName和functionName
             var chatFunction = kernel.RegisterSemanticFunction("ChatBot", "Chat", functionConfig);
 
             var aiContext = new SenparcAiContext();
@@ -129,7 +130,8 @@ ChatBot:";
             var result = new SenparcAiResult()
             {
                 Input = prompt,
-                Output = botAnswer.Result
+                Output = botAnswer.Result,
+                LastException = botAnswer.LastException
             };
             return result;
         }
