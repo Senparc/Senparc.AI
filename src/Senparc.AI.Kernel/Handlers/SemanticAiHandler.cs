@@ -34,7 +34,7 @@ namespace Senparc.AI.Kernel
         public SenparcAiResult Run(SenparcAiRequest request)
         {
             //TODO:此方法暂时还不能用
-            SemanticKernelHelper.Config(request.UserId, request.ModelName, _kernel);
+            SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, _kernel);
 
             var senparcAiResult = new SenparcAiResult();
             return senparcAiResult;
@@ -44,7 +44,7 @@ namespace Senparc.AI.Kernel
         public async Task<IWantToRun> ChatConfigAsync(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
         {
             var iWantToRun = await this.IWantTo()
-                                    .Config(userId, modelName)
+                                    .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                                     .RegisterSemanticFunctionAsync(promptConfigParameter);
             return iWantToRun;
         }

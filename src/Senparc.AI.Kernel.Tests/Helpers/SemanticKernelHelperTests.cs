@@ -56,7 +56,7 @@ namespace Senparc.AI.Kernel.Tests.Helpers
         public void ConfigTest()
         {
             var helper = new SemanticKernelHelper();
-            var kernel = helper.Config("Jeffrey", "text-davinci-003",null);
+            var kernel = helper.ConfigTextCompletion("Jeffrey", "text-davinci-003",null);
             Assert.IsNotNull(kernel);
         }
 

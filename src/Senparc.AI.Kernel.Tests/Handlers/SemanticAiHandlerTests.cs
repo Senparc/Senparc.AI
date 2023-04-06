@@ -89,7 +89,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             var userId = "JeffreySu";//区分用户
             var modelName = "text-davinci-003";//默认使用模型
             var iWantToRun = await handler.IWantTo()
-                                .Config(userId, modelName)
+                                .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                                 .RegisterSemanticFunctionAsync(promptParameter);
 
             // 输入/提问并获取结果

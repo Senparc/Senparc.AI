@@ -32,9 +32,14 @@ namespace Senparc.AI.Kernel.Handlers
             return request;
         }
 
-        public static IWantToConfig Config(this IWantTo iWantTo, string userId, string modelName)
+        public static IWantToConfig ConfigModel(this IWantTo iWantTo, ConfigModel configModel, string userId, string modelName)
         {
-            var kernel = iWantTo.SemanticKernelHelper.Config(userId, modelName);
+            var kernel = configModel switch
+            {
+                AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName),
+                AI.ConfigModel.Embedding => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName),
+                _ => throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel)
+            }; ;
             iWantTo.Kernel = kernel;//进行 Config 必须提供 Kernel
             iWantTo.UserId = userId;
             iWantTo.ModelName = modelName;
@@ -67,13 +72,14 @@ namespace Senparc.AI.Kernel.Handlers
 
                     AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, aiSetting.AzureEndpoint, aiSetting.ApiKey, aiSetting.AzureOpenAIApiVersion),
 
-                    _ =>
-                        throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                    _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
                 }
             );
 
             return iWantToConfig;
         }
+
+
 
         public static async Task<IWantToRun> RegisterSemanticFunctionAsync(this IWantToConfig iWantToConfig, PromptConfigParameter promptConfigPara, string? skPrompt = null)
         {

@@ -14,4 +14,13 @@ namespace Senparc.AI
         OpenAI = 2,
         AzureOpenAI = 4
     }
+
+    /// <summary>
+    /// 配置模型类型
+    /// </summary>
+    public enum ConfigModel
+    {
+        TextCompletion,
+        Embedding,
+    }
 }
