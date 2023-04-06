@@ -211,12 +211,16 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             var h = 0;
             await foreach (MemoryQueryResult memory in memories.Result.MemoryQueryResult)
             {
-                Console.WriteLine($"Result {++h}:");
-                Console.WriteLine("  URL:\t\t\t" + memory.Metadata.Id?.Trim());
-                Console.WriteLine("  Description:\t" + memory.Metadata.Description);
-                Console.WriteLine("  Text:\t\t\t" + memory.Metadata.Text);
-                Console.WriteLine("  Relevance:\t" + memory.Relevance);
-                Console.WriteLine();
+                await Console.Out.WriteLineAsync($"Result {++h}:");
+                await Console.Out.WriteLineAsync("  URL:\t\t\t" + memory.Metadata.Id?.Trim());
+                await Console.Out.WriteLineAsync("  Description:\t" + memory.Metadata.Description);
+                await Console.Out.WriteLineAsync("  Text:\t\t\t" + memory.Metadata.Text);
+                await Console.Out.WriteLineAsync("  Relevance:\t" + memory.Relevance);
+                await Console.Out.WriteLineAsync();
+            }
+            if (h == 0)
+            {
+                await Console.Out.WriteLineAsync("没有匹配结果");
             }
             await Console.Out.WriteLineAsync($" -- query cost:{SystemTime.DiffTotalMS(dt4)}ms");
 
