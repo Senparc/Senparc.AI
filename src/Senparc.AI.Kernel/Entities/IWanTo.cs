@@ -9,7 +9,6 @@ using Senparc.AI.Entities;
 
 namespace Senparc.AI.Kernel.Handlers
 {
-
     public class IWantTo
     {
         public IKernel Kernel { get; set; }

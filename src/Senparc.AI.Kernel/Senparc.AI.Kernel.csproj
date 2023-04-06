@@ -35,7 +35,11 @@
 		<DocumentationFile>..\..\BuildOutPut\netstandard2.1\Senparc.AI.Kernel.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Handlers\KernelConfigExtensions.Function.cs" />
+	</ItemGroup>
+	<ItemGroup>
 		<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
+		<None Include="KernelConfigExtensions\KernelConfigExtensions.Function.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SemanticKernel" Version="0.10.72.1-preview" />
