@@ -5,12 +5,15 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 ## 项目介绍
 
 `Senparc.AI` 为所有标准接口和基础功能的基础模块
+
 `Senparc.AI.Kernel` 为基于 Senparc.AI 标准，使用 [SemanticKernel](https://github.com/microsoft/semantic-kernel) 实现的接口调用，可以实现即插即用。
 
 ## 开发过程
 
 ### 第一步：配置账号
+
 在 appsettings.json 中配置 OpenAI 或 Azure OpenAI 的接口信息，如：
+
 ```
   //CO2NET 设置
   "SenparcSetting": {
@@ -27,6 +30,7 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
     "AzureOpenAIApiVersion": "2022-12-01"
   },
 ```
+
 其中：`AiPlatform` 目前可选值为 `OpenAI` 或 `AzureOpenAI`，分别对应 OpenAI.com 官方接口，以及基于微软 Azure 的 Azure OpenAI 接口，系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
 
 仅当 `AiPlatform` 设置为 `OpenAI` 时，才需要设置 `OrgaizationId` 参数。
@@ -62,9 +66,11 @@ var prompt = "请问中国有多少人口？";
 var aiRequest = iWantToRun.GetRequest(prompt);
 var aiResult = await iWantToRun.RunAsync(aiRequest);
 
-//aiResult.Result 结果：中国的人口约为13.8亿。
-await Console.Out.WriteLineAsync(aiResult.ToJson(true));
+//aiResult.Output 结果：中国的人口约为13.8亿。
 ```
+
+<img width="623" alt="image" src="https://user-images.githubusercontent.com/2281927/230152103-3486fbfc-2426-407c-bcb6-74d4485eaf91.png">
+
 
 ## TODO:
 1. 实现更多模型和模式的匹配。
