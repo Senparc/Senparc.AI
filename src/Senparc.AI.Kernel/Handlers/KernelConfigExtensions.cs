@@ -3,11 +3,14 @@ using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
+using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel.Handlers
@@ -144,7 +147,7 @@ ChatBot:";
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWantTo.SemanticKernelHelper;
-            var kernel = helper.Kernel;
+            var kernel = helper.GetKernel();
             var function = iWanToRun.ISKFunction;
             var context = iWanToRun.AiContext.SubContext;
             var prompt = request.RequestContent;
@@ -172,6 +175,63 @@ ChatBot:";
                 LastException = botAnswer.LastException
             };
             return result;
+        }
+
+        public static IWantToRun MemorySaveInformation(this IWantToRun iWantToRun,
+            string collection,
+            string text,
+            string id,
+            string? description = null,
+            CancellationToken cancel = default)
+        {
+            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
+            var helper = handler.SemanticKernelHelper;
+            //var kernel = helper.GetKernel();
+            var memory = helper.GetMemory();
+            var task = helper.MemorySaveInformationAsync(memory, collection, text, id, description, cancel);
+            helper.AddMemory(task);
+
+            return iWantToRun;
+        }
+
+        public static IWantToRun MemoryStoreExexute(this IWantToRun iWantToRun)
+        {
+            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
+            var helper = handler.SemanticKernelHelper;
+            helper.ExecuteMemory();
+            return iWantToRun;
+        }
+
+        /// <summary>
+        /// Memory 查询
+        /// </summary>
+        /// <param name="iWantToRun"></param>
+        /// <param name="collection">Collection to search</param>
+        /// <param name="query">What to search for</param>
+        /// <param name="limit">How many results to return</param>
+        /// <param name="minRelevanceScore">Minimum relevance score, from 0 to 1, where 1 means exact match.</param>
+        /// <param name="cancel">Cancellation token</param>
+        /// <returns>Memories found</returns>
+        /// <returns></returns>
+        public static async Task<SenaprcAiResult_MemoryQuery> MemorySearchAsync(this IWantToRun iWantToRun,
+            string memoryCollectionName,
+            string query,
+            int limit = 1,
+            double minRelevanceScore = 0.7,
+            CancellationToken cancel = default)
+        {
+            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
+            var helper = handler.SemanticKernelHelper;
+            var kernel = helper.GetKernel();
+            var memory = helper.GetMemory();
+            var queryResult = memory.SearchAsync(memoryCollectionName, query, limit, minRelevanceScore, cancel);
+
+            var aiResult = new SenaprcAiResult_MemoryQuery()
+            {
+                Input = query,
+                MemoryQueryResult = queryResult,
+            };
+            return aiResult;
         }
     }
 

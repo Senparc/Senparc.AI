@@ -7,6 +7,7 @@ using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.Helpers;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel
@@ -19,6 +20,8 @@ namespace Senparc.AI.Kernel
     {
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         private IKernel _kernel => SemanticKernelHelper.GetKernel();
+
+
 
         public SemanticAiHandler(SemanticKernelHelper semanticAiHelper = null)
         {
@@ -56,6 +59,8 @@ namespace Senparc.AI.Kernel
             var aiResult = await iWantToRun.RunAsync(request);
             return aiResult;
         }
+
+
     }
 
 }

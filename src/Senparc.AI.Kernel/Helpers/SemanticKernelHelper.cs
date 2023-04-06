@@ -1,6 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI.TextEmbedding;
+using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using Polly;
@@ -16,6 +17,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel.Helpers
@@ -25,9 +27,12 @@ namespace Senparc.AI.Kernel.Helpers
     /// </summary>
     public class SemanticKernelHelper
     {
-        internal IKernel Kernel { get; set; }
+        private IKernel Kernel { get; set; }
         //internal KernelBuilder KernelBuilder { get; set; }
         internal ISenparcAiSetting AiSetting { get; }
+
+        private List<Task> _memoryExecuteList = new List<Task>();
+
 
         public SemanticKernelHelper(ISenparcAiSetting aiSetting = null)
         {
@@ -64,6 +69,21 @@ namespace Senparc.AI.Kernel.Helpers
                 Kernel = kernelBuilder.Build();
             }
             return Kernel;
+        }
+
+        /// <summary>
+        /// 获取 Kernel.Memory 对象
+        /// </summary>
+        /// <returns></returns>
+        public ISemanticTextMemory GetMemory()
+        {
+            var kernel = GetKernel();
+            if (kernel.Memory == null)
+            {
+                kernel.UseMemory(new VolatileMemoryStore());
+            }
+
+            return kernel.Memory;
         }
 
         /// <summary>
@@ -128,7 +148,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="kernel"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public KernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName, KernelBuilder? kernelBuilder=null)
+        public KernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName, KernelBuilder? kernelBuilder = null)
         {
             //kernel ??= GetKernel();
 
@@ -159,6 +179,74 @@ namespace Senparc.AI.Kernel.Helpers
 
             return kernelBuilder;
         }
+
+        #region Memory 相关
+
+        /// <summary>
+        /// Save some information into the semantic memory, keeping only a reference to the source information.
+        /// </summary>
+        /// <param name="memory">ISemanticTextMemory 对象</param>
+        /// <param name="collection">Collection where to save the information</param>
+        /// <param name="text">Information to save</param>
+        /// <param name="externalId">Unique identifier, e.g. URL or GUID to the original source</param>
+        /// <param name="externalSourceName">Name of the external service, e.g. "MSTeams", "GitHub", "WebSite", "Outlook IMAP", etc.</param>
+        /// <param name="description">Optional description</param>
+        /// <param name="cancel">Cancellation token</param>
+        /// <returns></returns>
+        public async Task MemorySaveReferenceAsync(ISemanticTextMemory memory,
+            string collection,
+            string text,
+            string externalId,
+            string externalSourceName,
+            string? description = null,
+            CancellationToken cancel = default)
+        {
+            await memory.SaveReferenceAsync(collection, text, externalId, externalSourceName, description, cancel);
+        }
+
+        /// <summary>
+        /// Save some information into the semantic memory, keeping a copy of the source information.
+        /// </summary>
+        /// <param name="memory">ISemanticTextMemory 对象</param>
+        /// <param name="collection">Collection where to save the information</param>
+        /// <param name="id">Unique identifier</param>
+        /// <param name="text">Information to save</param>
+        /// <param name="description">Optional description</param>
+        /// <param name="cancel">Cancellation token</param>        /// <returns></returns>
+        public async Task MemorySaveInformationAsync(ISemanticTextMemory memory,
+            string collection,
+            string text,
+            string id,
+            string? description = null,
+            CancellationToken cancel = default)
+        {
+            await memory.SaveInformationAsync(collection, text, id, description, cancel);
+        }
+
+        /// <summary>
+        /// 添加 Memory 操作
+        /// </summary>
+        /// <param name="task"></param>
+        public void AddMemory(Task task)
+        {
+            _memoryExecuteList.Add(task);
+        }
+
+        /// <summary>
+        /// 执行 Memory 操作，并等待
+        /// </summary>
+        public void ExecuteMemory()
+        {
+            foreach (var task in _memoryExecuteList)
+            {
+                Task.Run(() => task);
+            }
+
+            Task.WaitAll(_memoryExecuteList.ToArray());
+            _memoryExecuteList.Clear();
+        }
+
+        #endregion
     }
 
 }
