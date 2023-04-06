@@ -21,6 +21,6 @@ namespace Senparc.AI
     public enum ConfigModel
     {
         TextCompletion,
-        Embedding,
+        TextEmbedding,
     }
 }

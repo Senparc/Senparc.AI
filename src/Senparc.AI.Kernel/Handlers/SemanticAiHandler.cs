@@ -18,12 +18,11 @@ namespace Senparc.AI.Kernel
         IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext, ContextVariables>
     {
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
-        private readonly IKernel _kernel;
+        private IKernel _kernel => SemanticKernelHelper.GetKernel();
 
         public SemanticAiHandler(SemanticKernelHelper semanticAiHelper = null)
         {
             SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper();
-            _kernel = SemanticKernelHelper.GetKernel();
         }
 
         /// <summary>
@@ -45,21 +44,14 @@ namespace Senparc.AI.Kernel
         {
             var iWantToRun = await this.IWantTo()
                                     .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                                    .BuildKernel()
                                     .RegisterSemanticFunctionAsync(promptConfigParameter);
             return iWantToRun;
         }
 
-        public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, SenparcAiRequest request/*, string skillName, string functionName, string skPrompt = null*/)
+        public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, SenparcAiRequest request)
         {
-            //var parameter = new PromptConfigParameter()
-            //{
-            //    MaxTokens = 2000,
-            //    Temperature = 0.7,
-            //    TopP = 0.5,
-            //};
-
             var aiResult = await iWantToRun.RunAsync(request);
-
             return aiResult;
         }
     }

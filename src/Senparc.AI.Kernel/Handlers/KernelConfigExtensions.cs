@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel.Handlers
 {
+    /// <summary>
+    /// Kernel 及模型设置的扩展类
+    /// </summary>
     public static class KernelConfigExtension
     {
         //public static IWantTo IWantTo(this SemanticKernelHelper sKHelper)
@@ -19,31 +22,40 @@ namespace Senparc.AI.Kernel.Handlers
         //    return iWantTo;
         //}
 
-        public static IWantTo IWantTo(this SemanticAiHandler handler)
+        public static IWantToConfig IWantTo(this SemanticAiHandler handler)
         {
-            var iWantTo = new IWantTo(handler);
+            var iWantTo = new IWantToConfig(new IWantTo(handler));
             return iWantTo;
         }
 
         public static SenparcAiRequest GetRequest(this IWantToRun iWantToRun, string requestContent)
         {
-            var iWantTo = iWantToRun.IWantTo;
+            var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
             var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter);
             return request;
         }
 
-        public static IWantToConfig ConfigModel(this IWantTo iWantTo, ConfigModel configModel, string userId, string modelName)
+        public static IWantToBuild ConfigModel(this IWantToConfig iWantToConfig, ConfigModel configModel, string userId, string modelName)
         {
-            var kernel = configModel switch
+            var iWantTo = iWantToConfig.IWantTo;
+            var kernelBuilder = configModel switch
             {
                 AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName),
-                AI.ConfigModel.Embedding => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName),
+                AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName),
                 _ => throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel)
-            }; ;
-            iWantTo.Kernel = kernel;//进行 Config 必须提供 Kernel
+            };
+            iWantTo.KernelBuilder = kernelBuilder;//进行 Config 必须提供 Kernel
             iWantTo.UserId = userId;
             iWantTo.ModelName = modelName;
-            return new IWantToConfig(iWantTo);
+            return new IWantToBuild(iWantToConfig);
+        }
+
+        public static IWantToRun BuildKernel(this IWantToBuild iWantToBuild)
+        {
+            var iWantTo = iWantToBuild.IWantToConfig.IWantTo;
+            var handler = iWantTo.SemanticKernelHelper;
+            handler.BuildKernel(iWantTo.KernelBuilder);
+            return new IWantToRun(iWantToBuild);
         }
 
         /// <summary>
@@ -81,7 +93,7 @@ namespace Senparc.AI.Kernel.Handlers
 
 
 
-        public static async Task<IWantToRun> RegisterSemanticFunctionAsync(this IWantToConfig iWantToConfig, PromptConfigParameter promptConfigPara, string? skPrompt = null)
+        public static async Task<IWantToRun> RegisterSemanticFunctionAsync(this IWantToRun iWantToRun, PromptConfigParameter promptConfigPara, string? skPrompt = null)
         {
             skPrompt ??= @"
 ChatBot can have a conversation with you about any topic.
@@ -101,7 +113,8 @@ ChatBot:";
                     }
             };
 
-            var iWantTo = iWantToConfig.IWantTo;
+
+            var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWantTo.SemanticKernelHelper;
             var handler = iWantTo.SemanticAiHandler;
             var kernel = helper.GetKernel();
@@ -116,21 +129,21 @@ ChatBot:";
             var history = "";
             aiContext.SubContext.Set(serviceId, history);
 
-            return new IWantToRun(new IWantTo(handler))
-            {
-                ISKFunction = chatFunction,
-                AiContext = aiContext,
-                PromptConfigParameter = promptConfigPara
-            };
+            iWantToRun.ISKFunction = chatFunction;
+            iWantToRun.AiContext = aiContext;
+            iWantToRun.PromptConfigParameter = promptConfigPara;
+
+            return iWantToRun;
+
         }
 
         public static async Task<SenparcAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
         {
-            var helper = iWanToRun.IWantTo.SemanticKernelHelper;
+            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
+            var helper = iWantTo.SemanticKernelHelper;
             var kernel = helper.Kernel;
             var function = iWanToRun.ISKFunction;
             var context = iWanToRun.AiContext.SubContext;
-            var iWantTo = iWanToRun.IWantTo;
             var prompt = request.RequestContent;
 
             //设置最新的人类对话

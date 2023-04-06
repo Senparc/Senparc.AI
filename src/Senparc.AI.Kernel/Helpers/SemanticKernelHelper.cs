@@ -1,5 +1,6 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI.TextEmbedding;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using Polly;
@@ -25,6 +26,7 @@ namespace Senparc.AI.Kernel.Helpers
     public class SemanticKernelHelper
     {
         internal IKernel Kernel { get; set; }
+        //internal KernelBuilder KernelBuilder { get; set; }
         internal ISenparcAiSetting AiSetting { get; }
 
         public SemanticKernelHelper(ISenparcAiSetting aiSetting = null)
@@ -65,55 +67,92 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// 设置 Kernel
+        /// Build 新的 Kernel 对象
+        /// </summary>
+        /// <param name="kernelBuilder"></param>
+        /// <param name="kernelBuilderAction"></param>
+        /// <returns></returns>
+        public IKernel BuildKernel(KernelBuilder kernelBuilder, Action<KernelBuilder>? kernelBuilderAction = null)
+        {
+            if (kernelBuilderAction != null)
+            {
+                kernelBuilderAction.Invoke(kernelBuilder);
+            }
+            Kernel = kernelBuilder.Build();
+            return Kernel;
+        }
+
+        /// <summary>
+        /// 设置 Kernel，并配置 TextCompletion 模型
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="modelName"></param>
         /// <param name="kernel"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public IKernel ConfigTextCompletion(string userId, string modelName, IKernel? kernel = null)
+        public KernelBuilder ConfigTextCompletion(string userId, string modelName, IKernel? kernel = null)
         {
-            kernel ??= GetKernel();
+            //kernel ??= GetKernel();
 
             var serviceId = GetServiceId(userId, modelName);
             var senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
-
-
-
             var aiPlatForm = AiSetting.AiPlatform;
-            var aiSetting = AiSetting;
-            
-            //modelName ??= iWantToConfig.IWantTo.ModelName;
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
-            kernel.Config.AddTextCompletionService(serviceId, k =>
-                aiPlatForm switch
-                {
-                    AiPlatform.OpenAI => new OpenAITextCompletion(modelName, aiSetting.ApiKey, aiSetting.OrgaizationId),
+            var builder = Microsoft.SemanticKernel.Kernel.Builder.Configure(c =>
+            {
+                c.AddTextCompletionService(serviceId, k =>
+                    aiPlatForm switch
+                    {
+                        AiPlatform.OpenAI => new OpenAITextCompletion(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
 
-                    AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, aiSetting.AzureEndpoint, aiSetting.ApiKey, aiSetting.AzureOpenAIApiVersion),
+                        AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
-                    _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
-                }
-            );
+                        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                    });
+            });
 
-            ////TODO:AddTextCompletion也要独立出来
+            //KernelBuilder = builder;
 
-            //switch (senparcAiSetting.AiPlatform)
-            //{
-            //    case AiPlatform.OpenAI:
-            //        kernel.Config.AddOpenAITextCompletionService(serviceId, modelName, senparcAiSetting.ApiKey, senparcAiSetting.OrgaizationId);
-            //        break;
-            //    case AiPlatform.AzureOpenAI:
-            //        kernel.Config.AddAzureOpenAITextCompletionService(serviceId, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey);
-            //        break;
-            //    default:
-            //        throw new Senparc.AI.Exceptions.SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{senparcAiSetting.AiPlatform}");
-            //}
+            return builder;
+        }
 
-            return kernel;
+        /// <summary>
+        /// 设置 Kernel，并配置 TextCompletion 模型
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="modelName"></param>
+        /// <param name="kernel"></param>
+        /// <returns></returns>
+        /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
+        public KernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName, IKernel? kernel = null)
+        {
+            //kernel ??= GetKernel();
+
+            var serviceId = GetServiceId(userId, modelName);
+            var senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
+            var aiPlatForm = AiSetting.AiPlatform;
+
+            //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
+
+            var builder = Microsoft.SemanticKernel.Kernel.Builder.Configure(c =>
+            {
+                c.AddTextEmbeddingGenerationService(serviceId, k =>
+                    aiPlatForm switch
+                    {
+                        AiPlatform.OpenAI => new OpenAITextEmbeddingGeneration(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+                        AiPlatform.AzureOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+
+                        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                    });
+            });
+
+            //TODO:测试多次添加
+            //KernelBuilder = builder;
+
+            return builder;
         }
     }
 

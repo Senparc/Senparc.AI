@@ -90,6 +90,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             var modelName = "text-davinci-003";//默认使用模型
             var iWantToRun = await handler.IWantTo()
                                 .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                                .BuildKernel()
                                 .RegisterSemanticFunctionAsync(promptParameter);
 
             // 输入/提问并获取结果
