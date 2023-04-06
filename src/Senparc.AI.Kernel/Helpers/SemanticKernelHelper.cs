@@ -90,7 +90,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="kernel"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public KernelBuilder ConfigTextCompletion(string userId, string modelName, IKernel? kernel = null)
+        public KernelBuilder ConfigTextCompletion(string userId, string modelName, KernelBuilder kernelBuilder = null)
         {
             //kernel ??= GetKernel();
 
@@ -100,7 +100,9 @@ namespace Senparc.AI.Kernel.Helpers
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
-            var builder = Microsoft.SemanticKernel.Kernel.Builder.Configure(c =>
+            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
+
+            kernelBuilder.Configure(c =>
             {
                 c.AddTextCompletionService(serviceId, k =>
                     aiPlatForm switch
@@ -115,7 +117,7 @@ namespace Senparc.AI.Kernel.Helpers
 
             //KernelBuilder = builder;
 
-            return builder;
+            return kernelBuilder;
         }
 
         /// <summary>
@@ -126,7 +128,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="kernel"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public KernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName, IKernel? kernel = null)
+        public KernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName, KernelBuilder? kernelBuilder=null)
         {
             //kernel ??= GetKernel();
 
@@ -136,7 +138,10 @@ namespace Senparc.AI.Kernel.Helpers
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
-            var builder = Microsoft.SemanticKernel.Kernel.Builder.Configure(c =>
+            //TODO：Builder 不应该新建
+            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
+
+            kernelBuilder.Configure(c =>
             {
                 c.AddTextEmbeddingGenerationService(serviceId, k =>
                     aiPlatForm switch
@@ -152,7 +157,7 @@ namespace Senparc.AI.Kernel.Helpers
             //TODO:测试多次添加
             //KernelBuilder = builder;
 
-            return builder;
+            return kernelBuilder;
         }
     }
 

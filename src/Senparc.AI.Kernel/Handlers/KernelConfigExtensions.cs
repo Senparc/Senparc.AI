@@ -1,4 +1,5 @@
-﻿using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
+﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
@@ -35,27 +36,29 @@ namespace Senparc.AI.Kernel.Handlers
             return request;
         }
 
-        public static IWantToBuild ConfigModel(this IWantToConfig iWantToConfig, ConfigModel configModel, string userId, string modelName)
+        public static IWantToConfig ConfigModel(this IWantToConfig iWantToConfig, ConfigModel configModel, string userId, string modelName)
         {
             var iWantTo = iWantToConfig.IWantTo;
+            var existedKernelBuilder = iWantToConfig.IWantTo.KernelBuilder;
             var kernelBuilder = configModel switch
             {
-                AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName),
-                AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName),
+                AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, existedKernelBuilder),
+                AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName, existedKernelBuilder),
                 _ => throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel)
             };
             iWantTo.KernelBuilder = kernelBuilder;//进行 Config 必须提供 Kernel
             iWantTo.UserId = userId;
             iWantTo.ModelName = modelName;
-            return new IWantToBuild(iWantToConfig);
+            return iWantToConfig;
         }
 
-        public static IWantToRun BuildKernel(this IWantToBuild iWantToBuild)
+        public static IWantToRun BuildKernel(this IWantToConfig iWantToConfig, Action<KernelBuilder>? kernelBuilderAction = null)
         {
-            var iWantTo = iWantToBuild.IWantToConfig.IWantTo;
+            var iWantTo = iWantToConfig.IWantTo;
             var handler = iWantTo.SemanticKernelHelper;
-            handler.BuildKernel(iWantTo.KernelBuilder);
-            return new IWantToRun(iWantToBuild);
+            handler.BuildKernel(iWantTo.KernelBuilder, kernelBuilderAction);
+
+            return new IWantToRun(new IWantToBuild(iWantToConfig));
         }
 
         /// <summary>

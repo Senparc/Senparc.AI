@@ -32,8 +32,10 @@ namespace Senparc.AI.Kernel
         /// <returns></returns>
         public SenparcAiResult Run(SenparcAiRequest request)
         {
+            //TODO:未正式使用
+
             //TODO:此方法暂时还不能用
-            SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, _kernel);
+            SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, null);
 
             var senparcAiResult = new SenparcAiResult();
             return senparcAiResult;
