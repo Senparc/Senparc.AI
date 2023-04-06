@@ -26,7 +26,11 @@ namespace Senparc.AI.Kernel.Tests.BaseSupport
             return senparcAiSetting;
         };
 
-        public KernelTestBase() : base(RegisterAction, getSenparcAiSettingFunc)
+        static Action<ServiceCollection> serviceAction = services =>
+        {
+            services.AddScoped<IAiHandler, SemanticAiHandler>();
+        };
+        public KernelTestBase() : base(RegisterAction, getSenparcAiSettingFunc, serviceAction)
         {
 
         }

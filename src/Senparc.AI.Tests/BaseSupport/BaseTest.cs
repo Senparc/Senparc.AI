@@ -21,14 +21,15 @@ namespace Senparc.AI.Tests
         protected static ISenparcAiSetting _senparcAiSetting;
 
 
-        public BaseTest(Action<IRegisterService> registerAction, Func<IConfigurationRoot, ISenparcAiSetting> senparcAiSettingFunc)
+        public BaseTest(Action<IRegisterService> registerAction, Func<IConfigurationRoot, ISenparcAiSetting> senparcAiSettingFunc,
+            Action<ServiceCollection> serviceAction)
         {
-            RegisterServiceCollection(senparcAiSettingFunc);
+            RegisterServiceCollection(senparcAiSettingFunc, serviceAction);
 
             RegisterServiceStart(registerAction);
         }
 
-        public BaseTest() : this(null, null)
+        public BaseTest() : this(null, null, null)
         {
 
         }
@@ -36,7 +37,7 @@ namespace Senparc.AI.Tests
         /// <summary>
         /// 注册 IServiceCollection 和 MemoryCache
         /// </summary>
-        public static void RegisterServiceCollection(Func<IConfigurationRoot, ISenparcAiSetting> senparcAiSettingFunc)
+        public static void RegisterServiceCollection(Func<IConfigurationRoot, ISenparcAiSetting> senparcAiSettingFunc, Action<ServiceCollection> serviceAction)
         {
             var serviceCollection = new ServiceCollection();
 
@@ -52,9 +53,11 @@ namespace Senparc.AI.Tests
             _senparcSetting = new SenparcSetting() { IsDebug = true };
             config.GetSection("SenparcSetting").Bind(_senparcSetting);
 
-            _senparcAiSetting ??= senparcAiSettingFunc?.Invoke(config) 
+            _senparcAiSetting ??= senparcAiSettingFunc?.Invoke(config)
                                    ?? new MockSenparcAiSetting() { IsDebug = true };
             config.GetSection("SenparcAiSetting").Bind(_senparcAiSetting);
+
+            serviceAction?.Invoke(serviceCollection);
 
             serviceCollection.AddMemoryCache();//使用内存缓存
 

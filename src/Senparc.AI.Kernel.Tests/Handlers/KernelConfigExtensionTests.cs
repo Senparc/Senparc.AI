@@ -1,9 +1,12 @@
-﻿using Microsoft.SemanticKernel;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.CoreSkills;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.Tests.BaseSupport;
+using Senparc.AI.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +18,15 @@ namespace Senparc.AI.Kernel.Handlers.Tests
     [TestClass()]
     public class KernelConfigExtensionTests : KernelTestBase
     {
+
+
         [TestMethod()]
         public async Task ConfigModel_EmbeddingTest()
         {
-            var handler = new SemanticAiHandler();
+            var serviceProvider = BaseTest.serviceProvider;
+
+            var handler = serviceProvider.GetRequiredService<IAiHandler>() 
+                            as SemanticAiHandler;
             var userId = "JeffreySu";
 
             //测试 TextEmbedding

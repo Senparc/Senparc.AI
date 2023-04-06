@@ -5,7 +5,10 @@ using System.Text;
 
 namespace Senparc.AI.Interfaces
 {
-    public interface IAiHandler<TRequest, TResult, TAiContext, TContext>
+    public interface IAiHandler
+    { }
+
+    public interface IAiHandler<TRequest, TResult, TAiContext, TContext>: IAiHandler
      where TRequest : IAiRequest<TContext>
         where TResult : IAiResult
         where TAiContext : IAiContext<TContext>
@@ -17,5 +20,6 @@ namespace Senparc.AI.Interfaces
         /// <param name="request">请求数据</param>
         /// <returns></returns>
         public TResult Run(TRequest request);
+
     }
 }
