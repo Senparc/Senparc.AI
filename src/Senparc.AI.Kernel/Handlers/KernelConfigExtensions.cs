@@ -194,6 +194,24 @@ ChatBot:";
             return iWantToRun;
         }
 
+        public static IWantToRun MemorySaveReference(this IWantToRun iWantToRun,
+               string collection,
+               string text,
+               string externalId,
+               string externalSourceName,
+               string? description = null,
+               CancellationToken cancel = default)
+        {
+            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
+            var helper = handler.SemanticKernelHelper;
+            //var kernel = helper.GetKernel();
+            var memory = helper.GetMemory();
+            var task = helper.MemorySaveReferenceAsync(memory, collection, text, externalId, externalSourceName, description, cancel);
+            helper.AddMemory(task);
+
+            return iWantToRun;
+        }
+
         public static IWantToRun MemoryStoreExexute(this IWantToRun iWantToRun)
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;

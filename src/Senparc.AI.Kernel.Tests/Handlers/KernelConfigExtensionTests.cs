@@ -21,7 +21,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
 
         [TestMethod()]
-        public async Task ConfigModel_EmbeddingTest()
+        public async Task ConfigModel_Embedding_MemoryInforationTest()
         {
             var serviceProvider = BaseTest.serviceProvider;
 
@@ -52,7 +52,8 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info6", text: "I'm work for Senparc");
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info7", text: "Suzhou Senparc Network Technology Co., Ltd. was founded in 2010, mainly engaged in mobile Internet, e-commerce, software, management system development and implementation. We have in-depth research on Artificial Intelligence, big data and paperless electronic conference systems. Senparc has 5 domestic subsidiaries and 1 overseas subsidiary(in Sydney). Our products and services have been involved in government, medical, education, military, logistics, finance and many other fields. In addition to the major provinces and cities in China, Senparc's products have entered the markets of the United States, Canada, Australia, the Netherlands, Sweden and Spain.");
             }
-            else {
+            else
+            {
                 //新方法（异步，同时进行）
                 iWantToRun
                     .MemorySaveInformation(MemoryCollectionName, id: "info1", text: "My name is Andrea")
@@ -148,6 +149,76 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             //                Console.WriteLine();
             //            };
 
+
+        }
+
+        [TestMethod()]
+        public async Task ConfigModel_Embedding_MemoryReferenceTest()
+        {
+
+            var serviceProvider = BaseTest.serviceProvider;
+
+            var handler = serviceProvider.GetRequiredService<IAiHandler>()
+                            as SemanticAiHandler;
+            var userId = "JeffreySu";
+
+            //测试 TextEmbedding
+            var iWantToRun = handler
+                 .IWantTo()
+                 .ConfigModel(ConfigModel.TextEmbedding, userId, "text-embedding-ada-002")
+                 .ConfigModel(ConfigModel.TextCompletion, userId, "text-davinci-003")
+                 .BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
+
+            const string memoryCollectionName = "NcfGitHub";
+
+            var githubFiles = new Dictionary<string, string>()
+            {
+                ["https://github.com/NeuCharFramework/NcfDocs/blob/main/start/home/index.md"]
+                    = "README: NCF 简介，源码地址，QQ 技术交流群",
+                ["https://github.com/NeuCharFramework/NcfDocs/blob/main/start/start-develop/get-docs.md"]
+                    = "获取文档，在线阅读官方文档，在 NCF 站点中进入官方文档，下载源码后使用 npm 本地运行，下载文档源码，运行 npm 命令",
+                ["https://github.com/NeuCharFramework/NcfDocs/blob/main/start/start-develop/run-ncf.md"]
+                    = "使用 Visual Studio 运行 NCF"
+            };
+
+            var j = 0;
+            var dt2 = SystemTime.Now;
+            //载入
+            foreach (var entry in githubFiles)
+            {
+                iWantToRun.MemorySaveReference(
+                    collection: memoryCollectionName,
+                    description: entry.Value,//真正用于生成 embedding,//只用于展示记录
+                    text: entry.Value,//真正用于生成 embedding
+                    externalId: entry.Key,
+                    externalSourceName: "GitHub"
+                );
+                Console.WriteLine($"  URL {++j} saved");
+            }
+            iWantToRun.MemoryStoreExexute();
+            await Console.Out.WriteLineAsync($"MemorySave cost:{SystemTime.DiffTotalMS(dt2)}ms");
+            await Console.Out.WriteLineAsync();
+
+            //提问
+            var dt3 = SystemTime.Now;
+
+            var askPrompt = "哪里有 NCF 的介绍？";
+            var memories = iWantToRun.MemorySearchAsync(memoryCollectionName, askPrompt, limit: 5, minRelevanceScore: 0.77);
+
+            var dt4 = SystemTime.Now;
+
+            await Console.Out.WriteLineAsync("提问：" + askPrompt);
+            var h = 0;
+            await foreach (MemoryQueryResult memory in memories.Result.MemoryQueryResult)
+            {
+                Console.WriteLine($"Result {++h}:");
+                Console.WriteLine("  URL:\t\t\t" + memory.Metadata.Id?.Trim());
+                Console.WriteLine("  Description:\t" + memory.Metadata.Description);
+                Console.WriteLine("  Text:\t\t\t" + memory.Metadata.Text);
+                Console.WriteLine("  Relevance:\t" + memory.Relevance);
+                Console.WriteLine();
+            }
+            await Console.Out.WriteLineAsync($" -- query cost:{SystemTime.DiffTotalMS(dt4)}ms");
 
         }
     }
