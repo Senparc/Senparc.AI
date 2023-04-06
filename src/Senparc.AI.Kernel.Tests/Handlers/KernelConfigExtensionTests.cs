@@ -36,6 +36,8 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005");
             await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info4", text: "I visited France and Italy five times since 2015");
             await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info5", text: "My family is from New York");
+            await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info6", text: "I'm work for Senparc");
+            await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info7", text: "Suzhou Senparc Network Technology Co., Ltd. was founded in 2010, mainly engaged in mobile Internet, e-commerce, software, management system development and implementation. We have in-depth research on Artificial Intelligence, big data and paperless electronic conference systems. Senparc has 5 domestic subsidiaries and 1 overseas subsidiary(in Sydney). Our products and services have been involved in government, medical, education, military, logistics, finance and many other fields. In addition to the major provinces and cities in China, Senparc's products have entered the markets of the United States, Canada, Australia, the Netherlands, Sweden and Spain.");
 
             var dt2 = DateTime.Now;
             Console.WriteLine("kernel.Memory.SaveInformationAsync cost:" + (dt2 - dt1).TotalMilliseconds + "ms");
@@ -47,15 +49,20 @@ namespace Senparc.AI.Kernel.Handlers.Tests
     "where is my family from?",
     "where have I travelled?",
     "what do I do for work?",
+    "what's my company's name?",
+    "how many years of R&D experience does Senparc has?"
+
 };
 
             foreach (var q in questions)
             {
                 var questionDt = DateTime.Now;
                 var response = await kernel.Memory.SearchAsync(MemoryCollectionName, q).FirstOrDefaultAsync();
-                Console.WriteLine(q + " " + response?.Metadata.Text + $" -- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
+                Console.WriteLine("Q: " + q + "\r\nA:" + response?.Metadata.Text + $"\r\n -- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
                 Console.WriteLine();
             }
+
+            return;
 
             kernel.ImportSkill(new TextMemorySkill());
 
@@ -64,11 +71,13 @@ ChatBot can have a conversation with you about any topic.
 It can give explicit instructions or say 'I don't know' if it does not have an answer.
 
 Information about me, from previous conversations:
-- {{$fact1}} {{recall $fact1}}å
+- {{$fact1}} {{recall $fact1}}
 - {{$fact2}} {{recall $fact2}}
 - {{$fact3}} {{recall $fact3}}
 - {{$fact4}} {{recall $fact4}}
 - {{$fact5}} {{recall $fact5}}
+- {{$fact6}} {{recall $fact6}}
+- {{$fact7}} {{recall $fact7}}
 
 Chat:
 {{$history}}
@@ -84,6 +93,8 @@ ChatBot: ";
             context["fact3"] = "where is my family from?";
             context["fact4"] = "where have I travelled?";
             context["fact5"] = "what do I do for work?";
+            context["fact6"] = "what's my company's name?";
+            context["fact7"] = "tell me more about this company?";
 
             context[TextMemorySkill.CollectionParam] = MemoryCollectionName;
             context[TextMemorySkill.RelevanceParam] = "0.8";
