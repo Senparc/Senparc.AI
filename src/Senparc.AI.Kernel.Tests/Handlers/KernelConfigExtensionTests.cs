@@ -5,6 +5,7 @@ using Microsoft.SemanticKernel.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Handlers;
+using Senparc.AI.Kernel.KernelConfigExtensions;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.AI.Tests;
 using System;
@@ -39,13 +40,11 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             var dt1 = DateTime.Now;
             const string MemoryCollectionName = "aboutMe";
 
-            var kernel = handler.SemanticKernelHelper.GetKernel();
-
             var useNewMethod = true;
             if (!useNewMethod)
             {
                 //原始方法（异步，依次进行）
-                await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info1", text: "My name is Andrea");
+                var kernel = handler.SemanticKernelHelper.GetKernel(); await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info1", text: "My name is Andrea");
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator");
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005");
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info4", text: "I visited France and Italy five times since 2015");
@@ -112,9 +111,9 @@ Chat:
 User: {{$userInput}}
 ChatBot: ";
 
-            var chatFunction = kernel.CreateSemanticFunction(skPrompt, maxTokens: 200, temperature: 0.8);//TODO抽象
+            var chatFunction = iWantToRun.CreateSemanticFunction(skPrompt, maxTokens: 200, temperature: 0.8);
 
-            var context = kernel.CreateNewContext();
+            var context = iWantToRun.CreateNewContext().context;
 
             context["fact1"] = "what is my name?";
             context["fact2"] = "where do I live?";
@@ -132,13 +131,13 @@ ChatBot: ";
             var input = "Where is my company?";
             context["userInput"] = input;
 
-            var answer = await chatFunction.InvokeAsync(context);
+            var answer = await chatFunction.function.InvokeAsync(context);
             history += $"\nUser: {input}\nChatBot: {answer}\n";
             context["history"] = history;
 
             await Console.Out.WriteLineAsync("===== Start recall test =====");
-            await Console.Out.WriteLineAsync("Question: "+input);
-            await Console.Out.WriteLineAsync("Answer: "+answer.ToString());
+            await Console.Out.WriteLineAsync("Question: " + input);
+            await Console.Out.WriteLineAsync("Answer: " + answer.ToString());
         }
 
         [TestMethod()]
