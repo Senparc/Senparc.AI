@@ -11,6 +11,7 @@ using Senparc.AI.Kernel.Helpers;
 using Senparc.AI.Kernel.KernelConfigExtensions;
 using Microsoft.SemanticKernel.CoreSkills;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Orchestration;
 
 namespace Senparc.AI.Kernel.Handlers.Tests
 {
@@ -43,11 +44,12 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             var ask = "Tomorrow is Valentine's day. I need to come up with a few date ideas and e-mail them to my significant other.";
 
-            var request = iWantToRun.GetRequest(ask, planner["CreatePlan"]);
+            var request = iWantToRun.GetRequest(ask, false, planner["CreatePlan"]);
 
             var originalPlan = await iWantToRun.RunAsync(request);
 
-
+            await Console.Out.WriteLineAsync("Original plan:");
+            await Console.Out.WriteLineAsync(originalPlan.Result.Variables.ToPlan().PlanString);
         }
     }
 }

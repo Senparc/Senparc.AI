@@ -82,12 +82,15 @@ namespace Senparc.AI.Kernel.Handlers
         public SenparcAiContext AiContext { get; set; }
         public PromptConfigParameter PromptConfigParameter { get; set; }
 
+        public List<ISKFunction> Functions { get; set; }
+
         public SemanticAiHandler SemanticAiHandler => IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
         public SemanticKernelHelper SemanticKernelHelper => IWantToBuild.IWantToConfig.IWantTo.SemanticKernelHelper;
         public IKernel Kernel => SemanticKernelHelper.GetKernel();
         public IWantToRun(IWantToBuild iWantToBuild)
         {
             IWantToBuild = iWantToBuild;
+            Functions = new List<ISKFunction>();
         }
     }
 }

@@ -45,24 +45,20 @@ namespace Senparc.AI.Kernel
         }
 
 
-        public async Task<IWantToRun> ChatConfigAsync(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
+        public (IWantToRun iWantToRun, ISKFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
         {
-            var iWantToRun = await this.IWantTo()
+            var result = this.IWantTo()
                                     .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                                     .BuildKernel()
-                                    .RegisterSemanticFunctionAsync("ChatBot", "Chat", promptConfigParameter);
+                                    .RegisterSemanticFunction("ChatBot", "Chat", promptConfigParameter);
 
-
-            var promptTemplate = new PromptTemplate(Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT, promptConfig, kernel);
-            var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
-            //TODO:提供自定义的skillName和functionName
-            var chatFunction = kernel.RegisterSemanticFunction("ChatBot", "Chat", functionConfig);//TODO:自定义名称
-
-            return iWantToRun;
+            return result;
         }
 
         public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, SenparcAiRequest request)
         {
+            //var function = iWantToRun.Kernel.Skills.GetSemanticFunction("Chat");
+            //request.FunctionPipeline = new[] { function };
             var aiResult = await iWantToRun.RunAsync(request);
             return aiResult;
         }

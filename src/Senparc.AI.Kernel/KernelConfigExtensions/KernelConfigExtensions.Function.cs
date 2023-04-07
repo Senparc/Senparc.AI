@@ -9,6 +9,9 @@ using System.Text;
 
 namespace Senparc.AI.Kernel.Handlers
 {
+            
+    /* 注意：所有 Functiuon 添后加都必须执行 iWantToRun.Functions.Add(function); */
+
     public static partial class KernelConfigExtensions
     {
         /// <summary>
@@ -21,7 +24,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="promptConfigPara"></param>
         /// <param name="skPrompt"></param>
         /// <returns>A C# function wrapping AI logic, usually defined with natural language</returns>
-        public static (IWantToRun iWantToRun, ISKFunction newFunction) RegisterSemanticFunctionAsync(this IWantToRun iWantToRun, string skillName, string functionName, PromptConfigParameter promptConfigPara, string? skPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT)
+        public static (IWantToRun iWantToRun, ISKFunction newFunction) RegisterSemanticFunction(this IWantToRun iWantToRun, string skillName, string functionName, PromptConfigParameter promptConfigPara, string? skPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT)
         {
             var promptConfig = new PromptTemplateConfig
             {
@@ -53,6 +56,7 @@ namespace Senparc.AI.Kernel.Handlers
             //iWantToRun.ISKFunction = chatFunction;
             iWantToRun.AiContext = aiContext;
             iWantToRun.PromptConfigParameter = promptConfigPara;
+            iWantToRun.Functions.Add(newFunction);
 
             return (iWantToRun, newFunction);
         }
@@ -88,6 +92,7 @@ namespace Senparc.AI.Kernel.Handlers
         {
             var kernel = iWantToRun.Kernel;
             var function = kernel.CreateSemanticFunction(promptTemplate, functionName, skillName, description, maxTokens, temperature, topP, presencePenalty, frequencyPenalty, stopSequences);
+            iWantToRun.Functions.Add(function);
             return (iWantToRun, function);
         }
 
@@ -106,6 +111,7 @@ namespace Senparc.AI.Kernel.Handlers
         {
             var kernel = iWantToRun.Kernel;
             var function = kernel.RegisterSemanticFunction(skillName, functionName, functionConfig);
+            iWantToRun.Functions.Add(function);
             return (iWantToRun, function);
         }
 
@@ -122,6 +128,7 @@ namespace Senparc.AI.Kernel.Handlers
         {
             var kernel = iWantToRun.Kernel;
             var function = kernel.RegisterSemanticFunction(functionName, functionConfig);
+            iWantToRun.Functions.Add(function);
             return (iWantToRun, function);
         }
     }

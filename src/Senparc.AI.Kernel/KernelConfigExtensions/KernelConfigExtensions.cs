@@ -100,10 +100,16 @@ namespace Senparc.AI.Kernel.Handlers
 
         #region 运行准备
 
-        public static SenparcAiRequest GetRequest(this IWantToRun iWantToRun, string requestContent, params ISKFunction[] pipeline)
+        public static SenparcAiRequest GetRequest(this IWantToRun iWantToRun, string requestContent, bool useAllRegistedFunctions = false, params ISKFunction[] pipeline)
         {
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
-            var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter);
+
+            if (useAllRegistedFunctions && iWantToRun.Functions.Count > 0)
+            {
+                //合并已经注册的对象
+                pipeline = iWantToRun.Functions.Union(pipeline ?? new ISKFunction[0]).ToArray();
+            }
+            var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter, pipeline);
             return request;
         }
 
@@ -123,12 +129,13 @@ namespace Senparc.AI.Kernel.Handlers
             var helper = iWanToRun.SemanticKernelHelper;
             var kernel = helper.GetKernel();
             //var function = iWanToRun.ISKFunction;
-            var context = iWanToRun.AiContext.SubContext;
+
+            iWanToRun.AiContext ??= new SenparcAiContext();
             var prompt = request.RequestContent;
             var functionPipline = request.FunctionPipeline;
 
             //TODO；单独控制 Context
-
+            var context = iWanToRun.AiContext.SubContext;
             //设置最新的人类对话
             context.Set("human_input", prompt);
 

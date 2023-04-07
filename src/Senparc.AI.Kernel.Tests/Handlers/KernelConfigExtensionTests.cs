@@ -1,18 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.CoreSkills;
 using Microsoft.SemanticKernel.Memory;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.Interfaces;
-using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.KernelConfigExtensions;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.AI.Tests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Kernel.Handlers.Tests
 {
@@ -89,7 +82,11 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             // 测试 recall
 
+            Assert.AreEqual(0, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
+
             iWantToRun.ImportSkill(new TextMemorySkill());
+            //没有增加实际的 funciton
+            Assert.AreEqual(0, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
 
             const string skPrompt = @"
 ChatBot can have a conversation with you about any topic.
@@ -109,7 +106,11 @@ Chat:
 User: {{$userInput}}
 ChatBot: ";
 
+
             var chatFunction = iWantToRun.CreateSemanticFunction(skPrompt, maxTokens: 200, temperature: 0.8);
+
+            //增加了 1 个 Function
+            Assert.AreEqual(1, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
 
             var context = iWantToRun.CreateNewContext().context;
 
@@ -176,11 +177,18 @@ ChatBot: ";
                     description: entry.Value,//真正用于生成 embedding,//只用于展示记录
                     text: entry.Value,//真正用于生成 embedding
                     externalId: entry.Key,
-                    externalSourceName: "GitHub"
+                    externalSourceName: "NeuCharFramework"
                 );
                 Console.WriteLine($"  URL {++j} saved");
             }
             iWantToRun.MemoryStoreExexute();
+
+            var kernelMemory = await iWantToRun.Kernel.Memory.GetCollectionsAsync();
+
+            Assert.AreEqual(1, kernelMemory.Count);
+            Assert.AreEqual("NcfGitHub", kernelMemory.First());
+
+
             await Console.Out.WriteLineAsync($"MemorySave cost:{SystemTime.DiffTotalMS(dt2)}ms");
             await Console.Out.WriteLineAsync();
 
