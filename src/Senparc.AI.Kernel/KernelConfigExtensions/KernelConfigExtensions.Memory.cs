@@ -1,95 +1,12 @@
-﻿using Microsoft.SemanticKernel.SemanticFunctions;
-using Senparc.AI.Entities;
-using Senparc.AI.Kernel.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Senparc.AI.Kernel.Entities;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel.Handlers
 {
     public static partial class KernelConfigExtensions
     {
         #region Memory 相关
-
-        public static async Task<IWantToRun> RegisterSemanticFunctionAsync(this IWantToRun iWantToRun, PromptConfigParameter promptConfigPara, string? skPrompt = null)
-        {
-            skPrompt ??= @"
-ChatBot can have a conversation with you about any topic.
-It can give explicit instructions or say 'I don't know' if it does not have an answer.
-
-{{$history}}
-Human: {{$human_input}}
-ChatBot:";
-
-            var promptConfig = new PromptTemplateConfig
-            {
-                Completion =
-                    {
-                        MaxTokens = promptConfigPara.MaxTokens.Value,
-                        Temperature = promptConfigPara.Temperature.Value,
-                        TopP = promptConfigPara.TopP.Value,
-                    }
-            };
-
-
-            var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
-            var helper = iWantTo.SemanticKernelHelper;
-            var handler = iWantTo.SemanticAiHandler;
-            var kernel = helper.GetKernel();
-            var promptTemplate = new PromptTemplate(skPrompt, promptConfig, kernel);
-            var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
-            //TODO:提供自定义的skillName和functionName
-            var chatFunction = kernel.RegisterSemanticFunction("ChatBot", "Chat", functionConfig);
-
-            var aiContext = new SenparcAiContext();
-
-            var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
-            var history = "";
-            aiContext.SubContext.Set(serviceId, history);
-
-            iWantToRun.ISKFunction = chatFunction;
-            iWantToRun.AiContext = aiContext;
-            iWantToRun.PromptConfigParameter = promptConfigPara;
-
-            return iWantToRun;
-
-        }
-
-        public static async Task<SenparcAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
-        {
-            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
-            var helper = iWantTo.SemanticKernelHelper;
-            var kernel = helper.GetKernel();
-            var function = iWanToRun.ISKFunction;
-            var context = iWanToRun.AiContext.SubContext;
-            var prompt = request.RequestContent;
-
-            //设置最新的人类对话
-            context.Set("human_input", prompt);
-
-            var botAnswer = await kernel.RunAsync(context, function);
-
-            //获取历史信息
-            var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
-            if (!context.Get(serviceId, out string history))
-            {
-                history = "";
-            }
-            //添加新信息
-            history += $"\nHuman: {prompt}\nMelody: {botAnswer}\n";
-            //设置历史信息
-            context.Set("history", history);
-
-            var result = new SenparcAiResult()
-            {
-                Input = prompt,
-                Output = botAnswer.Result,
-                LastException = botAnswer.LastException
-            };
-            return result;
-        }
 
         public static IWantToRun MemorySaveInformation(this IWantToRun iWantToRun,
             string collection,
@@ -98,9 +15,7 @@ ChatBot:";
             string? description = null,
             CancellationToken cancel = default)
         {
-            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-            var helper = handler.SemanticKernelHelper;
-            //var kernel = helper.GetKernel();
+            var helper = iWantToRun.SemanticKernelHelper;
             var memory = helper.GetMemory();
             var task = helper.MemorySaveInformationAsync(memory, collection, text, id, description, cancel);
             helper.AddMemory(task);
@@ -116,8 +31,7 @@ ChatBot:";
                string? description = null,
                CancellationToken cancel = default)
         {
-            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-            var helper = handler.SemanticKernelHelper;
+            var helper = iWantToRun.SemanticKernelHelper;
             //var kernel = helper.GetKernel();
             var memory = helper.GetMemory();
             var task = helper.MemorySaveReferenceAsync(memory, collection, text, externalId, externalSourceName, description, cancel);
@@ -128,8 +42,7 @@ ChatBot:";
 
         public static IWantToRun MemoryStoreExexute(this IWantToRun iWantToRun)
         {
-            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-            var helper = handler.SemanticKernelHelper;
+            var helper = iWantToRun.SemanticKernelHelper;
             helper.ExecuteMemory();
             return iWantToRun;
         }
@@ -152,9 +65,7 @@ ChatBot:";
             double minRelevanceScore = 0.7,
             CancellationToken cancel = default)
         {
-            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-            var helper = handler.SemanticKernelHelper;
-            var kernel = helper.GetKernel();
+            var helper = iWantToRun.SemanticKernelHelper;
             var memory = helper.GetMemory();
             var queryResult = memory.SearchAsync(memoryCollectionName, query, limit, minRelevanceScore, cancel);
 

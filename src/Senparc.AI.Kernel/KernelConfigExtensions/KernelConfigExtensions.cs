@@ -1,5 +1,6 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
+using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
@@ -99,7 +100,7 @@ namespace Senparc.AI.Kernel.Handlers
 
         #region 运行准备
 
-        public static SenparcAiRequest GetRequest(this IWantToRun iWantToRun, string requestContent)
+        public static SenparcAiRequest GetRequest(this IWantToRun iWantToRun, string requestContent, params ISKFunction[] pipeline)
         {
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
             var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter);
@@ -110,20 +111,49 @@ namespace Senparc.AI.Kernel.Handlers
 
         #region 运行阶段，或对生成后的 Kernel 进行补充设置
 
-        ///// <summary>
-        ///// Import a set of functions from the given skill. The functions must have the `SKFunction` attribute.
-        ///// Once these functions are imported, the prompt templates can use functions to import content at runtime.
-        ///// </summary>
-        ///// <param name="skillInstance">Instance of a class containing functions</param>
-        ///// <param name="skillName">Name of the skill for skill collection and prompt templates. If the value is empty functions are registered in the global namespace.</param>
-        ///// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
-        //public static IWantToRun ImportSkill(this IWantToRun iWantToRun, object skillInstance, string skillName = "")
-        //{
-        //    var helper = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticKernelHelper;
-        //    var kernel = helper.GetKernel();
-        //    kernel.ImportSkill(skillInstance, skillName);
-        //    return iWantToRun;
-        //}
+        /// <summary>
+        /// 运行
+        /// </summary>
+        /// <param name="iWanToRun"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public static async Task<SenaprcContentAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
+        {
+            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
+            var helper = iWanToRun.SemanticKernelHelper;
+            var kernel = helper.GetKernel();
+            //var function = iWanToRun.ISKFunction;
+            var context = iWanToRun.AiContext.SubContext;
+            var prompt = request.RequestContent;
+            var functionPipline = request.FunctionPipeline;
+
+            //TODO；单独控制 Context
+
+            //设置最新的人类对话
+            context.Set("human_input", prompt);
+
+            var botAnswer = await kernel.RunAsync(context, functionPipline);
+
+            //获取历史信息
+            var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
+            if (!context.Get(serviceId, out string history))
+            {
+                history = "";
+            }
+            //添加新信息
+            history += $"\nHuman: {prompt}\nMelody: {botAnswer}\n";
+            //设置历史信息
+            context.Set("history", history);
+
+            var result = new SenaprcContentAiResult()
+            {
+                Input = prompt,
+                Output = botAnswer.Result,
+                Result = botAnswer,
+                LastException = botAnswer.LastException
+            };
+            return result;
+        }
 
         #endregion
 

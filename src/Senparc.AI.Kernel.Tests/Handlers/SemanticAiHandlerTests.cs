@@ -92,7 +92,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                                 .IWantTo()
                                 .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                                 .BuildKernel()
-                                .RegisterSemanticFunctionAsync(promptParameter);
+                                .RegisterSemanticFunctionAsync("ChatBot", "Chat", promptParameter);
 
             // 输入/提问并获取结果
             var prompt = "请问中国有多少人口？";

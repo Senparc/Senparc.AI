@@ -1,5 +1,8 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
+using Microsoft.SemanticKernel.SemanticFunctions;
+using Senparc.AI.Entities;
+using Senparc.AI.Kernel.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +11,52 @@ namespace Senparc.AI.Kernel.Handlers
 {
     public static partial class KernelConfigExtensions
     {
+        /// <summary>
+        /// Build and register a function in the internal skill collection.
+        /// </summary>
+        /// <param name="iWantToRun"></param>
+        /// <param name="skillName">Name of the skill containing the function. The name can contain only alphanumeric chars + underscore.</param>
+        /// <param name="functionName">Name of the semantic function. The name can contain only alphanumeric chars + underscore.</param>
+        /// <param name="functionConfig">Function configuration, e.g. I/O params, AI settings, localization details, etc.</param>
+        /// <param name="promptConfigPara"></param>
+        /// <param name="skPrompt"></param>
+        /// <returns>A C# function wrapping AI logic, usually defined with natural language</returns>
+        public static (IWantToRun iWantToRun, ISKFunction newFunction) RegisterSemanticFunctionAsync(this IWantToRun iWantToRun, string skillName, string functionName, PromptConfigParameter promptConfigPara, string? skPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT)
+        {
+            var promptConfig = new PromptTemplateConfig
+            {
+                Completion =
+                    {
+                        MaxTokens = promptConfigPara.MaxTokens.Value,
+                        Temperature = promptConfigPara.Temperature.Value,
+                        TopP = promptConfigPara.TopP.Value,
+                    }
+            };
+            //TODO:自动匹配
+
+            var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
+            var helper = iWantToRun.SemanticKernelHelper;
+            var kernel = iWantToRun.Kernel;
+
+            var promptTemplate = new PromptTemplate(skPrompt, promptConfig, kernel);
+            var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
+
+            var newFunction = kernel.RegisterSemanticFunction(skillName/*"ChatBot"*/, functionName /*"Chat"*/, functionConfig);
+
+            var aiContext = new SenparcAiContext();
+
+            //TODO:独立 Context
+            var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
+            var history = "";
+            aiContext.SubContext.Set(serviceId, history);
+
+            //iWantToRun.ISKFunction = chatFunction;
+            iWantToRun.AiContext = aiContext;
+            iWantToRun.PromptConfigParameter = promptConfigPara;
+
+            return (iWantToRun, newFunction);
+        }
+
         /// <summary>
         /// Define a string-to-string semantic function, with no direct support for input context.
         /// The function can be referenced in templates and will receive the context, but when invoked programmatically you
@@ -28,7 +77,7 @@ namespace Senparc.AI.Kernel.Handlers
         public static (IWantToRun iWantToRun, ISKFunction function) CreateSemanticFunction(this IWantToRun iWantToRun,
                 string promptTemplate,
                 string? functionName = null,
-        string skillName = "",
+                string skillName = "",
                 string? description = null,
                 int maxTokens = 256,
                 double temperature = 0,
@@ -37,10 +86,42 @@ namespace Senparc.AI.Kernel.Handlers
                 double frequencyPenalty = 0,
                 IEnumerable<string>? stopSequences = null)
         {
-            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-            var helper = handler.SemanticKernelHelper;
-            var kernel = helper.GetKernel();
+            var kernel = iWantToRun.Kernel;
             var function = kernel.CreateSemanticFunction(promptTemplate, functionName, skillName, description, maxTokens, temperature, topP, presencePenalty, frequencyPenalty, stopSequences);
+            return (iWantToRun, function);
+        }
+
+        /// <summary>
+        /// Build and register a function in the internal skill collection, in a global generic skill.
+        /// </summary>
+        /// <param name="iWantToRun"></param>
+        /// <param name="skillName">Name of the skill containing the function. The name can contain only alphanumeric chars + underscore.</param>
+        /// <param name="functionName">Name of the semantic function. The name can contain only alphanumeric chars + underscore.</param>
+        /// <param name="functionConfig">Function configuration, e.g. I/O params, AI settings, localization details, etc.</param>
+        /// <returns>A C# function wrapping AI logic, usually defined with natural language</returns>
+        public static (IWantToRun iWantToRun, ISKFunction function) RegisterSemanticFunction(this IWantToRun iWantToRun, 
+                string skillName,
+                string functionName,
+                SemanticFunctionConfig functionConfig)
+        {
+            var kernel = iWantToRun.Kernel;
+            var function = kernel.RegisterSemanticFunction(skillName, functionName, functionConfig);
+            return (iWantToRun, function);
+        }
+
+        /// <summary>
+        /// Build and register a function in the internal skill collection, in a global generic skill.
+        /// </summary>
+        /// <param name="iWantToRun"></param>
+        /// <param name="functionName">Name of the semantic function. The name can contain only alphanumeric chars + underscore.</param>
+        /// <param name="functionConfig">Function configuration, e.g. I/O params, AI settings, localization details, etc.</param>
+        /// <returns>A C# function wrapping AI logic, usually defined with natural language</returns>
+        public static (IWantToRun iWantToRun, ISKFunction function) RegisterSemanticFunction(this IWantToRun iWantToRun,
+                string functionName,
+                SemanticFunctionConfig functionConfig)
+        {
+            var kernel = iWantToRun.Kernel;
+            var function = kernel.RegisterSemanticFunction(functionName, functionConfig);
             return (iWantToRun, function);
         }
     }

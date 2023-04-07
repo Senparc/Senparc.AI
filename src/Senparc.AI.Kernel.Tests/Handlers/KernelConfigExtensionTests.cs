@@ -17,10 +17,8 @@ using System.Threading.Tasks;
 namespace Senparc.AI.Kernel.Handlers.Tests
 {
     [TestClass()]
-    public class KernelConfigExtensionTests : KernelTestBase
+    public partial class KernelConfigExtensionTests : KernelTestBase
     {
-
-
         [TestMethod()]
         public async Task ConfigModel_Embedding_MemoryInforationTest()
         {

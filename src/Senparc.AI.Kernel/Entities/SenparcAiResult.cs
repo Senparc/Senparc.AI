@@ -1,3 +1,4 @@
+using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Interfaces;
 using System;
 
@@ -20,5 +21,15 @@ namespace Senparc.AI.Kernel
         /// <inheritdoc/>
         /// </summary>
         public virtual Exception? LastException { get; set; }
+    }
+
+    public class SenaprcAiResult<T> : SenparcAiResult, IAiResult
+    {
+        public T Result { get; set; }
+    }
+
+    public class SenaprcContentAiResult : SenaprcAiResult<SKContext>, IAiResult
+    {
+        public SKContext Result { get; set; }
     }
 }

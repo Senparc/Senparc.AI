@@ -50,7 +50,14 @@ namespace Senparc.AI.Kernel
             var iWantToRun = await this.IWantTo()
                                     .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                                     .BuildKernel()
-                                    .RegisterSemanticFunctionAsync(promptConfigParameter);
+                                    .RegisterSemanticFunctionAsync("ChatBot", "Chat", promptConfigParameter);
+
+
+            var promptTemplate = new PromptTemplate(Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT, promptConfig, kernel);
+            var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
+            //TODO:提供自定义的skillName和functionName
+            var chatFunction = kernel.RegisterSemanticFunction("ChatBot", "Chat", functionConfig);//TODO:自定义名称
+
             return iWantToRun;
         }
 

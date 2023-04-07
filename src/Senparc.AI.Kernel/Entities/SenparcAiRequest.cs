@@ -8,7 +8,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public class SenparcAiRequest: IAiRequest<ContextVariables>
+    public class SenparcAiRequest : IAiRequest<ContextVariables>
     {
 
         /// <summary>
@@ -31,15 +31,20 @@ namespace Senparc.AI.Kernel
         /// <summary>
         /// иообнд
         /// </summary>
-       public IAiContext<ContextVariables> IAiContext { get; set; }
+        public IAiContext<ContextVariables> IAiContext { get; set; }
+        /// <summary>
+        /// Function
+        /// </summary>
+        public ISKFunction[] FunctionPipeline { get; set; }
 
-        public SenparcAiRequest(string userId, string modelName, string requestContent, PromptConfigParameter parameterConfig)
+        public SenparcAiRequest(string userId, string modelName, string requestContent, PromptConfigParameter parameterConfig, params ISKFunction[] pipeline)
         {
             UserId = userId;
             ModelName = modelName;
             RequestContent = requestContent;
             ParameterConfig = parameterConfig;
             IAiContext = new SenparcAiContext();
+            FunctionPipeline = pipeline;
         }
 
     }
