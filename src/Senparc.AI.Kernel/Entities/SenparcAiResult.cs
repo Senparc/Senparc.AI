@@ -11,14 +11,14 @@ namespace Senparc.AI.Kernel
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public string Input { get; set; }
+        public virtual string Input { get; set; }
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public string Output { get; set; }
+        public virtual string Output { get; set; }
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public Exception? LastException { get; set; }
+        public virtual Exception? LastException { get; set; }
     }
 }

@@ -88,17 +88,25 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             //准备运行
             var userId = "JeffreySu";//区分用户
             var modelName = "text-davinci-003";//默认使用模型
-            var iWantToRun = await handler.IWantTo()
-                                .Config(userId, modelName)
+            var iWantToRun = await handler
+                                .IWantTo()
+                                .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                                .BuildKernel()
                                 .RegisterSemanticFunctionAsync(promptParameter);
 
             // 输入/提问并获取结果
             var prompt = "请问中国有多少人口？";
             var aiRequest = iWantToRun.GetRequest(prompt);
             var aiResult = await iWantToRun.RunAsync(aiRequest);
-
             //aiResult.Result 结果：中国的人口约为13.8亿。
             await Console.Out.WriteLineAsync(aiResult.ToJson(true));
+
+            //第二次对话，包含上下文，自动理解提问目标是人口数量
+            aiRequest.RequestContent = "那么美国呢？";
+            aiResult = await iWantToRun.RunAsync(aiRequest);
+            //aiResult.Result 结果：美国的人口大约为3.2亿。
+            await Console.Out.WriteLineAsync(aiResult.ToJson(true));
+
         }
     }
 }

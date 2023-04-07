@@ -7,6 +7,7 @@ using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.Helpers;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel
@@ -18,12 +19,13 @@ namespace Senparc.AI.Kernel
         IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext, ContextVariables>
     {
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
-        private readonly IKernel _kernel;
+        private IKernel _kernel => SemanticKernelHelper.GetKernel();
+
+
 
         public SemanticAiHandler(SemanticKernelHelper semanticAiHelper = null)
         {
             SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper();
-            _kernel = SemanticKernelHelper.GetKernel();
         }
 
         /// <summary>
@@ -33,8 +35,10 @@ namespace Senparc.AI.Kernel
         /// <returns></returns>
         public SenparcAiResult Run(SenparcAiRequest request)
         {
+            //TODO:未正式使用
+
             //TODO:此方法暂时还不能用
-            SemanticKernelHelper.Config(request.UserId, request.ModelName, _kernel);
+            SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, null);
 
             var senparcAiResult = new SenparcAiResult();
             return senparcAiResult;
@@ -44,24 +48,19 @@ namespace Senparc.AI.Kernel
         public async Task<IWantToRun> ChatConfigAsync(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
         {
             var iWantToRun = await this.IWantTo()
-                                    .Config(userId, modelName)
+                                    .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                                    .BuildKernel()
                                     .RegisterSemanticFunctionAsync(promptConfigParameter);
             return iWantToRun;
         }
 
-        public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, SenparcAiRequest request/*, string skillName, string functionName, string skPrompt = null*/)
+        public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, SenparcAiRequest request)
         {
-            //var parameter = new PromptConfigParameter()
-            //{
-            //    MaxTokens = 2000,
-            //    Temperature = 0.7,
-            //    TopP = 0.5,
-            //};
-
             var aiResult = await iWantToRun.RunAsync(request);
-
             return aiResult;
         }
+
+
     }
 
 }

@@ -9,10 +9,10 @@ using Senparc.AI.Entities;
 
 namespace Senparc.AI.Kernel.Handlers
 {
-
     public class IWantTo
     {
         public IKernel Kernel { get; set; }
+        public KernelBuilder KernelBuilder { get; set; }
         public KernelConfig KernelConfig { get; set; }
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         public SemanticAiHandler SemanticAiHandler { get; set; }
@@ -54,15 +54,25 @@ namespace Senparc.AI.Kernel.Handlers
         }
     }
 
+    public class IWantToBuild
+    {
+        public IWantToConfig IWantToConfig { get; set; }
+
+        public IWantToBuild(IWantToConfig iWantToConfig)
+        {
+            IWantToConfig = iWantToConfig;
+        }
+    }
+
     public class IWantToRun
     {
-        public IWantTo IWantTo { get; set; }
+        public IWantToBuild IWantToBuild { get; set; }
         public ISKFunction ISKFunction { get; set; }
         public SenparcAiContext AiContext { get; set; }
         public PromptConfigParameter PromptConfigParameter { get; set; }
-        public IWantToRun(IWantTo iWantTo)
+        public IWantToRun(IWantToBuild iWantToBuild)
         {
-            IWantTo = iWantTo;
+            IWantToBuild = iWantToBuild;
         }
     }
 }

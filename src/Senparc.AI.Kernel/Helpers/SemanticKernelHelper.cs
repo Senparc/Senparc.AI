@@ -1,4 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI.TextEmbedding;
+using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using Polly;
@@ -6,6 +9,7 @@ using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
+using Senparc.AI.Kernel.Handlers;
 using Senparc.CO2NET;
 using System;
 using System.Collections.Generic;
@@ -13,6 +17,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel.Helpers
@@ -22,8 +27,12 @@ namespace Senparc.AI.Kernel.Helpers
     /// </summary>
     public class SemanticKernelHelper
     {
-        internal IKernel Kernel { get; set; }
+        private IKernel Kernel { get; set; }
+        //internal KernelBuilder KernelBuilder { get; set; }
         internal ISenparcAiSetting AiSetting { get; }
+
+        private List<Task> _memoryExecuteList = new List<Task>();
+
 
         public SemanticKernelHelper(ISenparcAiSetting aiSetting = null)
         {
@@ -63,36 +72,181 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// 设置 Kernel
+        /// 获取 Kernel.Memory 对象
+        /// </summary>
+        /// <returns></returns>
+        public ISemanticTextMemory GetMemory()
+        {
+            var kernel = GetKernel();
+            if (kernel.Memory == null)
+            {
+                kernel.UseMemory(new VolatileMemoryStore());
+            }
+
+            return kernel.Memory;
+        }
+
+        /// <summary>
+        /// Build 新的 Kernel 对象
+        /// </summary>
+        /// <param name="kernelBuilder"></param>
+        /// <param name="kernelBuilderAction"></param>
+        /// <returns></returns>
+        public IKernel BuildKernel(KernelBuilder kernelBuilder, Action<KernelBuilder>? kernelBuilderAction = null)
+        {
+            if (kernelBuilderAction != null)
+            {
+                kernelBuilderAction.Invoke(kernelBuilder);
+            }
+            Kernel = kernelBuilder.Build();
+            return Kernel;
+        }
+
+        /// <summary>
+        /// 设置 Kernel，并配置 TextCompletion 模型
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="modelName"></param>
         /// <param name="kernel"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public IKernel Config(string userId, string modelName, IKernel? kernel = null)
+        public KernelBuilder ConfigTextCompletion(string userId, string modelName, KernelBuilder kernelBuilder = null)
         {
-            kernel ??= GetKernel();
+            //kernel ??= GetKernel();
 
             var serviceId = GetServiceId(userId, modelName);
             var senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
+            var aiPlatForm = AiSetting.AiPlatform;
 
-            //TODO:AddTextCompletion也要独立出来
+            //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
-            switch (senparcAiSetting.AiPlatform)
+            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
+
+            kernelBuilder.Configure(c =>
             {
-                case AiPlatform.OpenAI:
-                    kernel.Config.AddOpenAITextCompletionService(serviceId, modelName, senparcAiSetting.ApiKey, senparcAiSetting.OrgaizationId);
-                    break;
-                case AiPlatform.AzureOpenAI:
-                    kernel.Config.AddAzureOpenAITextCompletionService(serviceId, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey);
-                    break;
-                default:
-                    throw new Senparc.AI.Exceptions.SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{senparcAiSetting.AiPlatform}");
+                c.AddTextCompletionService(serviceId, k =>
+                    aiPlatForm switch
+                    {
+                        AiPlatform.OpenAI => new OpenAITextCompletion(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+                        AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+
+                        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                    });
+            });
+
+            //KernelBuilder = builder;
+
+            return kernelBuilder;
+        }
+
+        /// <summary>
+        /// 设置 Kernel，并配置 TextCompletion 模型
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="modelName"></param>
+        /// <param name="kernel"></param>
+        /// <returns></returns>
+        /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
+        public KernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName, KernelBuilder? kernelBuilder = null)
+        {
+            //kernel ??= GetKernel();
+
+            var serviceId = GetServiceId(userId, modelName);
+            var senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
+            var aiPlatForm = AiSetting.AiPlatform;
+
+            //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
+
+            //TODO：Builder 不应该新建
+            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
+
+            kernelBuilder.Configure(c =>
+            {
+                c.AddTextEmbeddingGenerationService(serviceId, k =>
+                    aiPlatForm switch
+                    {
+                        AiPlatform.OpenAI => new OpenAITextEmbeddingGeneration(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+                        AiPlatform.AzureOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+
+                        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                    });
+            });
+
+            //TODO:测试多次添加
+            //KernelBuilder = builder;
+
+            return kernelBuilder;
+        }
+
+        #region Memory 相关
+
+        /// <summary>
+        /// Save some information into the semantic memory, keeping only a reference to the source information.
+        /// </summary>
+        /// <param name="memory">ISemanticTextMemory 对象</param>
+        /// <param name="collection">Collection where to save the information</param>
+        /// <param name="text">Information to save</param>
+        /// <param name="externalId">Unique identifier, e.g. URL or GUID to the original source</param>
+        /// <param name="externalSourceName">Name of the external service, e.g. "MSTeams", "GitHub", "WebSite", "Outlook IMAP", etc.</param>
+        /// <param name="description">Optional description</param>
+        /// <param name="cancel">Cancellation token</param>
+        /// <returns></returns>
+        public async Task MemorySaveReferenceAsync(ISemanticTextMemory memory,
+            string collection,
+            string text,
+            string externalId,
+            string externalSourceName,
+            string? description = null,
+            CancellationToken cancel = default)
+        {
+            await memory.SaveReferenceAsync(collection, text, externalId, externalSourceName, description, cancel);
+        }
+
+        /// <summary>
+        /// Save some information into the semantic memory, keeping a copy of the source information.
+        /// </summary>
+        /// <param name="memory">ISemanticTextMemory 对象</param>
+        /// <param name="collection">Collection where to save the information</param>
+        /// <param name="id">Unique identifier</param>
+        /// <param name="text">Information to save</param>
+        /// <param name="description">Optional description</param>
+        /// <param name="cancel">Cancellation token</param>        /// <returns></returns>
+        public async Task MemorySaveInformationAsync(ISemanticTextMemory memory,
+            string collection,
+            string text,
+            string id,
+            string? description = null,
+            CancellationToken cancel = default)
+        {
+            await memory.SaveInformationAsync(collection, text, id, description, cancel);
+        }
+
+        /// <summary>
+        /// 添加 Memory 操作
+        /// </summary>
+        /// <param name="task"></param>
+        public void AddMemory(Task task)
+        {
+            _memoryExecuteList.Add(task);
+        }
+
+        /// <summary>
+        /// 执行 Memory 操作，并等待
+        /// </summary>
+        public void ExecuteMemory()
+        {
+            foreach (var task in _memoryExecuteList)
+            {
+                Task.Run(() => task);
             }
 
-            return kernel;
+            Task.WaitAll(_memoryExecuteList.ToArray());
+            _memoryExecuteList.Clear();
         }
+
+        #endregion
     }
 
 }
