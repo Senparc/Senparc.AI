@@ -1,17 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.SemanticKernel.CoreSkills;
+using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Tests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Senparc.AI.Kernel.Helpers;
-using Senparc.AI.Kernel.KernelConfigExtensions;
-using Microsoft.SemanticKernel.CoreSkills;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Orchestration;
 using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Kernel.Handlers.Tests
@@ -36,18 +27,17 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             var planner = iWantToRun.ImportSkill(new PlannerSkill(iWantToRun.Kernel)).skillList;
 
-
             var dir = System.IO.Directory.GetCurrentDirectory();
             Console.WriteLine("dir:" + dir);
 
             var skillsDirectory = Path.Combine(dir, "..", "..", "..", "skills");
+            Console.WriteLine("skillsDirectory:" + skillsDirectory);
             iWantToRun.ImportSkillFromDirectory(skillsDirectory, "SummarizeSkill");
             iWantToRun.ImportSkillFromDirectory(skillsDirectory, "WriterSkill");
 
-
             //创建 Plan：
             var ask = "Tomorrow is Valentine's day. I need to come up with a few date ideas and e-mail them to my significant other.";
-            var request = iWantToRun.CreateRequest(ask, false, planner["CreatePlan"]);
+            var request = iWantToRun.CreateRequest(ask, planner["CreatePlan"]);
             var originalPlan = await iWantToRun.RunAsync(request);
 
             var plannResult = originalPlan.Result.Variables.ToPlan().PlanString;
@@ -56,7 +46,8 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             await Console.Out.WriteLineAsync("Original plan:");
             await Console.Out.WriteLineAsync(plannResult);
 
-            //执行 Plan：
+
+            //新建计划，并执行 Plan：
 
             string prompt = @"
 {{$input}}
@@ -64,7 +55,8 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 Rewrite the above in the style of Shakespeare.
 ";
             var shakespeareFunction = iWantToRun.CreateSemanticFunction(prompt, "shakespeare", "ShakespeareSkill", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
-            var newRequest = iWantToRun.CreateRequest(ask, false, planner["CreatePlan"], shakespeareFunction);
+
+            var newRequest = iWantToRun.CreateRequest(ask, planner["CreatePlan"]/*, shakespeareFunction*/);
             var newPlan = await iWantToRun.RunAsync(newRequest);
             var newPlanResult = newPlan.Result.Variables.ToPlan().PlanString;
             Assert.IsTrue(!newPlanResult.IsNullOrEmpty());
@@ -97,16 +89,17 @@ Rewrite the above in the style of Shakespeare.
                 else
                 {
                     Console.WriteLine($"Step {step} - Execution failed:");
+                    Console.WriteLine("Error Message:" + results.LastException?.Message);
                     Console.WriteLine(results.Variables.ToPlan().Result);
                     break;
                 }
-
 
                 executionResults = results;
                 step++;
                 Console.WriteLine("");
             }
 
+            await Console.Out.WriteLineAsync("== plan execute finish ==");
         }
     }
 }
