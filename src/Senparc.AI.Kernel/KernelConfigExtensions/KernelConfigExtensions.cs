@@ -7,6 +7,7 @@ using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Helpers;
+using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,7 +116,7 @@ namespace Senparc.AI.Kernel.Handlers
             if (useAllRegistedFunctions && iWantToRun.Functions.Count > 0)
             {
                 //合并已经注册的对象
-                //pipeline = iWantToRun.Functions.Union(pipeline ?? new ISKFunction[0]).ToArray();
+                pipeline = iWantToRun.Functions.Union(pipeline ?? new ISKFunction[0]).ToArray();
             }
             var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter, pipeline);
             return request;
@@ -162,9 +163,9 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="contextVariables"></param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
-        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, ContextVariables contextVariables,  params ISKFunction[] pipeline)
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, ContextVariables contextVariables, params ISKFunction[] pipeline)
         {
-           return CreateRequest(iWantToRun,contextVariables, false, pipeline);
+            return CreateRequest(iWantToRun, contextVariables, false, pipeline);
         }
 
         #endregion
@@ -190,10 +191,18 @@ namespace Senparc.AI.Kernel.Handlers
 
             //TODO；单独控制 Context
             var context = iWanToRun.AiContext.SubContext;
-            //设置最新的人类对话
-            context.Set("human_input", prompt);
 
-            var botAnswer = await kernel.RunAsync(context, functionPipline);
+            SKContext? botAnswer;
+            if (!request.RequestContent.IsNullOrEmpty() && context.Count() == 0)
+            {
+                botAnswer = await kernel.RunAsync(request.RequestContent, functionPipline);
+            }
+            else
+            {
+                //设置最新的人类对话
+                context.Set("human_input", prompt);
+                botAnswer = await kernel.RunAsync(context, functionPipline);
+            }
 
             //获取历史信息
             var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
@@ -202,7 +211,7 @@ namespace Senparc.AI.Kernel.Handlers
                 history = "";
             }
             //添加新信息
-            history += $"\nHuman: {prompt}\nMelody: {botAnswer}\n";
+            history += $"\nHuman: {prompt}\nBot: {botAnswer}\n";
             //设置历史信息
             context.Set("history", history);
 

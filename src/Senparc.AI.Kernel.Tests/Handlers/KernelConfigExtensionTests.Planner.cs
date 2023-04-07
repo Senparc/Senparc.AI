@@ -56,7 +56,7 @@ Rewrite the above in the style of Shakespeare.
 ";
             var shakespeareFunction = iWantToRun.CreateSemanticFunction(prompt, "shakespeare", "ShakespeareSkill", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
 
-            var newRequest = iWantToRun.CreateRequest(ask, planner["CreatePlan"]/*, shakespeareFunction*/);
+            var newRequest = iWantToRun.CreateRequest(ask, planner["CreatePlan"], shakespeareFunction);
             var newPlan = await iWantToRun.RunAsync(newRequest);
             var newPlanResult = newPlan.Result.Variables.ToPlan().PlanString;
             Assert.IsTrue(!newPlanResult.IsNullOrEmpty());
@@ -69,7 +69,7 @@ Rewrite the above in the style of Shakespeare.
             var executionResults = newPlan.Result;
 
             int step = 1;
-            int maxSteps = 15;
+            int maxSteps = 10;
             while (!executionResults.Variables.ToPlan().IsComplete && step < maxSteps)
             {
                 var stepRequest = iWantToRun.CreateRequest(executionResults.Variables, false, planner["ExecutePlan"]);
