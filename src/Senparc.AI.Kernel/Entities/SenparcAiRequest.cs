@@ -36,12 +36,26 @@ namespace Senparc.AI.Kernel
         /// Function
         /// </summary>
         public ISKFunction[] FunctionPipeline { get; set; }
+        /// <summary>
+        /// ContextVariables
+        /// </summary>
+        public ContextVariables ContextVariables { get; set; }
 
         public SenparcAiRequest(string userId, string modelName, string requestContent, PromptConfigParameter parameterConfig, params ISKFunction[] pipeline)
         {
             UserId = userId;
             ModelName = modelName;
             RequestContent = requestContent;
+            ParameterConfig = parameterConfig;
+            IAiContext = new SenparcAiContext();
+            FunctionPipeline = pipeline;
+        }
+
+        public SenparcAiRequest(string userId, string modelName, ContextVariables contextVariables, PromptConfigParameter parameterConfig, params ISKFunction[] pipeline)
+        {
+            UserId = userId;
+            ModelName = modelName;
+            ContextVariables = contextVariables;
             ParameterConfig = parameterConfig;
             IAiContext = new SenparcAiContext();
             FunctionPipeline = pipeline;

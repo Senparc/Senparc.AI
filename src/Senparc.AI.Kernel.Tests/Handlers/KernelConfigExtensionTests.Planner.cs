@@ -12,6 +12,7 @@ using Senparc.AI.Kernel.KernelConfigExtensions;
 using Microsoft.SemanticKernel.CoreSkills;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
+using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Kernel.Handlers.Tests
 {
@@ -20,13 +21,14 @@ namespace Senparc.AI.Kernel.Handlers.Tests
         [TestMethod]
         public async Task PlannerTest()
         {
-            var serviceProvider = BaseTest.serviceProvider;
+            //TODO: 测试每个阶段时间，Planner 比较耗时
 
+            //准备
+            var serviceProvider = BaseTest.serviceProvider;
             var handler = serviceProvider.GetRequiredService<IAiHandler>()
                             as SemanticAiHandler;
             var userId = "JeffreySu";
 
-            //测试 TextEmbedding
             var iWantToRun = handler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextCompletion, userId, "text-davinci-003")
@@ -42,14 +44,69 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             iWantToRun.ImportSkillFromDirectory(skillsDirectory, "SummarizeSkill");
             iWantToRun.ImportSkillFromDirectory(skillsDirectory, "WriterSkill");
 
+
+            //创建 Plan：
             var ask = "Tomorrow is Valentine's day. I need to come up with a few date ideas and e-mail them to my significant other.";
-
-            var request = iWantToRun.GetRequest(ask, false, planner["CreatePlan"]);
-
+            var request = iWantToRun.CreateRequest(ask, false, planner["CreatePlan"]);
             var originalPlan = await iWantToRun.RunAsync(request);
 
+            var plannResult = originalPlan.Result.Variables.ToPlan().PlanString;
+            Assert.IsTrue(!plannResult.IsNullOrEmpty());
+
             await Console.Out.WriteLineAsync("Original plan:");
-            await Console.Out.WriteLineAsync(originalPlan.Result.Variables.ToPlan().PlanString);
+            await Console.Out.WriteLineAsync(plannResult);
+
+            //执行 Plan：
+
+            string prompt = @"
+{{$input}}
+
+Rewrite the above in the style of Shakespeare.
+";
+            var shakespeareFunction = iWantToRun.CreateSemanticFunction(prompt, "shakespeare", "ShakespeareSkill", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
+            var newRequest = iWantToRun.CreateRequest(ask, false, planner["CreatePlan"], shakespeareFunction);
+            var newPlan = await iWantToRun.RunAsync(newRequest);
+            var newPlanResult = newPlan.Result.Variables.ToPlan().PlanString;
+            Assert.IsTrue(!newPlanResult.IsNullOrEmpty());
+
+            Console.WriteLine("Updated plan:\n");
+            Console.WriteLine(newPlanResult);
+
+
+            //Excute
+            var executionResults = newPlan.Result;
+
+            int step = 1;
+            int maxSteps = 15;
+            while (!executionResults.Variables.ToPlan().IsComplete && step < maxSteps)
+            {
+                var stepRequest = iWantToRun.CreateRequest(executionResults.Variables, false, planner["ExecutePlan"]);
+                var results = (await iWantToRun.RunAsync(stepRequest)).Result;
+                if (results.Variables.ToPlan().IsSuccessful)
+                {
+                    Console.WriteLine($"Step {step} - Execution results:\n");
+                    Console.WriteLine(results.Variables.ToPlan().PlanString);
+
+                    if (results.Variables.ToPlan().IsComplete)
+                    {
+                        Console.WriteLine($"Step {step} - COMPLETE!");
+                        Console.WriteLine(results.Variables.ToPlan().Result);
+                        break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Step {step} - Execution failed:");
+                    Console.WriteLine(results.Variables.ToPlan().Result);
+                    break;
+                }
+
+
+                executionResults = results;
+                step++;
+                Console.WriteLine("");
+            }
+
         }
     }
 }

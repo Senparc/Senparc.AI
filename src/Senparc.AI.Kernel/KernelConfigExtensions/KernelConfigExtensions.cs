@@ -100,7 +100,15 @@ namespace Senparc.AI.Kernel.Handlers
 
         #region 运行准备
 
-        public static SenparcAiRequest GetRequest(this IWantToRun iWantToRun, string requestContent, bool useAllRegistedFunctions = false, params ISKFunction[] pipeline)
+        /// <summary>
+        /// 创建请求实体
+        /// </summary>
+        /// <param name="iWantToRun"></param>
+        /// <param name="requestContent"></param>
+        /// <param name="useAllRegistedFunctions"></param>
+        /// <param name="pipeline"></param>
+        /// <returns></returns>
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, string requestContent, bool useAllRegistedFunctions = false, params ISKFunction[] pipeline)
         {
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
 
@@ -110,6 +118,27 @@ namespace Senparc.AI.Kernel.Handlers
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new ISKFunction[0]).ToArray();
             }
             var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter, pipeline);
+            return request;
+        }
+
+        /// <summary>
+        /// 创建请求实体
+        /// </summary>
+        /// <param name="iWantToRun"></param>
+        /// <param name="contextVariables"></param>
+        /// <param name="useAllRegistedFunctions"></param>
+        /// <param name="pipeline"></param>
+        /// <returns></returns>
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, ContextVariables contextVariables, bool useAllRegistedFunctions = false, params ISKFunction[] pipeline)
+        {
+            var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
+
+            if (useAllRegistedFunctions && iWantToRun.Functions.Count > 0)
+            {
+                //合并已经注册的对象
+                pipeline = iWantToRun.Functions.Union(pipeline ?? new ISKFunction[0]).ToArray();
+            }
+            var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, contextVariables, iWantToRun.PromptConfigParameter, pipeline);
             return request;
         }
 

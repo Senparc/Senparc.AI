@@ -102,7 +102,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             // 输入/提问并获取结果
             var prompt = "请问中国有多少人口？";
-            var aiRequest = iWantToRun.GetRequest(prompt, true);
+            var aiRequest = iWantToRun.CreateRequest(prompt, true);
             var aiResult = await iWantToRun.RunAsync(aiRequest);
             //aiResult.Result 结果：中国的人口约为13.8亿。
             await Console.Out.WriteLineAsync(aiResult.Output);

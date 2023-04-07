@@ -131,6 +131,9 @@ ChatBot: ";
             context["userInput"] = input;
 
             var answer = await chatFunction.function.InvokeAsync(context);
+            Assert.IsTrue(!answer.Result.IsNullOrEmpty());
+            Assert.AreEqual(answer.ToString(),answer.Result);
+
             history += $"\nUser: {input}\nChatBot: {answer}\n";
             context["history"] = history;
 
@@ -215,6 +218,7 @@ ChatBot: ";
             {
                 await Console.Out.WriteLineAsync("没有匹配结果");
             }
+
             await Console.Out.WriteLineAsync($" -- query cost:{SystemTime.DiffTotalMS(dt4)}ms");
 
 
