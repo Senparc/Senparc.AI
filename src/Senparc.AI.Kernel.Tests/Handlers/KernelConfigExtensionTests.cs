@@ -39,11 +39,12 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             var dt1 = DateTime.Now;
             const string MemoryCollectionName = "aboutMe";
 
+            var kernel = handler.SemanticKernelHelper.GetKernel();
+
             var useNewMethod = true;
             if (!useNewMethod)
             {
                 //原始方法（异步，依次进行）
-                var kernel = handler.SemanticKernelHelper.GetKernel();
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info1", text: "My name is Andrea");
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator");
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005");
@@ -89,73 +90,60 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                 Console.WriteLine();
             }
 
-            return;
+            // 测试 recall
 
-            //            kernel.ImportSkill(new TextMemorySkill());
+            iWantToRun.ImportSkill(new TextMemorySkill());
 
-            //            const string skPrompt = @"
-            //ChatBot can have a conversation with you about any topic.
-            //It can give explicit instructions or say 'I don't know' if it does not have an answer.
+            const string skPrompt = @"
+ChatBot can have a conversation with you about any topic.
+It can give explicit instructions or say 'I don't know' if it does not have an answer.
 
-            //Information about me, from previous conversations:
-            //- {{$fact1}} {{recall $fact1}}
-            //- {{$fact2}} {{recall $fact2}}
-            //- {{$fact3}} {{recall $fact3}}
-            //- {{$fact4}} {{recall $fact4}}
-            //- {{$fact5}} {{recall $fact5}}
-            //- {{$fact6}} {{recall $fact6}}
-            //- {{$fact7}} {{recall $fact7}}
+Information about me, from previous conversations:
+- {{$fact1}} {{recall $fact1}}
+- {{$fact2}} {{recall $fact2}}
+- {{$fact3}} {{recall $fact3}}
+- {{$fact4}} {{recall $fact4}}
+- {{$fact5}} {{recall $fact5}}
+- {{$fact6}} {{recall $fact6}}
+- {{$fact7}} {{recall $fact7}}
 
-            //Chat:
-            //{{$history}}
-            //User: {{$userInput}}
-            //ChatBot: ";
+Chat:
+{{$history}}
+User: {{$userInput}}
+ChatBot: ";
 
-            //            var chatFunction = kernel.CreateSemanticFunction(skPrompt, maxTokens: 200, temperature: 0.8);
+            var chatFunction = kernel.CreateSemanticFunction(skPrompt, maxTokens: 200, temperature: 0.8);//TODO抽象
 
-            //            var context = kernel.CreateNewContext();
+            var context = kernel.CreateNewContext();
 
-            //            context["fact1"] = "what is my name?";
-            //            context["fact2"] = "where do I live?";
-            //            context["fact3"] = "where is my family from?";
-            //            context["fact4"] = "where have I travelled?";
-            //            context["fact5"] = "what do I do for work?";
-            //            context["fact6"] = "what's my company's name?";
-            //            context["fact7"] = "tell me more about this company?";
+            context["fact1"] = "what is my name?";
+            context["fact2"] = "where do I live?";
+            context["fact3"] = "where is my family from?";
+            context["fact4"] = "where have I travelled?";
+            context["fact5"] = "what do I do for work?";
+            context["fact6"] = "what company I work for?";
+            context["fact7"] = "how many years of R&D experience does Senparc has?";
+            context[TextMemorySkill.CollectionParam] = MemoryCollectionName;
+            context[TextMemorySkill.RelevanceParam] = "0.8";
 
-            //            context[TextMemorySkill.CollectionParam] = MemoryCollectionName;
-            //            context[TextMemorySkill.RelevanceParam] = "0.8";
+            var history = "";
+            context["history"] = history;
 
-            //            var history = "";
-            //            context["history"] = history;
-            //            Func<string, Task> Chat = async (string input) =>
-            //            {
-            //                var dtChat1 = DateTime.Now;
-            //                // Save new message in the context variables
-            //                context["userInput"] = input;
-            //                var dtChat2 = DateTime.Now;
+            var input = "Where is my company?";
+            context["userInput"] = input;
 
-            //                // Process the user message and get an answer
-            //                var answer = await chatFunction.InvokeAsync(context);
-            //                var dtChat3 = DateTime.Now;
+            var answer = await chatFunction.InvokeAsync(context);
+            history += $"\nUser: {input}\nChatBot: {answer}\n";
+            context["history"] = history;
 
-            //                // Append the new interaction to the chat history
-            //                history += $"\nUser: {input}\nChatBot: {answer}\n";
-            //                context["history"] = history;
-            //                var dtChat4 = DateTime.Now;
-
-            //                // Show the bot response
-            //                Console.WriteLine("ChatBot: " + context + $"\n[time cost] context read 1:{(dtChat2 - dtChat1).TotalMilliseconds}ms FuncionInvoke:{(dtChat3 - dtChat2).TotalMilliseconds}ms context read 2:{(dtChat4 - dtChat3).TotalMilliseconds}ms");
-            //                Console.WriteLine();
-            //            };
-
-
+            await Console.Out.WriteLineAsync("===== Start recall test =====");
+            await Console.Out.WriteLineAsync("Question: "+input);
+            await Console.Out.WriteLineAsync("Answer: "+answer.ToString());
         }
 
         [TestMethod()]
         public async Task ConfigModel_Embedding_MemoryReferenceTest()
         {
-
             var serviceProvider = BaseTest.serviceProvider;
 
             var handler = serviceProvider.GetRequiredService<IAiHandler>()
@@ -224,6 +212,12 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             }
             await Console.Out.WriteLineAsync($" -- query cost:{SystemTime.DiffTotalMS(dt4)}ms");
 
+
         }
+
+        //[TestMethod]
+        //public async Task ConfigModel_Embedding_SkillTest()
+        //{
+        //}
     }
 }

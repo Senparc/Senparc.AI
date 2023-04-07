@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
+		<Version>0.1.0-beta-02</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
-		<Version>0.1.0-beta01</Version>
 		<AssemblyName>Senparc.AI</AssemblyName>
 		<RootNamespace>Senparc.AI</RootNamespace>
 		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
@@ -38,9 +38,9 @@
 		<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
 	</ItemGroup>
 	<ItemGroup>
-		
+
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
-		
+
 		<PackageReference Include="Senparc.CO2NET" Version="2.1.7.3" />
 	</ItemGroup>
 </Project>
