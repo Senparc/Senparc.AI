@@ -93,14 +93,14 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             //准备运行
             var userId = "JeffreySu";//区分用户
             var modelName = "text-davinci-003";//默认使用模型
-            var iWantToRun = handler
-                                .IWantTo()
-                                .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
-                                .BuildKernel()
-                                .RegisterSemanticFunction("ChatBot", "Chat", promptParameter)
-                                .iWantToRun;
+            var iWantToRun =
+                 handler.IWantTo()
+                        .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                        .BuildKernel()
+                        .RegisterSemanticFunction("ChatBot", "Chat", promptParameter)
+                        .iWantToRun;
 
-            // 输入/提问并获取结果
+            // 输入/提问，获取结果
             var prompt = "请问中国有多少人口？";
             var aiRequest = iWantToRun.CreateRequest(prompt, true, true);
             var aiResult = await iWantToRun.RunAsync(aiRequest);
