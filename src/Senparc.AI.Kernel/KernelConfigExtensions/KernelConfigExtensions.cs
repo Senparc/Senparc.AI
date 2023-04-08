@@ -118,6 +118,7 @@ namespace Senparc.AI.Kernel.Handlers
                 //合并已经注册的对象
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new ISKFunction[0]).ToArray();
             }
+
             var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter, pipeline);
             return request;
         }
@@ -189,31 +190,39 @@ namespace Senparc.AI.Kernel.Handlers
             var prompt = request.RequestContent;
             var functionPipline = request.FunctionPipeline;
 
-            //TODO；单独控制 Context
-            var context = iWanToRun.AiContext.SubContext;
-
             SKContext? botAnswer;
-            if (!request.RequestContent.IsNullOrEmpty() && context.Count() == 0)
+            if (!request.RequestContent.IsNullOrEmpty() && 
+                (request.ContextVariables ==null || request.ContextVariables.Count() == 0))
             {
                 botAnswer = await kernel.RunAsync(request.RequestContent, functionPipline);
             }
+            else if (request.ContextVariables != null)
+            {
+
+                //设置最新的人类对话
+                botAnswer = await kernel.RunAsync(request.ContextVariables, functionPipline);
+            }
             else
             {
-                //设置最新的人类对话
-                context.Set("human_input", prompt);
-                botAnswer = await kernel.RunAsync(context, functionPipline);
-            }
+                //TODO：需要处理context，或者为空的时候给出警告
+                //TODO；单独控制 Context
+                var context = iWanToRun.AiContext.SubContext;
 
-            //获取历史信息
-            var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
-            if (!context.Get(serviceId, out string history))
-            {
-                history = "";
+                context.Set("human_input", prompt);
+                
+                botAnswer = await kernel.RunAsync(context, functionPipline);
+
+                //获取历史信息
+                var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
+                if (!context.Get(serviceId, out string history))
+                {
+                    history = "";
+                }
+                //添加新信息
+                history += $"\nHuman: {prompt}\nBot: {botAnswer}\n";
+                //设置历史信息
+                context.Set("history", history);
             }
-            //添加新信息
-            history += $"\nHuman: {prompt}\nBot: {botAnswer}\n";
-            //设置历史信息
-            context.Set("history", history);
 
             var result = new SenaprcContentAiResult()
             {
