@@ -28,21 +28,26 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-            var iWantToRun = await handler.ChatConfigAsync(parameter, userId: "Jeffrey");
+            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey");
+            var iWantToRun = chatConfig.iWantToRun;
+            var chatFunction = chatConfig.chatFunction;
 
             //第一轮对话
             var dt = SystemTime.Now;
             var prompt = "What is the town with the highest textile capacity in China in 2020?";
-            var request = new SenparcAiRequest("Jeffrey", "text-davinci-003", prompt, parameter);
+            var request = new SenparcAiRequest("Jeffrey", "text-davinci-003", prompt, parameter, true, chatFunction);
             var result = await handler.ChatAsync(iWantToRun, request);
 
             await Console.Out.WriteLineAsync($"第一轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
 
             Assert.IsNotNull(result);
-            await Console.Out.WriteLineAsync(result.ToJson(true));
-            Assert.IsNotNull(result.Output);
+            //await Console.Out.WriteLineAsync(result.ToJson(true));
             Assert.IsTrue(result.Output.Length > 0);
             Assert.IsTrue(result.LastException == null);
+
+            await Console.Out.WriteLineAsync("Q: " + result.Input);
+            await Console.Out.WriteLineAsync("A: " + result.Output);
+            await Console.Out.WriteLineAsync();
 
             //第二轮对话
             dt = SystemTime.Now;
@@ -88,24 +93,26 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             //准备运行
             var userId = "JeffreySu";//区分用户
             var modelName = "text-davinci-003";//默认使用模型
-            var iWantToRun = await handler
-                                .IWantTo()
-                                .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
-                                .BuildKernel()
-                                .RegisterSemanticFunctionAsync(promptParameter);
+            var iWantToRun =
+                 handler.IWantTo()
+                        .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                        .BuildKernel()
+                        .RegisterSemanticFunction("ChatBot", "Chat", promptParameter)
+                        .iWantToRun;
 
-            // 输入/提问并获取结果
+            // 输入/提问，获取结果
             var prompt = "请问中国有多少人口？";
-            var aiRequest = iWantToRun.GetRequest(prompt);
+            var aiRequest = iWantToRun.CreateRequest(prompt, true, true);
             var aiResult = await iWantToRun.RunAsync(aiRequest);
             //aiResult.Result 结果：中国的人口约为13.8亿。
-            await Console.Out.WriteLineAsync(aiResult.ToJson(true));
+            await Console.Out.WriteLineAsync(aiResult.Output);
+            //await Console.Out.WriteLineAsync(aiResult.ToJson(true));
 
             //第二次对话，包含上下文，自动理解提问目标是人口数量
             aiRequest.RequestContent = "那么美国呢？";
             aiResult = await iWantToRun.RunAsync(aiRequest);
             //aiResult.Result 结果：美国的人口大约为3.2亿。
-            await Console.Out.WriteLineAsync(aiResult.ToJson(true));
+            await Console.Out.WriteLineAsync(aiResult.Output);
 
         }
     }

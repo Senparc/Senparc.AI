@@ -56,18 +56,18 @@ var promptParameter = new PromptConfigParameter()
 // 准备运行
 var userId = "JeffreySu";//区分用户
 var modelName = "text-davinci-003";//默认使用模型
-var iWantToRun = await handler
-                    .IWantTo()
-                    .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
-                    .BuildKernel()
-                    .RegisterSemanticFunctionAsync(promptParameter);
+var iWantToRun = 
+     handler.IWantTo()
+            .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+            .BuildKernel()
+            .RegisterSemanticFunction("ChatBot", "Chat", promptParameter)
+            .iWantToRun;
 
-// 输入/提问并获取结果
+// 输入/提问，获取结果
 var prompt = "请问中国有多少人口？";
-var aiRequest = iWantToRun.GetRequest(prompt);
+var aiRequest = iWantToRun.CreateRequest(prompt, true, true);
 var aiResult = await iWantToRun.RunAsync(aiRequest);
-
-//aiResult.Output 结果：中国的人口约为13.8亿。
+//aiResult.Result 结果：中国的人口约为13.8亿。
 ```
 
 <img width="623" alt="image" src="https://user-images.githubusercontent.com/2281927/230152103-3486fbfc-2426-407c-bcb6-74d4485eaf91.png">

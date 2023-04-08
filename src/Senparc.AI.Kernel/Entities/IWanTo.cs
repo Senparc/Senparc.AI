@@ -11,11 +11,12 @@ namespace Senparc.AI.Kernel.Handlers
 {
     public class IWantTo
     {
-        public IKernel Kernel { get; set; }
         public KernelBuilder KernelBuilder { get; set; }
         public KernelConfig KernelConfig { get; set; }
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         public SemanticAiHandler SemanticAiHandler { get; set; }
+
+        public IKernel Kernel => SemanticKernelHelper.GetKernel();
 
         public string UserId { get; set; }
         public string ModelName { get; set; }
@@ -48,6 +49,12 @@ namespace Senparc.AI.Kernel.Handlers
         public string UserId { get; set; }
         public string ModelName { get; set; }
 
+
+        public SemanticAiHandler SemanticAiHandler => IWantTo.SemanticAiHandler;
+        public SemanticKernelHelper SemanticKernelHelper => IWantTo.SemanticKernelHelper;
+        public IKernel Kernel => SemanticKernelHelper.GetKernel();
+
+
         public IWantToConfig(IWantTo iWantTo)
         {
             IWantTo = iWantTo;
@@ -58,6 +65,10 @@ namespace Senparc.AI.Kernel.Handlers
     {
         public IWantToConfig IWantToConfig { get; set; }
 
+        public SemanticAiHandler SemanticAiHandler => IWantToConfig.IWantTo.SemanticAiHandler;
+        public SemanticKernelHelper SemanticKernelHelper => IWantToConfig.IWantTo.SemanticKernelHelper;
+        public IKernel Kernel => SemanticKernelHelper.GetKernel();
+
         public IWantToBuild(IWantToConfig iWantToConfig)
         {
             IWantToConfig = iWantToConfig;
@@ -67,12 +78,19 @@ namespace Senparc.AI.Kernel.Handlers
     public class IWantToRun
     {
         public IWantToBuild IWantToBuild { get; set; }
-        public ISKFunction ISKFunction { get; set; }
+        //public ISKFunction ISKFunction { get; set; }
         public SenparcAiContext AiContext { get; set; }
         public PromptConfigParameter PromptConfigParameter { get; set; }
+
+        public List<ISKFunction> Functions { get; set; }
+
+        public SemanticAiHandler SemanticAiHandler => IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
+        public SemanticKernelHelper SemanticKernelHelper => IWantToBuild.IWantToConfig.IWantTo.SemanticKernelHelper;
+        public IKernel Kernel => SemanticKernelHelper.GetKernel();
         public IWantToRun(IWantToBuild iWantToBuild)
         {
             IWantToBuild = iWantToBuild;
+            Functions = new List<ISKFunction>();
         }
     }
 }

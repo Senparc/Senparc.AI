@@ -1,25 +1,17 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.CoreSkills;
 using Microsoft.SemanticKernel.Memory;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.Interfaces;
-using Senparc.AI.Kernel.Handlers;
+using Senparc.AI.Kernel.KernelConfigExtensions;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.AI.Tests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Kernel.Handlers.Tests
 {
     [TestClass()]
-    public class KernelConfigExtensionTests : KernelTestBase
+    public partial class KernelConfigExtensionTests : KernelTestBase
     {
-
-
         [TestMethod()]
         public async Task ConfigModel_Embedding_MemoryInforationTest()
         {
@@ -43,8 +35,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             if (!useNewMethod)
             {
                 //原始方法（异步，依次进行）
-                var kernel = handler.SemanticKernelHelper.GetKernel();
-                await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info1", text: "My name is Andrea");
+                var kernel = handler.SemanticKernelHelper.GetKernel(); await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info1", text: "My name is Andrea");
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator");
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005");
                 await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info4", text: "I visited France and Italy five times since 2015");
@@ -89,73 +80,71 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                 Console.WriteLine();
             }
 
-            return;
+            // 测试 recall
 
-            //            kernel.ImportSkill(new TextMemorySkill());
+            Assert.AreEqual(0, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
 
-            //            const string skPrompt = @"
-            //ChatBot can have a conversation with you about any topic.
-            //It can give explicit instructions or say 'I don't know' if it does not have an answer.
+            iWantToRun.ImportSkill(new TextMemorySkill());
+            //没有增加实际的 funciton
+            Assert.AreEqual(0, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
 
-            //Information about me, from previous conversations:
-            //- {{$fact1}} {{recall $fact1}}
-            //- {{$fact2}} {{recall $fact2}}
-            //- {{$fact3}} {{recall $fact3}}
-            //- {{$fact4}} {{recall $fact4}}
-            //- {{$fact5}} {{recall $fact5}}
-            //- {{$fact6}} {{recall $fact6}}
-            //- {{$fact7}} {{recall $fact7}}
+            const string skPrompt = @"
+ChatBot can have a conversation with you about any topic.
+It can give explicit instructions or say 'I don't know' if it does not have an answer.
 
-            //Chat:
-            //{{$history}}
-            //User: {{$userInput}}
-            //ChatBot: ";
+Information about me, from previous conversations:
+- {{$fact1}} {{recall $fact1}}
+- {{$fact2}} {{recall $fact2}}
+- {{$fact3}} {{recall $fact3}}
+- {{$fact4}} {{recall $fact4}}
+- {{$fact5}} {{recall $fact5}}
+- {{$fact6}} {{recall $fact6}}
+- {{$fact7}} {{recall $fact7}}
 
-            //            var chatFunction = kernel.CreateSemanticFunction(skPrompt, maxTokens: 200, temperature: 0.8);
-
-            //            var context = kernel.CreateNewContext();
-
-            //            context["fact1"] = "what is my name?";
-            //            context["fact2"] = "where do I live?";
-            //            context["fact3"] = "where is my family from?";
-            //            context["fact4"] = "where have I travelled?";
-            //            context["fact5"] = "what do I do for work?";
-            //            context["fact6"] = "what's my company's name?";
-            //            context["fact7"] = "tell me more about this company?";
-
-            //            context[TextMemorySkill.CollectionParam] = MemoryCollectionName;
-            //            context[TextMemorySkill.RelevanceParam] = "0.8";
-
-            //            var history = "";
-            //            context["history"] = history;
-            //            Func<string, Task> Chat = async (string input) =>
-            //            {
-            //                var dtChat1 = DateTime.Now;
-            //                // Save new message in the context variables
-            //                context["userInput"] = input;
-            //                var dtChat2 = DateTime.Now;
-
-            //                // Process the user message and get an answer
-            //                var answer = await chatFunction.InvokeAsync(context);
-            //                var dtChat3 = DateTime.Now;
-
-            //                // Append the new interaction to the chat history
-            //                history += $"\nUser: {input}\nChatBot: {answer}\n";
-            //                context["history"] = history;
-            //                var dtChat4 = DateTime.Now;
-
-            //                // Show the bot response
-            //                Console.WriteLine("ChatBot: " + context + $"\n[time cost] context read 1:{(dtChat2 - dtChat1).TotalMilliseconds}ms FuncionInvoke:{(dtChat3 - dtChat2).TotalMilliseconds}ms context read 2:{(dtChat4 - dtChat3).TotalMilliseconds}ms");
-            //                Console.WriteLine();
-            //            };
+Chat:
+{{$history}}
+User: {{$userInput}}
+ChatBot: ";
 
 
+            var chatFunction = iWantToRun.CreateSemanticFunction(skPrompt, maxTokens: 200, temperature: 0.8);
+
+            //增加了 1 个 Function
+            Assert.AreEqual(1, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
+
+            var context = iWantToRun.CreateNewContext().context;
+
+            context["fact1"] = "what is my name?";
+            context["fact2"] = "where do I live?";
+            context["fact3"] = "where is my family from?";
+            context["fact4"] = "where have I travelled?";
+            context["fact5"] = "what do I do for work?";
+            context["fact6"] = "what company I work for?";
+            context["fact7"] = "how many years of R&D experience does Senparc has?";
+            context[TextMemorySkill.CollectionParam] = MemoryCollectionName;
+            context[TextMemorySkill.RelevanceParam] = "0.8";
+
+            var history = "";
+            context["history"] = history;
+
+            var input = "Where is my company?";
+            context["userInput"] = input;
+
+            var answer = await chatFunction.function.InvokeAsync(context);
+            Assert.IsTrue(!answer.Result.IsNullOrEmpty());
+            Assert.AreEqual(answer.ToString(),answer.Result);
+
+            history += $"\nUser: {input}\nChatBot: {answer}\n";
+            context["history"] = history;
+
+            await Console.Out.WriteLineAsync("===== Start recall test =====");
+            await Console.Out.WriteLineAsync("Question: " + input);
+            await Console.Out.WriteLineAsync("Answer: " + answer.ToString());
         }
 
         [TestMethod()]
         public async Task ConfigModel_Embedding_MemoryReferenceTest()
         {
-
             var serviceProvider = BaseTest.serviceProvider;
 
             var handler = serviceProvider.GetRequiredService<IAiHandler>()
@@ -191,11 +180,18 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                     description: entry.Value,//真正用于生成 embedding,//只用于展示记录
                     text: entry.Value,//真正用于生成 embedding
                     externalId: entry.Key,
-                    externalSourceName: "GitHub"
+                    externalSourceName: "NeuCharFramework"
                 );
                 Console.WriteLine($"  URL {++j} saved");
             }
             iWantToRun.MemoryStoreExexute();
+
+            var kernelMemory = await iWantToRun.Kernel.Memory.GetCollectionsAsync();
+
+            Assert.AreEqual(1, kernelMemory.Count);
+            Assert.AreEqual("NcfGitHub", kernelMemory.First());
+
+
             await Console.Out.WriteLineAsync($"MemorySave cost:{SystemTime.DiffTotalMS(dt2)}ms");
             await Console.Out.WriteLineAsync();
 
@@ -222,8 +218,15 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             {
                 await Console.Out.WriteLineAsync("没有匹配结果");
             }
+
             await Console.Out.WriteLineAsync($" -- query cost:{SystemTime.DiffTotalMS(dt4)}ms");
 
+
         }
+
+        //[TestMethod]
+        //public async Task ConfigModel_Embedding_SkillTest()
+        //{
+        //}
     }
 }

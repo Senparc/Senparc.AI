@@ -8,7 +8,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public class SenparcAiRequest: IAiRequest<ContextVariables>
+    public class SenparcAiRequest : IAiRequest<ContextVariables>
     {
 
         /// <summary>
@@ -31,15 +31,40 @@ namespace Senparc.AI.Kernel
         /// <summary>
         /// 上下文
         /// </summary>
-       public IAiContext<ContextVariables> IAiContext { get; set; }
+        public IAiContext<ContextVariables> IAiContext { get; set; }
+        /// <summary>
+        /// Function
+        /// </summary>
+        public ISKFunction[] FunctionPipeline { get; set; }
+        /// <summary>
+        /// ContextVariables，如果 StoreContext 为 true，则会覆盖当前 iWanToRun 中储存的 Context
+        /// </summary>
+        public ContextVariables ContextVariables { get; set; }
+        /// <summary>
+        /// 是否储存上下文（ContextVariables 对象）
+        /// </summary>
+        public bool StoreContext { get; set; }
 
-        public SenparcAiRequest(string userId, string modelName, string requestContent, PromptConfigParameter parameterConfig)
+        public SenparcAiRequest(string userId, string modelName, string requestContent,PromptConfigParameter parameterConfig, bool storeContext=false, params ISKFunction[] pipeline)
         {
             UserId = userId;
             ModelName = modelName;
             RequestContent = requestContent;
             ParameterConfig = parameterConfig;
             IAiContext = new SenparcAiContext();
+            StoreContext = storeContext;
+            FunctionPipeline = pipeline;
+        }
+
+        public SenparcAiRequest(string userId, string modelName, ContextVariables contextVariables, PromptConfigParameter parameterConfig, bool storeContext = false, params ISKFunction[] pipeline)
+        {
+            UserId = userId;
+            ModelName = modelName;
+            ContextVariables = contextVariables;
+            ParameterConfig = parameterConfig;
+            IAiContext = new SenparcAiContext();
+            StoreContext = storeContext;
+            FunctionPipeline = pipeline;
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.SemanticKernel.Memory;
 using Senparc.AI.Exceptions;
+using Senparc.AI.Kernel.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,5 +22,10 @@ namespace Senparc.AI.Kernel.Entities
         /// Search relevance, from 0 to 1, where 1 means perfect match.
         /// </summary>
         public double Relevance { get; set; }
+
+        public SenaprcAiResult_MemoryQuery(IWantToRun iwantToRun) : base(iwantToRun)
+        {
+        }
+
     }
 }

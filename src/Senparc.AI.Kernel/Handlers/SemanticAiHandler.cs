@@ -40,22 +40,25 @@ namespace Senparc.AI.Kernel
             //TODO:此方法暂时还不能用
             SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, null);
 
-            var senparcAiResult = new SenparcAiResult();
+            var senparcAiResult = new SenparcAiResult(new IWantToRun(new IWantToBuild(new IWantToConfig(new IWantTo()))));
             return senparcAiResult;
         }
 
 
-        public async Task<IWantToRun> ChatConfigAsync(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
+        public (IWantToRun iWantToRun, ISKFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
         {
-            var iWantToRun = await this.IWantTo()
+            var result = this.IWantTo()
                                     .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                                     .BuildKernel()
-                                    .RegisterSemanticFunctionAsync(promptConfigParameter);
-            return iWantToRun;
+                                    .RegisterSemanticFunction("ChatBot", "Chat", promptConfigParameter);
+
+            return result;
         }
 
         public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, SenparcAiRequest request)
         {
+            //var function = iWantToRun.Kernel.Skills.GetSemanticFunction("Chat");
+            //request.FunctionPipeline = new[] { function };
             var aiResult = await iWantToRun.RunAsync(request);
             return aiResult;
         }

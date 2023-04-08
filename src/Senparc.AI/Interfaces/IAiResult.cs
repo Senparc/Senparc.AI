@@ -21,5 +21,9 @@ namespace Senparc.AI.Interfaces
         /// 最近一个异常
         /// </summary>
         Exception? LastException { get; set; }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //IWantToRun IWantToRun { get; set; }
     }
 }
