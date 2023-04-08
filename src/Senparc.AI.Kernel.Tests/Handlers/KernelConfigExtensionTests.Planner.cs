@@ -72,7 +72,7 @@ Rewrite the above in the style of Shakespeare.
             int maxSteps = 10;
             while (!executionResults.Variables.ToPlan().IsComplete && step < maxSteps)
             {
-                var stepRequest = iWantToRun.CreateRequest(executionResults.Variables, false, planner["ExecutePlan"]);
+                var stepRequest = iWantToRun.CreateRequest(executionResults.Variables, false, false, planner["ExecutePlan"]);
                 var results = (await iWantToRun.RunAsync(stepRequest)).Result;
                 if (results.Variables.ToPlan().IsSuccessful)
                 {

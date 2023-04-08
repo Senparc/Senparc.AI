@@ -109,7 +109,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="useAllRegistedFunctions">是否使用所有已经注册、创建过的 Function</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
-        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, string requestContent, bool useAllRegistedFunctions = false, params ISKFunction[] pipeline)
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, string requestContent, bool useAllRegistedFunctions = false, bool storeContext = false, params ISKFunction[] pipeline)
         {
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
 
@@ -119,12 +119,12 @@ namespace Senparc.AI.Kernel.Handlers
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new ISKFunction[0]).ToArray();
             }
 
-            var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter, pipeline);
+            var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter, storeContext, pipeline);
             return request;
         }
 
         /// <summary>
-        /// 创建请求实体（不使用所有已经注册、创建过的 Function）
+        /// 创建请求实体（不使用所有已经注册、创建过的 Function，也不储存行下文）
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="requestContent"></param>
@@ -133,7 +133,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns></returns>
         public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, string requestContent, params ISKFunction[] pipeline)
         {
-            return CreateRequest(iWantToRun, requestContent, false, pipeline);
+            return CreateRequest(iWantToRun, requestContent, false, false, pipeline);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="useAllRegistedFunctions">是否使用所有已经注册、创建过的 Function</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
-        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, ContextVariables contextVariables, bool useAllRegistedFunctions = false, params ISKFunction[] pipeline)
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, ContextVariables contextVariables, bool useAllRegistedFunctions = false, bool storeContext = false, params ISKFunction[] pipeline)
         {
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
 
@@ -153,12 +153,12 @@ namespace Senparc.AI.Kernel.Handlers
                 //合并已经注册的对象
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new ISKFunction[0]).ToArray();
             }
-            var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, contextVariables, iWantToRun.PromptConfigParameter, pipeline);
+            var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, contextVariables, iWantToRun.PromptConfigParameter, storeContext, pipeline);
             return request;
         }
 
         /// <summary>
-        /// 创建请求实体（不使用所有已经注册、创建过的 Function）
+        /// 创建请求实体（不使用所有已经注册、创建过的 Function，也不储存行下文）
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="contextVariables"></param>
@@ -166,7 +166,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns></returns>
         public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, ContextVariables contextVariables, params ISKFunction[] pipeline)
         {
-            return CreateRequest(iWantToRun, contextVariables, false, pipeline);
+            return CreateRequest(iWantToRun, contextVariables, false, false, pipeline);
         }
 
         #endregion
@@ -186,45 +186,69 @@ namespace Senparc.AI.Kernel.Handlers
             var kernel = helper.GetKernel();
             //var function = iWanToRun.ISKFunction;
 
-            iWanToRun.AiContext ??= new SenparcAiContext();
             var prompt = request.RequestContent;
             var functionPipline = request.FunctionPipeline;
 
-            SKContext? botAnswer;
-            if (!request.RequestContent.IsNullOrEmpty() && 
-                (request.ContextVariables ==null || request.ContextVariables.Count() == 0))
+            //上下文
+            //获取历史信息
+            var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
+            var storeContext = request.StoreContext;
+
+            if (storeContext && request.ContextVariables != null)
             {
+                iWanToRun.AiContext.SubContext = request.ContextVariables;
+            }
+
+            iWanToRun.AiContext ??= new SenparcAiContext();
+            var context = iWanToRun.AiContext.SubContext;
+
+            var storeContextExisted = false;//当 StoreContext 时，是否发现已有上下文存在
+            if (storeContext)
+            {
+                string history = null;
+                if (context.Get(serviceId, out history))
+                {
+                    storeContextExisted = true;
+                }
+                context.Set("human_input", prompt);
+            }
+
+            SKContext? botAnswer;
+            if (!storeContextExisted &&
+                !request.RequestContent.IsNullOrEmpty() &&
+                (request.ContextVariables == null || request.ContextVariables.Count() == 0))
+            {
+                //输入文字
                 botAnswer = await kernel.RunAsync(request.RequestContent, functionPipline);
             }
             else if (request.ContextVariables != null)
             {
-
-                //设置最新的人类对话
+                //输入指定的上下文
                 botAnswer = await kernel.RunAsync(request.ContextVariables, functionPipline);
             }
             else
             {
-                //TODO：需要处理context，或者为空的时候给出警告
-                //TODO；单独控制 Context
-                var context = iWanToRun.AiContext.SubContext;
+                //输入指定的上下文
 
-                context.Set("human_input", prompt);
-                
+                //设置最新的人类对话
                 botAnswer = await kernel.RunAsync(context, functionPipline);
+            }
 
-                //获取历史信息
-                var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
-                if (!context.Get(serviceId, out string history))
+            if (storeContext)
+            {
+                string history = null;
+                if (!context.Get(serviceId, out history))
                 {
                     history = "";
                 }
+
                 //添加新信息
                 history += $"\nHuman: {prompt}\nBot: {botAnswer}\n";
                 //设置历史信息
                 context.Set("history", history);
             }
 
-            var result = new SenaprcContentAiResult()
+            var result = new SenaprcContentAiResult(iWanToRun)
             {
                 Input = prompt,
                 Output = botAnswer.Result,

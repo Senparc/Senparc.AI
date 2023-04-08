@@ -35,7 +35,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             //第一轮对话
             var dt = SystemTime.Now;
             var prompt = "What is the town with the highest textile capacity in China in 2020?";
-            var request = new SenparcAiRequest("Jeffrey", "text-davinci-003", prompt, parameter, chatFunction);
+            var request = new SenparcAiRequest("Jeffrey", "text-davinci-003", prompt, parameter, true, chatFunction);
             var result = await handler.ChatAsync(iWantToRun, request);
 
             await Console.Out.WriteLineAsync($"第一轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
@@ -102,7 +102,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             // 输入/提问并获取结果
             var prompt = "请问中国有多少人口？";
-            var aiRequest = iWantToRun.CreateRequest(prompt, true);
+            var aiRequest = iWantToRun.CreateRequest(prompt, true, true);
             var aiResult = await iWantToRun.RunAsync(aiRequest);
             //aiResult.Result 结果：中国的人口约为13.8亿。
             await Console.Out.WriteLineAsync(aiResult.Output);
