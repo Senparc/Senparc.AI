@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Senparc.AI.Kernel.Handlers;
+using Senparc.AI.Interfaces;
 
 namespace Senparc.AI.Kernel.Tests.Handlers
 {
@@ -18,8 +19,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         [TestMethod]
         public async Task ChatAsyncTest()
         {
-            var helper = new SemanticKernelHelper();
-            var handler = new SemanticAiHandler(helper);
+            var handler = new SemanticAiHandler();//IAiHandler
 
             var parameter = new PromptConfigParameter()
             {
@@ -96,14 +96,16 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
-                        .BuildKernel()
-                        .RegisterSemanticFunction("ChatBot", "Chat", promptParameter)
-                        .iWantToRun;
+                        .BuildKernel();
 
-            // 输入/提问，获取结果
+            // 设置输入/提问
             var prompt = "请问中国有多少人口？";
-            var aiRequest = iWantToRun.CreateRequest(prompt, true, true);
+            var aiRequest = iWantToRun.CreateRequest(true, true)
+                                      .SetContext("human_input", prompt);
+
+            //返回结果
             var aiResult = await iWantToRun.RunAsync(aiRequest);
+
             //aiResult.Result 结果：中国的人口约为13.8亿。
             await Console.Out.WriteLineAsync(aiResult.Output);
             //await Console.Out.WriteLineAsync(aiResult.ToJson(true));
@@ -113,7 +115,6 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             aiResult = await iWantToRun.RunAsync(aiRequest);
             //aiResult.Result 结果：美国的人口大约为3.2亿。
             await Console.Out.WriteLineAsync(aiResult.Output);
-
         }
     }
 }

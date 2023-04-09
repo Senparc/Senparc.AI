@@ -102,6 +102,7 @@ namespace Senparc.AI.Kernel.Handlers
 
         #region 运行准备
 
+
         /// <summary>
         /// 创建请求实体
         /// </summary>
@@ -122,6 +123,18 @@ namespace Senparc.AI.Kernel.Handlers
 
             var request = new SenparcAiRequest(iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter, storeContext, pipeline);
             return request;
+        }
+
+        /// <summary>
+        /// 创建请求实体
+        /// </summary>
+        /// <param name="iWantToRun"></param>
+        /// <param name="useAllRegistedFunctions">是否使用所有已经注册、创建过的 Function</param>
+        /// <param name="pipeline"></param>
+        /// <returns></returns>
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, bool useAllRegistedFunctions = false, bool storeContext = false, params ISKFunction[] pipeline)
+        {
+            return CreateRequest(iWantToRun, requestContent: null, useAllRegistedFunctions, storeContext, pipeline);
         }
 
         /// <summary>
@@ -174,6 +187,24 @@ namespace Senparc.AI.Kernel.Handlers
 
         #region 运行阶段，或对生成后的 Kernel 进行补充设置
 
+        #region 对上下文的管理
+
+        /// <summary>
+        /// 设置上下文
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static SenparcAiRequest SetContext(this SenparcAiRequest request, string key, string value)
+        {
+            request.IAiContext ??= new SenparcAiContext();
+            request.IAiContext.SubContext.Set(key, value);
+            return request;
+        }
+
+        #endregion
+
         /// <summary>
         /// 运行
         /// </summary>
@@ -189,11 +220,10 @@ namespace Senparc.AI.Kernel.Handlers
 
             var prompt = request.RequestContent;
             var functionPipline = request.FunctionPipeline;
-
-            //上下文
-            //获取历史信息
-            var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
+            //var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
             var storeContext = request.StoreContext;
+
+            //注意：只要使用了 Skill 和 Function，并且包含输入标识，就需要使用上下文
 
             if (storeContext && request.ContextVariables != null)
             {
@@ -204,23 +234,24 @@ namespace Senparc.AI.Kernel.Handlers
             var context = iWanToRun.AiContext.SubContext;
 
             var storeContextExisted = false;//当 StoreContext 时，是否发现已有上下文存在
+            string history = null;
             if (storeContext)
             {
-                string history = null;
-                if (context.Get(serviceId, out history))
+                if (context.Get("history", out history))
                 {
+                    history = "";
                     storeContextExisted = true;
                 }
-                context.Set("human_input", prompt);
+                history += $"\nHuman: {prompt}";
+                //context.Set("human_input", prompt);
             }
 
             SKContext? botAnswer;
-            if (!storeContextExisted &&
-                !request.RequestContent.IsNullOrEmpty() &&
+            if (!request.RequestContent.IsNullOrEmpty() && !storeContext && !storeContextExisted &&
                 (request.ContextVariables == null || request.ContextVariables.Count() == 0))
             {
-                //输入文字
-                botAnswer = await kernel.RunAsync(request.RequestContent, functionPipline);
+                //输入纯文字
+                botAnswer = await kernel.RunAsync(prompt, functionPipline);
             }
             else if (request.ContextVariables != null)
             {
@@ -237,14 +268,8 @@ namespace Senparc.AI.Kernel.Handlers
 
             if (storeContext)
             {
-                string history = null;
-                if (!context.Get(serviceId, out history))
-                {
-                    history = "";
-                }
-
                 //添加新信息
-                history += $"\nHuman: {prompt}\nBot: {botAnswer}\n";
+                history += $"\nBot: {botAnswer}\n";
                 //设置历史信息
                 context.Set("history", history);
             }

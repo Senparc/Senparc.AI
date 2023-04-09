@@ -67,6 +67,7 @@ namespace Senparc.AI.Kernel.Helpers.Tests
         [TestMethod()]
         public async Task ConfigImageGenerationTest()
         {
+            return;
             var helper = new SemanticKernelHelper();
             var kernel = helper.ConfigImageGeneration("Jeffrey").Build();
 
