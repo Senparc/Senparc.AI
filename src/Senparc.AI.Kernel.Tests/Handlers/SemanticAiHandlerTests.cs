@@ -122,7 +122,8 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             //await Console.Out.WriteLineAsync(aiResult.ToJson(true));
 
             //第二次对话，包含上下文，自动理解提问目标是人口数量
-            aiRequest.RequestContent = "那么美国呢？";
+            aiRequest.SetStoredContext("human_input", "那美国呢");
+
             aiResult = await iWantToRun.RunAsync(aiRequest);
             //aiResult.Result 结果：美国的人口大约为3.2亿。
             await Console.Out.WriteLineAsync(aiResult.Output);
