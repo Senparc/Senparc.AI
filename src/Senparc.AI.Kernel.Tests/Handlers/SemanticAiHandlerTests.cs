@@ -96,7 +96,9 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
-                        .BuildKernel();
+                        .BuildKernel()
+                        .RegisterSemanticFunction("ChatBot", "Chat", promptParameter)
+                        .iWantToRun;
 
             // 设置输入/提问
             var prompt = "请问中国有多少人口？";
