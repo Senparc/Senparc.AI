@@ -7,7 +7,7 @@ namespace Senparc.AI.Interfaces
     public interface IAiContext
     {
         object Context { get; set; }
-
+        //bool StoreToContainer { get; set; }
     }
 
     public interface IAiContext<T> : IAiContext

@@ -79,7 +79,7 @@ namespace Senparc.AI.Kernel.Handlers
     {
         public IWantToBuild IWantToBuild { get; set; }
         //public ISKFunction ISKFunction { get; set; }
-        public SenparcAiContext AiContext { get; set; }
+        public SenparcAiContext StoredAiContext { get; set; }
         public PromptConfigParameter PromptConfigParameter { get; set; }
 
         public List<ISKFunction> Functions { get; set; }
@@ -90,6 +90,7 @@ namespace Senparc.AI.Kernel.Handlers
         public IWantToRun(IWantToBuild iWantToBuild)
         {
             IWantToBuild = iWantToBuild;
+            StoredAiContext = new SenparcAiContext();
             Functions = new List<ISKFunction>();
         }
     }

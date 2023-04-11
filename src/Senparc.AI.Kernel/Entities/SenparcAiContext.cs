@@ -11,6 +11,7 @@ namespace Senparc.AI.Kernel.Entities
     public class SenparcAiContext : IAiContext<ContextVariables>
     {
         public ContextVariables SubContext { get; set; }
+        //public bool StoreToContainer { get; set; }
         public object Context
         {
             get => SubContext;

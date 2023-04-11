@@ -54,7 +54,7 @@ namespace Senparc.AI.Kernel.Handlers
             aiContext.SubContext.Set(serviceId, history);
 
             //iWantToRun.ISKFunction = chatFunction;
-            iWantToRun.AiContext = aiContext;
+            iWantToRun.StoredAiContext = aiContext;
             iWantToRun.PromptConfigParameter = promptConfigPara;
             iWantToRun.Functions.Add(newFunction);
 
