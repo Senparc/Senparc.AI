@@ -1,4 +1,5 @@
 ﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.OpenAI.ImageGeneration;
 using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI.TextEmbedding;
 using Microsoft.SemanticKernel.Memory;
@@ -145,7 +146,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="modelName"></param>
-        /// <param name="kernel"></param>
+        /// <param name="kernelBuilder"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
         public KernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName, KernelBuilder? kernelBuilder = null)
@@ -176,6 +177,31 @@ namespace Senparc.AI.Kernel.Helpers
 
             //TODO:测试多次添加
             //KernelBuilder = builder;
+
+            return kernelBuilder;
+        }
+
+        public KernelBuilder ConfigImageGeneration(string userId, KernelBuilder? kernelBuilder = null)
+        {
+            var serviceId = GetServiceId(userId, "image-generation");
+            var senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
+            var aiPlatForm = AiSetting.AiPlatform;
+
+            //TODO：Builder 不应该新建
+            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
+
+            kernelBuilder.Configure(c =>
+            {
+                c.AddImageGenerationService(serviceId, k =>
+                    aiPlatForm switch
+                    {
+                        AiPlatform.OpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+                        AiPlatform.AzureOpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+                        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                    });
+            });
 
             return kernelBuilder;
         }

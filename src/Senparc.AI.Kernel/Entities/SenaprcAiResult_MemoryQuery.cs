@@ -23,7 +23,8 @@ namespace Senparc.AI.Kernel.Entities
         /// </summary>
         public double Relevance { get; set; }
 
-        public SenaprcAiResult_MemoryQuery(IWantToRun iwantToRun) : base(iwantToRun)
+        public SenaprcAiResult_MemoryQuery(IWantToRun iwantToRun,string inputContent) 
+            : base(iwantToRun, inputContent)
         {
         }
 

@@ -58,3 +58,4 @@ obj/
 /.DS_Store
 appsettings.test.json
 /src/Senparc.AI.Kernel.Tests/App_Data/SenparcTraceLog
+*.DS_Store

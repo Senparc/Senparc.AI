@@ -16,7 +16,7 @@ namespace Senparc.AI.Kernel
     /// SenmanticKernel 处理器
     /// </summary>
     public class SemanticAiHandler :
-        IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext, ContextVariables>
+        IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext>
     {
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         private IKernel _kernel => SemanticKernelHelper.GetKernel();
@@ -40,7 +40,7 @@ namespace Senparc.AI.Kernel
             //TODO:此方法暂时还不能用
             SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, null);
 
-            var senparcAiResult = new SenparcAiResult(new IWantToRun(new IWantToBuild(new IWantToConfig(new IWantTo()))));
+            var senparcAiResult = new SenparcAiResult(new IWantToRun(new IWantToBuild(new IWantToConfig(new IWantTo()))),request.RequestContent);
             return senparcAiResult;
         }
 
@@ -55,11 +55,31 @@ namespace Senparc.AI.Kernel
             return result;
         }
 
-        public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, SenparcAiRequest request)
+        public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string prompt)
         {
             //var function = iWantToRun.Kernel.Skills.GetSemanticFunction("Chat");
             //request.FunctionPipeline = new[] { function };
-            var aiResult = await iWantToRun.RunAsync(request);
+
+            var request = iWantToRun.CreateRequest(true);
+
+            //历史记录
+            //初始化对话历史（可选）
+            if (!request.GetStoredContext("history", out var history))
+            {
+                request.SetStoredContext("history", "");
+            }
+
+            //本次记录
+            request.SetStoredContext("human_input", prompt);
+
+            var newRequest = request with { RequestContent = null };
+
+            //运行
+            var aiResult = await iWantToRun.RunAsync(newRequest);
+
+            //记录对话历史（可选）
+            request.SetStoredContext("history", history + $"\nHuman: {prompt}\nBot: {request.RequestContent}");
+
             return aiResult;
         }
 

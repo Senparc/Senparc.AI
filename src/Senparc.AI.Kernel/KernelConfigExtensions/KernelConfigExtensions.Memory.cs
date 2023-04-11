@@ -69,9 +69,8 @@ namespace Senparc.AI.Kernel.Handlers
             var memory = helper.GetMemory();
             var queryResult = memory.SearchAsync(memoryCollectionName, query, limit, minRelevanceScore, cancel);
 
-            var aiResult = new SenaprcAiResult_MemoryQuery(iWantToRun)
+            var aiResult = new SenaprcAiResult_MemoryQuery(iWantToRun, query)
             {
-                Input = query,
                 MemoryQueryResult = queryResult,
             };
             return aiResult;

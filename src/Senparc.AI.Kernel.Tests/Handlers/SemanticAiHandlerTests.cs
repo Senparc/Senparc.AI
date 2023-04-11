@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Senparc.AI.Kernel.Handlers;
+using Senparc.AI.Interfaces;
+using Senparc.AI.Kernel.Entities;
 
 namespace Senparc.AI.Kernel.Tests.Handlers
 {
@@ -18,8 +20,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         [TestMethod]
         public async Task ChatAsyncTest()
         {
-            var helper = new SemanticKernelHelper();
-            var handler = new SemanticAiHandler(helper);
+            var handler = new SemanticAiHandler();//IAiHandler
 
             var parameter = new PromptConfigParameter()
             {
@@ -30,13 +31,11 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey");
             var iWantToRun = chatConfig.iWantToRun;
-            var chatFunction = chatConfig.chatFunction;
 
             //第一轮对话
             var dt = SystemTime.Now;
             var prompt = "What is the town with the highest textile capacity in China in 2020?";
-            var request = new SenparcAiRequest("Jeffrey", "text-davinci-003", prompt, parameter, true, chatFunction);
-            var result = await handler.ChatAsync(iWantToRun, request);
+            var result = await handler.ChatAsync(iWantToRun, prompt);
 
             await Console.Out.WriteLineAsync($"第一轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
 
@@ -45,34 +44,40 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             Assert.IsTrue(result.Output.Length > 0);
             Assert.IsTrue(result.LastException == null);
 
-            await Console.Out.WriteLineAsync("Q: " + result.Input);
+            ((SenparcAiContext)result.InputContext).SubContext.Get("human_input", out var question);
+            await Console.Out.WriteLineAsync("Q: " + question);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
 
             //第二轮对话
             dt = SystemTime.Now;
-            request.RequestContent = "tell me more about that city. including GDP.";
-            result = await handler.ChatAsync(iWantToRun, request);
+            prompt = "tell me more about that city. including GDP.";
+            result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第二轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
-            await Console.Out.WriteLineAsync("Q: " + result.Input);
+           
+            ((SenparcAiContext)result.InputContext).SubContext.Get("human_input", out var question2);
+            await Console.Out.WriteLineAsync("Q: " + question2);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
 
             //第三轮对话
             dt = SystemTime.Now;
-            request.RequestContent = "what's the population of there?";
-            result = await handler.ChatAsync(iWantToRun, request);
+            prompt = "what's the population of there?";
+            result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第三轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
-            await Console.Out.WriteLineAsync("Q: " + result.Input);
+           
+            ((SenparcAiContext)result.InputContext).SubContext.Get("human_input", out var question3);
+            await Console.Out.WriteLineAsync("Q: " + question3);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
 
             //第四轮对话
             dt = SystemTime.Now;
-            request.RequestContent = "将上面包含GDP那一条提问的回答，翻译成中文。";
-            result = await handler.ChatAsync(iWantToRun, request);
+            prompt = "将上面包含GDP那一条提问的回答，翻译成中文。";
+            result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第四轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
-            await Console.Out.WriteLineAsync("Q: " + result.Input);
+            ((SenparcAiContext)result.InputContext).SubContext.Get("human_input", out var question4);
+            await Console.Out.WriteLineAsync("Q: " + question4);
             await Console.Out.WriteLineAsync("A: " + result.Output);
         }
 
@@ -100,20 +105,33 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                         .RegisterSemanticFunction("ChatBot", "Chat", promptParameter)
                         .iWantToRun;
 
-            // 输入/提问，获取结果
+            // 设置输入/提问
             var prompt = "请问中国有多少人口？";
-            var aiRequest = iWantToRun.CreateRequest(prompt, true, true);
+            var aiRequest = iWantToRun.CreateRequest(true)
+                                      .SetStoredContext("human_input", prompt);
+
+            //初始化对话历史（可选）
+            if (!aiRequest.GetStoredContext("history", out var history))
+            {
+                aiRequest.SetStoredContext("history", "");
+            }
+
+            //执行并返回结果
             var aiResult = await iWantToRun.RunAsync(aiRequest);
+
+            //记录对话历史（可选）
+            aiRequest.SetStoredContext("history", history + $"\nHuman: {prompt}\nBot: {aiRequest.RequestContent}");
+
             //aiResult.Result 结果：中国的人口约为13.8亿。
             await Console.Out.WriteLineAsync(aiResult.Output);
             //await Console.Out.WriteLineAsync(aiResult.ToJson(true));
 
             //第二次对话，包含上下文，自动理解提问目标是人口数量
-            aiRequest.RequestContent = "那么美国呢？";
+            aiRequest.SetStoredContext("human_input", "那美国呢");
+
             aiResult = await iWantToRun.RunAsync(aiRequest);
             //aiResult.Result 结果：美国的人口大约为3.2亿。
             await Console.Out.WriteLineAsync(aiResult.Output);
-
         }
     }
 }

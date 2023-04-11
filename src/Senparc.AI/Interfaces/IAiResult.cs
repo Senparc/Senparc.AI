@@ -10,9 +10,13 @@ namespace Senparc.AI.Interfaces
     public interface IAiResult
     {
         /// <summary>
-        /// 输入参数，一般为 prompt
+        /// 请求实际提供的输入参数，一般为 prompt
         /// </summary>
-        string Input { get; set; }
+        string InputContent { get; set; }
+        /// <summary>
+        /// 请求实际提供的上下文
+        /// </summary>
+        IAiContext InputContext { get; set; }
         /// <summary>
         /// 输出内容
         /// </summary>

@@ -22,5 +22,6 @@ namespace Senparc.AI
     {
         TextCompletion,
         TextEmbedding,
+        ImageGeneration,
     }
 }

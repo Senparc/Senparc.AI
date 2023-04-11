@@ -8,11 +8,10 @@ namespace Senparc.AI.Interfaces
     public interface IAiHandler
     { }
 
-    public interface IAiHandler<TRequest, TResult, TAiContext, TContext>: IAiHandler
+    public interface IAiHandler<TRequest, TResult, TContext>: IAiHandler
      where TRequest : IAiRequest<TContext>
         where TResult : IAiResult
-        where TAiContext : IAiContext<TContext>
-        where TContext : class
+        where TContext : IAiContext
     {
         /// <summary>
         /// 运行

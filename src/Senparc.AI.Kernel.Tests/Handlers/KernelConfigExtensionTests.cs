@@ -177,7 +177,7 @@ ChatBot: ";
             {
                 iWantToRun.MemorySaveReference(
                     collection: memoryCollectionName,
-                    description: entry.Value,//真正用于生成 embedding,//只用于展示记录
+                    description: entry.Value,//只用于展示记录
                     text: entry.Value,//真正用于生成 embedding
                     externalId: entry.Key,
                     externalSourceName: "NeuCharFramework"
