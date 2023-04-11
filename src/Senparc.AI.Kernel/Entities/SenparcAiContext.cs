@@ -25,9 +25,13 @@ namespace Senparc.AI.Kernel.Entities
             }
         }
 
-        public SenparcAiContext()
+        public SenparcAiContext() : this(new ContextVariables())
         {
-            SubContext = new ContextVariables();
+        }
+
+        public SenparcAiContext(ContextVariables subContext)
+        {
+            SubContext = subContext;
         }
     }
 }

@@ -271,28 +271,32 @@ namespace Senparc.AI.Kernel.Handlers
 
             SKContext? botAnswer;
 
+            var result = new SenaprcContentAiResult(iWanToRun, inputContent: null);
+
             if (tempContext != null)
             {
                 //输入特定的本次请求临时上下文
                 botAnswer = await kernel.RunAsync(tempContext, functionPipline);
+                result.InputContext = new SenparcAiContext(tempContext);
             }
             else if (!prompt.IsNullOrEmpty())
             {
                 //输入纯文字
                 botAnswer = await kernel.RunAsync(prompt, functionPipline);
+                result.InputContent = prompt;
             }
             else
             {
                 //输入缓存中的上下文
                 botAnswer = await kernel.RunAsync(storedContext, functionPipline);
+                result.InputContext = new SenparcAiContext(storedContext);
             }
-            var result = new SenaprcContentAiResult(iWanToRun)
-            {
-                Input = prompt,
-                Output = botAnswer.Result,
-                Result = botAnswer,
-                LastException = botAnswer.LastException
-            };
+
+            result.InputContent = prompt;
+            result.Output = botAnswer.Result;
+            result.Result = botAnswer;
+            result.LastException = botAnswer.LastException;
+
             return result;
         }
 

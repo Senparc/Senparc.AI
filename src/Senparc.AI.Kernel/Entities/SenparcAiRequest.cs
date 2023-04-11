@@ -9,7 +9,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public class SenparcAiRequest : IAiRequest<SenparcAiContext>
+    public record class SenparcAiRequest : IAiRequest<SenparcAiContext>
     {
         /// <summary>
         /// IWanToRun

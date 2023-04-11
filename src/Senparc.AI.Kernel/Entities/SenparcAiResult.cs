@@ -13,7 +13,11 @@ namespace Senparc.AI.Kernel
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public virtual string Input { get; set; }
+        public virtual string InputContent { get; set; }
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public virtual IAiContext InputContext { get; set; }
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
@@ -25,18 +29,30 @@ namespace Senparc.AI.Kernel
 
         public virtual IWantToRun IWantToRun { get; set; }
 
-        public SenparcAiResult(IWantToRun iwantToRun)
+        public SenparcAiResult(IWantToRun iwantToRun, string inputContent)
         {
             IWantToRun = iwantToRun;
+            InputContent = inputContent;
         }
 
+        public SenparcAiResult(IWantToRun iwantToRun, IAiContext inputContext)
+        {
+            IWantToRun = iwantToRun;
+            InputContext = inputContext;
+        }
 
     }
 
     public class SenaprcAiResult<T> : SenparcAiResult, IAiResult
     {
         public T Result { get; set; }
-        public SenaprcAiResult(IWantToRun iWwantToRun) : base(iWwantToRun)
+        public SenaprcAiResult(IWantToRun iWwantToRun, string inputContent)
+            : base(iWwantToRun, inputContent)
+        {
+        }
+
+        public SenaprcAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+           : base(iWwantToRun, inputContext)
         {
         }
     }
@@ -44,7 +60,13 @@ namespace Senparc.AI.Kernel
     public class SenaprcContentAiResult : SenaprcAiResult<SKContext>, IAiResult
     {
         public SKContext Result { get; set; }
-        public SenaprcContentAiResult(IWantToRun iWwantToRun) : base(iWwantToRun)
+        public SenaprcContentAiResult(IWantToRun iWwantToRun, string inputContent)
+             : base(iWwantToRun, inputContent)
+        {
+        }
+
+        public SenaprcContentAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+           : base(iWwantToRun, inputContext)
         {
         }
 
