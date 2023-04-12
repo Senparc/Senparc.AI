@@ -10,18 +10,24 @@ namespace Senparc.AI.Kernel.Entities
 {
     public class SenparcAiContext : IAiContext<ContextVariables>
     {
-        public ContextVariables SubContext { get; set; }
-        //public bool StoreToContainer { get; set; }
-        public object Context
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public ContextVariables ExtendContext { get; set; }
+   
+        /// <summary>
+        /// <inheritdoc/>>
+        /// </summary>
+        public IEnumerable<KeyValuePair<string, string>> Context
         {
-            get => SubContext;
+            get => ExtendContext;
             set
             {
                 if (value is not ContextVariables)
                 {
                     throw new SenparcAiException("Context 类型必须为 ContextVariables");
                 }
-                SubContext = (ContextVariables)value;
+                ExtendContext = (ContextVariables)value;
             }
         }
 
@@ -31,7 +37,7 @@ namespace Senparc.AI.Kernel.Entities
 
         public SenparcAiContext(ContextVariables subContext)
         {
-            SubContext = subContext;
+            ExtendContext = subContext;
         }
     }
 }

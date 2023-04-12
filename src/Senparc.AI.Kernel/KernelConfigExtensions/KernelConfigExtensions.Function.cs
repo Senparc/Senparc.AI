@@ -51,7 +51,7 @@ namespace Senparc.AI.Kernel.Handlers
             //TODO:独立 Context
             var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
             var history = "";
-            aiContext.SubContext.Set(serviceId, history);
+            aiContext.ExtendContext.Set(serviceId, history);
 
             //iWantToRun.ISKFunction = chatFunction;
             iWantToRun.StoredAiContext = aiContext;
