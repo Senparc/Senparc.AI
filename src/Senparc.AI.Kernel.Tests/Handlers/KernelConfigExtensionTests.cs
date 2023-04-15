@@ -140,6 +140,13 @@ ChatBot: ";
             await Console.Out.WriteLineAsync("===== Start recall test =====");
             await Console.Out.WriteLineAsync("Question: " + input);
             await Console.Out.WriteLineAsync("Answer: " + answer.ToString());
+            Console.WriteLine();
+
+            input = "Why do you think so? Give me your logic, please.";
+            context["userInput"] = input;
+            answer = await chatFunction.function.InvokeAsync(context);
+            await Console.Out.WriteLineAsync("Question: " + input);
+            await Console.Out.WriteLineAsync("Answer: " + answer.ToString());
         }
 
         [TestMethod()]
@@ -198,9 +205,9 @@ ChatBot: ";
             //提问
             var dt3 = SystemTime.Now;
 
-            var askPrompt = "哪里有 NCF 的介绍？";
+            var askPrompt = "我正在使用 Visutal Studio，如何进行开发？";
             var memories = iWantToRun.MemorySearchAsync(memoryCollectionName, askPrompt, limit: 5, minRelevanceScore: 0.77);
-
+           
             var dt4 = SystemTime.Now;
 
             await Console.Out.WriteLineAsync("提问：" + askPrompt);

@@ -8,8 +8,7 @@ namespace Senparc.AI.Interfaces
     /// <summary>
     /// 请求数据接口
     /// </summary>
-    public interface IAiRequest<TContext>
-        where TContext : IAiContext
+    public interface IAiRequest<TContext> where TContext : IAiContext
     {
         /// <summary>
         /// 用户标识

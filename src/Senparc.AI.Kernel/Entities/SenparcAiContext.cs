@@ -10,28 +10,42 @@ namespace Senparc.AI.Kernel.Entities
 {
     public class SenparcAiContext : IAiContext<ContextVariables>
     {
-        public ContextVariables SubContext { get; set; }
-        //public bool StoreToContainer { get; set; }
-        public object Context
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public ContextVariables ExtendContext { get; set; }
+
+        /// <summary>
+        /// <inheritdoc/>>
+        /// </summary>
+        public IEnumerable<KeyValuePair<string, string>> Context
         {
-            get => SubContext;
+            get => ExtendContext;
             set
             {
                 if (value is not ContextVariables)
                 {
                     throw new SenparcAiException("Context 类型必须为 ContextVariables");
                 }
-                SubContext = (ContextVariables)value;
+                ExtendContext = (ContextVariables)value;
             }
         }
 
-        public SenparcAiContext() : this(new ContextVariables())
+        public SenparcAiContext() : this(null)
         {
         }
 
         public SenparcAiContext(ContextVariables subContext)
         {
-            SubContext = subContext;
+            ExtendContext = subContext;
+        }
+
+        /// <summary>
+        /// 尝试初始化 ExtendContext 上下文对象，如果已经初始化，则不进行操作
+        /// </summary>
+        public void TryInitExtendContext()
+        {
+            ExtendContext ??= new ContextVariables();
         }
     }
 }

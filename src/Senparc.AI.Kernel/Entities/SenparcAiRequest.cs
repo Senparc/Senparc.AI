@@ -48,7 +48,7 @@ namespace Senparc.AI.Kernel
         ///// <summary>
         ///// Rqesut.ContextVariables 参数不会保存到上下文缓存中
         ///// </summary>
-        public ContextVariables TempContextVariables { get; set; }
+        //public ContextVariables TempContextVariables => TempAiContext?.Context as ContextVariables;
         ///// <summary>
         ///// 是否储存上下文（ContextVariables 对象）
         ///// </summary>
@@ -71,7 +71,7 @@ namespace Senparc.AI.Kernel
             UserId = userId;
             ModelName = modelName;
             ParameterConfig = parameterConfig;
-            TempAiContext = new SenparcAiContext();
+            TempAiContext = new SenparcAiContext(contextVariables);
             FunctionPipeline = pipeline;
         }
 

@@ -200,7 +200,7 @@ namespace Senparc.AI.Kernel.Handlers
         public static SenparcAiRequest SetTempContext(this SenparcAiRequest request, string key, string value)
         {
             request.TempAiContext ??= new SenparcAiContext();
-            request.TempAiContext.SubContext.Set(key, value);
+            request.TempAiContext.ExtendContext.Set(key, value);
             return request;
         }
 
@@ -213,7 +213,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns></returns>
         public static SenparcAiRequest SetStoredContext(this SenparcAiRequest request, string key, string value)
         {
-            request.StoreAiContext.SubContext.Set(key, value);
+            request.StoreAiContext.ExtendContext.Set(key, value);
             return request;
         }
 
@@ -228,7 +228,7 @@ namespace Senparc.AI.Kernel.Handlers
         public static bool GetTempContext(this SenparcAiRequest request, string key, out string value)
         {
 
-            return request.TempAiContext.SubContext.Get(key, out value);
+            return request.TempAiContext.ExtendContext.Get(key, out value);
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace Senparc.AI.Kernel.Handlers
         public static bool GetStoredContext(this SenparcAiRequest request, string key, out string value)
         {
 
-            return request.StoreAiContext.SubContext.Get(key, out value);
+            return request.StoreAiContext.ExtendContext.Get(key, out value);
         }
 
         #endregion
@@ -266,14 +266,14 @@ namespace Senparc.AI.Kernel.Handlers
             //注意：只要使用了 Skill 和 Function，并且包含输入标识，就需要使用上下文
 
             iWanToRun.StoredAiContext ??= new SenparcAiContext();
-            var storedContext = iWanToRun.StoredAiContext.SubContext;
-            var tempContext = request.TempContextVariables;
+            var storedContext = iWanToRun.StoredAiContext.ExtendContext;
+            var tempContext = request.TempAiContext?.ExtendContext;
 
             SKContext? botAnswer;
 
             var result = new SenaprcContentAiResult(iWanToRun, inputContent: null);
 
-            if (tempContext != null)
+            if (tempContext != null && tempContext.Count() != 0)
             {
                 //输入特定的本次请求临时上下文
                 botAnswer = await kernel.RunAsync(tempContext, functionPipline);
