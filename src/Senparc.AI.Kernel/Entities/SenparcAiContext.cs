@@ -39,5 +39,13 @@ namespace Senparc.AI.Kernel.Entities
         {
             ExtendContext = subContext;
         }
+
+        /// <summary>
+        /// 尝试初始化 ExtendContext 上下文对象，如果已经初始化，则不进行操作
+        /// </summary>
+        public void TryInitExtendContext()
+        {
+            ExtendContext ??= new ContextVariables();
+        }
     }
 }
