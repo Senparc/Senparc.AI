@@ -267,13 +267,13 @@ namespace Senparc.AI.Kernel.Handlers
 
             iWanToRun.StoredAiContext ??= new SenparcAiContext();
             var storedContext = iWanToRun.StoredAiContext.ExtendContext;
-            var tempContext = request.TempContextVariables;
+            var tempContext = request.TempAiContext?.ExtendContext;
 
             SKContext? botAnswer;
 
             var result = new SenaprcContentAiResult(iWanToRun, inputContent: null);
 
-            if (tempContext != null)
+            if (tempContext != null && tempContext.Count() != 0)
             {
                 //输入特定的本次请求临时上下文
                 botAnswer = await kernel.RunAsync(tempContext, functionPipline);

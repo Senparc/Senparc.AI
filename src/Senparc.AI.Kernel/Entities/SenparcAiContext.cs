@@ -14,7 +14,7 @@ namespace Senparc.AI.Kernel.Entities
         /// <inheritdoc/>
         /// </summary>
         public ContextVariables ExtendContext { get; set; }
-   
+
         /// <summary>
         /// <inheritdoc/>>
         /// </summary>
@@ -31,7 +31,7 @@ namespace Senparc.AI.Kernel.Entities
             }
         }
 
-        public SenparcAiContext() : this(new ContextVariables())
+        public SenparcAiContext() : this(null)
         {
         }
 
