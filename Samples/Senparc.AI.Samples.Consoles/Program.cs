@@ -25,6 +25,7 @@ config.GetSection("SenparcAiSetting").Bind(senparcAiSetting);
 var services = new ServiceCollection();
 services.AddScoped<IAiHandler, SemanticAiHandler>();
 services.AddScoped<ChatSample>();
+services.AddScoped<EmbeddingSample>();
 services.AddSenparcGlobalServices(config);
 
 
