@@ -40,6 +40,7 @@ Console.WriteLine("请输入序号，开始对应功能测试：");
 Console.WriteLine("[1] GPT对话机器人");
 Console.WriteLine("[2] 训练 Embedding 任务");
 var index = Console.ReadLine();
+Console.WriteLine();
 switch (index)
 {
     case "1":
@@ -51,9 +52,39 @@ switch (index)
         break;
     case "2":
         {
-            //Embedding
-            var embeddingSample = serviceProvider.GetRequiredService<EmbeddingSample>();
-            await embeddingSample.RunAsync();
+            Console.WriteLine("请输入需要，进入对应 Embedding 测试：");
+            Console.WriteLine("[1] 普通信息（Information）");
+            Console.WriteLine("[2] 引用信息（Reference）");
+            index = Console.ReadLine();
+            Console.WriteLine();
+            try
+            {
+                //Embedding
+                var embeddingSample = serviceProvider.GetRequiredService<EmbeddingSample>();
+
+                switch (index)
+                {
+                    case "1":
+                        {
+                            await embeddingSample.RunAsync(isReference: false);
+                        }
+                        break;
+                    case "2":
+                        {
+                            await embeddingSample.RunAsync(isReference: true);
+                        }
+                        break;
+                    default:
+                        Console.WriteLine("序号错误，请重新开始！");
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+                goto case "2";
+            }
+
+
         }
         break;
     default:
