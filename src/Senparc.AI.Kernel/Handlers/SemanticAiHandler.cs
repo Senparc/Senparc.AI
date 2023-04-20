@@ -23,7 +23,7 @@ namespace Senparc.AI.Kernel
 
 
 
-        public SemanticAiHandler(SemanticKernelHelper semanticAiHelper = null)
+        public SemanticAiHandler(SemanticKernelHelper? semanticAiHelper = null)
         {
             SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper();
         }

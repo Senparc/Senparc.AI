@@ -35,7 +35,7 @@ namespace Senparc.AI.Kernel.Helpers
         private List<Task> _memoryExecuteList = new List<Task>();
 
 
-        public SemanticKernelHelper(ISenparcAiSetting aiSetting = null)
+        public SemanticKernelHelper(ISenparcAiSetting? aiSetting = null)
         {
             AiSetting = aiSetting ?? Senparc.AI.Config.SenparcAiSetting;
         }
@@ -111,7 +111,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="kernel"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public KernelBuilder ConfigTextCompletion(string userId, string modelName, KernelBuilder kernelBuilder = null)
+        public KernelBuilder ConfigTextCompletion(string userId, string modelName, KernelBuilder? kernelBuilder = null)
         {
             //kernel ??= GetKernel();
 

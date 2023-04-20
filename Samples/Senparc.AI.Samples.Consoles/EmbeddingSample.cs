@@ -2,12 +2,6 @@
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Senparc.AI.Samples.Consoles
 {
@@ -94,9 +88,9 @@ namespace Senparc.AI.Samples.Consoles
                     await foreach (var item in result.MemoryQueryResult)
                     {
                         await Console.Out.WriteLineAsync($"应答结果[{j + 1}]：");
-                        await Console.Out.WriteLineAsync("  URL:\t\t\t" + item.Metadata.Id?.Trim());
+                        await Console.Out.WriteLineAsync("  URL:\t\t" + item.Metadata.Id?.Trim());
                         await Console.Out.WriteLineAsync("  Description:\t" + item.Metadata.Description);
-                        await Console.Out.WriteLineAsync("  Text:\t\t\t" + item.Metadata.Text);
+                        await Console.Out.WriteLineAsync("  Text:\t\t" + item.Metadata.Text);
                         await Console.Out.WriteLineAsync("  Relevance:\t" + item.Relevance);
                         await Console.Out.WriteLineAsync($"-- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
                         j++;
@@ -105,7 +99,7 @@ namespace Senparc.AI.Samples.Consoles
                 else
                 {
                     var response = result.MemoryQueryResult.FirstOrDefaultAsync();
-                    await Console.Out.WriteLineAsync("应答： " + response.Result?.Metadata.Text + 
+                    await Console.Out.WriteLineAsync("应答： " + response.Result?.Metadata.Text +
                         $"\r\n -- Relevance {response.Result?.Relevance} -- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
 
                     if (response.Result != null)

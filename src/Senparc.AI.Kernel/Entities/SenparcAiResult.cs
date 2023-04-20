@@ -29,7 +29,7 @@ namespace Senparc.AI.Kernel
 
         public virtual IWantToRun IWantToRun { get; set; }
 
-        public SenparcAiResult(IWantToRun iwantToRun, string inputContent)
+        public SenparcAiResult(IWantToRun iwantToRun, string? inputContent)
         {
             IWantToRun = iwantToRun;
             InputContent = inputContent;
