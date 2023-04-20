@@ -26,7 +26,7 @@ namespace Senparc.AI.Kernel
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public string RequestContent { get; set; }
+        public string? RequestContent { get; set; }
         /// <summary>
         /// <inheritdoc/>
         /// </summary>

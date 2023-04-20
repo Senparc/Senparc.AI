@@ -17,31 +17,16 @@ namespace Senparc.AI.Kernel.Tests.MockEntities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public bool UseAzureOpenAI => AiPlatform == AiPlatform.AzureOpenAI;
-
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
         public AiPlatform AiPlatform { get; set; }
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public string AzureEndpoint { get; set; }
+        public AzureOpenAIKeys AzureOpenAIKeys { get; set; }
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public string ApiKey { get; set; }
-
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
-        public string OrgaizationId { get; set; }
-
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
-        public string AzureOpenAIApiVersion { get; set; }
+        public OpenAIKeys OpenAIKeys { get; set; }
     }
 }
