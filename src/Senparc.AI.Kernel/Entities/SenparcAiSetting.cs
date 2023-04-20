@@ -23,30 +23,17 @@ namespace Senparc.AI
         /// </summary>
         public AiPlatform AiPlatform { get; set; }
 
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
-        public string ApiKey { get; set; }
+        public AzureOpenAIKeys AzureOpenAIKeys { get; set; }
+        public OpenAIKeys OpenAIKeys { get; set; }
 
         /// <summary>
-        /// <inheritdoc/>
+        /// Azure OpenAI 或 OpenAI API Key
         /// </summary>
-        public string OrgaizationId { get; set; }
-
-        #region Azure OpenAI
-
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
-        public string AzureEndpoint { get; set; }
-
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
-        public string AzureOpenAIApiVersion { get; set; }
-
-        #endregion
-
+        string ApiKey => AiPlatform switch
+        {
+            AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey,
+            AiPlatform.OpenAI => OpenAIKeys.ApiKey,
+        };
 
         public SenparcAiSetting() { }
     }
