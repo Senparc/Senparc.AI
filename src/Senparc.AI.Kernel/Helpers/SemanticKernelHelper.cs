@@ -181,6 +181,13 @@ namespace Senparc.AI.Kernel.Helpers
             return kernelBuilder;
         }
 
+        /// <summary>
+        /// 设置 DallE 接口，默认强制使用 OpenAI 权限
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="kernelBuilder"></param>
+        /// <returns></returns>
+        /// <exception cref="SenparcAiException"></exception>
         public KernelBuilder ConfigImageGeneration(string userId, KernelBuilder? kernelBuilder = null)
         {
             var serviceId = GetServiceId(userId, "image-generation");
@@ -192,15 +199,19 @@ namespace Senparc.AI.Kernel.Helpers
 
             kernelBuilder.Configure(c =>
             {
+                //c.AddImageGenerationService(serviceId, k =>
+                //    aiPlatForm switch
+                //    {
+                //        AiPlatform.OpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+                //        AiPlatform.AzureOpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+                //        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                //    });
+
+                //强制使用 OpenAI 权限
                 c.AddImageGenerationService(serviceId, k =>
-                    aiPlatForm switch
-                    {
-                        AiPlatform.OpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
-
-                        AiPlatform.AzureOpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
-
-                        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
-                    });
+                    new OpenAIImageGeneration(AiSetting.OpenAIKeys.ApiKey, AiSetting.OpenAIKeys.OrgaizationId));
             });
 
             return kernelBuilder;

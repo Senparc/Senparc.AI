@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Senparc.AI.Samples.Consoles
+namespace Senparc.AI.Samples.Consoles.Samples
 {
     public class ChatSample
     {

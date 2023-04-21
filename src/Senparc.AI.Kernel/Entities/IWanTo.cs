@@ -93,5 +93,16 @@ namespace Senparc.AI.Kernel.Handlers
             StoredAiContext = new SenparcAiContext();
             Functions = new List<ISKFunction>();
         }
+
+        /// <summary>
+        /// Kernel.GetService<T>(name);
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public T GetService<T>(string name = "")
+        {
+            return Kernel.GetService<T>(name);
+        }
     }
 }
