@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Samples.Consoles;
+using Senparc.AI.Samples.Consoles.Samples;
 using Senparc.CO2NET;
 using Senparc.CO2NET.RegisterServices;
 using System.Reflection.Emit;
@@ -23,10 +24,12 @@ var senparcAiSetting = new Senparc.AI.SenparcAiSetting();
 config.GetSection("SenparcAiSetting").Bind(senparcAiSetting);
 
 var services = new ServiceCollection();
+services.AddSenparcGlobalServices(config);
+
 services.AddScoped<IAiHandler, SemanticAiHandler>();
 services.AddScoped<ChatSample>();
 services.AddScoped<EmbeddingSample>();
-services.AddSenparcGlobalServices(config);
+services.AddScoped<DallESample>();
 
 
 var serviceProvider = services.BuildServiceProvider();
@@ -39,8 +42,11 @@ IRegisterService register = RegisterService.Start(senparcSetting)
 Console.WriteLine("请输入序号，开始对应功能测试：");
 Console.WriteLine("[1] GPT对话机器人");
 Console.WriteLine("[2] 训练 Embedding 任务");
+Console.WriteLine("[3] Dall·E 绘图（需要配置 OpenAI）");
+
 var index = Console.ReadLine();
 Console.WriteLine();
+
 switch (index)
 {
     case "1":
@@ -52,6 +58,7 @@ switch (index)
         break;
     case "2":
         {
+            //Embedding Sample
             Console.WriteLine("请输入需要，进入对应 Embedding 测试：");
             Console.WriteLine("[1] 普通信息（Information）");
             Console.WriteLine("[2] 引用信息（Reference）");
@@ -83,8 +90,13 @@ switch (index)
             {
                 goto case "2";
             }
-
-
+        }
+        break;
+    case "3":
+        {
+            //DallE Sample
+            var dallESample = serviceProvider.GetRequiredService<DallESample>();
+            await dallESample.RunAsync();
         }
         break;
     default:

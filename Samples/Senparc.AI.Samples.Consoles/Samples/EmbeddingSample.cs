@@ -3,7 +3,7 @@ using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
 
-namespace Senparc.AI.Samples.Consoles
+namespace Senparc.AI.Samples.Consoles.Samples
 {
     public class EmbeddingSample
     {
