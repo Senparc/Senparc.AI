@@ -72,6 +72,17 @@ var aiResult = await iWantToRun.RunAsync(aiRequest);
 
 <img width="623" alt="image" src="https://user-images.githubusercontent.com/2281927/230152103-3486fbfc-2426-407c-bcb6-74d4485eaf91.png">
 
+## 示例
+
+所有快速参考示例位于 `/Samples/` 文件夹内
+
+文件夹 |  说明
+------|--------
+Samples/Senparc.AI.Samples.Consoles | 命令行
+
+### 命令行使用说明
+
+
 
 ## TODO:
 1. 实现更多模型和模式的匹配。
