@@ -18,24 +18,29 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
   //CO2NET 设置
   "SenparcSetting": {
     "IsDebug": true,
-    "DefaultCacheNamespace": "SenparcAiCache"
+    "DefaultCacheNamespace": "DefaultCacheTest"
   },
+  //Senparc.AI 设置
   "SenparcAiSetting": {
     "IsDebug": true,
     "AiPlatform": "AzureOpenAI",
-    "ApiKey": "YourKey",
-    "OrgaizationId": "YourOrgId",
-    //当设置 AiPlatform 为 AzureOpenAI 时需要设置以下参数：
-    "AzureEndpoint": "https://xxx.openai.azure.com",
-    "AzureOpenAIApiVersion": "2022-12-01"
-  },
+    "AzureOpenAIKeys": {
+      "ApiKey": "YourAzureApiKey", 
+      "AzureEndpoint": "https://xxxx.openai.azure.com/",
+      "AzureOpenAIApiVersion": "2022-12-01" 
+    },
+    "OpenAIKeys": {
+      "ApiKey": "YourOpenAIKey",
+      "OrgaizationId": "YourOpenAIOrgId"
+    }
+  }
 ```
 
 其中：`AiPlatform` 目前可选值为 `OpenAI` 或 `AzureOpenAI`，分别对应 OpenAI.com 官方接口，以及基于微软 Azure 的 Azure OpenAI 接口，系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
 
-仅当 `AiPlatform` 设置为 `OpenAI` 时，才需要设置 `OrgaizationId` 参数。
+仅当 `AiPlatform` 设置为 `OpenAI` 时，才需要设置 `OpenAIKeys` 及以下参数。
 
-仅当 `AiPlatform` 设置为 `AzureOpenAI` 时，才需要设置 `AzureEndpoint` 和 `AzureOpenAIApiVersion` 参数。
+仅当 `AiPlatform` 设置为 `AzureOpenAI` 时，才需要设置 `AzureOpenAIKeys` 及以下参数。
 
 ### 第二步：开发
 
@@ -82,6 +87,27 @@ Samples/Senparc.AI.Samples.Consoles | 命令行
 
 ### 命令行使用说明
 
+1. 打开解决方案 `Senparc.AI.sln`，设置 appsettings.json 中 ApiKey 等平台参数，启动项目 `Senparc.AI.Samples.Consoles`：
+
+<img width="826" alt="image" src="https://user-images.githubusercontent.com/2281927/233587658-d57e30de-dc97-42c7-901f-70327f4eee00.png">
+
+2. 操作
+
+2.1 输入 `1`，进入对话操作：
+
+<img width="674" alt="image" src="https://user-images.githubusercontent.com/2281927/233588902-8786e582-7384-4a59-895f-1e8eaaa805b4.png">
+
+2.2 在上一步输入 `2` 即可进入 Embedding 操作，Embedding 分为常规信息和引用信息两类，将在下一步中做选择：
+
+<img width="598" alt="image" src="https://user-images.githubusercontent.com/2281927/233589177-b9ab0863-f397-4cba-9d0b-6039a5e2baeb.png">
+
+2.2.1 选择 `1`，进入到常规 Embedding 测试，输入信息由 3 个英文冒号分割，录入完成后输入 `n` 开始对话测试：
+
+<img width="1175" alt="image" src="https://user-images.githubusercontent.com/2281927/233590261-9bb70435-e513-49c9-bda2-a9c0e7f883c4.png">
+
+2.2.2 上一步选择 `2`，进入到引用 Embedding 测试，输入信息由 3 个英文冒号分割，录入完成后输入 `n` 开始对话测试：
+
+<img width="1176" alt="image" src="https://user-images.githubusercontent.com/2281927/233590721-c9414ffb-27db-4923-a9f9-0580dc10d275.png">
 
 
 ## TODO:
