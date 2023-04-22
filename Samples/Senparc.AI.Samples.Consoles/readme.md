@@ -1,4 +1,7 @@
-﻿## Embedding 普通信息测试
+﻿
+# Embedding 测试
+
+## Embedding 普通信息测试
 ```
 1:::My name is Jeffrey
 2:::My country is China
