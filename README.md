@@ -124,10 +124,10 @@ Samples/Senparc.AI.Samples.Consoles | 命令行
 
 <img width="1175" alt="image" src="https://user-images.githubusercontent.com/2281927/233681813-ad49e8dc-c69e-4798-b023-903857cd4351.png">
 
-保存图片：
+结果将以 URL 的形式返回，此时出入 `s` ，可保存图片到本地：
 <img width="503" alt="image" src="https://user-images.githubusercontent.com/2281927/233681967-61b7e4cc-8962-4c36-8593-13a45595330c.png">
 
-
+> 注意：接口返回的 URL 是一个暂存地址，不可用于持久化的展示，需要及时保存，
 
 
 ## TODO:
