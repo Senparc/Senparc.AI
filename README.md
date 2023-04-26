@@ -25,7 +25,7 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
     "IsDebug": true,
     "AiPlatform": "AzureOpenAI",
     "AzureOpenAIKeys": {
-      "ApiKey": "YourAzureApiKey", 
+      "ApiKey": "YourAzureApiKey",
       "AzureEndpoint": "https://xxxx.openai.azure.com/",
       "AzureOpenAIApiVersion": "2022-12-01" 
     },
@@ -34,6 +34,7 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
       "OrgaizationId": "YourOpenAIOrgId"
     }
   }
+
 ```
 
 其中：`AiPlatform` 目前可选值为 `OpenAI` 或 `AzureOpenAI`，分别对应 openai.com 官方接口（OpenAI），以及基于微软 Azure 的 Azure OpenAI 接口（AOAI），系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
@@ -41,6 +42,9 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 仅当 `AiPlatform` 设置为 `OpenAI` 时，才需要设置 `OpenAIKeys` 及以下参数。
 
 仅当 `AiPlatform` 设置为 `AzureOpenAI` 时，才需要设置 `AzureOpenAIKeys` 及以下参数。
+
+> 提示：AzureOpenAI 调用限制请参考：https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quotas-limits<br>
+> OpenAI 调用限制请参考 OpenAI 后台：https://platform.openai.com/docs/guides/rate-limits
 
 ### 第二步：开发
 
