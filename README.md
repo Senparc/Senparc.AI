@@ -37,7 +37,7 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 
 ```
 
-其中：`AiPlatform` 目前可选值为 `OpenAI` 或 `AzureOpenAI`，分别对应 OpenAI.com 官方接口，以及基于微软 Azure 的 Azure OpenAI 接口，系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
+其中：`AiPlatform` 目前可选值为 `OpenAI` 或 `AzureOpenAI`，分别对应 openai.com 官方接口（OpenAI），以及基于微软 Azure 的 Azure OpenAI 接口（AOAI），系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
 
 仅当 `AiPlatform` 设置为 `OpenAI` 时，才需要设置 `OpenAIKeys` 及以下参数。
 
