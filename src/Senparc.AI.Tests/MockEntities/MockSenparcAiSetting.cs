@@ -1,4 +1,5 @@
-﻿using Senparc.AI.Interfaces;
+﻿using Senparc.AI.Entities;
+using Senparc.AI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel.Tests.MockEntities
 {
-    public class MockSenparcAiSetting : ISenparcAiSetting
+    public class MockSenparcAiSetting : SenparcAiSettingBase, ISenparcAiSetting
     {
         /// <summary>
         /// <inheritdoc/>
@@ -28,5 +29,7 @@ namespace Senparc.AI.Kernel.Tests.MockEntities
         /// <inheritdoc/>
         /// </summary>
         public OpenAIKeys OpenAIKeys { get; set; }
+
+
     }
 }

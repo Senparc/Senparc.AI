@@ -1,4 +1,5 @@
 ﻿using Senparc.AI.Entities;
+using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -32,28 +33,29 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// Azure OpenAI 或 OpenAI API Key
         /// </summary>
-        string ApiKey => AiPlatform switch
-        {
-            AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey,
-            AiPlatform.OpenAI => OpenAIKeys.ApiKey,
-        };
+        string ApiKey { get; }
 
         /// <summary>
         /// OpenAI API Orgaization ID
         /// </summary>
-        string OrgaizationId => OpenAIKeys.OrgaizationId;
+        string OrgaizationId { get; }
 
         #region Azure OpenAI
 
         /// <summary>
         /// Azure OpenAI Endpoint
         /// </summary>
-        string AzureEndpoint => AzureOpenAIKeys.AzureEndpoint;
+        string AzureEndpoint { get; }
         /// <summary>
         /// Azure OpenAI 版本号
         /// </summary>
-        string AzureOpenAIApiVersion => AzureOpenAIKeys.AzureOpenAIApiVersion;
+        string AzureOpenAIApiVersion { get; }
 
         #endregion
+
+        /// <summary>
+        /// OpenAIKeys 是否已经设置
+        /// </summary>
+        public bool IsOpenAiKeysSetted { get; }
     }
 }
