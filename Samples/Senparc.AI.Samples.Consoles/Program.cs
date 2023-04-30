@@ -20,7 +20,7 @@ Console.WriteLine("完成 ServiceCollection 和 ConfigurationBuilder 初始化")
 var senparcSetting = new SenparcSetting();
 config.GetSection("SenparcSetting").Bind(senparcSetting);
 
-var senparcAiSetting = new Senparc.AI.SenparcAiSetting();
+var senparcAiSetting = new Senparc.AI.Kernel.SenparcAiSetting();
 config.GetSection("SenparcAiSetting").Bind(senparcAiSetting);
 
 var services = new ServiceCollection();
@@ -30,6 +30,7 @@ services.AddScoped<IAiHandler, SemanticAiHandler>();
 services.AddScoped<ChatSample>();
 services.AddScoped<EmbeddingSample>();
 services.AddScoped<DallESample>();
+services.AddScoped<PlanSample>();
 
 
 var serviceProvider = services.BuildServiceProvider();
@@ -43,6 +44,7 @@ Console.WriteLine("请输入序号，开始对应功能测试：");
 Console.WriteLine("[1] GPT对话机器人");
 Console.WriteLine("[2] 训练 Embedding 任务");
 Console.WriteLine("[3] Dall·E 绘图（需要配置 OpenAI）");
+Console.WriteLine("[4] Planner 任务计划");
 
 var index = Console.ReadLine();
 Console.WriteLine();
@@ -97,6 +99,13 @@ switch (index)
             //DallE Sample
             var dallESample = serviceProvider.GetRequiredService<DallESample>();
             await dallESample.RunAsync();
+        }
+        break;
+    case "4":
+        {
+            //Plan Sample
+            var pnalSample = serviceProvider.GetRequiredService<PlanSample>();
+            await pnalSample.RunAsync();
         }
         break;
     default:
