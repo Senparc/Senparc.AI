@@ -34,7 +34,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var planner = iWantToRun.ImportSkill(new PlannerSkill(iWantToRun.Kernel)).skillList;
 
             var dir = System.IO.Directory.GetCurrentDirectory();
-            Console.WriteLine("dir:" + dir);
+            //Console.WriteLine("dir:" + dir);
 
             var skillsDirectory = Path.Combine(dir, "..", "..", "..", "skills");
             //Console.WriteLine("skillsDirectory:" + skillsDirectory);

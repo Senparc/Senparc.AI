@@ -23,6 +23,10 @@ namespace Senparc.AI.Interfaces
         bool UseAzureOpenAI => AiPlatform == AiPlatform.AzureOpenAI;
 
         /// <summary>
+        /// 是否使用 NeuChar OpenAI
+        /// </summary>
+        bool UseNeuCharOpenAI => AiPlatform == AiPlatform.NeuCharOpenAI;
+        /// <summary>
         /// AI 平台类型
         /// </summary>
         AiPlatform AiPlatform { get; set; }
@@ -31,7 +35,7 @@ namespace Senparc.AI.Interfaces
         OpenAIKeys OpenAIKeys { get; set; }
 
         /// <summary>
-        /// Azure OpenAI 或 OpenAI API Key
+        /// Neuchar OpenAI 或 Azure OpenAI 或 OpenAI API Key
         /// </summary>
         string ApiKey { get; }
 
@@ -50,6 +54,19 @@ namespace Senparc.AI.Interfaces
         /// Azure OpenAI 版本号
         /// </summary>
         string AzureOpenAIApiVersion { get; }
+
+        #endregion
+
+        #region Azure OpenAI
+
+        /// <summary>
+        /// NeuChar OpenAI Endpoint
+        /// </summary>
+        string NeuCharEndpoint { get; }
+        /// <summary>
+        /// Azure OpenAI 版本号
+        /// </summary>
+        string NeuCharOpenAIApiVersion { get; }
 
         #endregion
 

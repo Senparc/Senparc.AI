@@ -132,6 +132,8 @@ namespace Senparc.AI.Kernel.Helpers
 
                         AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
+                        AiPlatform.NeuCharOpenAI => new AzureTextCompletion(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+
                         _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
                     });
             });
@@ -168,6 +170,8 @@ namespace Senparc.AI.Kernel.Helpers
                     aiPlatForm switch
                     {
                         AiPlatform.OpenAI => new OpenAITextEmbeddingGeneration(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+                        AiPlatform.NeuCharOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.NeuCharOpenAIApiVersion),
 
                         AiPlatform.AzureOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 

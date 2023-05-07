@@ -22,20 +22,27 @@ namespace Senparc.AI.Entities
         public virtual bool UseAzureOpenAI => AiPlatform == AiPlatform.AzureOpenAI;
 
         /// <summary>
+        /// 是否使用 Azure OpenAI
+        /// </summary>
+        public virtual bool UseNeuCharOpenAI => AiPlatform == AiPlatform.NeuCharOpenAI;
+
+        /// <summary>
         /// AI 平台类型
         /// </summary>
         public virtual AiPlatform AiPlatform { get; set; }
 
-        public virtual AzureOpenAIKeys AzureOpenAIKeys { get; set; }
         public virtual OpenAIKeys OpenAIKeys { get; set; }
+        public virtual NeuCharOpenAIKeys NeuCharOpenAIKeys { get; set; }
+        public virtual AzureOpenAIKeys AzureOpenAIKeys { get; set; }
 
         /// <summary>
         /// Azure OpenAI 或 OpenAI API Key
         /// </summary>
         public virtual string ApiKey => AiPlatform switch
         {
-            AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey,
             AiPlatform.OpenAI => OpenAIKeys.ApiKey,
+            AiPlatform.NeuCharOpenAI => NeuCharOpenAIKeys.ApiKey,
+            AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey
         };
 
         /// <summary>
@@ -55,6 +62,21 @@ namespace Senparc.AI.Entities
         public virtual string AzureOpenAIApiVersion => AzureOpenAIKeys.AzureOpenAIApiVersion;
 
         #endregion
+
+
+        #region Azure OpenAI
+
+        /// <summary>
+        /// Azure OpenAI Endpoint
+        /// </summary>
+        public virtual string NeuCharEndpoint => NeuCharOpenAIKeys.NeuCharEndpoint;
+        /// <summary>
+        /// Azure OpenAI 版本号
+        /// </summary>
+        public virtual string NeuCharOpenAIApiVersion => NeuCharOpenAIKeys.NeuCharOpenAIApiVersion;
+
+        #endregion
+
 
         public virtual bool IsOpenAiKeysSetted => OpenAIKeys != null && !OpenAIKeys.ApiKey.IsNullOrEmpty();
 
