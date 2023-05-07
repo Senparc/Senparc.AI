@@ -1,4 +1,5 @@
 ﻿using Senparc.AI.Entities;
+using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -22,6 +23,10 @@ namespace Senparc.AI.Interfaces
         bool UseAzureOpenAI => AiPlatform == AiPlatform.AzureOpenAI;
 
         /// <summary>
+        /// 是否使用 NeuChar OpenAI
+        /// </summary>
+        bool UseNeuCharOpenAI => AiPlatform == AiPlatform.NeuCharOpenAI;
+        /// <summary>
         /// AI 平台类型
         /// </summary>
         AiPlatform AiPlatform { get; set; }
@@ -30,30 +35,44 @@ namespace Senparc.AI.Interfaces
         OpenAIKeys OpenAIKeys { get; set; }
 
         /// <summary>
-        /// Azure OpenAI 或 OpenAI API Key
+        /// Neuchar OpenAI 或 Azure OpenAI 或 OpenAI API Key
         /// </summary>
-        string ApiKey => AiPlatform switch
-        {
-            AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey,
-            AiPlatform.OpenAI => OpenAIKeys.ApiKey,
-        };
+        string ApiKey { get; }
 
         /// <summary>
         /// OpenAI API Orgaization ID
         /// </summary>
-        string OrgaizationId => OpenAIKeys.OrgaizationId;
+        string OrgaizationId { get; }
 
         #region Azure OpenAI
 
         /// <summary>
         /// Azure OpenAI Endpoint
         /// </summary>
-        string AzureEndpoint => AzureOpenAIKeys.AzureEndpoint;
+        string AzureEndpoint { get; }
         /// <summary>
         /// Azure OpenAI 版本号
         /// </summary>
-        string AzureOpenAIApiVersion => AzureOpenAIKeys.AzureOpenAIApiVersion;
+        string AzureOpenAIApiVersion { get; }
 
         #endregion
+
+        #region Azure OpenAI
+
+        /// <summary>
+        /// NeuChar OpenAI Endpoint
+        /// </summary>
+        string NeuCharEndpoint { get; }
+        /// <summary>
+        /// Azure OpenAI 版本号
+        /// </summary>
+        string NeuCharOpenAIApiVersion { get; }
+
+        #endregion
+
+        /// <summary>
+        /// OpenAIKeys 是否已经设置
+        /// </summary>
+        public bool IsOpenAiKeysSetted { get; }
     }
 }

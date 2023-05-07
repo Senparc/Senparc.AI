@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.1.4.1-beta1</Version>
+		<Version>0.2.0-beta1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -25,7 +25,7 @@
 		<PackageIcon>icon.jpg</PackageIcon>
 		<PackageReleaseNotes>
 			v0.1.0 创世
-
+			v0.2.0 添加 NeuChar OpenAI
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
@@ -43,6 +43,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SemanticKernel" Version="0.10.72.1-preview" />
+
 		<PackageReference Include="Senparc.CO2NET" Version="2.1.7.3" />
 	</ItemGroup>
 	<ItemGroup>

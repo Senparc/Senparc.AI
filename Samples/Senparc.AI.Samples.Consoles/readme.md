@@ -42,6 +42,11 @@
 
 > 注意：接口返回的 URL 是一个暂存地址，不可用于持久化的展示，需要及时保存，
 
+#### 2.4 Planner
+
+在第一步中根据已有的 Skill 进行提供，如 SummarizeSkill，WriterSkill 等等。
+
+第二步中直接提供 Plan 的目标。 
 
 ## Embedding 测试素材
 
@@ -64,4 +69,3 @@ https://github.com/NeuCharFramework/NcfDocs/blob/main/start/home/index.md:::READ
 https://github.com/NeuCharFramework/NcfDocs/blob/main/start/start-develop/get-docs.md:::获取文档，在线阅读官方文档，在 NCF 站点中进入官方文档，下载源码后使用 npm 本地运行，下载文档源码，运行 npm 命令
 https://github.com/NeuCharFramework/NcfDocs/blob/main/start/start-develop/run-ncf.md:::使用 Visual Studio 运行 NCF
 ```
-

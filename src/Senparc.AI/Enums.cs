@@ -12,7 +12,8 @@ namespace Senparc.AI
         UnSet = 0,
         None = 1,
         OpenAI = 2,
-        AzureOpenAI = 4
+        NeuCharOpenAI = 4,
+        AzureOpenAI = 8,
     }
 
     /// <summary>

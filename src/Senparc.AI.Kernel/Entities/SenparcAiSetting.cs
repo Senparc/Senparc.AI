@@ -1,26 +1,13 @@
-﻿using Senparc.AI.Interfaces;
+﻿using Senparc.AI.Entities;
+using Senparc.AI.Interfaces;
 
-namespace Senparc.AI
+namespace Senparc.AI.Kernel
 {
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public class SenparcAiSetting : ISenparcAiSetting
+    public class SenparcAiSetting : SenparcAiSettingBase, ISenparcAiSetting
     {
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
-
-        public bool IsDebug { get; set; }
-
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
-        public AiPlatform AiPlatform { get; set; }
-
-        public AzureOpenAIKeys AzureOpenAIKeys { get; set; }
-        public OpenAIKeys OpenAIKeys { get; set; }
-
         public SenparcAiSetting() { }
     }
 }
