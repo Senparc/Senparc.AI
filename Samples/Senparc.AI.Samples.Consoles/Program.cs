@@ -41,6 +41,7 @@ IRegisterService register = RegisterService.Start(senparcSetting)
 
 
 Console.WriteLine("启动完毕，当前接口：" + Senparc.AI.Config.SenparcAiSetting.AiPlatform);
+Console.WriteLine("=======================");
 Console.WriteLine();
 Console.WriteLine("请输入序号，开始对应功能测试：");
 Console.WriteLine("[1] GPT对话机器人");
