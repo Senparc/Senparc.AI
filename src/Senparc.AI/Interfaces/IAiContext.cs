@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Senparc.AI.Interfaces
 {
+    /// <summary>
+    /// IAiContext
+    /// </summary>
     public interface IAiContext
     {
         /// <summary>
@@ -13,6 +14,10 @@ namespace Senparc.AI.Interfaces
         //bool StoreToContainer { get; set; }
     }
 
+    /// <summary>
+    /// IAiContext with Genericity
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IAiContext<T> : IAiContext
         where T : class, IEnumerable<KeyValuePair<string, string>>
     {

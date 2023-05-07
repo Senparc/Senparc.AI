@@ -6,7 +6,6 @@ using Senparc.AI.Samples.Consoles;
 using Senparc.AI.Samples.Consoles.Samples;
 using Senparc.CO2NET;
 using Senparc.CO2NET.RegisterServices;
-using System.Reflection.Emit;
 
 var configBuilder = new ConfigurationBuilder();
 var appsettingsJsonFileName = SampleHelper.GetAppSettingsFile();//"appsettings.json"
