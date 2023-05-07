@@ -40,6 +40,8 @@ IRegisterService register = RegisterService.Start(senparcSetting)
               .UseSenparcAI(senparcAiSetting);
 
 
+Console.WriteLine("启动完毕，当前接口：" + Senparc.AI.Config.SenparcAiSetting.AiPlatform);
+Console.WriteLine();
 Console.WriteLine("请输入序号，开始对应功能测试：");
 Console.WriteLine("[1] GPT对话机器人");
 Console.WriteLine("[2] 训练 Embedding 任务");
