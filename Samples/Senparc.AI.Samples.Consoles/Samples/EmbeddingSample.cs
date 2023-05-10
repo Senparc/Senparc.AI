@@ -98,13 +98,20 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
                 else
                 {
-                    var response = result.MemoryQueryResult.FirstOrDefaultAsync();
-                    await Console.Out.WriteLineAsync("应答： " + response.Result?.Metadata.Text +
-                        $"\r\n -- Relevance {response.Result?.Relevance} -- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
-
-                    if (response.Result != null)
+                    await foreach (var item in result.MemoryQueryResult)
                     {
-                        j++;
+                        var response = item;
+                        if (response != null)
+                        {
+                            j++;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        await Console.Out.WriteLineAsync($"应答[{j + 1}]： " + response.Metadata.Text +
+                            $"\r\n -- Relevance {response.Relevance} -- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
                     }
                 }
 
