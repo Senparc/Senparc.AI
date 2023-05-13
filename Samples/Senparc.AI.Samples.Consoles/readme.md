@@ -60,7 +60,7 @@
 6:::Senparc startup at 2010, in Jiangsu Province, Suzhou City, Gusu Distinct
 7:::Senparc.Weixin SDK is made by Senparc, main author is Jeffrey Su who is also the founder of Senparc.
 8:::Jeffrey Su's Chinese name is Zhenwei Su.
-9:::Zhenwei Su wrote two books.
+9:::Zhenwei Su has written two books.
 ```
 
 ### Embedding 引用信息测试
