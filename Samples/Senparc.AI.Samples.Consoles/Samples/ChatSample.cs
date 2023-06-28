@@ -24,7 +24,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
         public async Task RunAsync()
         {
-            await Console.Out.WriteLineAsync("ChatSample 开始运行，请输入对话内容，输入 exit 退出。");
+            await Console.Out.WriteLineAsync(@"ChatSample 开始运行，请输入对话内容。
+输入 [ML] 开启单次对话的多行模式
+输入 [END] 完成所有多行输入
+输入 exit 退出。");
 
             var parameter = new PromptConfigParameter()
             {
@@ -33,14 +36,39 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 TopP = 0.5,
             };
 
-            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey");
+            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey"/*, modelName: "gpt-4-32k"*/);
             var iWantToRun = chatConfig.iWantToRun;
 
+            var multiLineContent = new StringBuilder();
+            var useMultiLine = false;
             //开始对话
             while (true)
             {
                 await Console.Out.WriteLineAsync("人类：");
                 var prompt = Console.ReadLine();
+
+                if (prompt.ToUpper() == "[ML]")
+                {
+                    await Console.Out.WriteLineAsync("识别到多行模式，请继续输入");
+                    useMultiLine = true;
+                }
+
+                while (useMultiLine)
+                {
+                    if (prompt.ToUpper() == "[END]")
+                    {
+                        useMultiLine = false;
+                        prompt  = multiLineContent.ToString();
+                    }
+                    else
+                    {
+                        await Console.Out.WriteLineAsync("请继续输入，直到输入 [END] 停止...");
+                        prompt = Console.ReadLine();
+                        multiLineContent.Append(prompt);
+                    }
+                }
+
+
                 if (prompt == "exit")
                 {
                     break;
