@@ -44,7 +44,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SemanticKernel" Version="0.10.72.1-preview" />
 
-		<PackageReference Include="Senparc.CO2NET" Version="2.1.7.3" />
+		<PackageReference Include="Senparc.CO2NET" Version="2.2.1" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />
