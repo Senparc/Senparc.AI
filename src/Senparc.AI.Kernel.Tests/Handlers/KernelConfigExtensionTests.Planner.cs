@@ -36,8 +36,6 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             iWantToRun.ImportSkillFromDirectory(skillsDirectory, "SummarizeSkill");
             iWantToRun.ImportSkillFromDirectory(skillsDirectory, "WriterSkill");
 
-
-
             var planner = new SequentialPlanner(iWantToRun.Kernel);
             //var ask = "If my investment of 2130.23 dollars increased by 23%, how much would I have after I spent 5 on a latte?";
             var ask = "Tomorrow is Valentine's day. I need to come up with a few date ideas and e-mail them to my significant other.";
