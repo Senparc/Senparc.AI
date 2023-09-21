@@ -33,6 +33,7 @@ namespace Senparc.AI.Interfaces
 
         AzureOpenAIKeys AzureOpenAIKeys { get; set; }
         OpenAIKeys OpenAIKeys { get; set; }
+        HuggingFaceKeys HuggingFaceKeys { get; set; }
 
         /// <summary>
         /// Neuchar OpenAI 或 Azure OpenAI 或 OpenAI API Key
@@ -57,7 +58,7 @@ namespace Senparc.AI.Interfaces
 
         #endregion
 
-        #region Azure OpenAI
+        #region NeuChar
 
         /// <summary>
         /// NeuChar OpenAI Endpoint
@@ -67,6 +68,12 @@ namespace Senparc.AI.Interfaces
         /// Azure OpenAI 版本号
         /// </summary>
         string NeuCharOpenAIApiVersion { get; }
+
+        #endregion
+
+        #region HuggingFace
+
+        string HuggingFaceEndpoint { get; }
 
         #endregion
 

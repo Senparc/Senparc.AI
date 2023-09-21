@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.AI.Tests;
 
@@ -19,6 +20,13 @@ namespace Senparc.AI.Kernel.Tests
             Assert.AreEqual(AiPlatform.AzureOpenAI, settings.AiPlatform);
             Assert.AreEqual(true, settings.UseAzureOpenAI);
             Assert.AreEqual(false, settings.UseNeuCharOpenAI);
+        }
+
+        [TestMethod]
+        public void HuggingFaceSettingTest()
+        {
+            var settings = Senparc.AI.Config.SenparcAiSetting;
+            Assert.AreEqual("https://HuggingfaceAPI", settings.HuggingFaceEndpoint);
         }
     }
 }
