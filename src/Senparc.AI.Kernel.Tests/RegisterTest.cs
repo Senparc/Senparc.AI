@@ -15,9 +15,10 @@ namespace Senparc.AI.Kernel.Tests
             Assert.IsInstanceOfType(settings, typeof(SenparcAiSetting));
             Assert.AreEqual(settings,Senparc.AI.Kernel.Config.SenparcAiSetting);
 
-            Assert.AreEqual(AiPlatform.NeuCharOpenAI, settings.AiPlatform);
-            Assert.AreEqual(false, settings.UseAzureOpenAI);
-            Assert.AreEqual(true, settings.UseNeuCharOpenAI);
+            //TODO: ²âÊÔ NeuChar ½Ó¿Ú
+            Assert.AreEqual(AiPlatform.AzureOpenAI, settings.AiPlatform);
+            Assert.AreEqual(true, settings.UseAzureOpenAI);
+            Assert.AreEqual(false, settings.UseNeuCharOpenAI);
         }
     }
 }
