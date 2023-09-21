@@ -1,8 +1,5 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.AI.OpenAI.TextCompletion;
-//using Microsoft.SemanticKernel.Connectors.OpenAI.ImageGeneration;
-//using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
-//using Microsoft.SemanticKernel.Connectors.OpenAI.TextEmbedding;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
@@ -124,13 +121,15 @@ namespace Senparc.AI.Kernel.Helpers
 
             kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
 
-           _= aiPlatForm switch
+            _ = aiPlatForm switch
             {
                 AiPlatform.OpenAI => kernelBuilder.WithOpenAITextCompletionService(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
 
                 AiPlatform.AzureOpenAI => kernelBuilder.WithAzureTextCompletionService(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
                 AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureTextCompletionService(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+
+                AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextCompletionService(modelName),
 
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
@@ -184,6 +183,9 @@ namespace Senparc.AI.Kernel.Helpers
 
                 AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureTextEmbeddingGenerationService(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
+                AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextEmbeddingGenerationService(modelName),
+
+
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
@@ -226,9 +228,9 @@ namespace Senparc.AI.Kernel.Helpers
 
             _ = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.WithOpenAIImageGenerationService( AiSetting.ApiKey, AiSetting.OrgaizationId),
+                AiPlatform.OpenAI => kernelBuilder.WithOpenAIImageGenerationService(AiSetting.ApiKey, AiSetting.OrgaizationId),
 
-                AiPlatform.AzureOpenAI => kernelBuilder.WithAzureOpenAIImageGenerationService( AiSetting.AzureEndpoint, AiSetting.ApiKey),
+                AiPlatform.AzureOpenAI => kernelBuilder.WithAzureOpenAIImageGenerationService(AiSetting.AzureEndpoint, AiSetting.ApiKey),
 
                 AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureOpenAIImageGenerationService(AiSetting.NeuCharEndpoint, AiSetting.ApiKey),
 
