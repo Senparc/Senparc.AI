@@ -6,13 +6,16 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Senparc.AI.Entities;
+using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel.Services;
+using Microsoft.SemanticKernel.AI.TextCompletion;
 
 namespace Senparc.AI.Kernel.Handlers
 {
     public class IWantTo
     {
         public KernelBuilder KernelBuilder { get; set; }
-        public KernelConfig KernelConfig { get; set; }
+        //public KernelConfig KernelConfig { get; set; }
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         public SemanticAiHandler SemanticAiHandler { get; set; }
 
@@ -23,10 +26,10 @@ namespace Senparc.AI.Kernel.Handlers
 
         public IWantTo() { }
 
-        public IWantTo(KernelConfig kernelConfig)
-        {
-            KernelConfig = kernelConfig;
-        }
+        //public IWantTo(KernelConfig kernelConfig)
+        //{
+        //    KernelConfig = kernelConfig;
+        //}
 
         public IWantTo(SemanticAiHandler handler)
         {
@@ -101,6 +104,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="name"></param>
         /// <returns></returns>
         public T GetService<T>(string name = "")
+            where T : IAIService
         {
             return Kernel.GetService<T>(name);
         }

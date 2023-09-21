@@ -1,5 +1,6 @@
-﻿using Microsoft.SemanticKernel.KernelExtensions;
+﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
+using Microsoft.SemanticKernel.SkillDefinition;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -70,6 +71,7 @@ namespace Senparc.AI.Kernel.Handlers
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
             var helper = handler.SemanticKernelHelper;
             var kernel = helper.GetKernel();
+                                   
             var skillList = kernel.ImportSemanticSkillFromDirectory(parentDirectory, skillDirectoryName);
             return (iWantToRun, skillList);
         }

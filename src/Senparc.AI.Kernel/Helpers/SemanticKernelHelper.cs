@@ -1,7 +1,5 @@
 ﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Connectors.OpenAI.ImageGeneration;
-using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI.TextEmbedding;
+using Microsoft.SemanticKernel.Connectors.AI.OpenAI.TextCompletion;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
@@ -123,20 +121,33 @@ namespace Senparc.AI.Kernel.Helpers
 
             kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
 
-            kernelBuilder.Configure(c =>
+            _ = aiPlatForm switch
             {
-                c.AddTextCompletionService(serviceId, k =>
-                    aiPlatForm switch
-                    {
-                        AiPlatform.OpenAI => new OpenAITextCompletion(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+                AiPlatform.OpenAI => kernelBuilder.WithOpenAITextCompletionService(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
 
-                        AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+                AiPlatform.AzureOpenAI => kernelBuilder.WithAzureTextCompletionService(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
-                        AiPlatform.NeuCharOpenAI => new AzureTextCompletion(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+                AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureTextCompletionService(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
-                        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
-                    });
-            });
+                AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextCompletionService(modelName),
+
+                _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+            };
+
+            //kernelBuilder.Configure(c =>
+            //{
+            //    c.AddTextCompletionService(serviceId, k =>
+            //        aiPlatForm switch
+            //        {
+            //            AiPlatform.OpenAI => new OpenAITextCompletion(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+            //            AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+
+            //            AiPlatform.NeuCharOpenAI => new AzureTextCompletion(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+
+            //            _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+            //        });
+            //});
 
             //KernelBuilder = builder;
 
@@ -164,20 +175,34 @@ namespace Senparc.AI.Kernel.Helpers
             //TODO：Builder 不应该新建
             kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
 
-            kernelBuilder.Configure(c =>
+            _ = aiPlatForm switch
             {
-                c.AddTextEmbeddingGenerationService(serviceId, k =>
-                    aiPlatForm switch
-                    {
-                        AiPlatform.OpenAI => new OpenAITextEmbeddingGeneration(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+                AiPlatform.OpenAI => kernelBuilder.WithOpenAITextEmbeddingGenerationService(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
 
-                        AiPlatform.NeuCharOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.NeuCharOpenAIApiVersion),
+                AiPlatform.AzureOpenAI => kernelBuilder.WithAzureTextEmbeddingGenerationService(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
-                        AiPlatform.AzureOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+                AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureTextEmbeddingGenerationService(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
-                        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
-                    });
-            });
+                AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextEmbeddingGenerationService(modelName),
+
+
+                _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+            };
+
+            //kernelBuilder.Configure(c =>
+            //{
+            //    c.AddTextEmbeddingGenerationService(serviceId, k =>
+            //        aiPlatForm switch
+            //        {
+            //            AiPlatform.OpenAI => new OpenAITextEmbeddingGeneration(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+            //            AiPlatform.NeuCharOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.NeuCharOpenAIApiVersion),
+
+            //            AiPlatform.AzureOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+
+            //            _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+            //        });
+            //});
 
             //TODO:测试多次添加
             //KernelBuilder = builder;
@@ -201,22 +226,33 @@ namespace Senparc.AI.Kernel.Helpers
             //TODO：Builder 不应该新建
             kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
 
-            kernelBuilder.Configure(c =>
+            _ = aiPlatForm switch
             {
-                //c.AddImageGenerationService(serviceId, k =>
-                //    aiPlatForm switch
-                //    {
-                //        AiPlatform.OpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
+                AiPlatform.OpenAI => kernelBuilder.WithOpenAIImageGenerationService(AiSetting.ApiKey, AiSetting.OrgaizationId),
 
-                //        AiPlatform.AzureOpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
+                AiPlatform.AzureOpenAI => kernelBuilder.WithAzureOpenAIImageGenerationService(AiSetting.AzureEndpoint, AiSetting.ApiKey),
 
-                //        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
-                //    });
+                AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureOpenAIImageGenerationService(AiSetting.NeuCharEndpoint, AiSetting.ApiKey),
 
-                //强制使用 OpenAI 权限
-                c.AddImageGenerationService(serviceId, k =>
-                    new OpenAIImageGeneration(AiSetting.OpenAIKeys.ApiKey, AiSetting.OpenAIKeys.OrgaizationId));
-            });
+                _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+            };
+
+            //kernelBuilder.Configure(c =>
+            //{
+            //    //c.AddImageGenerationService(serviceId, k =>
+            //    //    aiPlatForm switch
+            //    //    {
+            //    //        AiPlatform.OpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+            //    //        AiPlatform.AzureOpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
+
+            //    //        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+            //    //    });
+
+            //    //强制使用 OpenAI 权限
+            //    c.AddImageGenerationService(serviceId, k =>
+            //        new OpenAIImageGeneration(AiSetting.OpenAIKeys.ApiKey, AiSetting.OpenAIKeys.OrgaizationId));
+            //});
 
             return kernelBuilder;
         }
@@ -240,9 +276,10 @@ namespace Senparc.AI.Kernel.Helpers
             string externalId,
             string externalSourceName,
             string? description = null,
+            string? additionalMetadata = null,
             CancellationToken cancel = default)
         {
-            await memory.SaveReferenceAsync(collection, text, externalId, externalSourceName, description, cancel);
+            await memory.SaveReferenceAsync(collection, text, externalId, externalSourceName, description, additionalMetadata, cancel);
         }
 
         /// <summary>
@@ -259,9 +296,10 @@ namespace Senparc.AI.Kernel.Helpers
             string text,
             string id,
             string? description = null,
+            string? additionalMetadata = null,
             CancellationToken cancel = default)
         {
-            await memory.SaveInformationAsync(collection, text, id, description, cancel);
+            await memory.SaveInformationAsync(collection, text, id, description, additionalMetadata, cancel);
         }
 
         /// <summary>

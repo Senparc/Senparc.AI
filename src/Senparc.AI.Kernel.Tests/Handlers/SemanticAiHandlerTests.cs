@@ -44,7 +44,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             Assert.IsTrue(result.Output.Length > 0);
             Assert.IsTrue(result.LastException == null);
 
-            ((SenparcAiContext)result.InputContext).ExtendContext.Get("human_input", out var question);
+            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question);
             await Console.Out.WriteLineAsync("Q: " + question);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -55,7 +55,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第二轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
            
-            ((SenparcAiContext)result.InputContext).ExtendContext.Get("human_input", out var question2);
+            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question2);
             await Console.Out.WriteLineAsync("Q: " + question2);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -66,7 +66,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第三轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
            
-            ((SenparcAiContext)result.InputContext).ExtendContext.Get("human_input", out var question3);
+            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question3);
             await Console.Out.WriteLineAsync("Q: " + question3);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -76,7 +76,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             prompt = "将上面包含GDP那一条提问的回答，翻译成中文。";
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第四轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
-            ((SenparcAiContext)result.InputContext).ExtendContext.Get("human_input", out var question4);
+            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question4);
             await Console.Out.WriteLineAsync("Q: " + question4);
             await Console.Out.WriteLineAsync("A: " + result.Output);
         }
