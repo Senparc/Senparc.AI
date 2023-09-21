@@ -1,5 +1,5 @@
-﻿using Microsoft.SemanticKernel.KernelExtensions;
-using Microsoft.SemanticKernel.Orchestration;
+﻿using Microsoft.SemanticKernel.Orchestration;
+using Microsoft.SemanticKernel.SkillDefinition;
 using System;
 using System.Collections.Generic;
 using System.Text;
