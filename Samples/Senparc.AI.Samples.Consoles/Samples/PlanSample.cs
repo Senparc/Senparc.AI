@@ -1,5 +1,7 @@
-﻿using Microsoft.SemanticKernel.CoreSkills;
+﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
+using Microsoft.SemanticKernel.Planning;
+using Microsoft.SemanticKernel.Skills.Core;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
@@ -31,7 +33,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                            .ConfigModel(ConfigModel.TextCompletion, _userId, "text-davinci-003")
                            .BuildKernel();
 
-            var planner = iWantToRun.ImportSkill(new PlannerSkill(iWantToRun.Kernel)).skillList;
+            var planner = iWantToRun.ImportSkill(new TextMemorySkill(iWantToRun.Kernel.Memory)).skillList;
 
             var dir = Path.GetDirectoryName(this.GetType().Assembly.Location);//System.IO.Directory.GetCurrentDirectory();
             //Console.WriteLine("dir:" + dir);
@@ -56,9 +58,9 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var request = iWantToRun.CreateRequest(ask, planner["CreatePlan"]);
             var originalPlan = await iWantToRun.RunAsync(request);
 
-            var plannResult = originalPlan.Result.Variables.ToPlan().PlanString;
+            var plannResult = originalPlan.Result.Variables;//.ToPlan().PlanString;
             await Console.Out.WriteLineAsync("Plan Created!");
-            await Console.Out.WriteLineAsync(plannResult);
+            await Console.Out.WriteLineAsync(plannResult["CreatePlan"]);
 
             await Console.Out.WriteLineAsync("Now system will add a new plan into your request: Rewrite the above in the style of Shakespeare. Press Enter");
 
@@ -76,7 +78,8 @@ Give me the plan less than 5 steps.
 
             var newRequest = iWantToRun.CreateRequest(ask, planner["CreatePlan"], shakespeareFunction);
             var newPlan = await iWantToRun.RunAsync(newRequest);
-            var newPlanResult = newPlan.Result.Variables.ToPlan().PlanString;
+
+            var newPlanResult = newPlan.Result.Variables["CreatePlan"];//.ToPlan().PlanString;
 
             Console.WriteLine("Updated plan:\n");
             Console.WriteLine(newPlanResult);
