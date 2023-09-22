@@ -4,6 +4,7 @@ using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.Planning;
 using Microsoft.SemanticKernel.Skills.Core;
 using Senparc.AI.Interfaces;
+using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.AI.Tests;
 using Senparc.CO2NET.Extensions;
 
@@ -24,7 +25,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             var iWantToRun = handler
                  .IWantTo()
-                 .ConfigModel(ConfigModel.TextCompletion, userId, "text-davinci-003")
+                 .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
                  .BuildKernel();
 
             //var planner = iWantToRun.ImportSkill(new PlannerSkill(iWantToRun.Kernel)).skillList;

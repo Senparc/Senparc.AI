@@ -14,6 +14,11 @@ namespace Senparc.AI.Kernel.Tests.BaseSupport
 {
     public class KernelTestBase : BaseTest
     {
+        //public static string Default_Text = "text-davinci-003";
+        //public static string Default_TextEmbedding = "text-embedding-ada-002";
+        public static string Default_TextCompletion = "chatglm2";
+        public static string Default_TextEmbedding = "chatglm2";
+
         static Action<IRegisterService> RegisterAction = r =>
         {
             r.UseSenparcAI(BaseTest._senparcAiSetting);

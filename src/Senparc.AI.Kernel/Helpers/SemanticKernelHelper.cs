@@ -129,7 +129,7 @@ namespace Senparc.AI.Kernel.Helpers
 
                 AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureTextCompletionService(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
-                AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextCompletionService(modelName),
+                AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextCompletionService(modelName, AiSetting.HuggingFaceEndpoint),
 
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
@@ -183,7 +183,7 @@ namespace Senparc.AI.Kernel.Helpers
 
                 AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureTextEmbeddingGenerationService(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
-                AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextEmbeddingGenerationService(modelName),
+                AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextEmbeddingGenerationService(modelName, AiSetting.HuggingFaceEndpoint),
 
 
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")

@@ -20,8 +20,8 @@ namespace Senparc.AI.Kernel.Helpers.Tests
         public void GetServiceIdTest()
         {
             var helper = new SemanticKernelHelper();
-            var result = helper.GetServiceId("Jeffrey", "text-davinci-003");
-            Assert.AreEqual("Jeffrey-text-davinci-003", result);
+            var result = helper.GetServiceId("Jeffrey", KernelTestBase.Default_TextCompletion);
+            Assert.AreEqual($"Jeffrey-{KernelTestBase.Default_TextCompletion}", result);
         }
 
         [TestMethod]
@@ -59,7 +59,7 @@ namespace Senparc.AI.Kernel.Helpers.Tests
         public void ConfigTest()
         {
             var helper = new SemanticKernelHelper();
-            var kernel = helper.ConfigTextCompletion("Jeffrey", "text-davinci-003", null);
+            var kernel = helper.ConfigTextCompletion("Jeffrey", KernelTestBase.Default_TextCompletion, null);
             Assert.IsNotNull(kernel);
         }
 

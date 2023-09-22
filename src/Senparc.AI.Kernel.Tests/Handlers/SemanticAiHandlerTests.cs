@@ -29,7 +29,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey");
+            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey", KernelTestBase.Default_TextCompletion);
             var iWantToRun = chatConfig.iWantToRun;
 
             //第一轮对话
@@ -97,7 +97,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = "text-davinci-003";//默认使用模型
+            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
