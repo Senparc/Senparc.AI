@@ -34,8 +34,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //测试 TextEmbedding
             var iWantToRun = _semanticAiHandler
                  .IWantTo()
-                 .ConfigModel(ConfigModel.TextEmbedding, _userId, SampleHelper.Default_TextEmbedding)
-                 .ConfigModel(ConfigModel.TextCompletion, _userId, SampleHelper.Default_TextCompletion)
+                 .ConfigModel(ConfigModel.TextEmbedding, _userId, SampleHelper.Default_TextEmbedding_ModeName)
+                 .ConfigModel(ConfigModel.TextCompletion, _userId, SampleHelper.Default_TextCompletion_ModeName)
                  .BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
 
             //开始对话

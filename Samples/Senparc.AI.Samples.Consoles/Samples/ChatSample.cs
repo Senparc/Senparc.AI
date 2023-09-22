@@ -36,7 +36,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 TopP = 0.5,
             };
 
-            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey",modelName: SampleHelper.Default_TextCompletion/*, modelName: "gpt-4-32k"*/);
+            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey",modelName: SampleHelper.Default_TextCompletion_ModeName/*, modelName: "gpt-4-32k"*/);
             var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();
