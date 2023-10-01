@@ -26,7 +26,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             //测试 TextEmbedding
             var iWantToRun = handler
                  .IWantTo()
-                 .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextCompletion)
+                 .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextEmbedding)
                  .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
                  .BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
 

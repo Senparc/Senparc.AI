@@ -8,10 +8,10 @@ namespace Senparc.AI.Samples.Consoles
 {
     public static class SampleHelper
     {
-        //public static string Default_Text = "text-davinci-003";
-        //public static string Default_TextEmbedding = "text-embedding-ada-002";
-        public static string Default_TextCompletion_ModeName = "chatglm2";
-        public static string Default_TextEmbedding_ModeName = "chatglm2";
+        public static string Default_TextCompletion_ModeName = "text-davinci-003";
+        public static string Default_TextEmbedding_ModeName = "text-embedding-ada-002";
+        //public static string Default_TextCompletion_ModeName = "chatglm2";
+        //public static string Default_TextEmbedding_ModeName = "chatglm2";
 
         /// <summary>
         /// Get AppSettings file name.

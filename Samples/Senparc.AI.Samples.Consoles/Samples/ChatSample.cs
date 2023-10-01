@@ -1,10 +1,14 @@
-﻿using Senparc.AI.Entities;
+﻿using Microsoft.SemanticKernel.AI.TextCompletion;
+using Microsoft.SemanticKernel.Connectors.AI.HuggingFace.TextCompletion;
+using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,6 +25,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
             _aiHandler = aiHandler;
         }
 
+        private const string Endpoint = "http://sk.frp.senparc.com/completions/";
+        private const string Model = "chatglm2";
 
         public async Task RunAsync()
         {
@@ -36,7 +42,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 TopP = 0.5,
             };
 
-            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey",modelName: SampleHelper.Default_TextCompletion_ModeName/*, modelName: "gpt-4-32k"*/);
+
+            //await Console.Out.WriteLineAsync(localResponse);
+            //var remoteResponse = await huggingFaceRemote.CompleteAsync(Input);
+
+
+            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey", modelName: SampleHelper.Default_TextCompletion_ModeName/*, modelName: "gpt-4-32k"*/);
             var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();
@@ -58,7 +69,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     if (prompt.ToUpper() == "[END]")
                     {
                         useMultiLine = false;
-                        prompt  = multiLineContent.ToString();
+                        prompt = multiLineContent.ToString();
                     }
                     else
                     {
@@ -68,18 +79,42 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     }
                 }
 
-
+           
                 if (prompt == "exit")
                 {
                     break;
                 }
 
                 var dt = SystemTime.Now;
-                var result = await _semanticAiHandler.ChatAsync(iWantToRun, prompt);
 
-                await Console.Out.WriteLineAsync("机器：");
-                await Console.Out.WriteLineAsync(result.Output);
-                await Console.Out.WriteLineAsync();
+                // Arrange
+                if (false)
+                {
+                    var huggingFaceLocal = new HuggingFaceTextCompletion(Model, endpoint: Endpoint);
+                    var huggingFaceRemote = new HuggingFaceTextCompletion(Model);
+
+                    var requestSetting = new Microsoft.SemanticKernel.AI.TextCompletion.CompleteRequestSettings()
+                    {
+                        MaxTokens = 2000,
+                        Temperature = 0.7,
+                        TopP = 0.5,
+                    };
+                    // Act
+                    var localResponse = await huggingFaceLocal.CompleteAsync(prompt, requestSetting);
+
+                    await Console.Out.WriteLineAsync("机器：");
+                    await Console.Out.WriteLineAsync(localResponse.ToString());
+                    //await Console.Out.WriteLineAsync("===1=====");
+                    //localResponse.ToList().ForEach(x => Console.Write(x));
+                }
+                else
+                {
+                    var result = await _semanticAiHandler.ChatAsync(iWantToRun, prompt);
+
+                    await Console.Out.WriteLineAsync("机器：");
+                    await Console.Out.WriteLineAsync(result.Output);
+                    await Console.Out.WriteLineAsync();
+                }
             }
         }
     }

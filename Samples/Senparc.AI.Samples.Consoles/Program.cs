@@ -31,7 +31,6 @@ services.AddScoped<EmbeddingSample>();
 services.AddScoped<DallESample>();
 services.AddScoped<PlanSample>();
 
-
 var serviceProvider = services.BuildServiceProvider();
 
 IRegisterService register = RegisterService.Start(senparcSetting)

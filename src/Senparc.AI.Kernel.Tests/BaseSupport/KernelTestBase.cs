@@ -14,10 +14,8 @@ namespace Senparc.AI.Kernel.Tests.BaseSupport
 {
     public class KernelTestBase : BaseTest
     {
-        //public static string Default_Text = "text-davinci-003";
-        //public static string Default_TextEmbedding = "text-embedding-ada-002";
-        public static string Default_TextCompletion = "chatglm2";
-        public static string Default_TextEmbedding = "chatglm2";
+        public static string Default_TextCompletion = null;
+        public static string Default_TextEmbedding = null;
 
         static Action<IRegisterService> RegisterAction = r =>
         {
@@ -37,6 +35,22 @@ namespace Senparc.AI.Kernel.Tests.BaseSupport
         };
         public KernelTestBase() : base(RegisterAction, getSenparcAiSettingFunc, serviceAction)
         {
+            switch (Senparc.AI.Config.SenparcAiSetting.AiPlatform)
+            {
+                case AiPlatform.HuggingFace:
+                    Default_TextCompletion = "chatglm2";
+                    Default_TextEmbedding = "chatglm2";
+                    break;
+                case AiPlatform.UnSet:
+                case AiPlatform.None:
+                case AiPlatform.OpenAI:
+                case AiPlatform.NeuCharOpenAI:
+                case AiPlatform.AzureOpenAI:
+                default:
+                    Default_TextCompletion = "text-davinci-003";
+                    Default_TextEmbedding = "text-embedding-ada-002";
+                    break;
+            }
 
         }
 
