@@ -58,6 +58,12 @@ namespace Senparc.AI.Interfaces
 
         #endregion
 
+        #region OpenAI
+
+        string OpenAIEndpoint { get; }
+
+        #endregion
+
         #region NeuChar
 
         /// <summary>

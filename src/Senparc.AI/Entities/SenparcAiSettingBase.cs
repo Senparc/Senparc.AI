@@ -66,6 +66,10 @@ namespace Senparc.AI.Entities
 
         #endregion
 
+        #region OpenAI
+        public virtual string OpenAIEndpoint => OpenAIKeys.Endpoint;
+
+        #endregion
 
         #region NeuChar
 

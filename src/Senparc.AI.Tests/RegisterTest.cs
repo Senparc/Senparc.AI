@@ -33,6 +33,9 @@ namespace Senparc.AI.Tests
 
             Assert.IsNotNull(senparcAiSetting.OpenAIKeys);
             Assert.IsNotNull(senparcAiSetting.OpenAIKeys.ApiKey);
+
+            Assert.AreEqual("<YourOpenAiEndpoint>", senparcAiSetting.OpenAIKeys.Endpoint);
+
         }
     }
 }
