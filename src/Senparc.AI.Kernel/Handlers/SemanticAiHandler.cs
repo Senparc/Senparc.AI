@@ -1,6 +1,7 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
+using Microsoft.SemanticKernel.SkillDefinition;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;

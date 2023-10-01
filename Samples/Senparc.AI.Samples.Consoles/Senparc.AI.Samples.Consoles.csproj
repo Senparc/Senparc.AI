@@ -25,8 +25,8 @@
 	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-    <ProjectReference Include="..\..\..\Senparc.AI\src\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
-    <ProjectReference Include="..\..\..\Senparc.AI\src\Senparc.AI\Senparc.AI.csproj" />
+    <ProjectReference Include="..\..\src\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
+    <ProjectReference Include="..\..\src\Senparc.AI\Senparc.AI.csproj" />
   </ItemGroup>
 
 </Project>

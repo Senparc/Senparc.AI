@@ -1,8 +1,9 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI.TextCompletion;
+using Microsoft.SemanticKernel.Connectors.AI.HuggingFace.TextCompletion;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SemanticFunctions;
+using Microsoft.SemanticKernel.SkillDefinition;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
@@ -227,8 +228,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns></returns>
         public static bool GetTempContext(this SenparcAiRequest request, string key, out string value)
         {
-
-            return request.TempAiContext.ExtendContext.Get(key, out value);
+            return request.TempAiContext.ExtendContext.TryGetValue(key, out value);
         }
 
         /// <summary>
@@ -240,8 +240,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns></returns>
         public static bool GetStoredContext(this SenparcAiRequest request, string key, out string value)
         {
-
-            return request.StoreAiContext.ExtendContext.Get(key, out value);
+            return request.StoreAiContext.ExtendContext.TryGetValue(key, out value);
         }
 
         #endregion
@@ -282,7 +281,13 @@ namespace Senparc.AI.Kernel.Handlers
             else if (!prompt.IsNullOrEmpty())
             {
                 //输入纯文字
-                botAnswer = await kernel.RunAsync(prompt, functionPipline);
+
+                tempContext = new ContextVariables();
+                tempContext["input"] = prompt;
+
+                //注意：此处即使直接输入 prompt 作为第一个 String 参数，也会被封装到 Context，
+                //      并赋值给 Key 为 INPUT 的参数
+                botAnswer = await kernel.RunAsync(tempContext, functionPipline);
                 result.InputContent = prompt;
             }
             else
@@ -295,7 +300,7 @@ namespace Senparc.AI.Kernel.Handlers
             result.InputContent = prompt;
             result.Output = botAnswer.Result;
             result.Result = botAnswer;
-            result.LastException = botAnswer.LastException;
+            //result.LastException = botAnswer.LastException;
 
             return result;
         }

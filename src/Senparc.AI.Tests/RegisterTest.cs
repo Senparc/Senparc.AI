@@ -13,8 +13,8 @@ namespace Senparc.AI.Tests
             //本地变量测试
             var senparcAiSetting = BaseTest._senparcAiSetting; // Senparc.AI.Config.SenparcAiSettings;
             Assert.IsNotNull(senparcAiSetting);
-            Assert.AreEqual(AiPlatform.NeuCharOpenAI, senparcAiSetting.AiPlatform);
-            Assert.AreEqual(true, senparcAiSetting.UseNeuCharOpenAI);
+            Assert.AreEqual(AiPlatform.AzureOpenAI, senparcAiSetting.AiPlatform);
+            Assert.AreEqual(false, senparcAiSetting.UseNeuCharOpenAI);
             Assert.IsFalse(senparcAiSetting.NeuCharEndpoint.IsNullOrEmpty());
             Assert.IsFalse(senparcAiSetting.ApiKey.IsNullOrEmpty());
             Assert.IsFalse(senparcAiSetting.OrgaizationId.IsNullOrEmpty());

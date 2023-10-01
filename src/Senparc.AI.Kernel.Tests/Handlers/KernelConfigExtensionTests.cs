@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.SemanticKernel.CoreSkills;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
+using Microsoft.SemanticKernel.Skills.Core;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.KernelConfigExtensions;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.AI.Tests;
 using Senparc.CO2NET.Extensions;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Senparc.AI.Kernel.Handlers.Tests
 {
@@ -24,8 +26,8 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             //测试 TextEmbedding
             var iWantToRun = handler
                  .IWantTo()
-                 .ConfigModel(ConfigModel.TextEmbedding, userId, "text-embedding-ada-002")
-                 .ConfigModel(ConfigModel.TextCompletion, userId, "text-davinci-003")
+                 .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextEmbedding)
+                 .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
                  .BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
 
             var dt1 = DateTime.Now;
@@ -75,8 +77,13 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             {
                 var questionDt = DateTime.Now;
                 var result = await iWantToRun.MemorySearchAsync(MemoryCollectionName, q);
-                var response = result.MemoryQueryResult.FirstOrDefaultAsync();
-                Console.WriteLine("Q: " + q + "\r\nA:" + response.Result?.Metadata.Text + $"\r\n -- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
+                var response = result.MemoryQueryResult;
+                Console.Write("Q: " + q + "\r\nA: ");
+                    await foreach (var resultItem in response)
+                {
+                    Console.Write(resultItem.Metadata.Text);
+                }
+                Console.Write($"\r\n-- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
                 Console.WriteLine();
             }
 
@@ -84,7 +91,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             Assert.AreEqual(0, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
 
-            iWantToRun.ImportSkill(new TextMemorySkill());
+            iWantToRun.ImportSkill(new TextMemorySkill(iWantToRun.Kernel.Memory));//TODO: 简化方法
             //没有增加实际的 funciton
             Assert.AreEqual(0, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
 
@@ -114,28 +121,28 @@ ChatBot: ";
 
             var context = iWantToRun.CreateNewContext().context;
 
-            context["fact1"] = "what is my name?";
-            context["fact2"] = "where do I live?";
-            context["fact3"] = "where is my family from?";
-            context["fact4"] = "where have I travelled?";
-            context["fact5"] = "what do I do for work?";
-            context["fact6"] = "what company I work for?";
-            context["fact7"] = "how many years of R&D experience does Senparc has?";
-            context[TextMemorySkill.CollectionParam] = MemoryCollectionName;
-            context[TextMemorySkill.RelevanceParam] = "0.8";
+            context.Variables["fact1"] = "what is my name?";
+            context.Variables["fact2"] = "where do I live?";
+            context.Variables["fact3"] = "where is my family from?";
+            context.Variables["fact4"] = "where have I travelled?";
+            context.Variables["fact5"] = "what do I do for work?";
+            context.Variables["fact6"] = "what company I work for?";
+            context.Variables["fact7"] = "how many years of R&D experience does Senparc has?";
+            context.Variables[TextMemorySkill.CollectionParam] = MemoryCollectionName;
+            context.Variables[TextMemorySkill.RelevanceParam] = "0.8";
 
             var history = "";
-            context["history"] = history;
+            context.Variables["history"] = history;
 
             var input = "Where is my company?";
-            context["userInput"] = input;
+            context.Variables["userInput"] = input;
 
             var answer = await chatFunction.function.InvokeAsync(context);
             Assert.IsTrue(!answer.Result.IsNullOrEmpty());
             Assert.AreEqual(answer.ToString(),answer.Result);
 
             history += $"\nUser: {input}\nChatBot: {answer}\n";
-            context["history"] = history;
+            context.Variables["history"] = history;
 
             await Console.Out.WriteLineAsync("===== Start recall test =====");
             await Console.Out.WriteLineAsync("Question: " + input);
@@ -143,7 +150,7 @@ ChatBot: ";
             Console.WriteLine();
 
             input = "Why do you think so? Give me your logic, please.";
-            context["userInput"] = input;
+            context.Variables["userInput"] = input;
             answer = await chatFunction.function.InvokeAsync(context);
             await Console.Out.WriteLineAsync("Question: " + input);
             await Console.Out.WriteLineAsync("Answer: " + answer.ToString());
@@ -161,8 +168,8 @@ ChatBot: ";
             //测试 TextEmbedding
             var iWantToRun = handler
                  .IWantTo()
-                 .ConfigModel(ConfigModel.TextEmbedding, userId, "text-embedding-ada-002")
-                 .ConfigModel(ConfigModel.TextCompletion, userId, "text-davinci-003")
+                 .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextEmbedding)
+                 .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
                  .BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
 
             const string memoryCollectionName = "NcfGitHub";

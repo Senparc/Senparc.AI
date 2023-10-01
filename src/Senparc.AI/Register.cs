@@ -31,7 +31,7 @@ namespace Senparc.AI
                 //只在原始配置未设置的时候机型覆盖
                 Config.SenparcAiSetting = senparcAiSetting;
             }
-
+         
             return registerService;
         }
     }

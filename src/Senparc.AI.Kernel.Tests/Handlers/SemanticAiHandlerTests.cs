@@ -1,16 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Senparc.AI.Entities;
-using Senparc.AI.Kernel.Helpers;
+﻿using Senparc.AI.Entities;
+using Senparc.AI.Kernel.Entities;
+using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.CO2NET.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Senparc.AI.Kernel.Handlers;
-using Senparc.AI.Interfaces;
-using Senparc.AI.Kernel.Entities;
 
 namespace Senparc.AI.Kernel.Tests.Handlers
 {
@@ -29,7 +21,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey");
+            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey", KernelTestBase.Default_TextCompletion);
             var iWantToRun = chatConfig.iWantToRun;
 
             //第一轮对话
@@ -44,7 +36,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             Assert.IsTrue(result.Output.Length > 0);
             Assert.IsTrue(result.LastException == null);
 
-            ((SenparcAiContext)result.InputContext).ExtendContext.Get("human_input", out var question);
+            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question);
             await Console.Out.WriteLineAsync("Q: " + question);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -54,8 +46,8 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             prompt = "tell me more about that city. including GDP.";
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第二轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
-           
-            ((SenparcAiContext)result.InputContext).ExtendContext.Get("human_input", out var question2);
+
+            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question2);
             await Console.Out.WriteLineAsync("Q: " + question2);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -65,8 +57,8 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             prompt = "what's the population of there?";
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第三轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
-           
-            ((SenparcAiContext)result.InputContext).ExtendContext.Get("human_input", out var question3);
+
+            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question3);
             await Console.Out.WriteLineAsync("Q: " + question3);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -76,7 +68,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             prompt = "将上面包含GDP那一条提问的回答，翻译成中文。";
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第四轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
-            ((SenparcAiContext)result.InputContext).ExtendContext.Get("human_input", out var question4);
+            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question4);
             await Console.Out.WriteLineAsync("Q: " + question4);
             await Console.Out.WriteLineAsync("A: " + result.Output);
         }
@@ -97,7 +89,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = "text-davinci-003";//默认使用模型
+            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
@@ -132,6 +124,40 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             aiResult = await iWantToRun.RunAsync(aiRequest);
             //aiResult.Result 结果：美国的人口大约为3.2亿。
             await Console.Out.WriteLineAsync(aiResult.Output);
+        }
+
+        [TestMethod]
+        public async Task TextCompletionTest()
+        {
+            //创建 AI Handler 处理器（也可以通过工厂依赖注入）
+            var handler = new SemanticAiHandler();
+
+            //定义 AI 接口调用参数和 Token 限制等
+            var promptParameter = new PromptConfigParameter()
+            {
+                MaxTokens = 2000,
+                Temperature = 0.7,
+                TopP = 0.5,
+            };
+
+            var functionPrompt = @"请使用尽量有创造性的语言，补全下面的文字：{{$input}}，请注意原文的格式，和可能匹配的文体。"; ;
+
+            //准备运行
+            var userId = "JeffreySu";//区分用户
+            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
+            var iWantToRun =
+                 handler.IWantTo()
+                        .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                        .BuildKernel()
+                        .RegisterSemanticFunction("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
+
+            var request = iWantToRun.CreateRequest("床前明月光，", true);
+            var result = await iWantToRun.RunAsync(request);
+
+            //await Console.Out.WriteLineAsync(Senparc.AI.Config.SenparcAiSetting.ToJson(true));
+
+            Assert.IsNotNull(result);
+            await Console.Out.WriteLineAsync(result.Output);
         }
     }
 }

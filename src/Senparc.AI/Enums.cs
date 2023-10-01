@@ -14,6 +14,8 @@ namespace Senparc.AI
         OpenAI = 2,
         NeuCharOpenAI = 4,
         AzureOpenAI = 8,
+        HuggingFace = 16,
+        //Oobabooga = 32
     }
 
     /// <summary>
