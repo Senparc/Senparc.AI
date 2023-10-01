@@ -13,7 +13,7 @@
 		</Description>
 		<Copyright>Senparc Copyright © 2004~2023</Copyright>
 		<PackageTags>
-			Senparc,AI,Kernel,C#,AIGC,AGI,LLM,emantic-kernel
+			Senparc,AI,Kernel,C#,AIGC,GenAI,AGI,LLM,SemanticKernel
 		</PackageTags>
 		<Authors>Jeffrey Su</Authors>
 		<Owners>Senparc</Owners>
