@@ -30,7 +30,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var iWantToRun = _semanticAiHandler
                            .IWantTo()
-                           .ConfigModel(ConfigModel.TextCompletion, _userId, "text-davinci-003")
+                           .ConfigModel(ConfigModel.TextCompletion, _userId, SampleHelper.Default_TextCompletion_ModeName)
                            .BuildKernel();
 
             //var planner = iWantToRun.ImportSkill(new TextMemorySkill(iWantToRun.Kernel.Memory)).skillList;

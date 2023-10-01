@@ -43,7 +43,9 @@ namespace Senparc.AI.Entities
         {
             AiPlatform.OpenAI => OpenAIKeys.ApiKey,
             AiPlatform.NeuCharOpenAI => NeuCharOpenAIKeys.ApiKey,
-            AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey
+            AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey,
+            AiPlatform.HuggingFace => "",
+            _ => ""
         };
 
         /// <summary>

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.3.0-beta1</Version>
+		<Version>0.3.1-beta1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI</AssemblyName>
@@ -13,7 +13,7 @@
 		</Description>
 		<Copyright>Senparc Copyright © 2004~2023</Copyright>
 		<PackageTags>
-			Senparc,AI,Kernel,C#,AIGC,AGI,LLM,emantic-kernel
+			Senparc,AI,Kernel,C#,AIGC,GenAI,AGI,LLM,SemanticKernel
 		</PackageTags>
 		<Authors>Jeffrey Su</Authors>
 		<Owners>Senparc</Owners>
@@ -26,6 +26,7 @@
 		<PackageReleaseNotes>
 			v0.1.0 创世
 			v0.2.0 添加 NeuChar OpenAI
+			v0.3.1 同步最新版本 Semantic Kernel，完善 Prompt 运行方法
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

@@ -26,8 +26,8 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             //测试 TextEmbedding
             var iWantToRun = handler
                  .IWantTo()
-                 .ConfigModel(ConfigModel.TextEmbedding, userId, "text-embedding-ada-002")
-                 .ConfigModel(ConfigModel.TextCompletion, userId, "text-davinci-003")
+                 .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextEmbedding)
+                 .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
                  .BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
 
             var dt1 = DateTime.Now;
@@ -168,8 +168,8 @@ ChatBot: ";
             //测试 TextEmbedding
             var iWantToRun = handler
                  .IWantTo()
-                 .ConfigModel(ConfigModel.TextEmbedding, userId, "text-embedding-ada-002")
-                 .ConfigModel(ConfigModel.TextCompletion, userId, "text-davinci-003")
+                 .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextEmbedding)
+                 .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
                  .BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
 
             const string memoryCollectionName = "NcfGitHub";
