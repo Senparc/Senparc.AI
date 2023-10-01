@@ -140,19 +140,21 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
+            var functionPrompt = @"请使用尽量有创造性的语言，补全下面的文字：{{$input}}，请注意原文的格式，和可能匹配的文体。"; ;
+
             //准备运行
             var userId = "JeffreySu";//区分用户
             var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
-                        .BuildKernel();
+                        .BuildKernel()
+                        .RegisterSemanticFunction("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
 
-            var prompt = "床前明月光，疑似_";
-            var request = iWantToRun.CreateRequest(prompt);
+            var request = iWantToRun.CreateRequest("床前明月光，", true);
             var result = await iWantToRun.RunAsync(request);
 
-            await Console.Out.WriteLineAsync(Senparc.AI.Config.SenparcAiSetting.ToJson(true));
+            //await Console.Out.WriteLineAsync(Senparc.AI.Config.SenparcAiSetting.ToJson(true));
 
             Assert.IsNotNull(result);
             await Console.Out.WriteLineAsync(result.Output);

@@ -281,7 +281,13 @@ namespace Senparc.AI.Kernel.Handlers
             else if (!prompt.IsNullOrEmpty())
             {
                 //输入纯文字
-                botAnswer = await kernel.RunAsync(prompt, functionPipline);
+
+                tempContext = new ContextVariables();
+                tempContext["input"] = prompt;
+
+                //注意：此处即使直接输入 prompt 作为第一个 String 参数，也会被封装到 Context，
+                //      并赋值给 Key 为 INPUT 的参数
+                botAnswer = await kernel.RunAsync(tempContext, functionPipline);
                 result.InputContent = prompt;
             }
             else
