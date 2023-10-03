@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Senparc.AI.Interfaces
 {
@@ -24,6 +25,11 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// 扩展类型的上下文
         /// </summary>
+        [Obsolete("请使用 ContextVariables", true)]
         T ExtendContext { get; set; }
+        /// <summary>
+        /// 扩展类型的上下文
+        /// </summary>
+        T ContextVariables { get; set; }
     }
 }

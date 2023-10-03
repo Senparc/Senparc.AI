@@ -13,7 +13,25 @@ namespace Senparc.AI.Kernel.Entities
         /// </summary>
         [Obsolete("请使用 ContextVariables", true)]
         public ContextVariables ExtendContext { get; set; }
-        public ContextVariables ContextVariables { get; set; }
+
+        private ContextVariables _contextVariables { get; set; }
+
+
+        public ContextVariables ContextVariables
+        {
+            get
+            {
+                if (_contextVariables == null)
+                {
+                    _contextVariables = new ContextVariables();
+                }
+                return _contextVariables;
+            }
+            set
+            {
+                _contextVariables = value;
+            }
+        }
 
         /// <summary>
         /// <inheritdoc/>>
@@ -40,12 +58,5 @@ namespace Senparc.AI.Kernel.Entities
             ContextVariables = subContext;
         }
 
-        /// <summary>
-        /// 尝试初始化 ExtendContext 上下文对象，如果已经初始化，则不进行操作
-        /// </summary>
-        public void TryInitExtendContext()
-        {
-            ContextVariables ??= new ContextVariables();
-        }
     }
 }
