@@ -15,6 +15,9 @@ namespace Senparc.AI.Kernel.Handlers
 
     public static partial class KernelConfigExtensions
     {
+        #region SemanticFunction
+
+
         /// <summary>
         /// Build and register a function in the internal skill collection.
         /// </summary>
@@ -46,14 +49,14 @@ namespace Senparc.AI.Kernel.Handlers
             var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
 
             var newFunction = kernel.RegisterSemanticFunction(skillName/*"ChatBot"*/, functionName /*"Chat"*/, functionConfig);
-
+            
             var aiContext = new SenparcAiContext();
 
             //TODO:独立 Context
             var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
             var history = "";
             aiContext.TryInitExtendContext();
-            aiContext.ExtendContext.Set(serviceId, history);
+            aiContext.ContextVariables.Set(serviceId, history);
 
             //iWantToRun.ISKFunction = chatFunction;
             iWantToRun.StoredAiContext = aiContext;
@@ -134,5 +137,6 @@ namespace Senparc.AI.Kernel.Handlers
             return (iWantToRun, function);
         }
 
+        #endregion
     }
 }

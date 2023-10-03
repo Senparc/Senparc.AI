@@ -1,6 +1,7 @@
 ﻿using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace Senparc.AI.Kernel.Entities
@@ -10,21 +11,23 @@ namespace Senparc.AI.Kernel.Entities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
+        [Obsolete("请使用 ContextVariables", true)]
         public ContextVariables ExtendContext { get; set; }
+        public ContextVariables ContextVariables { get; set; }
 
         /// <summary>
         /// <inheritdoc/>>
         /// </summary>
         public IEnumerable<KeyValuePair<string, string>> Context
         {
-            get => ExtendContext;
+            get => ContextVariables;
             set
             {
-                if (value is not ContextVariables)
+                if (value is not Microsoft.SemanticKernel.Orchestration.ContextVariables)
                 {
                     throw new SenparcAiException("Context 类型必须为 ContextVariables");
                 }
-                ExtendContext = (ContextVariables)value;
+                ContextVariables = (ContextVariables)value;
             }
         }
 
@@ -34,7 +37,7 @@ namespace Senparc.AI.Kernel.Entities
 
         public SenparcAiContext(ContextVariables subContext)
         {
-            ExtendContext = subContext;
+            ContextVariables = subContext;
         }
 
         /// <summary>
@@ -42,7 +45,7 @@ namespace Senparc.AI.Kernel.Entities
         /// </summary>
         public void TryInitExtendContext()
         {
-            ExtendContext ??= new ContextVariables();
+            ContextVariables ??= new ContextVariables();
         }
     }
 }
