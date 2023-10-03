@@ -201,7 +201,7 @@ namespace Senparc.AI.Kernel.Handlers
         public static SenparcAiRequest SetTempContext(this SenparcAiRequest request, string key, string value)
         {
             request.TempAiContext ??= new SenparcAiContext();
-            request.TempAiContext.ExtendContext.Set(key, value);
+            request.TempAiContext.ContextVariables.Set(key, value);
             return request;
         }
 
@@ -214,7 +214,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns></returns>
         public static SenparcAiRequest SetStoredContext(this SenparcAiRequest request, string key, string value)
         {
-            request.StoreAiContext.ExtendContext.Set(key, value);
+            request.StoreAiContext.ContextVariables.Set(key, value);
             return request;
         }
 
@@ -228,7 +228,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns></returns>
         public static bool GetTempContext(this SenparcAiRequest request, string key, out string value)
         {
-            return request.TempAiContext.ExtendContext.TryGetValue(key, out value);
+            return request.TempAiContext.ContextVariables.TryGetValue(key, out value);
         }
 
         /// <summary>
@@ -240,7 +240,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns></returns>
         public static bool GetStoredContext(this SenparcAiRequest request, string key, out string value)
         {
-            return request.StoreAiContext.ExtendContext.TryGetValue(key, out value);
+            return request.StoreAiContext.ContextVariables.TryGetValue(key, out value);
         }
 
         #endregion
@@ -265,8 +265,8 @@ namespace Senparc.AI.Kernel.Handlers
             //注意：只要使用了 Skill 和 Function，并且包含输入标识，就需要使用上下文
 
             iWanToRun.StoredAiContext ??= new SenparcAiContext();
-            var storedContext = iWanToRun.StoredAiContext.ExtendContext;
-            var tempContext = request.TempAiContext?.ExtendContext;
+            var storedContext = iWanToRun.StoredAiContext.ContextVariables;
+            var tempContext = request.TempAiContext?.ContextVariables;
 
             SKContext? botAnswer;
 

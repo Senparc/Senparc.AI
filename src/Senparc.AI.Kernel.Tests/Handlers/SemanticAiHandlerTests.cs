@@ -1,8 +1,10 @@
 ﻿using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
+using Senparc.AI.Kernel.KernelConfigExtensions;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.CO2NET.Extensions;
+using System.Formats.Asn1;
 
 namespace Senparc.AI.Kernel.Tests.Handlers
 {
@@ -36,7 +38,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             Assert.IsTrue(result.Output.Length > 0);
             Assert.IsTrue(result.LastException == null);
 
-            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question);
+            ((SenparcAiContext)result.InputContext).ContextVariables.TryGetValue("human_input", out var question);
             await Console.Out.WriteLineAsync("Q: " + question);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -47,7 +49,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第二轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
 
-            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question2);
+            ((SenparcAiContext)result.InputContext).ContextVariables.TryGetValue("human_input", out var question2);
             await Console.Out.WriteLineAsync("Q: " + question2);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -58,7 +60,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第三轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
 
-            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question3);
+            ((SenparcAiContext)result.InputContext).ContextVariables.TryGetValue("human_input", out var question3);
             await Console.Out.WriteLineAsync("Q: " + question3);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -68,7 +70,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             prompt = "将上面包含GDP那一条提问的回答，翻译成中文。";
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第四轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
-            ((SenparcAiContext)result.InputContext).ExtendContext.TryGetValue("human_input", out var question4);
+            ((SenparcAiContext)result.InputContext).ContextVariables.TryGetValue("human_input", out var question4);
             await Console.Out.WriteLineAsync("Q: " + question4);
             await Console.Out.WriteLineAsync("A: " + result.Output);
         }
@@ -127,7 +129,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         }
 
         [TestMethod]
-        public async Task TextCompletionTest()
+        public async Task PureTextCompletionTest()
         {
             //创建 AI Handler 处理器（也可以通过工厂依赖注入）
             var handler = new SemanticAiHandler();
@@ -158,6 +160,66 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             Assert.IsNotNull(result);
             await Console.Out.WriteLineAsync(result.Output);
+        }
+
+        [TestMethod]
+        public async Task PurePluginTextCompletionTest()
+        {
+            //创建 AI Handler 处理器（也可以通过工厂依赖注入）
+            var handler = new SemanticAiHandler();
+
+            //定义 AI 接口调用参数和 Token 限制等
+            var promptParameter = new PromptConfigParameter()
+            {
+                MaxTokens = 2000,
+                Temperature = 0.7,
+                TopP = 0.5,
+            };
+
+            var functionPrompt = @"请使用尽量有创造性的语言，补全下面的文字：{{$input}}，请注意原文的格式，和可能匹配的文体。"; ;
+
+            //准备运行
+            var userId = "JeffreySu";//区分用户
+            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
+            var iWantToRun =
+                 handler.IWantTo()
+                        .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                        .BuildKernel()
+            .RegisterSemanticFunction("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
+
+            //TODO:外部输入
+            var testPlugin = new TestPlugin();
+            //输入 skill
+            var skills = iWantToRun.Kernel.ImportSkill(testPlugin,"test");
+
+            //var function = iWantToRun.Kernel.Skills.GetFunction(nameof(xncfBuilderPlugin.BuildEntityClass));
+            var function = skills[nameof(testPlugin.GenerateText2)];
+
+            var requestSettings = new Microsoft.SemanticKernel.AI.TextCompletion.CompleteRequestSettings()
+            {
+                MaxTokens = 2000,
+                Temperature = 0.7,
+                StopSequences = new[] { "# END" },
+                TopP = 0.5,
+            };
+
+
+           var result1 =await iWantToRun.Kernel.RunAsync(function);
+
+            await Console.Out.WriteLineAsync( result1.Result);
+
+            return;
+            //function.SetAIConfiguration(requestSettings);
+
+
+            var request = iWantToRun.CreateRequest("  he llo w orld !  thi s is a n ew w orld.  ", true, function);
+            var result = await iWantToRun.RunAsync(request);
+
+            //await Console.Out.WriteLineAsync(Senparc.AI.Config.SenparcAiSetting.ToJson(true));
+
+            Assert.IsNotNull(result);
+            await Console.Out.WriteLineAsync(result.Output);
+            Assert.AreEqual("Helloworld!thisisanewworld.", result.Output);
         }
     }
 }
