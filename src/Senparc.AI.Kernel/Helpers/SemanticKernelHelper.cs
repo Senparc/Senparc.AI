@@ -123,7 +123,7 @@ namespace Senparc.AI.Kernel.Helpers
 
             _ = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.WithOpenAITextCompletionService(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+                AiPlatform.OpenAI => kernelBuilder.WithOpenAITextCompletionService(modelName, AiSetting.ApiKey, AiSetting.OrganizationId),
 
                 AiPlatform.AzureOpenAI => kernelBuilder.WithAzureTextCompletionService(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
@@ -139,7 +139,7 @@ namespace Senparc.AI.Kernel.Helpers
             //    c.AddTextCompletionService(serviceId, k =>
             //        aiPlatForm switch
             //        {
-            //            AiPlatform.OpenAI => new OpenAITextCompletion(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+            //            AiPlatform.OpenAI => new OpenAITextCompletion(modelName, AiSetting.ApiKey, AiSetting.OrganizationId),
 
             //            AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
@@ -177,7 +177,7 @@ namespace Senparc.AI.Kernel.Helpers
 
             _ = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.WithOpenAITextEmbeddingGenerationService(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+                AiPlatform.OpenAI => kernelBuilder.WithOpenAITextEmbeddingGenerationService(modelName, AiSetting.ApiKey, AiSetting.OrganizationId),
 
                 AiPlatform.AzureOpenAI => kernelBuilder.WithAzureTextEmbeddingGenerationService(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
@@ -194,7 +194,7 @@ namespace Senparc.AI.Kernel.Helpers
             //    c.AddTextEmbeddingGenerationService(serviceId, k =>
             //        aiPlatForm switch
             //        {
-            //            AiPlatform.OpenAI => new OpenAITextEmbeddingGeneration(modelName, AiSetting.ApiKey, AiSetting.OrgaizationId),
+            //            AiPlatform.OpenAI => new OpenAITextEmbeddingGeneration(modelName, AiSetting.ApiKey, AiSetting.OrganizationId),
 
             //            AiPlatform.NeuCharOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.NeuCharOpenAIApiVersion),
 
@@ -228,7 +228,7 @@ namespace Senparc.AI.Kernel.Helpers
 
             _ = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.WithOpenAIImageGenerationService(AiSetting.ApiKey, AiSetting.OrgaizationId),
+                AiPlatform.OpenAI => kernelBuilder.WithOpenAIImageGenerationService(AiSetting.ApiKey, AiSetting.OrganizationId),
 
                 AiPlatform.AzureOpenAI => kernelBuilder.WithAzureOpenAIImageGenerationService(AiSetting.AzureEndpoint, AiSetting.ApiKey),
 
@@ -242,16 +242,16 @@ namespace Senparc.AI.Kernel.Helpers
             //    //c.AddImageGenerationService(serviceId, k =>
             //    //    aiPlatForm switch
             //    //    {
-            //    //        AiPlatform.OpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
+            //    //        AiPlatform.OpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrganizationId),
 
-            //    //        AiPlatform.AzureOpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrgaizationId),
+            //    //        AiPlatform.AzureOpenAI => new OpenAIImageGeneration(AiSetting.ApiKey, AiSetting.OrganizationId),
 
             //    //        _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             //    //    });
 
             //    //强制使用 OpenAI 权限
             //    c.AddImageGenerationService(serviceId, k =>
-            //        new OpenAIImageGeneration(AiSetting.OpenAIKeys.ApiKey, AiSetting.OpenAIKeys.OrgaizationId));
+            //        new OpenAIImageGeneration(AiSetting.OpenAIKeys.ApiKey, AiSetting.OpenAIKeys.OrganizationId));
             //});
 
             return kernelBuilder;

@@ -76,7 +76,7 @@ namespace Senparc.AI.Kernel.Handlers
         //    kernel.Config.AddTextCompletionService(serviceId, k =>
         //        aiPlatForm switch
         //        {
-        //            AiPlatform.OpenAI => new OpenAITextCompletion(modelName, aiSetting.ApiKey, aiSetting.OrgaizationId),
+        //            AiPlatform.OpenAI => new OpenAITextCompletion(modelName, aiSetting.ApiKey, aiSetting.OrganizationId),
 
         //            AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, aiSetting.AzureEndpoint, aiSetting.ApiKey, aiSetting.AzureOpenAIApiVersion),
 

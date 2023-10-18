@@ -30,7 +30,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         {
             if (Senparc.AI.Config.SenparcAiSetting.OpenAIKeys == null ||
                 Senparc.AI.Config.SenparcAiSetting.OpenAIKeys.ApiKey.IsNullOrEmpty() ||
-                Senparc.AI.Config.SenparcAiSetting.OpenAIKeys.OrgaizationId.IsNullOrEmpty()
+                Senparc.AI.Config.SenparcAiSetting.OpenAIKeys.OrganizationId.IsNullOrEmpty()
                 )
             {
                 await Console.Out.WriteLineAsync("DallE 接口需要设置 OpenAI ApiKey 后才能使用！");
