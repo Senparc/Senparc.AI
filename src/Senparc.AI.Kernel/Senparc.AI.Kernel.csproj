@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.3.1.1-beta1</Version>
+		<Version>0.4.0-beta1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -28,6 +28,7 @@
 			v0.2.0 添加 NeuChar OpenAI
 			v0.3.1 同步最新版本 Semantic Kernel，完善 Prompt 运行方法
 			v0.3.1.1 弃用 SenparcAiContext.ExtendContext，改为 SenparcAiContext.ContextVariables
+			v0.4.0 支持外部 ISenparcAiSetting 输入到模型配置过程
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
