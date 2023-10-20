@@ -180,7 +180,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
+            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型(gpt-35-turbo-16k 此处不可用)
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
@@ -190,7 +190,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             //TODO:外部输入
             var testPlugin = new TestPlugin();
             //输入 skill
-            var skills = iWantToRun.Kernel.ImportSkill(testPlugin,"test");
+            var skills = iWantToRun.Kernel.ImportSkill(testPlugin, "test");
 
             //var function = iWantToRun.Kernel.Skills.GetFunction(nameof(xncfBuilderPlugin.BuildEntityClass));
             var function = skills[nameof(testPlugin.GenerateText2)];
@@ -204,11 +204,12 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             };
 
 
-           var result1 =await iWantToRun.Kernel.RunAsync(function);
+            //var result1 =await iWantToRun.Kernel.RunAsync(function);
 
-            await Console.Out.WriteLineAsync( result1.Result);
+            // await Console.Out.WriteLineAsync( result1.Result);
 
-            return;
+            // return;
+
             //function.SetAIConfiguration(requestSettings);
 
 

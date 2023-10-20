@@ -43,7 +43,7 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// OpenAI API Orgaization ID
         /// </summary>
-        string OrgaizationId { get; }
+        string OrganizationId { get; }
 
         #region Azure OpenAI
 

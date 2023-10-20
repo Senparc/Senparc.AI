@@ -34,14 +34,14 @@ namespace Senparc.AI.Kernel
         /// </summary>
         /// <param name="request"><inheritdoc/></param>
         /// <returns></returns>
-        public SenparcAiResult Run(SenparcAiRequest request)
+        public SenparcAiResult Run(SenparcAiRequest request, ISenparcAiSetting senparcAiSetting = null)
         {
             //TODO:未正式使用
 
             //TODO:此方法暂时还不能用
-            SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, null);
+            SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null);
 
-            var senparcAiResult = new SenparcAiResult(new IWantToRun(new IWantToBuild(new IWantToConfig(new IWantTo()))),request.RequestContent);
+            var senparcAiResult = new SenparcAiResult(new IWantToRun(new IWantToBuild(new IWantToConfig(new IWantTo()))), request.RequestContent);
             return senparcAiResult;
         }
 

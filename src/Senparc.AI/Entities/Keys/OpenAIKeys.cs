@@ -7,6 +7,6 @@ namespace Senparc.AI
     public class OpenAIKeys
     {
         public string ApiKey { get; set; }
-        public string OrgaizationId { get; set; }
+        public string OrganizationId { get; set; }
     }
 }
