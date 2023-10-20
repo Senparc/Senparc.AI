@@ -109,12 +109,12 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="kernel"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public KernelBuilder ConfigTextCompletion(string userId, string modelName, KernelBuilder? kernelBuilder = null)
+        public KernelBuilder ConfigTextCompletion(string userId, string modelName, ISenparcAiSetting senparcAiSetting, KernelBuilder? kernelBuilder = null)
         {
             //kernel ??= GetKernel();
 
             var serviceId = GetServiceId(userId, modelName);
-            var senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
+            senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
             var aiPlatForm = AiSetting.AiPlatform;
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
