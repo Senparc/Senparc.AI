@@ -8,7 +8,7 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 
 `Senparc.AI.Kernel` 为基于 Senparc.AI 标准，使用 [SemanticKernel](https://github.com/microsoft/semantic-kernel) 实现的接口调用，可以实现即插即用。
 
-`Senparc.AI.PromptRange` 为基于 Senparc.AI 标准的为“PromptRange（提示词靶场）”生态提供底层标准支持。目前可使用 [Senparc.Xncf.PromptRange](https://github.com/NeuCharFramework/NcfPackageSources/tree/master/src/Extensions/Senparc.Xncf.PromptRange) 开发基于 PromptRange 核心的应用，兼容 Web、桌面、手机等系统，请使用 .NET 6.0 或以上框架。[NeuCharFramework(NCF)](https://github.com/orgs/NeuCharFramework) 框架已经默认集成 [Senparc.Xncf.PromptRange](https://github.com/NeuCharFramework/NcfPackageSources/tree/master/src/Extensions/Senparc.Xncf.PromptRange)，可无需修改任何代码，直接使用。
+`[Senparc.AI.PromptRange](https://github.com/Senparc/Senparc.AI.PromptRange)` 为基于 Senparc.AI 标准，为“PromptRange（提示词靶场）”生态提供底层标准支持的底层库。目前已经由 [Senparc.Xncf.PromptRange](https://github.com/NeuCharFramework/NcfPackageSources/tree/master/src/Extensions/Senparc.Xncf.PromptRange) 实现，可用于开发基于 PromptRange 的扩展应用，兼容 Web、桌面、手机等系统（支持 .NET 6.0 及以上框架）。[NeuCharFramework(NCF)](https://github.com/orgs/NeuCharFramework) 框架已经默认集成 [Senparc.Xncf.PromptRange](https://github.com/NeuCharFramework/NcfPackageSources/tree/master/src/Extensions/Senparc.Xncf.PromptRange)，可无需修改任何代码，直接使用。
 
 ## 开发过程
 
