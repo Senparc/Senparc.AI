@@ -1,9 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.Planning;
 using Microsoft.SemanticKernel.Skills.Core;
+using Microsoft.VisualStudio.TestPlatform;
 using Senparc.AI.Interfaces;
+using Senparc.AI.Kernel.KernelConfigExtensions;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.AI.Tests;
 using Senparc.CO2NET.Extensions;
@@ -42,18 +45,24 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             var ask = "Tomorrow is Valentine's day. I need to come up with a few date ideas and e-mail them to my significant other.";
             var plan = await planner.CreatePlanAsync(ask);
 
-            var requestSettings = new Microsoft.SemanticKernel.AI.TextCompletion.CompleteRequestSettings()
+
+            AIRequestSettings aiRequestSettings = new AIRequestSettings()
             {
-                Temperature = 0.01,
-                MaxTokens = 5000,
-                TopP = 0.1,
+                ExtensionData = new Dictionary<string, object>()
+                        {
+                            { "Temperature",0.1 },
+                            { "TopP", 0.5 },
+                            { "MaxTokens", 3000 }
+                        }
             };
 
+
             // Execute the plan
-            var result = await plan.InvokeAsync(settings: requestSettings);
+            var skContext = iWantToRun.CreateNewContext().context;
+            var result = await plan.InvokeAsync(skContext, aiRequestSettings);
 
             Console.WriteLine("Plan results:");
-            Console.WriteLine(result.Result);
+            Console.WriteLine(result.GetValue<string>());
 
             Console.WriteLine();
 
@@ -62,10 +71,10 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             // Execute the plan
             plan = await planner.CreatePlanAsync(ask);
-            result = await plan.InvokeAsync(settings: requestSettings);
+            result = await plan.InvokeAsync(ask, iWantToRun.Kernel);
 
             Console.WriteLine("Plan results:");
-            Console.WriteLine(result.Result);
+            Console.WriteLine(result.GetValue<string>());
 
 
             //            var dir = System.IO.Directory.GetCurrentDirectory();

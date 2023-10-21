@@ -1,4 +1,5 @@
-﻿using Microsoft.SemanticKernel.AI.TextCompletion;
+﻿using Microsoft.SemanticKernel.AI;
+using Microsoft.SemanticKernel.AI.TextCompletion;
 using Microsoft.SemanticKernel.Connectors.AI.HuggingFace.TextCompletion;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
@@ -79,7 +80,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     }
                 }
 
-           
+
                 if (prompt == "exit")
                 {
                     break;
@@ -93,14 +94,18 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     var huggingFaceLocal = new HuggingFaceTextCompletion(Model, endpoint: Endpoint);
                     var huggingFaceRemote = new HuggingFaceTextCompletion(Model);
 
-                    var requestSetting = new Microsoft.SemanticKernel.AI.TextCompletion.CompleteRequestSettings()
+                    AIRequestSettings aiRequestSettings = new AIRequestSettings()
                     {
-                        MaxTokens = 2000,
-                        Temperature = 0.7,
-                        TopP = 0.5,
+                        ExtensionData = new Dictionary<string, object>()
+                        {
+                            { "Temperature",0.7 },
+                            { "TopP", 0.5 },
+                            { "MaxTokens", 3000 }
+                        }
                     };
+
                     // Act
-                    var localResponse = await huggingFaceLocal.CompleteAsync(prompt, requestSetting);
+                    var localResponse = await huggingFaceLocal.CompleteAsync(prompt, aiRequestSettings);
 
                     await Console.Out.WriteLineAsync("机器：");
                     await Console.Out.WriteLineAsync(localResponse.ToString());

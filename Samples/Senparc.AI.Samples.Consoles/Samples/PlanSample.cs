@@ -1,10 +1,12 @@
 ﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.Planning;
 using Microsoft.SemanticKernel.Skills.Core;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
+using Senparc.AI.Kernel.KernelConfigExtensions;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -59,12 +61,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var planner = new SequentialPlanner(iWantToRun.Kernel);
             //var ask = "If my investment of 2130.23 dollars increased by 23%, how much would I have after I spent 5 on a latte?";
 
-            var requestSettings = new Microsoft.SemanticKernel.AI.TextCompletion.CompleteRequestSettings()
-            {
-                Temperature = 0.01,
-                MaxTokens = 5000,
-                TopP = 0.1,
-            };
 
             var plan = await planner.CreatePlanAsync(ask);
 
@@ -72,10 +68,25 @@ namespace Senparc.AI.Samples.Consoles.Samples
             await Console.Out.WriteLineAsync(plan.ToJson(true));
 
             // Execute the plan
-            var result = await plan.InvokeAsync(settings: requestSettings);
+            var aiRequestSettings = new AIRequestSettings()
+            {
+                ExtensionData = new Dictionary<string, object>()
+                    {
+                        { "Temperature",0.01 },
+                        { "TopP", 0.1 },
+                        { "MaxTokens", 5000 },
+                        { "PresencePenalty", 0 },
+                        { "FrequencyPenalty", 0 },
+                        { "StopSequences", "[]" }
+                    }
+            };
+
+            var skContext = iWantToRun.CreateNewContext();//TODO: 直返会一个对象？
+
+            var result = await plan.InvokeAsync(skContext.context, aiRequestSettings);
 
             Console.WriteLine("Plan results:");
-            Console.WriteLine(result.Result);
+            Console.WriteLine(result.GetValue<string>());
             Console.WriteLine();
 
             await Console.Out.WriteLineAsync("Now system will add a new plan into your request: Rewrite the above in the style of Shakespeare. Press Enter");
@@ -98,10 +109,12 @@ Give me the plan less than 5 steps.
 
             Console.WriteLine("Updated plan:\n");
             // Execute the plan
-            var newResult = await newPlan.InvokeAsync(settings: requestSettings);
+
+            var newContext = iWantToRun.CreateNewContext();//TODO: 直返会一个对象？
+            var newResult = await newPlan.InvokeAsync(newContext.context, aiRequestSettings);
 
             Console.WriteLine("Plan results:");
-            Console.WriteLine(newResult.Result);
+            Console.WriteLine(newResult.GetValue<string>());
             Console.WriteLine();
 
             await Console.Out.WriteLineAsync("== plan execute finish ==");
