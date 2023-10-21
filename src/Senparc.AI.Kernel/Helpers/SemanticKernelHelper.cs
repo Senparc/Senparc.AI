@@ -2,7 +2,6 @@
 using Microsoft.SemanticKernel.Connectors.AI.OpenAI.TextCompletion;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Orchestration;
-using Microsoft.SemanticKernel.SemanticFunctions;
 using Polly;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
@@ -79,7 +78,7 @@ namespace Senparc.AI.Kernel.Helpers
             var kernel = GetKernel();
             if (kernel.Memory == null)
             {
-                kernel.UseMemory(new VolatileMemoryStore());
+                kernel.UseMemory(new Microsoft.SemanticKernel.Plugins.Memory.VolatileMemoryStore());
             }
 
             return kernel.Memory;

@@ -1,6 +1,5 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
-using Microsoft.SemanticKernel.SkillDefinition;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,14 +13,14 @@ namespace Senparc.AI.Kernel.Handlers
         /// Once these functions are imported, the prompt templates can use functions to import content at runtime.
         /// </summary>
         /// <param name="skillInstance">Instance of a class containing functions</param>
-        /// <param name="skillName">Name of the skill for skill collection and prompt templates. If the value is empty functions are registered in the global namespace.</param>
+        /// <param name="pluginName">Name of the skill for skill collection and prompt templates. If the value is empty functions are registered in the global namespace.</param>
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
-        public static (IWantToRun iWantToRun, IDictionary<string, ISKFunction> skillList) ImportSkill(this IWantToRun iWantToRun, object skillInstance, string skillName = "")
+        public static (IWantToRun iWantToRun, IDictionary<string, ISKFunction> skillList) ImportSkill(this IWantToRun iWantToRun, object skillInstance, string pluginName = "")
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
             var helper = handler.SemanticKernelHelper;
             var kernel = helper.GetKernel();
-            var skillList = kernel.ImportSkill(skillInstance, skillName);
+            var skillList = kernel.ImportSkill(skillInstance, pluginName);
             return (iWantToRun, skillList);
         }
 

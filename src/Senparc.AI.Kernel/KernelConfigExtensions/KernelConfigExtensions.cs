@@ -2,8 +2,6 @@
 using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.AI.HuggingFace.TextCompletion;
 using Microsoft.SemanticKernel.Orchestration;
-using Microsoft.SemanticKernel.SemanticFunctions;
-using Microsoft.SemanticKernel.SkillDefinition;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
@@ -42,7 +40,7 @@ namespace Senparc.AI.Kernel.Handlers
             var existedKernelBuilder = iWantToConfig.IWantTo.KernelBuilder;
             var kernelBuilder = configModel switch
             {
-                AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, senparcAiSetting,existedKernelBuilder),
+                AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, senparcAiSetting, existedKernelBuilder),
                 AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName, existedKernelBuilder),
                 AI.ConfigModel.ImageGeneration => iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder),
                 _ => throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel)
@@ -268,7 +266,7 @@ namespace Senparc.AI.Kernel.Handlers
             var storedContext = iWanToRun.StoredAiContext.ContextVariables;
             var tempContext = request.TempAiContext?.ContextVariables;
 
-            SKContext? botAnswer;
+            KernelResult? botAnswer;
 
             var result = new SenaprcContentAiResult(iWanToRun, inputContent: null);
 
@@ -298,7 +296,7 @@ namespace Senparc.AI.Kernel.Handlers
             }
 
             result.InputContent = prompt;
-            result.Output = botAnswer.Result;
+            result.Output = botAnswer.GetValue<string>() ?? "";
             result.Result = botAnswer;
             //result.LastException = botAnswer.LastException;
 

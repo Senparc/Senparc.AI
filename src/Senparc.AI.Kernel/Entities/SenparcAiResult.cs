@@ -57,9 +57,9 @@ namespace Senparc.AI.Kernel
         }
     }
 
-    public class SenaprcContentAiResult : SenaprcAiResult<SKContext>, IAiResult
+    public class SenaprcContentAiResult : SenaprcAiResult<KernelResult>, IAiResult
     {
-        public SKContext Result { get; set; }
+        public KernelResult /*SKContext*/ Result { get; set; }
         public SenaprcContentAiResult(IWantToRun iWwantToRun, string inputContent)
              : base(iWwantToRun, inputContent)
         {

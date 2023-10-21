@@ -181,6 +181,8 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             //准备运行
             var userId = "JeffreySu";//区分用户
             var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型(gpt-35-turbo-16k 此处不可用)
+
+
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
@@ -195,13 +197,13 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             //var function = iWantToRun.Kernel.Skills.GetFunction(nameof(xncfBuilderPlugin.BuildEntityClass));
             var function = skills[nameof(testPlugin.GenerateText2)];
 
-            var requestSettings = new Microsoft.SemanticKernel.AI.TextCompletion.CompleteRequestSettings()
-            {
-                MaxTokens = 2000,
-                Temperature = 0.7,
-                StopSequences = new[] { "# END" },
-                TopP = 0.5,
-            };
+            //var requestSettings = new Microsoft.SemanticKernel.AI.TextCompletion.CompleteRequestSettings()
+            //{
+            //    MaxTokens = 2000,
+            //    Temperature = 0.7,
+            //    StopSequences = new[] { "# END" },
+            //    TopP = 0.5,
+            //};
 
 
             //var result1 =await iWantToRun.Kernel.RunAsync(function);
