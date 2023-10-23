@@ -2,8 +2,8 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.Orchestration;
+using Microsoft.SemanticKernel.Planners;
 using Microsoft.SemanticKernel.Planning;
-using Microsoft.SemanticKernel.Skills.Core;
 using Microsoft.VisualStudio.TestPlatform;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.KernelConfigExtensions;
@@ -40,11 +40,8 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             iWantToRun.ImportSkillFromDirectory(skillsDirectory, "SummarizeSkill");
             iWantToRun.ImportSkillFromDirectory(skillsDirectory, "WriterSkill");
 
-            var planner = new SequentialPlanner(iWantToRun.Kernel);
             //var ask = "If my investment of 2130.23 dollars increased by 23%, how much would I have after I spent 5 on a latte?";
-            var ask = "Tomorrow is Valentine's day. I need to come up with a few date ideas and e-mail them to my significant other.";
-            var plan = await planner.CreatePlanAsync(ask);
-
+            var ask = "Tomorrow is Valentine's day. I need to come up with a few date ideas and e-mail them to my significant other. Limit the output words to 300.";
 
             AIRequestSettings aiRequestSettings = new AIRequestSettings()
             {
@@ -52,104 +49,50 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                         {
                             { "Temperature",0.1 },
                             { "TopP", 0.5 },
-                            { "MaxTokens", 3000 }
+                            { "MaxTokens", 1000 }
                         }
             };
 
+            {
 
-            // Execute the plan
-            var skContext = iWantToRun.CreateNewContext().context;
-            var result = await plan.InvokeAsync(skContext, aiRequestSettings);
+                var planner = new SequentialPlanner(iWantToRun.Kernel);
+                var plan = await planner.CreatePlanAsync(ask);
 
-            Console.WriteLine("Plan results:");
-            Console.WriteLine(result.GetValue<string>());
+                // Execute the plan
+                var skContext = iWantToRun.CreateNewContext().context;
+                var result = await plan.InvokeAsync(skContext, aiRequestSettings);
 
-            Console.WriteLine();
+                Console.WriteLine("Plan results:");
+                Console.WriteLine(result.GetValue<string>());
 
-            Console.WriteLine("New plan results:");
-            var shakespeareFunction = iWantToRun.CreateSemanticFunction(ask, "shakespeare", "ShakespeareSkill", maxTokens: 5000, temperature: 0.2, topP: 0.5).function;
+                Console.WriteLine();
+            }
 
-            // Execute the plan
-            plan = await planner.CreatePlanAsync(ask);
-            result = await plan.InvokeAsync(ask, iWantToRun.Kernel);
+            {
+                // Execute the plan
 
-            Console.WriteLine("Plan results:");
-            Console.WriteLine(result.GetValue<string>());
+                Console.WriteLine("New plan results:");
+                var shakespeareFunction = iWantToRun.CreateSemanticFunction(ask, "shakespeare", "ShakespeareSkill", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
 
+                var newPlanner = new SequentialPlanner(iWantToRun.Kernel, new SequentialPlannerConfig()
+                {
+                    MaxTokens = 1000,
+                });
 
-            //            var dir = System.IO.Directory.GetCurrentDirectory();
-            //            Console.WriteLine("dir:" + dir);
+                var newPlan = await newPlanner.CreatePlanAsync(ask);
+                //var newPlan = await iWantToRun.RunAsync<string>(newPlan);
 
-            //            var skillsDirectory = Path.Combine(dir, "..", "..", "..", "skills");
-            //            Console.WriteLine("skillsDirectory:" + skillsDirectory);
-            //            iWantToRun.ImportSkillFromDirectory(skillsDirectory, "SummarizeSkill");
-            //            iWantToRun.ImportSkillFromDirectory(skillsDirectory, "WriterSkill");
+                await Console.Out.WriteLineAsync("NewPlans:");
+                foreach (var item in newPlan.Steps)
+                {
+                    await Console.Out.WriteLineAsync(item.ToJson());
+                }
 
-            //            //创建 Plan：
-            //            var ask = "Tomorrow is Valentine's day. I need to come up with a few date ideas and e-mail them to my significant other.";
-            //            var request = iWantToRun.CreateRequest(ask, planner["CreatePlan"]);
-            //            var originalPlan = await iWantToRun.RunAsync(request);
+                var newResult = await newPlan.InvokeAsync(iWantToRun.Kernel, requestSettings: aiRequestSettings); // await iWantToRun.RunAsync<string>(newPlan);
 
-            //            var plannResult = originalPlan.Result.Variables.ToPlan().PlanString;
-            //            Assert.IsTrue(!plannResult.IsNullOrEmpty());
-
-            //            await Console.Out.WriteLineAsync("Original plan:");
-            //            await Console.Out.WriteLineAsync(plannResult);
-
-
-            //            //新建计划，并执行 Plan：
-
-            //            string prompt = @"
-            //{{$input}}
-
-            //Rewrite the above in the style of Shakespeare.
-            //";
-            //            var shakespeareFunction = iWantToRun.CreateSemanticFunction(prompt, "shakespeare", "ShakespeareSkill", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
-
-            //            var newRequest = iWantToRun.CreateRequest(ask, planner["CreatePlan"], shakespeareFunction);
-            //            var newPlan = await iWantToRun.RunAsync(newRequest);
-            //            var newPlanResult = newPlan.Result.Variables.ToPlan().PlanString;
-            //            Assert.IsTrue(!newPlanResult.IsNullOrEmpty());
-
-            //            Console.WriteLine("Updated plan:\n");
-            //            Console.WriteLine(newPlanResult);
-
-
-            //            //Excute
-            //            var executionResults = newPlan.Result;
-
-            //            int step = 1;
-            //            int maxSteps = 10;
-            //            while (!executionResults.Variables.ToPlan().IsComplete && step < maxSteps)
-            //            {
-            //                var stepRequest = iWantToRun.CreateRequest(executionResults.Variables, false, planner["ExecutePlan"]);
-            //                var results = (await iWantToRun.RunAsync(stepRequest)).Result;
-            //                if (results.Variables.ToPlan().IsSuccessful)
-            //                {
-            //                    Console.WriteLine($"Step {step} - Execution results:\n");
-            //                    Console.WriteLine(results.Variables.ToPlan().PlanString);
-
-            //                    if (results.Variables.ToPlan().IsComplete)
-            //                    {
-            //                        Console.WriteLine($"Step {step} - COMPLETE!");
-            //                        Console.WriteLine(results.Variables.ToPlan().Result);
-            //                        break;
-            //                    }
-            //                }
-            //                else
-            //                {
-            //                    Console.WriteLine($"Step {step} - Execution failed:");
-            //                    Console.WriteLine("Error Message:" + results.LastException?.Message);
-            //                    Console.WriteLine(results.Variables.ToPlan().Result);
-            //                    break;
-            //                }
-
-            //                executionResults = results;
-            //                step++;
-            //                Console.WriteLine("");
-            //            }
-
-            //            await Console.Out.WriteLineAsync("== plan execute finish ==");
+                Console.WriteLine("Plan results:");
+                Console.WriteLine(newResult);
+            }
         }
     }
 }

@@ -29,12 +29,13 @@ namespace Senparc.AI.Kernel
 
         /// <summary>
         /// <inheritdoc/>
+        /// 未正式启用
         /// </summary>
         /// <param name="request"><inheritdoc/></param>
         /// <returns></returns>
         public SenparcAiResult Run(SenparcAiRequest request, ISenparcAiSetting senparcAiSetting = null)
         {
-            //TODO:未正式使用
+            //TODO:未正式启用
 
             //TODO:此方法暂时还不能用
             SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null);

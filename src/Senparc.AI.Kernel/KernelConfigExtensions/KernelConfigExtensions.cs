@@ -249,7 +249,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        public static async Task<SenaprcContentAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
+        public static async Task<SenaprcKernelAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWanToRun.SemanticKernelHelper;
@@ -268,7 +268,7 @@ namespace Senparc.AI.Kernel.Handlers
 
             KernelResult? botAnswer;
 
-            var result = new SenaprcContentAiResult(iWanToRun, inputContent: null);
+            var result = new SenaprcKernelAiResult(iWanToRun, inputContent: null);
 
             if (tempContext != null && tempContext.Count() != 0)
             {
@@ -302,6 +302,39 @@ namespace Senparc.AI.Kernel.Handlers
 
             return result;
         }
+
+        /// <summary>
+        /// 运行
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="iWanToRun"></param>
+        /// <param name="pipeline"></param>
+        /// <returns></returns>
+        public static async Task<SenaprcAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, params ISKFunction[] pipeline)
+        {
+            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
+            var helper = iWanToRun.SemanticKernelHelper;
+            var kernel = helper.GetKernel();
+            //var function = iWanToRun.ISKFunction;
+
+            var result = new SenaprcAiResult<T>(iWanToRun, inputContent: null);
+
+            var kernelResult = await kernel.RunAsync(pipeline);
+
+            try
+            {
+                result.Output = kernelResult.GetValue<string>() ?? "";
+            }
+            catch (Exception)
+            {
+                _ = new SenparcAiException("无法转换为指定类型：" + typeof(T).Name);
+            }
+            result.Result = kernelResult.GetValue<T>();
+            //result.LastException = botAnswer.LastException;
+
+            return result;
+        }
+
 
         #endregion
 

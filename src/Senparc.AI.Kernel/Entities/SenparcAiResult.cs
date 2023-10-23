@@ -22,6 +22,7 @@ namespace Senparc.AI.Kernel
         /// <inheritdoc/>
         /// </summary>
         public virtual string Output { get; set; }
+
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
@@ -46,6 +47,7 @@ namespace Senparc.AI.Kernel
     public class SenaprcAiResult<T> : SenparcAiResult, IAiResult
     {
         public T Result { get; set; }
+
         public SenaprcAiResult(IWantToRun iWwantToRun, string inputContent)
             : base(iWwantToRun, inputContent)
         {
@@ -57,19 +59,33 @@ namespace Senparc.AI.Kernel
         }
     }
 
-    public class SenaprcContentAiResult : SenaprcAiResult<KernelResult>, IAiResult
+    public class SenaprcTextAiResult : SenaprcAiResult<string>, IAiResult
     {
-        public KernelResult /*SKContext*/ Result { get; set; }
-        public SenaprcContentAiResult(IWantToRun iWwantToRun, string inputContent)
+        public string Result { get; set; }
+
+        public SenaprcTextAiResult(IWantToRun iWwantToRun, string inputContent)
              : base(iWwantToRun, inputContent)
         {
         }
 
-        public SenaprcContentAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+        public SenaprcTextAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
            : base(iWwantToRun, inputContext)
         {
         }
+    }
 
+    public class SenaprcKernelAiResult : SenaprcAiResult<KernelResult>, IAiResult
+    {
+        public KernelResult /*SKContext*/ Result { get; set; }
+        
+        public SenaprcKernelAiResult(IWantToRun iWwantToRun, string inputContent)
+             : base(iWwantToRun, inputContent)
+        {
+        }
 
+        public SenaprcKernelAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+           : base(iWwantToRun, inputContext)
+        {
+        }
     }
 }

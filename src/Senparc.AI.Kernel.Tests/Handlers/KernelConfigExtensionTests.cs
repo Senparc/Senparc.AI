@@ -2,7 +2,6 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
-using Microsoft.SemanticKernel.Skills.Core;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.KernelConfigExtensions;
 using Senparc.AI.Kernel.Tests.BaseSupport;
@@ -92,9 +91,17 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             Assert.AreEqual(0, iWantToRun.Kernel.Functions.GetFunctionViews().Count);
 
-            iWantToRun.ImportSkill(new TextMemorySkill(iWantToRun.Kernel.Memory));//TODO: 简化方法
-            //没有增加实际的 funciton
-            Assert.AreEqual(0, iWantToRun.Kernel.Functions.GetFunctionViews().Count);
+            iWantToRun.ImportFunctions(new TextMemoryPlugin(iWantToRun.Kernel.Memory));//TODO: 简化方法
+
+            await Console.Out.WriteLineAsync("\nFunctionsViews：");
+            foreach (var item in iWantToRun.Kernel.Functions.GetFunctionViews())
+            {
+                await Console.Out.WriteLineAsync(item.ToJson());
+            }
+            // Save, Remove, Recall, Retrieve
+          
+            //没有增加实际的 Funciton，只有默认的 4 个
+            Assert.AreEqual(0 + 4/* 4 个默认的 Function */, iWantToRun.Kernel.Functions.GetFunctionViews().Count);
 
             const string skPrompt = @"
 ChatBot can have a conversation with you about any topic.
@@ -118,7 +125,8 @@ ChatBot: ";
             var chatFunction = iWantToRun.CreateSemanticFunction(skPrompt, maxTokens: 200, temperature: 0.8);
 
             //增加了 1 个 Function
-            Assert.AreEqual(1, iWantToRun.Kernel.Functions.GetFunctionViews().Count);
+            Assert.AreEqual(1 + 4/* 4 个默认的 Function*/,
+                           iWantToRun.Kernel.Functions.GetFunctionViews().Count);
 
             var context = iWantToRun.CreateNewContext().context;
 
@@ -129,16 +137,19 @@ ChatBot: ";
             context.Variables["fact5"] = "what do I do for work?";
             context.Variables["fact6"] = "what company I work for?";
             context.Variables["fact7"] = "how many years of R&D experience does Senparc has?";
-            context.Variables[TextMemorySkill.CollectionParam] = MemoryCollectionName;
-            context.Variables[TextMemorySkill.RelevanceParam] = "0.8";
+            context.Variables[TextMemoryPlugin.CollectionParam] = MemoryCollectionName;
+            context.Variables[TextMemoryPlugin.RelevanceParam] = "0.8";
 
-            var history = "";
+            var history = "[]";
             context.Variables["history"] = history;
 
             var input = "Where is my company?";
             context.Variables["userInput"] = input;
 
-            var answer = (await chatFunction.function.InvokeAsync(context)).GetValue<string>();
+            var answerResult = await chatFunction.function.InvokeAsync(context);
+            var answer = answerResult.GetValue<string>();
+
+            await Console.Out.WriteLineAsync(answer.ToJson());
             Assert.IsTrue(!answer.IsNullOrEmpty());
             Assert.AreEqual(answer.ToString(), answer);
 
