@@ -44,7 +44,7 @@
 
 #### 2.4 Planner
 
-在第一步中根据已有的 Skill 进行提供，如 SummarizeSkill，WriterSkill 等等。
+在第一步中根据已有的 Plugin 进行提供，如 SummarizePlugin，WriterPlugin 等等。
 
 第二步中直接提供 Plan 的目标。 
 

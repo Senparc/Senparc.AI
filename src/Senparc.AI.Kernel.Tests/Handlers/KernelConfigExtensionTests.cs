@@ -251,7 +251,7 @@ ChatBot: ";
         }
 
         //[TestMethod]
-        //public async Task ConfigModel_Embedding_SkillTest()
+        //public async Task ConfigModel_Embedding_PluginTest()
         //{
         //}
     }

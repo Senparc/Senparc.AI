@@ -56,7 +56,7 @@ namespace Senparc.AI.Kernel
 
         public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string prompt)
         {
-            //var function = iWantToRun.Kernel.Skills.GetSemanticFunction("Chat");
+            //var function = iWantToRun.Kernel.Plugins.GetSemanticFunction("Chat");
             //request.FunctionPipeline = new[] { function };
 
             var request = iWantToRun.CreateRequest(true);

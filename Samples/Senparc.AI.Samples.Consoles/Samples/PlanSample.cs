@@ -35,7 +35,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                            .ConfigModel(ConfigModel.TextCompletion, _userId, SampleHelper.Default_TextCompletion_ModeName)
                            .BuildKernel();
 
-            //var planner = iWantToRun.ImportSkill(new TextMemorySkill(iWantToRun.Kernel.Memory)).skillList;
+            //var planner = iWantToRun.ImportPlugin(new TextMemoryPlugin(iWantToRun.Kernel.Memory)).skillList;
 
             var dir = Path.GetDirectoryName(this.GetType().Assembly.Location);//System.IO.Directory.GetCurrentDirectory();
             //Console.WriteLine("dir:" + dir);
@@ -43,12 +43,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var pluginsDirectory = Path.Combine(dir, "..", "..", "..", "plugins");
             //Console.WriteLine("pluginsDirectory:" + pluginsDirectory);
 
-            await Console.Out.WriteLineAsync("Add Your Skills, input q to finish");
+            await Console.Out.WriteLineAsync("Add Your Plugins, input q to finish");
             var skill = Console.ReadLine();
             while (skill != "q")
             {
-                //SummarizeSkill , WriterSkill , ...
-                iWantToRun.ImportSkillFromDirectory(pluginsDirectory, skill);
+                //SummarizePlugin , WriterPlugin , ...
+                iWantToRun.ImportPluginFromDirectory(pluginsDirectory, skill);
                 skill = Console.ReadLine();
             }
 
@@ -101,7 +101,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 Rewrite the above in the style of Shakespeare.
 Give me the plan less than 5 steps.
 ";
-            var shakespeareFunction = iWantToRun.CreateSemanticFunction(prompt, "shakespeare", "ShakespeareSkill", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
+            var shakespeareFunction = iWantToRun.CreateSemanticFunction(prompt, "shakespeare", "ShakespearePlugin", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
 
             var newPlan = await planner.CreatePlanAsync(ask);
             await Console.Out.WriteLineAsync("New Plan:");

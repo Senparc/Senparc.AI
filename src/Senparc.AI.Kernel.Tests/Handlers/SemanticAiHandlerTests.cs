@@ -192,9 +192,9 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             //TODO:外部输入
             var testPlugin = new TestPlugin();
             //输入 skill
-            var plugins = iWantToRun.Kernel.ImportSkill(testPlugin, "test");
+            var plugins = iWantToRun.Kernel.ImportPlugin(testPlugin, "test");
 
-            //var function = iWantToRun.Kernel.Skills.GetFunction(nameof(xncfBuilderPlugin.BuildEntityClass));
+            //var function = iWantToRun.Kernel.Plugins.GetFunction(nameof(xncfBuilderPlugin.BuildEntityClass));
             var function = plugins[nameof(testPlugin.GenerateText2)];
 
             //var requestSettings = new Microsoft.SemanticKernel.AI.TextCompletion.CompleteRequestSettings()

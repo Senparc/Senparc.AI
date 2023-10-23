@@ -260,7 +260,7 @@ namespace Senparc.AI.Kernel.Handlers
             var functionPipline = request.FunctionPipeline;
             //var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
 
-            //注意：只要使用了 Skill 和 Function，并且包含输入标识，就需要使用上下文
+            //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
 
             iWanToRun.StoredAiContext ??= new SenparcAiContext();
             var storedContext = iWanToRun.StoredAiContext.ContextVariables;

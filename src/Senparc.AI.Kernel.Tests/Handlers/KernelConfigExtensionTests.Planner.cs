@@ -31,14 +31,14 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                  .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
                  .BuildKernel();
 
-            //var planner = iWantToRun.ImportSkill(new PlannerSkill(iWantToRun.Kernel)).skillList;
-            //var plannerOld = iWantToRun.ImportSkill(new TextMemorySkill(iWantToRun.Kernel.Memory)).skillList;
+            //var planner = iWantToRun.ImportPlugin(new PlannerPlugin(iWantToRun.Kernel)).skillList;
+            //var plannerOld = iWantToRun.ImportPlugin(new TextMemoryPlugin(iWantToRun.Kernel.Memory)).skillList;
 
             var dir = System.IO.Directory.GetCurrentDirectory();
             var pluginsDirectory = Path.Combine(dir, "..", "..", "..", "plugins");
             Console.WriteLine("pluginsDirectory:" + pluginsDirectory);
-            iWantToRun.ImportSkillFromDirectory(pluginsDirectory, "SummarizeSkill");
-            iWantToRun.ImportSkillFromDirectory(pluginsDirectory, "WriterSkill");
+            iWantToRun.ImportPluginFromDirectory(pluginsDirectory, "SummarizePlugin");
+            iWantToRun.ImportPluginFromDirectory(pluginsDirectory, "WriterPlugin");
 
             //var ask = "If my investment of 2130.23 dollars increased by 23%, how much would I have after I spent 5 on a latte?";
             var ask = "Tomorrow is Valentine's day. I need to come up with a few date ideas and e-mail them to my significant other. Limit the output words to 300.";
@@ -72,7 +72,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                 // Execute the plan
 
                 Console.WriteLine("New plan results:");
-                var shakespeareFunction = iWantToRun.CreateSemanticFunction(ask, "shakespeare", "ShakespeareSkill", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
+                var shakespeareFunction = iWantToRun.CreateSemanticFunction(ask, "shakespeare", "ShakespearePlugin", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
 
                 var newPlanner = new SequentialPlanner(iWantToRun.Kernel, new SequentialPlannerConfig()
                 {
