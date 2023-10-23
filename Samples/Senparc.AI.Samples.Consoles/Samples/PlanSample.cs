@@ -40,15 +40,15 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var dir = Path.GetDirectoryName(this.GetType().Assembly.Location);//System.IO.Directory.GetCurrentDirectory();
             //Console.WriteLine("dir:" + dir);
 
-            var skillsDirectory = Path.Combine(dir, "..", "..", "..", "skills");
-            //Console.WriteLine("skillsDirectory:" + skillsDirectory);
+            var pluginsDirectory = Path.Combine(dir, "..", "..", "..", "plugins");
+            //Console.WriteLine("pluginsDirectory:" + pluginsDirectory);
 
             await Console.Out.WriteLineAsync("Add Your Skills, input q to finish");
             var skill = Console.ReadLine();
             while (skill != "q")
             {
                 //SummarizeSkill , WriterSkill , ...
-                iWantToRun.ImportSkillFromDirectory(skillsDirectory, skill);
+                iWantToRun.ImportSkillFromDirectory(pluginsDirectory, skill);
                 skill = Console.ReadLine();
             }
 

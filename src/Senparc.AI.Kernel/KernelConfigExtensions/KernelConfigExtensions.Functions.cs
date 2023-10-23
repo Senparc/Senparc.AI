@@ -24,13 +24,13 @@ namespace Senparc.AI.Kernel.Handlers
         /// <summary>
         /// A kernel extension that allows to load Semantic Functions, defined by prompt templates stored in the filesystem.
         /// A skill directory contains a set of subdirectories, one for each semantic function.
-        /// This extension requires the path of the parent directory (e.g. "d:\skills") and the name of the skill directory
+        /// This extension requires the path of the parent directory (e.g. "d:\plugins") and the name of the skill directory
         /// (e.g. "OfficeSkill"), which is used also as the "skill name" in the internal skill collection.
         ///
         /// Note: skill and function names can contain only alphanumeric chars and underscore.
         ///
         /// Example:
-        /// D:\skills\                            # parentDirectory = "D:\skills"
+        /// D:\plugins\                            # parentDirectory = "D:\plugins"
         ///
         ///     |__ OfficeSkill\                  # skillDirectoryName = "SummarizeEmailThread"
         ///
@@ -55,7 +55,7 @@ namespace Senparc.AI.Kernel.Handlers
         ///             |__ skprompt.txt
         ///             |__ config.json
         ///
-        /// See https://github.com/microsoft/semantic-kernel/tree/main/samples/skills for some skills in our repo.
+        /// See https://github.com/microsoft/semantic-kernel/tree/main/samples/plugins for some plugins in our repo.
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="parentDirectory">Directory containing the skill directory, e.g. "d:\myAppSkills"</param>
