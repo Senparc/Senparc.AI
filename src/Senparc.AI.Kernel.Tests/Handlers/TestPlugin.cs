@@ -5,11 +5,11 @@ using Microsoft.SemanticKernel.Orchestration;
 namespace Senparc.AI.Kernel.Tests.Handlers
 {
     /// <summary>
-    /// 测试 插件
+    /// 测试 Function
     /// </summary>
-    public sealed class TestPlugin
+    public sealed class TestFunction
     {
-        public TestPlugin() { }
+        public TestFunction() { }
 
 
         [SKFunction, SKName("GenerateText"), System.ComponentModel.Description("创建实体类")]

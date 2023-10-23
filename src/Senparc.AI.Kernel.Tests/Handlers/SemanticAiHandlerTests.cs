@@ -1,4 +1,5 @@
-﻿using Senparc.AI.Entities;
+﻿using Microsoft.SemanticKernel;
+using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.KernelConfigExtensions;
@@ -190,12 +191,12 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             .RegisterSemanticFunction("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
 
             //TODO:外部输入
-            var testPlugin = new TestPlugin();
-            //输入 skill
-            var plugins = iWantToRun.Kernel.ImportPlugin(testPlugin, "test");
+            var testFunction = new TestFunction();
+            //输入 function
+            var plugins = iWantToRun.Kernel.ImportFunctions(testFunction, "test");
 
             //var function = iWantToRun.Kernel.Plugins.GetFunction(nameof(xncfBuilderPlugin.BuildEntityClass));
-            var function = plugins[nameof(testPlugin.GenerateText2)];
+            var function = plugins[nameof(testFunction.GenerateText2)];
 
             //var requestSettings = new Microsoft.SemanticKernel.AI.TextCompletion.CompleteRequestSettings()
             //{
