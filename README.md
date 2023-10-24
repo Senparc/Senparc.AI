@@ -10,6 +10,15 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 
 `Senparc.AI.PromptRange`([独立项目](https://github.com/Senparc/Senparc.AI.PromptRange)) 为基于 Senparc.AI 标准，为“PromptRange（提示词靶场）”生态提供底层标准支持的底层库。目前已经由 [Senparc.Xncf.PromptRange](https://github.com/NeuCharFramework/NcfPackageSources/tree/master/src/Extensions/Senparc.Xncf.PromptRange) 实现，可用于开发基于 PromptRange 的扩展应用，兼容 Web、桌面、手机等系统（支持 .NET 6.0 及以上框架）。[NeuCharFramework(NCF)](https://github.com/orgs/NeuCharFramework) 框架已经默认集成 [Senparc.Xncf.PromptRange](https://github.com/NeuCharFramework/NcfPackageSources/tree/master/src/Extensions/Senparc.Xncf.PromptRange)，可无需修改任何代码，直接使用。（[什么是 PromptRange？](https://github.com/Senparc/Senparc.AI.PromptRange/wiki/What's-PromptRange%3F)）
 
+## Nuget 包（推荐）
+您可以直接使用 Nuget 安装，并随时保持更新：
+
+| 名称 | Nuget | 备注 |
+|--------|--------|--------|
+| Senparc.AI | [![Senparc.AI](https://img.shields.io/nuget/v/Senparc.AI.svg)](https://www.nuget.org/packages/Senparc.AI/) | 标准接口和基础功能的基础模块 |
+| Senparc.AI.Kernel | [![Senparc.AI.Kernel](https://img.shields.io/nuget/v/Senparc.AI.Kernel.svg)](https://www.nuget.org/packages/Senparc.AI.Kernel/) | 基于 Senparc.AI 标准，使用 [SemanticKernel](
+
+
 ## 开发过程
 
 ### 第一步：配置账号
