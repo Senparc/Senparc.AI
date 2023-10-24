@@ -1,4 +1,6 @@
-﻿using Senparc.AI.Entities;
+﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
+using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.KernelConfigExtensions;
@@ -18,7 +20,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             var parameter = new PromptConfigParameter()
             {
-                MaxTokens = 2000,
+                MaxTokens = 1000,
                 Temperature = 0.7,
                 TopP = 0.5,
             };
@@ -129,7 +131,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         }
 
         [TestMethod]
-        public async Task PureTextCompletionTest()
+        public async Task PureFunctionTextCompletionTest1()
         {
             //创建 AI Handler 处理器（也可以通过工厂依赖注入）
             var handler = new SemanticAiHandler();
@@ -163,7 +165,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         }
 
         [TestMethod]
-        public async Task PurePluginTextCompletionTest()
+        public async Task PureFunctionTextCompletionTest2()
         {
             //创建 AI Handler 处理器（也可以通过工厂依赖注入）
             var handler = new SemanticAiHandler();
@@ -176,50 +178,36 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-            var functionPrompt = @"请使用尽量有创造性的语言，补全下面的文字：{{$input}}，请注意原文的格式，和可能匹配的文体。"; ;
+
+            var funtcionPrompt = @"请根据新文本要求处理文字：
+# Start
+1. 去掉文字收尾的空格
+2. 去掉文字之间的空格
+3. 将标点符号后的首字母改成大写
+# End
+" +
+"新文本要求为：{{$INPUT}}";
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
+            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型(gpt-35-turbo-16k 此处不可用)
+
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
-                        .BuildKernel()
-            .RegisterSemanticFunction("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
+                        .BuildKernel();
 
-            //TODO:外部输入
-            var testPlugin = new TestPlugin();
-            //输入 skill
-            var skills = iWantToRun.Kernel.ImportSkill(testPlugin,"test");
-
-            //var function = iWantToRun.Kernel.Skills.GetFunction(nameof(xncfBuilderPlugin.BuildEntityClass));
-            var function = skills[nameof(testPlugin.GenerateText2)];
-
-            var requestSettings = new Microsoft.SemanticKernel.AI.TextCompletion.CompleteRequestSettings()
-            {
-                MaxTokens = 2000,
-                Temperature = 0.7,
-                StopSequences = new[] { "# END" },
-                TopP = 0.5,
-            };
+            iWantToRun.RegisterSemanticFunction("WordsOperation", "Format", promptParameter, funtcionPrompt);
 
 
-           var result1 =await iWantToRun.Kernel.RunAsync(function);
-
-            await Console.Out.WriteLineAsync( result1.Result);
-
-            return;
-            //function.SetAIConfiguration(requestSettings);
-
-
-            var request = iWantToRun.CreateRequest("  he llo w orld !  thi s is a n ew w orld.  ", true, function);
+            var request = iWantToRun.CreateRequest("  he llo w orld !  thi s is a n ew w orld.  ", true);
             var result = await iWantToRun.RunAsync(request);
 
             //await Console.Out.WriteLineAsync(Senparc.AI.Config.SenparcAiSetting.ToJson(true));
 
             Assert.IsNotNull(result);
             await Console.Out.WriteLineAsync(result.Output);
-            Assert.AreEqual("Helloworld!thisisanewworld.", result.Output);
+            Assert.AreEqual("Helloworld!Thisisanewworld.", result.Output);
         }
     }
 }

@@ -1,16 +1,15 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
-using Microsoft.SemanticKernel.SkillDefinition;
 
 
 namespace Senparc.AI.Kernel.Tests.Handlers
 {
     /// <summary>
-    /// 测试 插件
+    /// 测试 Function
     /// </summary>
-    public sealed class TestPlugin
+    public sealed class TestFunction
     {
-        public TestPlugin() { }
+        public TestFunction() { }
 
 
         [SKFunction, SKName("GenerateText"), System.ComponentModel.Description("创建实体类")]
@@ -34,7 +33,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
         [SKFunction, SKName("GenerateText2"), System.ComponentModel.Description("创建实体类")]
         public async Task GenerateText2(
-         [System.ComponentModel.Description("输入要求")] string input,
+         //[System.ComponentModel.Description("输入要求")] string input,
          SKContext sKContext
          )
         {
@@ -45,7 +44,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 3. 将句子的首字母改成大写
 # End
 " +
-@$"新文本要求为：{input}";
+"新文本要求为：{{$INPUT}}";
 
             sKContext.Variables["promptTemplate"] = promptTemplate;
 

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Senparc.AI.Entities;
-using Microsoft.SemanticKernel.SkillDefinition;
 using Microsoft.SemanticKernel.Services;
 using Microsoft.SemanticKernel.AI.TextCompletion;
 
@@ -52,11 +51,9 @@ namespace Senparc.AI.Kernel.Handlers
         public string UserId { get; set; }
         public string ModelName { get; set; }
 
-
         public SemanticAiHandler SemanticAiHandler => IWantTo.SemanticAiHandler;
         public SemanticKernelHelper SemanticKernelHelper => IWantTo.SemanticKernelHelper;
         public IKernel Kernel => SemanticKernelHelper.GetKernel();
-
 
         public IWantToConfig(IWantTo iWantTo)
         {

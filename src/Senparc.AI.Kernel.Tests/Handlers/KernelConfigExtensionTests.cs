@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
-using Microsoft.SemanticKernel.Skills.Core;
+using Microsoft.SemanticKernel.Plugins.Memory;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.KernelConfigExtensions;
 using Senparc.AI.Kernel.Tests.BaseSupport;
@@ -79,7 +79,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                 var result = await iWantToRun.MemorySearchAsync(MemoryCollectionName, q);
                 var response = result.MemoryQueryResult;
                 Console.Write("Q: " + q + "\r\nA: ");
-                    await foreach (var resultItem in response)
+                await foreach (var resultItem in response)
                 {
                     Console.Write(resultItem.Metadata.Text);
                 }
@@ -89,11 +89,19 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             // 测试 recall
 
-            Assert.AreEqual(0, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
+            Assert.AreEqual(0, iWantToRun.Kernel.Functions.GetFunctionViews().Count);
 
-            iWantToRun.ImportSkill(new TextMemorySkill(iWantToRun.Kernel.Memory));//TODO: 简化方法
-            //没有增加实际的 funciton
-            Assert.AreEqual(0, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
+            iWantToRun.ImportFunctions(new TextMemoryPlugin(iWantToRun.Kernel.Memory));//TODO: 简化方法
+
+            await Console.Out.WriteLineAsync("\nFunctionsViews：");
+            foreach (var item in iWantToRun.Kernel.Functions.GetFunctionViews())
+            {
+                await Console.Out.WriteLineAsync(item.ToJson());
+            }
+            // Save, Remove, Recall, Retrieve
+          
+            //没有增加实际的 Funciton，只有默认的 4 个
+            Assert.AreEqual(0 + 4/* 4 个默认的 Function */, iWantToRun.Kernel.Functions.GetFunctionViews().Count);
 
             const string skPrompt = @"
 ChatBot can have a conversation with you about any topic.
@@ -117,7 +125,8 @@ ChatBot: ";
             var chatFunction = iWantToRun.CreateSemanticFunction(skPrompt, maxTokens: 200, temperature: 0.8);
 
             //增加了 1 个 Function
-            Assert.AreEqual(1, iWantToRun.Kernel.Skills.GetFunctionsView().SemanticFunctions.Count);
+            Assert.AreEqual(1 + 4/* 4 个默认的 Function*/,
+                           iWantToRun.Kernel.Functions.GetFunctionViews().Count);
 
             var context = iWantToRun.CreateNewContext().context;
 
@@ -128,18 +137,21 @@ ChatBot: ";
             context.Variables["fact5"] = "what do I do for work?";
             context.Variables["fact6"] = "what company I work for?";
             context.Variables["fact7"] = "how many years of R&D experience does Senparc has?";
-            context.Variables[TextMemorySkill.CollectionParam] = MemoryCollectionName;
-            context.Variables[TextMemorySkill.RelevanceParam] = "0.8";
+            context.Variables[TextMemoryPlugin.CollectionParam] = MemoryCollectionName;
+            context.Variables[TextMemoryPlugin.RelevanceParam] = "0.8";
 
-            var history = "";
+            var history = "[]";
             context.Variables["history"] = history;
 
             var input = "Where is my company?";
             context.Variables["userInput"] = input;
 
-            var answer = await chatFunction.function.InvokeAsync(context);
-            Assert.IsTrue(!answer.Result.IsNullOrEmpty());
-            Assert.AreEqual(answer.ToString(),answer.Result);
+            var answerResult = await chatFunction.function.InvokeAsync(context);
+            var answer = answerResult.GetValue<string>();
+
+            await Console.Out.WriteLineAsync(answer.ToJson());
+            Assert.IsTrue(!answer.IsNullOrEmpty());
+            Assert.AreEqual(answer.ToString(), answer);
 
             history += $"\nUser: {input}\nChatBot: {answer}\n";
             context.Variables["history"] = history;
@@ -151,9 +163,9 @@ ChatBot: ";
 
             input = "Why do you think so? Give me your logic, please.";
             context.Variables["userInput"] = input;
-            answer = await chatFunction.function.InvokeAsync(context);
+            var functionResult = await chatFunction.function.InvokeAsync(context);
             await Console.Out.WriteLineAsync("Question: " + input);
-            await Console.Out.WriteLineAsync("Answer: " + answer.ToString());
+            await Console.Out.WriteLineAsync("Answer: " + functionResult.ToJson(true));
         }
 
         [TestMethod()]
@@ -214,7 +226,7 @@ ChatBot: ";
 
             var askPrompt = "我正在使用 Visutal Studio，如何进行开发？";
             var memories = iWantToRun.MemorySearchAsync(memoryCollectionName, askPrompt, limit: 5, minRelevanceScore: 0.77);
-           
+
             var dt4 = SystemTime.Now;
 
             await Console.Out.WriteLineAsync("提问：" + askPrompt);
@@ -239,7 +251,7 @@ ChatBot: ";
         }
 
         //[TestMethod]
-        //public async Task ConfigModel_Embedding_SkillTest()
+        //public async Task ConfigModel_Embedding_PluginTest()
         //{
         //}
     }

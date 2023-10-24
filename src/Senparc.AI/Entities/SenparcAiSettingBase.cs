@@ -51,7 +51,7 @@ namespace Senparc.AI.Entities
         /// <summary>
         /// OpenAI API Orgaization ID
         /// </summary>
-        public virtual string OrgaizationId => OpenAIKeys.OrgaizationId;
+        public virtual string OrganizationId => OpenAIKeys.OrganizationId;
 
         #region Azure OpenAI
 
