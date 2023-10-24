@@ -2,8 +2,6 @@
 using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.AI.HuggingFace.TextCompletion;
 using Microsoft.SemanticKernel.Orchestration;
-using Microsoft.SemanticKernel.SemanticFunctions;
-using Microsoft.SemanticKernel.SkillDefinition;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
@@ -42,7 +40,7 @@ namespace Senparc.AI.Kernel.Handlers
             var existedKernelBuilder = iWantToConfig.IWantTo.KernelBuilder;
             var kernelBuilder = configModel switch
             {
-                AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, senparcAiSetting,existedKernelBuilder),
+                AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, senparcAiSetting, existedKernelBuilder),
                 AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName, existedKernelBuilder),
                 AI.ConfigModel.ImageGeneration => iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder),
                 _ => throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel)
@@ -251,7 +249,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        public static async Task<SenaprcContentAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
+        public static async Task<SenaprcKernelAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWanToRun.SemanticKernelHelper;
@@ -262,15 +260,15 @@ namespace Senparc.AI.Kernel.Handlers
             var functionPipline = request.FunctionPipeline;
             //var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
 
-            //注意：只要使用了 Skill 和 Function，并且包含输入标识，就需要使用上下文
+            //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
 
             iWanToRun.StoredAiContext ??= new SenparcAiContext();
             var storedContext = iWanToRun.StoredAiContext.ContextVariables;
             var tempContext = request.TempAiContext?.ContextVariables;
 
-            SKContext? botAnswer;
+            KernelResult? botAnswer;
 
-            var result = new SenaprcContentAiResult(iWanToRun, inputContent: null);
+            var result = new SenaprcKernelAiResult(iWanToRun, inputContent: null);
 
             if (tempContext != null && tempContext.Count() != 0)
             {
@@ -281,13 +279,19 @@ namespace Senparc.AI.Kernel.Handlers
             else if (!prompt.IsNullOrEmpty())
             {
                 //输入纯文字
+                if (functionPipline?.Length > 0)
+                {
+                    tempContext = new ContextVariables();
+                    tempContext["INPUT"] = prompt;
 
-                tempContext = new ContextVariables();
-                tempContext["input"] = prompt;
-
-                //注意：此处即使直接输入 prompt 作为第一个 String 参数，也会被封装到 Context，
-                //      并赋值给 Key 为 INPUT 的参数
-                botAnswer = await kernel.RunAsync(tempContext, functionPipline);
+                    botAnswer = await kernel.RunAsync(tempContext, functionPipline);
+                }
+                else
+                {
+                    //注意：此处即使直接输入 prompt 作为第一个 String 参数，也会被封装到 Context，
+                    //      并赋值给 Key 为 INPUT 的参数
+                    botAnswer = await kernel.RunAsync(prompt, functionPipline);
+                }
                 result.InputContent = prompt;
             }
             else
@@ -298,12 +302,45 @@ namespace Senparc.AI.Kernel.Handlers
             }
 
             result.InputContent = prompt;
-            result.Output = botAnswer.Result;
+            result.Output = botAnswer.GetValue<string>()?.TrimStart('\n') ?? "";
             result.Result = botAnswer;
             //result.LastException = botAnswer.LastException;
 
             return result;
         }
+
+        /// <summary>
+        /// 运行
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="iWanToRun"></param>
+        /// <param name="pipeline"></param>
+        /// <returns></returns>
+        public static async Task<SenaprcAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, params ISKFunction[] pipeline)
+        {
+            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
+            var helper = iWanToRun.SemanticKernelHelper;
+            var kernel = helper.GetKernel();
+            //var function = iWanToRun.ISKFunction;
+
+            var result = new SenaprcAiResult<T>(iWanToRun, inputContent: null);
+
+            var kernelResult = await kernel.RunAsync(pipeline);
+
+            try
+            {
+                result.Output = kernelResult.GetValue<string>() ?? "";
+            }
+            catch (Exception)
+            {
+                _ = new SenparcAiException("无法转换为指定类型：" + typeof(T).Name);
+            }
+            result.Result = kernelResult.GetValue<T>();
+            //result.LastException = botAnswer.LastException;
+
+            return result;
+        }
+
 
         #endregion
 

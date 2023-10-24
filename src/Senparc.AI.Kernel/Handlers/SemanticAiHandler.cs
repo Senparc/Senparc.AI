@@ -1,7 +1,5 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
-using Microsoft.SemanticKernel.SemanticFunctions;
-using Microsoft.SemanticKernel.SkillDefinition;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
@@ -31,12 +29,13 @@ namespace Senparc.AI.Kernel
 
         /// <summary>
         /// <inheritdoc/>
+        /// 未正式启用
         /// </summary>
         /// <param name="request"><inheritdoc/></param>
         /// <returns></returns>
         public SenparcAiResult Run(SenparcAiRequest request, ISenparcAiSetting senparcAiSetting = null)
         {
-            //TODO:未正式使用
+            //TODO:未正式启用
 
             //TODO:此方法暂时还不能用
             SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null);
@@ -44,7 +43,6 @@ namespace Senparc.AI.Kernel
             var senparcAiResult = new SenparcAiResult(new IWantToRun(new IWantToBuild(new IWantToConfig(new IWantTo()))), request.RequestContent);
             return senparcAiResult;
         }
-
 
         public (IWantToRun iWantToRun, ISKFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
         {
@@ -58,7 +56,7 @@ namespace Senparc.AI.Kernel
 
         public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string prompt)
         {
-            //var function = iWantToRun.Kernel.Skills.GetSemanticFunction("Chat");
+            //var function = iWantToRun.Kernel.Plugins.GetSemanticFunction("Chat");
             //request.FunctionPipeline = new[] { function };
 
             var request = iWantToRun.CreateRequest(true);
