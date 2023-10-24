@@ -69,10 +69,12 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             }
 
             {
-                // Execute the plan
+                // Execute the new plan
 
-                Console.WriteLine("New plan results:");
-                var shakespeareFunction = iWantToRun.CreateSemanticFunction(ask, "shakespeare", "ShakespearePlugin", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
+                ask += "Check the Tokens used, make sure less then 1000 total token used. Chekc the plan's steps, ensure there are less then 4 plans.";
+
+                Console.WriteLine("== Start New Plan ==");
+                var shakespeareFunction = iWantToRun.CreateSemanticFunction(ask, "shakespeare", "ShakespearePlugin", maxTokens: 1000, temperature: 0.2, topP: 0.5).function;
 
                 var newPlanner = new SequentialPlanner(iWantToRun.Kernel, new SequentialPlannerConfig()
                 {

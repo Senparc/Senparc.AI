@@ -1,5 +1,6 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI;
+using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.TemplateEngine;
 using Senparc.AI.Entities;
@@ -41,12 +42,12 @@ namespace Senparc.AI.Kernel.Handlers
             {
                 ExtensionData = new Dictionary<string, object>()
              {
-                        { "Temperature",promptConfigPara.Temperature },
-                        { "TopP", promptConfigPara.TopP },
-                        { "MaxTokens", promptConfigPara.MaxTokens },
-                        { "PresencePenalty", promptConfigPara.PresencePenalty },
-                        { "FrequencyPenalty", promptConfigPara.FrequencyPenalty },
-                        { "StopSequences", promptConfigPara.StopSequences.ToJson() }
+                        //{ "Temperature",promptConfigPara.Temperature??0 },
+                        //{ "TopP", promptConfigPara.TopP?? 0 },
+                        { "MaxTokens", promptConfigPara.MaxTokens ?? 0 },
+                        //{ "PresencePenalty", promptConfigPara.PresencePenalty ?? 0    },
+                        //{ "FrequencyPenalty", promptConfigPara.FrequencyPenalty ??0 },
+                        //{ "StopSequences", promptConfigPara.StopSequences.ToJson() }
                     }
             };
 

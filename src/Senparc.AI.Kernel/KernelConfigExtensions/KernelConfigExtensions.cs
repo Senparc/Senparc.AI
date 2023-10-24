@@ -279,13 +279,19 @@ namespace Senparc.AI.Kernel.Handlers
             else if (!prompt.IsNullOrEmpty())
             {
                 //输入纯文字
+                if (functionPipline?.Length > 0)
+                {
+                    tempContext = new ContextVariables();
+                    tempContext["INPUT"] = prompt;
 
-                tempContext = new ContextVariables();
-                tempContext["input"] = prompt;
-
-                //注意：此处即使直接输入 prompt 作为第一个 String 参数，也会被封装到 Context，
-                //      并赋值给 Key 为 INPUT 的参数
-                botAnswer = await kernel.RunAsync(tempContext, functionPipline);
+                    botAnswer = await kernel.RunAsync(tempContext, functionPipline);
+                }
+                else
+                {
+                    //注意：此处即使直接输入 prompt 作为第一个 String 参数，也会被封装到 Context，
+                    //      并赋值给 Key 为 INPUT 的参数
+                    botAnswer = await kernel.RunAsync(prompt, functionPipline);
+                }
                 result.InputContent = prompt;
             }
             else
@@ -296,7 +302,7 @@ namespace Senparc.AI.Kernel.Handlers
             }
 
             result.InputContent = prompt;
-            result.Output = botAnswer.GetValue<string>() ?? "";
+            result.Output = botAnswer.GetValue<string>()?.TrimStart('\n') ?? "";
             result.Result = botAnswer;
             //result.LastException = botAnswer.LastException;
 
