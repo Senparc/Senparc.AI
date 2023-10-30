@@ -1,0 +1,114 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/Senparc.AI.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  MSBuildSDKsPath: 'C:\\hostedtoolcache\\windows\\dotnet\\sdk\\6.0.407\\Sdks'
+
+steps:
+
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK 6'
+  inputs:
+    version: '6.0.407'
+    packageType: 'sdk'
+    performMultiLevelLookup: true
+    includePreviewVersions: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet --list-sdks '
+  inputs:
+    command: custom
+    custom: '--list-sdks '
+
+
+- task: NuGetToolInstaller@1
+  displayName: 'Use NuGet 6.3.0'
+  inputs:
+    versionSpec: '6.3.0'
+    checkLatest: true
+
+    
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/Senparc.AI.sln'
+    feedsToUse: 'config'
+    externalFeedCredentials: 'nuget-jeffrey-full-key'
+    
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: '**/Senparc.AI.sln'
+    arguments: '--configuration Release'
+
+- task: NuGetCommand@2
+  displayName: Senparc.AI -V0
+  inputs:
+    command: push
+    packagesToPush: '**/Senparc.AI.0.*.nupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'nuget-jeffrey-full-key'
+  continueOnError: true
+  condition: succeededOrFailed()
+
+- task: NuGetCommand@2
+  displayName: 'Senparc.AI -V0 - Symbol'
+  inputs:
+    command: push
+    packagesToPush: '**/Senparc.AI.0.*.snupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'nuget-jeffrey-full-key'
+  continueOnError: true
+  condition: succeededOrFailed()
+
+
+- task: NuGetCommand@2
+  displayName: Senparc.AI.Kernel -V0
+  inputs:
+    command: push
+    packagesToPush: '**/Senparc.AI.Kernel.*.nupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'nuget-jeffrey-full-key'
+  continueOnError: true
+  condition: succeededOrFailed()
+
+- task: NuGetCommand@2
+  displayName: 'Senparc.AI.Kernel -V0 - Symbol'
+  inputs:
+    command: push
+    packagesToPush: '**/Senparc.AI.Kernel.*.snupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'nuget-jeffrey-full-key'
+  continueOnError: true
+  condition: succeededOrFailed()
+
+# 系统模块 结束
+
+- task: DotNetCoreCLI@2
+  displayName: Publish
+  inputs:
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
+    zipAfterPublish: True
+  enabled: false
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+  enabled: false
+  condition: succeededOrFailed()
