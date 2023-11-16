@@ -14,14 +14,14 @@ variables:
   solution: '**/Senparc.AI.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  MSBuildSDKsPath: 'C:\\hostedtoolcache\\windows\\dotnet\\sdk\\6.0.407\\Sdks'
+  # MSBuildSDKsPath: 'C:\\hostedtoolcache\\windows\\dotnet\\sdk\\6.0.407\\Sdks'
 
 steps:
 
 - task: UseDotNet@2
-  displayName: 'Use .NET SDK 6'
+  displayName: 'Use .NET SDK 8'
   inputs:
-    version: '6.0.407'
+    version: '8.x'
     packageType: 'sdk'
     performMultiLevelLookup: true
     includePreviewVersions: true
