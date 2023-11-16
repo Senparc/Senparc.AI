@@ -3,6 +3,7 @@ using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.TemplateEngine;
+using Microsoft.SemanticKernel.TemplateEngine.Basic;
 using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
 using Senparc.CO2NET.Extensions;
@@ -51,12 +52,16 @@ namespace Senparc.AI.Kernel.Handlers
                     }
             };
 
-            var promptConfig = new PromptTemplateConfig();
-            promptConfig.ModelSettings.Add(aiRequestSettings);
+            var promptTemplateConfig = new PromptTemplateConfig();
+            promptTemplateConfig.ModelSettings.Add(aiRequestSettings);
 
-            var promptTemplate = new PromptTemplate(skPrompt, promptConfig, kernel);
+            var promptTemplateFactory = new BasicPromptTemplateFactory();
+            var promptTemplate = promptTemplateFactory.Create(
+                skPrompt,                        // Prompt template defined in natural language
+                promptTemplateConfig             // Prompt configuration
+            );
 
-            var newFunction = kernel.RegisterSemanticFunction(pluginName/*"ChatBot"*/, functionName /*"Chat"*/, promptConfig, promptTemplate);
+            var newFunction = kernel.RegisterSemanticFunction(pluginName/*"ChatBot"*/, functionName /*"Chat"*/, promptTemplateConfig, promptTemplate);
 
             var aiContext = new SenparcAiContext();
 
