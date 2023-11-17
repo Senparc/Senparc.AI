@@ -188,10 +188,10 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.OpenAI => kernelBuilder.WithOpenAITextEmbeddingGenerationService(modelName, AiSetting.ApiKey,
                     AiSetting.OrganizationId),
 
-                AiPlatform.AzureOpenAI => kernelBuilder.WithAzureTextEmbeddingGenerationService(modelName,
+                AiPlatform.AzureOpenAI => kernelBuilder.WithAzureOpenAITextEmbeddingGenerationService(modelName,
                     AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
-                AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureTextEmbeddingGenerationService(modelName,
+                AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureOpenAITextEmbeddingGenerationService(modelName,
                     AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
                 AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextEmbeddingGenerationService(modelName,
