@@ -48,7 +48,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //var remoteResponse = await huggingFaceRemote.CompleteAsync(Input);
 
 
-            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey", modelName: SampleHelper.Default_TextCompletion_ModeName/*, modelName: "gpt-4-32k"*/);
+            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey",
+                modelName: SampleHelper.Default_TextCompletion_ModeName /*, modelName: "gpt-4-32k"*/);
             var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();
@@ -98,7 +99,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     {
                         ExtensionData = new Dictionary<string, object>()
                         {
-                            { "Temperature",0.7 },
+                            { "Temperature", 0.7 },
                             { "TopP", 0.5 },
                             { "MaxTokens", 3000 }
                         }

@@ -12,14 +12,13 @@ using System.Threading.Tasks;
 namespace Senparc.AI.Kernel
 {
     /// <summary>
-    /// SenmanticKernel ´¦ÀíÆ÷
+    /// SenmanticKernel å¤„ç†å™¨
     /// </summary>
     public class SemanticAiHandler :
         IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext>
     {
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         private IKernel _kernel => SemanticKernelHelper.GetKernel();
-
 
 
         public SemanticAiHandler(SemanticKernelHelper? semanticAiHelper = null)
@@ -29,27 +28,30 @@ namespace Senparc.AI.Kernel
 
         /// <summary>
         /// <inheritdoc/>
-        /// Î´ÕıÊ½ÆôÓÃ
+        /// æœªæ­£å¼å¯ç”¨
         /// </summary>
         /// <param name="request"><inheritdoc/></param>
         /// <returns></returns>
         public SenparcAiResult Run(SenparcAiRequest request, ISenparcAiSetting senparcAiSetting = null)
         {
-            //TODO:Î´ÕıÊ½ÆôÓÃ
+            //TODO:æœªæ­£å¼å¯ç”¨
 
-            //TODO:´Ë·½·¨ÔİÊ±»¹²»ÄÜÓÃ
+            //TODO:æ­¤æ–¹æ³•æš‚æ—¶è¿˜ä¸èƒ½ç”¨
             SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null);
 
-            var senparcAiResult = new SenparcAiResult(new IWantToRun(new IWantToBuild(new IWantToConfig(new IWantTo()))), request.RequestContent);
+            var senparcAiResult =
+                new SenparcAiResult(new IWantToRun(new IWantToBuild(new IWantToConfig(new IWantTo()))),
+                    request.RequestContent);
             return senparcAiResult;
         }
 
-        public (IWantToRun iWantToRun, ISKFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
+        public (IWantToRun iWantToRun, ISKFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
+            string userId, string modelName = "text-davinci-003")
         {
             var result = this.IWantTo()
-                                    .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
-                                    .BuildKernel()
-                                    .RegisterSemanticFunction("ChatBot", "Chat", promptConfigParameter);
+                .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                .BuildKernel()
+                .RegisterSemanticFunction("ChatBot", "Chat", promptConfigParameter);
 
             return result;
         }
@@ -61,30 +63,25 @@ namespace Senparc.AI.Kernel
 
             var request = iWantToRun.CreateRequest(true);
 
-            //ÀúÊ·¼ÇÂ¼
-            //³õÊ¼»¯¶Ô»°ÀúÊ·£¨¿ÉÑ¡£©
+            //å†å²è®°å½•
+            //åˆå§‹åŒ–å¯¹è¯å†å²ï¼ˆå¯é€‰ï¼‰
             if (!request.GetStoredContext("history", out var history))
             {
                 request.SetStoredContext("history", "");
             }
 
-            //±¾´Î¼ÇÂ¼
+            //æœ¬æ¬¡è®°å½•
             request.SetStoredContext("human_input", prompt);
 
             var newRequest = request with { RequestContent = null };
 
-            //ÔËĞĞ
+            //è¿è¡Œ
             var aiResult = await iWantToRun.RunAsync(newRequest);
 
-            //¼ÇÂ¼¶Ô»°ÀúÊ·£¨¿ÉÑ¡£©
+            //è®°å½•å¯¹è¯å†å²ï¼ˆå¯é€‰ï¼‰
             request.SetStoredContext("history", history + $"\nHuman: {prompt}\nBot: {request.RequestContent}");
 
             return aiResult;
         }
-
-
     }
-
 }
-
-
