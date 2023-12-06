@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.6.1-beta7</Version>
+		<Version>0.6.1-beta8</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -47,9 +47,9 @@
 		<None Include="KernelConfigExtensions\KernelConfigExtensions.Function.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SemanticKernel" Version="1.0.0-beta7" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.0.0-beta8" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.AI.HuggingFace" Version="1.0.0-beta7" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.AI.HuggingFace" Version="1.0.0-beta8" />
 
 		<PackageReference Include="Senparc.CO2NET" Version="2.3.0" />
 	</ItemGroup>

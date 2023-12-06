@@ -25,7 +25,7 @@ namespace Senparc.AI.Kernel.Helpers
     /// </summary>
     public class SemanticKernelHelper
     {
-        private IKernel Kernel { get; set; }
+        private IKernel? _kernel { get; set; }
 
         //internal KernelBuilder KernelBuilder { get; set; }
         internal ISenparcAiSetting AiSetting { get; }
@@ -51,29 +51,31 @@ namespace Senparc.AI.Kernel.Helpers
         /// 获取 SemanticKernel 对象
         /// </summary>
         /// <param name="kernelBuilderAction"><see cref="KernelBuilder"/> 在进行 <see cref="KernelBuilder.Build()"/> 之前需要插入的操作</param>
-        /// <param name="refresh"></param>
+        /// <param name="refresh" default="false">是否需要刷新kernel</param>
         /// <returns></returns>
         public IKernel GetKernel(Action<KernelBuilder>? kernelBuilderAction = null, bool refresh = false)
         {
-            if (Kernel == null || refresh == true)
+            if (_kernel != null && !refresh)
             {
-                //Kernel = KernelBuilder.Create();
-                var kernelBuilder = Microsoft.SemanticKernel.Kernel.Builder;
-                if (kernelBuilderAction != null)
-                {
-                    kernelBuilderAction.Invoke(kernelBuilder);
-                }
-
-                Kernel = kernelBuilder.Build();
+                return _kernel;
             }
 
-            return Kernel;
+            //Kernel = KernelBuilder.Create();
+            var kernelBuilder = new KernelBuilder();
+
+            kernelBuilderAction?.Invoke(kernelBuilder);
+
+            _kernel = kernelBuilder.Build();
+
+            return _kernel;
         }
 
         /// <summary>
         /// 获取 Kernel.Memory 对象
         /// </summary>
         /// <returns></returns>
+        [Obsolete(
+            "Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]
         public ISemanticTextMemory GetMemory()
         {
             var kernel = GetKernel();
@@ -93,70 +95,48 @@ namespace Senparc.AI.Kernel.Helpers
         /// <returns></returns>
         public IKernel BuildKernel(KernelBuilder kernelBuilder, Action<KernelBuilder>? kernelBuilderAction = null)
         {
-            if (kernelBuilderAction != null)
-            {
-                kernelBuilderAction.Invoke(kernelBuilder);
-            }
+            kernelBuilderAction?.Invoke(kernelBuilder);
 
-            Kernel = kernelBuilder.Build();
-            return Kernel;
+            _kernel = kernelBuilder.Build();
+            return _kernel;
         }
 
         /// <summary>
         /// 设置 Kernel，并配置 TextCompletion 模型
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="modelName"></param>
-        /// <param name="kernel"></param>
+        /// <param name="userId">用户ID， 用于防止api滥用</param>
+        /// <param name="modelName">模型名 modelId</param>
+        /// <param name="senparcAiSetting"></param>
+        /// <param name="kernelBuilder"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public KernelBuilder ConfigTextCompletion(string userId, string modelName, ISenparcAiSetting senparcAiSetting,
-            KernelBuilder? kernelBuilder = null)
+        public KernelBuilder ConfigTextCompletion(string userId, string modelName, ISenparcAiSetting? senparcAiSetting,
+            KernelBuilder? kernelBuilder)
         {
-            //kernel ??= GetKernel();
-
             var serviceId = GetServiceId(userId, modelName);
             senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
-            var aiPlatForm = AiSetting.AiPlatform;
+            var aiPlatForm = senparcAiSetting.AiPlatform;
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
-            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
+            kernelBuilder ??= new KernelBuilder();
 
             _ = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.WithOpenAITextCompletionService(
-                    modelName, AiSetting.ApiKey, AiSetting.OrganizationId),
-
-                AiPlatform.AzureOpenAI => 
+                AiPlatform.OpenAI => kernelBuilder.WithOpenAITextCompletionService(modelName, apiKey: senparcAiSetting.ApiKey,
+                    orgId: senparcAiSetting.OrganizationId),
+                AiPlatform.AzureOpenAI =>
                     // kernelBuilder.WithAzureTextCompletionService(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
-                    kernelBuilder.WithAzureTextCompletionService(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey),
-
+                    kernelBuilder.WithAzureTextCompletionService(modelName,
+                        endpoint: senparcAiSetting.AzureEndpoint,
+                        apiKey: senparcAiSetting.ApiKey),
                 AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureTextCompletionService(modelName,
-                    AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
-
+                    endpoint: senparcAiSetting.NeuCharEndpoint,
+                    apiKey: senparcAiSetting.ApiKey),
                 AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextCompletionService(modelName,
-                    endpoint: AiSetting.HuggingFaceEndpoint),
-
+                    endpoint: senparcAiSetting.HuggingFaceEndpoint),
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
-
-            //kernelBuilder.Configure(c =>
-            //{
-            //    c.AddTextCompletionService(serviceId, k =>
-            //        aiPlatForm switch
-            //        {
-            //            AiPlatform.OpenAI => new OpenAITextCompletion(modelName, AiSetting.ApiKey, AiSetting.OrganizationId),
-
-            //            AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
-
-            //            AiPlatform.NeuCharOpenAI => new AzureTextCompletion(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
-
-            //            _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
-            //        });
-            //});
-
-            //KernelBuilder = builder;
 
             return kernelBuilder;
         }
@@ -169,8 +149,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="kernelBuilder"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public KernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName,
-            KernelBuilder? kernelBuilder = null)
+        public KernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName, KernelBuilder? kernelBuilder = null)
         {
             //kernel ??= GetKernel();
 
@@ -181,23 +160,22 @@ namespace Senparc.AI.Kernel.Helpers
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
             //TODO：Builder 不应该新建
-            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
+            kernelBuilder ??= new KernelBuilder();
 
             _ = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.WithOpenAITextEmbeddingGenerationService(modelName, AiSetting.ApiKey,
+                AiPlatform.OpenAI => kernelBuilder.WithOpenAITextEmbeddingGenerationService(modelName, senparcAiSetting.ApiKey,
                     AiSetting.OrganizationId),
 
                 AiPlatform.AzureOpenAI => kernelBuilder.WithAzureOpenAITextEmbeddingGenerationService(modelName,
-                    AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+                    senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey, senparcAiSetting.AzureOpenAIApiVersion),
 
                 AiPlatform.NeuCharOpenAI => kernelBuilder.WithAzureOpenAITextEmbeddingGenerationService(modelName,
-                    AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
+                    senparcAiSetting.NeuCharEndpoint, senparcAiSetting.ApiKey, senparcAiSetting.AzureOpenAIApiVersion),
 
                 AiPlatform.HuggingFace => kernelBuilder.WithHuggingFaceTextEmbeddingGenerationService(modelName,
-                    AiSetting.HuggingFaceEndpoint),
-
-
+                    senparcAiSetting.HuggingFaceEndpoint),
+                
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
@@ -236,7 +214,7 @@ namespace Senparc.AI.Kernel.Helpers
             var aiPlatForm = AiSetting.AiPlatform;
 
             //TODO：Builder 不应该新建
-            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Builder;
+            kernelBuilder ??= new KernelBuilder();
 
             _ = aiPlatForm switch
             {
@@ -283,6 +261,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="externalId">Unique identifier, e.g. URL or GUID to the original source</param>
         /// <param name="externalSourceName">Name of the external service, e.g. "MSTeams", "GitHub", "WebSite", "Outlook IMAP", etc.</param>
         /// <param name="description">Optional description</param>
+        /// <param name="additionalMetadata"></param>
         /// <param name="cancel">Cancellation token</param>
         /// <returns></returns>
         public async Task MemorySaveReferenceAsync(ISemanticTextMemory memory,
@@ -306,6 +285,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="id">Unique identifier</param>
         /// <param name="text">Information to save</param>
         /// <param name="description">Optional description</param>
+        /// <param name="additionalMetadata"></param>
         /// <param name="cancel">Cancellation token</param>        /// <returns></returns>
         public async Task MemorySaveInformationAsync(ISemanticTextMemory memory,
             string collection,

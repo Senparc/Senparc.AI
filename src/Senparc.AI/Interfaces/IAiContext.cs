@@ -22,11 +22,11 @@ namespace Senparc.AI.Interfaces
     public interface IAiContext<T> : IAiContext
         where T : class, IEnumerable<KeyValuePair<string, string>>
     {
-        /// <summary>
-        /// 扩展类型的上下文
-        /// </summary>
-        [Obsolete("请使用 ContextVariables", true)]
-        T ExtendContext { get; set; }
+        // /// <summary>
+        // /// 扩展类型的上下文
+        // /// </summary>
+        // [Obsolete("请使用 ContextVariables", true)]
+        // T ExtendContext { get; set; }
         /// <summary>
         /// 扩展类型的上下文
         /// </summary>

@@ -19,7 +19,7 @@ namespace Senparc.AI.Interfaces
         /// </summary>
         /// <param name="request">请求数据</param>
         /// <returns></returns>
-        public TResult Run(TRequest request, ISenparcAiSetting senparcAiSetting = null);
+        public TResult Run(TRequest request, ISenparcAiSetting? senparcAiSetting = null);
 
     }
 }

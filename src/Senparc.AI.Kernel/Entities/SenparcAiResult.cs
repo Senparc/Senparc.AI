@@ -6,7 +6,7 @@ using System;
 namespace Senparc.AI.Kernel
 {
     /// <summary>
-    /// Senparc.AI.Kernel Ä£¿éµÄ AI ½Ó¿Ú·µ»ØĞÅÏ¢
+    /// Senparc.AI.Kernel æ¨¡å—çš„ AI æ¥å£è¿”å›ä¿¡æ¯
     /// </summary>
     public class SenparcAiResult : IAiResult
     {
@@ -59,31 +59,31 @@ namespace Senparc.AI.Kernel
         }
     }
 
-    public class SenaprcTextAiResult : SenaprcAiResult<string>, IAiResult
+    public class SenparcTextAiResult : SenaprcAiResult<string>, IAiResult
     {
         public string Result { get; set; }
 
-        public SenaprcTextAiResult(IWantToRun iWwantToRun, string inputContent)
+        public SenparcTextAiResult(IWantToRun iWwantToRun, string inputContent)
              : base(iWwantToRun, inputContent)
         {
         }
 
-        public SenaprcTextAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+        public SenparcTextAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
            : base(iWwantToRun, inputContext)
         {
         }
     }
 
-    public class SenaprcKernelAiResult : SenaprcAiResult<KernelResult>, IAiResult
+    public class SenparcKernelAiResult : SenaprcAiResult<KernelResult>, IAiResult
     {
         public KernelResult /*SKContext*/ Result { get; set; }
         
-        public SenaprcKernelAiResult(IWantToRun iWwantToRun, string inputContent)
+        public SenparcKernelAiResult(IWantToRun iWwantToRun, string? inputContent)
              : base(iWwantToRun, inputContent)
         {
         }
 
-        public SenaprcKernelAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+        public SenparcKernelAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
            : base(iWwantToRun, inputContext)
         {
         }
