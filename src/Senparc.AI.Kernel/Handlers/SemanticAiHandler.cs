@@ -1,4 +1,4 @@
-using Microsoft.SemanticKernel;
+﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;

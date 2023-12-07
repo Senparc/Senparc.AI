@@ -1,3 +1,8 @@
+/**
+Last Modified: 20231207 - 修复中文乱码
+Modified By FelixJ
+*/
+
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Entities;
@@ -10,7 +15,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public record  SenparcAiRequest : IAiRequest<SenparcAiContext>
+    public record SenparcAiRequest : IAiRequest<SenparcAiContext>
     {
         /// <summary>
         /// IWanToRun

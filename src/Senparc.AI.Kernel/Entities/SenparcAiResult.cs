@@ -1,3 +1,9 @@
+﻿/**
+Last modified: 20231207 - 修复拼写错误和中文编码错误
+Last modifier: FelixJ 
+*/
+
+
 using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Handlers;

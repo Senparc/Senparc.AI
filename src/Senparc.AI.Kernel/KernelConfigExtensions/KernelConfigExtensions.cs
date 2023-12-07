@@ -1,4 +1,11 @@
-﻿using Microsoft.SemanticKernel;
+/**
+* Last Modified: 20231207 By FelixJ
+* 修改了一些拼写错误
+* 更新了部分方法的XML注释以符合代码
+*/
+
+
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.AI.HuggingFace.TextCompletion;
 using Microsoft.SemanticKernel.Orchestration;

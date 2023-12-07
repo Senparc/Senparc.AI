@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.AI.OpenAI.TextCompletion;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Orchestration;
@@ -25,7 +25,7 @@ namespace Senparc.AI.Kernel.Helpers
     /// </summary>
     public class SemanticKernelHelper
     {
-        private IKernel? _kernel { get; set; }
+        private IKernel _kernel { get; set; }
 
         //internal KernelBuilder KernelBuilder { get; set; }
         internal ISenparcAiSetting AiSetting { get; }
@@ -74,8 +74,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// 获取 Kernel.Memory 对象
         /// </summary>
         /// <returns></returns>
-        [Obsolete(
-            "Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]
+        [Obsolete("该方法已被SK放弃，原文为：Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]
         public ISemanticTextMemory GetMemory()
         {
             var kernel = GetKernel();
@@ -110,7 +109,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="kernelBuilder"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public KernelBuilder ConfigTextCompletion(string userId, string modelName, ISenparcAiSetting? senparcAiSetting,
+        public KernelBuilder ConfigTextCompletion(string userId, string modelName, ISenparcAiSetting senparcAiSetting,
             KernelBuilder? kernelBuilder)
         {
             var serviceId = GetServiceId(userId, modelName);
@@ -119,8 +118,11 @@ namespace Senparc.AI.Kernel.Helpers
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
+            // var kernelBuilder = Microsoft.SemanticKernel.Kernel.Builder;
+            // 以上方法已经被SK标注为 Obsolete, 修改为SK推荐的方法
             kernelBuilder ??= new KernelBuilder();
 
+            // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
             _ = aiPlatForm switch
             {
                 AiPlatform.OpenAI => kernelBuilder.WithOpenAITextCompletionService(modelName, apiKey: senparcAiSetting.ApiKey,
@@ -160,8 +162,12 @@ namespace Senparc.AI.Kernel.Helpers
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
             //TODO：Builder 不应该新建
+            
+            // var kernelBuilder = Microsoft.SemanticKernel.Kernel.Builder;
+            // 以上方法已经被SK标注为 Obsolete, 修改为SK推荐的方法
             kernelBuilder ??= new KernelBuilder();
-
+            
+            // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
             _ = aiPlatForm switch
             {
                 AiPlatform.OpenAI => kernelBuilder.WithOpenAITextEmbeddingGenerationService(modelName, senparcAiSetting.ApiKey,
