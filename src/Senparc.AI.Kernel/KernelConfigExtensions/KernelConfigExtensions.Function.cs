@@ -86,8 +86,6 @@ namespace Senparc.AI.Kernel.Handlers
                 }
             };
 
-            Console.WriteLine(aiRequestSettings.ToJson());
-
             var promptTemplateConfig = new PromptTemplateConfig();
             promptTemplateConfig.ModelSettings.Add(aiRequestSettings);
 
