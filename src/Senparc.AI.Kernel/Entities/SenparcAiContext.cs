@@ -8,11 +8,11 @@ namespace Senparc.AI.Kernel.Entities
 {
     public class SenparcAiContext : IAiContext<ContextVariables>
     {
-        // /// <summary>
-        // /// <inheritdoc/>
-        // /// </summary>
-        // [Obsolete("请使用 ContextVariables", true)]
-        // public ContextVariables ExtendContext { get; set; }
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        [Obsolete("请使用 ContextVariables", true)]
+        public ContextVariables ExtendContext { get; set; }
 
         private ContextVariables? _contextVariables { get; set; }
 
