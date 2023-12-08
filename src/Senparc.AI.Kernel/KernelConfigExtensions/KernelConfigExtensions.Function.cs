@@ -46,9 +46,11 @@ namespace Senparc.AI.Kernel.Handlers
                     { "MaxTokens", promptConfigPara.MaxTokens ?? 0 },
                     { "PresencePenalty", promptConfigPara.PresencePenalty ?? 0 },
                     { "FrequencyPenalty", promptConfigPara.FrequencyPenalty ?? 0 },
-                    { "StopSequences", promptConfigPara.StopSequences.ToJson() }
+                    { "StopSequences", promptConfigPara.StopSequences??new List<string>() }
                 }
             };
+
+            Console.WriteLine(aiRequestSettings.ToJson());
 
             var promptTemplateConfig = new PromptTemplateConfig();
             promptTemplateConfig.ModelSettings.Add(aiRequestSettings);
