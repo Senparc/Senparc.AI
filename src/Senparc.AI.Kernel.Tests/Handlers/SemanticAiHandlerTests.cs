@@ -144,7 +144,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-            var functionPrompt = @"请使用尽量有创造性的语言，补全下面的文字：{{$input}}，请注意原文的格式，和可能匹配的文体。"; ;
+            var functionPrompt = @"请使用尽量有创造性的语言，补全下面的文字：{{$input}}，请注意原文的格式，和可能匹配的文体。";
 
             //准备运行
             var userId = "JeffreySu";//区分用户
@@ -178,15 +178,24 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-
             var funtcionPrompt = @"请根据新文本要求处理文字：
-# Start
-1. 去掉文字收尾的空格
-2. 去掉文字之间的空格
-3. 将标点符号后的首字母改成大写
-# End
+1. 将标点符号后的首字母改成大写；在句子中间的单词，首字母不需要改写，请保留原来的大小写。
+2. 忽略专有名词的大小写转换，请保留原文的大小写。
+3. 去掉文字首尾的空格。
+4. 去掉文字之间的空格。
+5. 直接输出结果，不需要输出任何其他文字。
+
+示例：
++++++++
+#Input:
+My nam e Is Jef fre y, I'm a Chinese  . this is A test.HappY bIrthday  !  
+#Output:
+MynameIsJeffrey,I'maChinese.ThisisAtest.HappYbIrthday!
++++++++
+
 " +
-"新文本要求为：{{$INPUT}}";
+@"#Input:{{$INPUT}}
+#Output:";
 
             //准备运行
             var userId = "JeffreySu";//区分用户
@@ -198,7 +207,6 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                         .BuildKernel();
 
             iWantToRun.RegisterSemanticFunction("WordsOperation", "Format", promptParameter, funtcionPrompt);
-
 
             var request = iWantToRun.CreateRequest("  he llo w orld !  thi s is a n ew w orld.  ", true);
             var result = await iWantToRun.RunAsync(request);

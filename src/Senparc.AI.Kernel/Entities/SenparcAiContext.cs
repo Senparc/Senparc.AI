@@ -14,23 +14,13 @@ namespace Senparc.AI.Kernel.Entities
         [Obsolete("请使用 ContextVariables", true)]
         public ContextVariables ExtendContext { get; set; }
 
-        private ContextVariables _contextVariables { get; set; }
+        private ContextVariables? _contextVariables { get; set; }
 
 
         public ContextVariables ContextVariables
         {
-            get
-            {
-                if (_contextVariables == null)
-                {
-                    _contextVariables = new ContextVariables();
-                }
-                return _contextVariables;
-            }
-            set
-            {
-                _contextVariables = value;
-            }
+            get => _contextVariables ??= new ContextVariables();
+            set => _contextVariables = value;
         }
 
         /// <summary>

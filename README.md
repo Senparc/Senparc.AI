@@ -4,11 +4,11 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 
 ## 项目介绍
 
-`Senparc.AI` 为所有标准接口和基础功能的基础模块
-
-`Senparc.AI.Kernel` 为基于 Senparc.AI 标准，使用 [SemanticKernel](https://github.com/microsoft/semantic-kernel) 实现的接口调用，可以实现即插即用。
-
-`Senparc.AI.PromptRange`([独立项目](https://github.com/Senparc/Senparc.AI.PromptRange)) 为基于 Senparc.AI 标准，为“PromptRange（提示词靶场）”生态提供底层标准支持的底层库。目前已经由 [Senparc.Xncf.PromptRange](https://github.com/NeuCharFramework/NcfPackageSources/tree/master/src/Extensions/Senparc.Xncf.PromptRange) 实现，可用于开发基于 PromptRange 的扩展应用，兼容 Web、桌面、手机等系统（支持 .NET 6.0 及以上框架）。[NeuCharFramework(NCF)](https://github.com/orgs/NeuCharFramework) 框架已经默认集成 [Senparc.Xncf.PromptRange](https://github.com/NeuCharFramework/NcfPackageSources/tree/master/src/Extensions/Senparc.Xncf.PromptRange)，可无需修改任何代码，直接使用。（[什么是 PromptRange？](https://github.com/Senparc/Senparc.AI.PromptRange/wiki/What's-PromptRange%3F)）
+| 名称 | 说明 | Nuget |
+|--------|--------|--------|
+| Senparc.AI | 为所有标准接口和基础功能的基础模块 | [![Senparc.AI](https://img.shields.io/nuget/v/Senparc.AI.svg)](https://www.nuget.org/packages/Senparc.AI/) |
+| Senparc.AI.Kernel | 为基于 Senparc.AI 标准，使用 [SemanticKernel](https://github.com/microsoft/semantic-kernel) 实现的接口调用，可以实现即插即用。|  [![Senparc.AI.Kernel](https://img.shields.io/nuget/v/Senparc.AI.Kernel.svg)](https://www.nuget.org/packages/Senparc.AI.Kernel/) |
+`Senparc.AI.PromptRange`<br>([独立项目](https://github.com/Senparc/Senparc.AI.PromptRange)) | 为基于 Senparc.AI 标准，为“PromptRange（提示词靶场）”生态提供底层标准支持的底层库。目前已经由 [Senparc.Xncf.PromptRange](https://github.com/NeuCharFramework/NcfPackageSources/tree/master/src/Extensions/Senparc.Xncf.PromptRange) 实现，可用于开发基于 PromptRange 的扩展应用，兼容 Web、桌面、手机等系统（支持 .NET 6.0 及以上框架）。[NeuCharFramework(NCF)](https://github.com/orgs/NeuCharFramework) 框架已经默认集成 [Senparc.Xncf.PromptRange](https://github.com/NeuCharFramework/NcfPackageSources/tree/master/src/Extensions/Senparc.Xncf.PromptRange)，可无需修改任何代码，直接使用。（[什么是 PromptRange？](https://github.com/Senparc/Senparc.AI.PromptRange/wiki/What's-PromptRange%3F)） |  |
 
 ## 开发过程
 
@@ -16,28 +16,26 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 
 在 appsettings.json 中配置 OpenAI 或 Azure OpenAI 的接口信息，如：
 
-```
-  //CO2NET 设置
-  "SenparcSetting": {
-    "IsDebug": true,
-    "DefaultCacheNamespace": "DefaultCacheTest"
-  },
-  //Senparc.AI 设置
+``` json
+   //Senparc.AI 设置
   "SenparcAiSetting": {
-"IsDebug": true,
-    "AiPlatform": "NeuCharOpenAI",
+    "IsDebug": true,
+    "AiPlatform": "AzureOpenAI", //注意修改为自己平台对应的枚举值
     "NeuCharOpenAIKeys": {
-      "ApiKey": "YourNeuCharApiKey",
-      "NeuCharEndpoint": "https://www.neuchar.com/<DeveloperId>/"
+      "ApiKey": "<Your ApiKey>", //在 https://www.neuchar.com/Developer/AiApp 申请
+      "NeuCharEndpoint": "https://www.neuchar.com/<DeveloperId>/" //查看 ApiKey 时可看到 DeveloperId
     },
     "AzureOpenAIKeys": {
-      "ApiKey": "YourAzureApiKey",
-      "AzureEndpoint": "https://xxxx.openai.azure.com/",
-      "AzureOpenAIApiVersion": "2022-12-01"
+      "ApiKey": "<Your AzureApiKey>", //TODO：加密
+      "AzureEndpoint": "<Your AzureEndPoint>",//https://xxxx.openai.azure.com/
+      "AzureOpenAIApiVersion": "2022-12-01" 
     },
     "OpenAIKeys": {
-      "ApiKey": "YourOpenAIKey",
-      "OrgaizationId": "YourOpenAIOrgId"
+      "ApiKey": "<Your OpenAIKey>", //TODO：加密
+      "OrganizationId": "<Your OpenAIOrgId>"
+    },
+    "HuggingFaceKeys": {
+      "Endpoint": "<Your EndPoint>" //HuggingFace 的 Endpoint
     }
   }
 
