@@ -27,6 +27,7 @@ services.AddSenparcGlobalServices(config);
 
 services.AddScoped<IAiHandler, SemanticAiHandler>();
 services.AddScoped<ChatSample>();
+services.AddScoped<CompletionSample>();
 services.AddScoped<EmbeddingSample>();
 services.AddScoped<DallESample>();
 services.AddScoped<PlanSample>();
@@ -42,10 +43,11 @@ Console.WriteLine("启动完毕，当前接口：" + Senparc.AI.Config.SenparcAi
 Console.WriteLine("=======================");
 Console.WriteLine();
 Console.WriteLine("请输入序号，开始对应功能测试：");
-Console.WriteLine("[1] GPT对话机器人");
-Console.WriteLine("[2] 训练 Embedding 任务");
-Console.WriteLine("[3] Dall·E 绘图（需要配置 OpenAI）");
-Console.WriteLine("[4] Planner 任务计划");
+Console.WriteLine("[1] ChatGPT 对话机器人");
+Console.WriteLine("[2] Completion 任务机器人");
+Console.WriteLine("[3] 训练 Embedding 任务");
+Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI）");
+Console.WriteLine("[5] Planner 任务计划");
 
 var index = Console.ReadLine();
 Console.WriteLine();
@@ -60,6 +62,13 @@ switch (index)
         }
         break;
     case "2":
+        {
+            //Completion Sample
+            var completionSample = serviceProvider.GetRequiredService<CompletionSample>();
+            await completionSample.RunAsync();
+        }
+        break;
+    case "3":
         {
             //Embedding Sample
             Console.WriteLine("请输入需要，进入对应 Embedding 测试：");
@@ -95,14 +104,14 @@ switch (index)
             }
         }
         break;
-    case "3":
+    case "4":
         {
             //DallE Sample
             var dallESample = serviceProvider.GetRequiredService<DallESample>();
             await dallESample.RunAsync();
         }
         break;
-    case "4":
+    case "5":
         {
             //Plan Sample
             var pnalSample = serviceProvider.GetRequiredService<PlanSample>();
