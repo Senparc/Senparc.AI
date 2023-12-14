@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI;
-using Microsoft.SemanticKernel.Orchestration;
-using Microsoft.SemanticKernel.Planners;
-using Microsoft.SemanticKernel.Planning;
 using Microsoft.VisualStudio.TestPlatform;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.KernelConfigExtensions;

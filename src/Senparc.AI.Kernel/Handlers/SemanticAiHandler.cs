@@ -1,4 +1,5 @@
-﻿using Microsoft.SemanticKernel;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
@@ -16,13 +17,16 @@ namespace Senparc.AI.Kernel
     /// </summary>
     public class SemanticAiHandler : IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext>
     {
+        private readonly ILoggerFactory loggerFactory;
+
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         private IKernel _kernel => SemanticKernelHelper.GetKernel();
 
 
-        public SemanticAiHandler(SemanticKernelHelper? semanticAiHelper = null)
+        public SemanticAiHandler(SemanticKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null)
         {
             SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper();
+            this.loggerFactory = loggerFactory;
         }
 
         /// <summary>
@@ -40,7 +44,7 @@ namespace Senparc.AI.Kernel
             var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null);
             var kernel = kernelBuilder.Build();
             // KernelResult result = await kernel.RunAsync(input: request.RequestContent!, pipeline: request.FunctionPipeline);
-            
+
             var result = new SenparcKernelAiResult(request.IWantToRun, request.RequestContent);
             return result;
         }
