@@ -59,8 +59,9 @@ namespace Senparc.AI.Samples.Consoles.Samples
             await Console.Out.WriteLineAsync();
 
 #pragma warning disable SKEXP0060
-            var plannerConfig = new HandlebarsPlannerOptions { MaxTokens = 2000 };
+            var plannerConfig = new HandlebarsPlannerConfig { MaxTokens = 2000 };
             var planner = new HandlebarsPlanner(plannerConfig);
+
             //var ask = "If my investment of 2130.23 dollars increased by 23%, how much would I have after I spent 5 on a latte?";
 
 
@@ -79,12 +80,13 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 StopSequences = null,
             });
 
+
             var skContext = iWantToRun.CreateNewArguments();//TODO: 直返会一个对象？
 
-            var result = await plan.InvokeAsync(skContext.context, aiRequestSettings);
+            var result = plan.Invoke(iWantToRun.Kernel, skContext.arguments);
 
             Console.WriteLine("Plan results:");
-            Console.WriteLine(result.GetValue<string>());
+            Console.WriteLine(result);
             Console.WriteLine();
 
             await Console.Out.WriteLineAsync("Now system will add a new plan into your request: Rewrite the above in the style of Shakespeare. Press Enter");

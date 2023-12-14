@@ -7,6 +7,7 @@
 
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
+using Microsoft.SemanticKernel.Plugins.Memory;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
@@ -104,6 +105,16 @@ namespace Senparc.AI.Kernel.Handlers
 
             return new IWantToRun(new IWantToBuild(iWantToConfig));
         }
+
+        //#pragma warning disable SKEXP0052
+        //public static IWantToRun BuildMemoryKernel(this IWantToConfig iWantToConfig, Action<MemoryBuilder>? kernelBuilderAction = null)
+        //{
+        //    var iWantTo = iWantToConfig.IWantTo;
+        //    var handler = iWantTo.SemanticKernelHelper;
+        //    handler.BuildKernel(iWantTo.KernelBuilder, kernelBuilderAction);
+
+        //    return new IWantToRun(new IWantToBuild(iWantToConfig));
+        //}
 
         #endregion
 
@@ -276,14 +287,14 @@ namespace Senparc.AI.Kernel.Handlers
             var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
             var tempArguments = request.TempAiArguments?.KernelArguments;
 
-            FunctionResult? botAnswer;
+            FunctionResult? functionResult;
 
             var result = new SenparcKernelAiResult(iWanToRun, inputContent: null);
 
             if (tempArguments != null && tempArguments.Count() != 0)
             {
                 //输入特定的本次请求临时上下文
-                botAnswer = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), tempArguments);
+                functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), tempArguments);
                 result.InputContext = new SenparcAiArguments(tempArguments);
             }
             else if (!prompt.IsNullOrEmpty())
@@ -294,14 +305,14 @@ namespace Senparc.AI.Kernel.Handlers
                     tempArguments = new KernelArguments();
                     tempArguments["INPUT"] = prompt;
 
-                    botAnswer = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), tempArguments);
+                    functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), tempArguments);
                 }
                 else
                 {
                     //注意：此处即使直接输入 prompt 作为第一个 String 参数，也会被封装到 Context，
                     //      并赋值给 Key 为 INPUT 的参数
                     var kernelFunction = iWanToRun.CreateFunctionFromPrompt(prompt ?? "").function;
-                    botAnswer = await kernel.InvokeAsync(kernelFunction);
+                    functionResult = await kernel.InvokeAsync(kernelFunction);
                 }
 
                 result.InputContent = prompt;
@@ -309,13 +320,14 @@ namespace Senparc.AI.Kernel.Handlers
             else
             {
                 //输入缓存中的上下文
-                botAnswer = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), storedArguments);
+                //botAnswer = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), storedArguments);
+                functionResult = await kernel.InvokePromptAsync(prompt ?? "", storedArguments);
                 result.InputContext = new SenparcAiArguments(storedArguments);
             }
 
             result.InputContent = prompt;
-            result.Output = botAnswer.GetValue<string>()?.TrimStart('\n') ?? "";
-            result.Result = botAnswer;
+            result.Output = functionResult.GetValue<string>()?.TrimStart('\n') ?? "";
+            result.Result = functionResult;
             //result.LastException = botAnswer.LastException;
 
             return result;

@@ -1,6 +1,4 @@
 ﻿using Microsoft.SemanticKernel.AI;
-using Microsoft.SemanticKernel.AI.TextCompletion;
-using Microsoft.SemanticKernel.Connectors.AI.HuggingFace.TextCompletion;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
@@ -92,6 +90,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 // Arrange
                 if (false)
                 {
+                    /*
                     var huggingFaceLocal = new HuggingFaceTextCompletion(Model, endpoint: Endpoint);
                     var huggingFaceRemote = new HuggingFaceTextCompletion(Model);
 
@@ -110,6 +109,9 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                     await Console.Out.WriteLineAsync("机器：");
                     await Console.Out.WriteLineAsync(localResponse.ToString());
+
+                    */
+
                     //await Console.Out.WriteLineAsync("===1=====");
                     //localResponse.ToList().ForEach(x => Console.Write(x));
                 }

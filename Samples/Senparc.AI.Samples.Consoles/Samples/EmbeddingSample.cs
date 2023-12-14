@@ -37,7 +37,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, _userId, SampleHelper.Default_TextEmbedding_ModeName)
                  .ConfigModel(ConfigModel.TextCompletion, _userId, SampleHelper.Default_TextCompletion_ModeName)
-                 .BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
+                 .BuildKernel();
+                 //.BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
 
             //开始对话
             var i = 0;
