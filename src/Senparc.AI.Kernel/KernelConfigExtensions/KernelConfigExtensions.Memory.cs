@@ -14,11 +14,12 @@ namespace Senparc.AI.Kernel.Handlers
             string id,
             string? description = null,
             string? additionalMetadata = null,
+            Microsoft.SemanticKernel.Kernel kernel = null,
             CancellationToken cancel = default)
         {
             var helper = iWantToRun.SemanticKernelHelper;
             var memory = helper.GetMemory();
-            var task = helper.MemorySaveInformationAsync(memory, collection, text, id, description, additionalMetadata, cancel);
+            var task = helper.MemorySaveInformationAsync(memory, collection, text, id, description, additionalMetadata, kernel, cancel);
             helper.AddMemory(task);
 
             return iWantToRun;
@@ -31,12 +32,13 @@ namespace Senparc.AI.Kernel.Handlers
                string externalSourceName,
                string? description = null,
                string? additionalMetadata = null,
+               Microsoft.SemanticKernel.Kernel kernel = null,
                CancellationToken cancel = default)
         {
             var helper = iWantToRun.SemanticKernelHelper;
             //var kernel = helper.GetKernel();
             var memory = helper.GetMemory();
-            var task = helper.MemorySaveReferenceAsync(memory, collection, text, externalId, externalSourceName, description, additionalMetadata, cancel);
+            var task = helper.MemorySaveReferenceAsync(memory, collection, text, externalId, externalSourceName, description, additionalMetadata, kernel, cancel);
             helper.AddMemory(task);
 
             return iWantToRun;
@@ -66,11 +68,12 @@ namespace Senparc.AI.Kernel.Handlers
             int limit = 1,
             double minRelevanceScore = 0.7,
             bool withEmbeddings = false,
+            Microsoft.SemanticKernel.Kernel kernel = null,
             CancellationToken cancel = default)
         {
             var helper = iWantToRun.SemanticKernelHelper;
             var memory = helper.GetMemory();
-            var queryResult = memory.SearchAsync(memoryCollectionName, query, limit, minRelevanceScore, withEmbeddings, cancel);
+            var queryResult = memory.SearchAsync(memoryCollectionName, query, limit, minRelevanceScore, withEmbeddings, kernel, cancel);
 
             var aiResult = new SenaprcAiResult_MemoryQuery(iWantToRun, query)
             {

@@ -5,8 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.AI;
+using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
+using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
 
@@ -313,7 +316,7 @@ namespace Senparc.AI.Kernel.Helpers
             Microsoft.SemanticKernel.Kernel? kernel = null,
             CancellationToken cancel = default)
         {
-            await memory.SaveInformationAsync(collection, text, id, description, additionalMetadata, kernel ?? GetKernel(),cancel);
+            await memory.SaveInformationAsync(collection, text, id, description, additionalMetadata, kernel ?? GetKernel(), cancel);
         }
 
         /// <summary>
@@ -337,6 +340,78 @@ namespace Senparc.AI.Kernel.Helpers
 
             Task.WaitAll(_memoryExecuteList.ToArray());
             _memoryExecuteList.Clear();
+        }
+
+        #endregion
+
+        #region RequestSettings
+
+        /// <summary>
+        /// 根据不同的 AiPlatform 类型生成不同的 ExecutionSettings 对象
+        /// </summary>
+        /// <param name="temperature"></param>
+        /// <param name="topP"></param>
+        /// <param name="maxTokens"></param>
+        /// <param name="presencePenalty"></param>
+        /// <param name="frequencyPenalty"></param>
+        /// <param name="stopSequences"></param>
+        /// <param name="senparcAiSetting"></param>
+        /// <returns></returns>
+        public PromptExecutionSettings GetExecutionSetting(double temperature = default, double topP = default, int? maxTokens = default, double presencePenalty = default, double frequencyPenalty = default, IList<string>? stopSequences = default, ISenparcAiSetting? senparcAiSetting = null)
+        {
+            senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
+            var aiPlatForm = senparcAiSetting.AiPlatform;
+
+            var promptExecutiongSetting = aiPlatForm switch
+            {
+                //AiPlatform.OpenAI => new OpenAIPromptExecutionSettings()
+                //{
+                //    Temperature = temperature,
+                //    TopP = topP,
+                //    MaxTokens = maxTokens,
+                //    PresencePenalty = presencePenalty,
+                //    FrequencyPenalty = frequencyPenalty,
+                //    StopSequences = stopSequences
+                //},
+                //AiPlatform.AzureOpenAI =>
+                //AiPlatform.NeuCharOpenAI => 
+                //AiPlatform.HuggingFace => 
+                _ => new OpenAIPromptExecutionSettings()
+                {
+                    Temperature = temperature,
+                    TopP = topP,
+                    MaxTokens = maxTokens,
+                    PresencePenalty = presencePenalty,
+                    FrequencyPenalty = frequencyPenalty,
+                    StopSequences = stopSequences
+                },
+            };
+
+            return promptExecutiongSetting;
+        }
+
+        /// <summary>
+        /// 根据不同的 AiPlatform 类型生成不同的 ExecutionSettings 对象
+        /// </summary>
+        /// <param name="temperature"></param>
+        /// <param name="topP"></param>
+        /// <param name="maxTokens"></param>
+        /// <param name="presencePenalty"></param>
+        /// <param name="frequencyPenalty"></param>
+        /// <param name="stopSequences"></param>
+        /// <param name="senparcAiSetting"></param>
+        /// <returns></returns>
+        public PromptExecutionSettings GetExecutionSetting(PromptConfigParameter promptConfigParameter, ISenparcAiSetting? senparcAiSetting = null)
+        {
+            return GetExecutionSetting(
+                   temperature: promptConfigParameter.Temperature ?? default,
+                   topP: promptConfigParameter.TopP ?? default,
+                   maxTokens: promptConfigParameter.MaxTokens,
+                   presencePenalty: promptConfigParameter.PresencePenalty ?? default,
+                   frequencyPenalty: promptConfigParameter.FrequencyPenalty ?? default,
+                   stopSequences: promptConfigParameter.StopSequences,
+                   senparcAiSetting
+                   );
         }
 
         #endregion

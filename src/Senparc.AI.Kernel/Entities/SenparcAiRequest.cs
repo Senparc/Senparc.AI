@@ -4,7 +4,6 @@ Modified By FelixJ
 */
 
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
@@ -15,7 +14,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public record SenparcAiRequest : IAiRequest<SenparcAiContext>
+    public record SenparcAiRequest : IAiRequest<SenparcAiArguments>
     {
         /// <summary>
         /// IWanToRun
@@ -41,16 +40,16 @@ namespace Senparc.AI.Kernel
         /// <summary>
         /// 单次请求的临时上下文
         /// </summary>
-        public SenparcAiContext TempAiContext { get; set; }
+        public SenparcAiArguments TempAiArguments { get; set; }
 
         /// <summary>
         /// 在 IWantTo 里面缓存的上下文
         /// </summary>
-        public SenparcAiContext StoreAiContext => IWantToRun.StoredAiContext;
+        public SenparcAiArguments StoreAiArguments => IWantToRun.StoredAiArguments;
         /// <summary>
         /// Function
         /// </summary>
-        public ISKFunction[] FunctionPipeline { get; set; }
+        public KernelFunction[] FunctionPipeline { get; set; }
         ///// <summary>
         ///// Rqesut.ContextVariables 参数不会保存到上下文缓存中
         ///// </summary>
@@ -60,24 +59,24 @@ namespace Senparc.AI.Kernel
         ///// </summary>
         //public bool StoreContext => AiContext.StoreToContainer;
 
-        public SenparcAiRequest(IWantToRun iWantToRun, string userId, string modelName, string requestContent,PromptConfigParameter parameterConfig, params ISKFunction[] pipeline)
+        public SenparcAiRequest(IWantToRun iWantToRun, string userId, string modelName, string requestContent,PromptConfigParameter parameterConfig, params KernelFunction[] pipeline)
         {
             IWantToRun = iWantToRun;
             UserId = userId;
             ModelName = modelName;
             RequestContent = requestContent;
             ParameterConfig = parameterConfig;
-            TempAiContext = new SenparcAiContext();
+            TempAiArguments = new SenparcAiArguments();
             FunctionPipeline = pipeline;
         }
 
-        public SenparcAiRequest(IWantToRun iWantToRun, string userId, string modelName, ContextVariables contextVariables, PromptConfigParameter parameterConfig, params ISKFunction[] pipeline)
+        public SenparcAiRequest(IWantToRun iWantToRun, string userId, string modelName, KernelArguments contextVariables, PromptConfigParameter parameterConfig, params KernelFunction[] pipeline)
         {
             IWantToRun = iWantToRun;
             UserId = userId;
             ModelName = modelName;
             ParameterConfig = parameterConfig;
-            TempAiContext = new SenparcAiContext(contextVariables);
+            TempAiArguments = new SenparcAiArguments(contextVariables);
             FunctionPipeline = pipeline;
         }
 

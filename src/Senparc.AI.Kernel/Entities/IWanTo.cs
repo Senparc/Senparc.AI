@@ -1,13 +1,9 @@
-﻿using Microsoft.SemanticKernel.Orchestration;
+﻿using System.Collections.Generic;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Services;
+using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Senparc.AI.Entities;
-using Microsoft.SemanticKernel.Services;
-using Microsoft.SemanticKernel.AI.TextCompletion;
 
 namespace Senparc.AI.Kernel.Handlers
 {
@@ -18,7 +14,7 @@ namespace Senparc.AI.Kernel.Handlers
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         public SemanticAiHandler SemanticAiHandler { get; set; }
 
-        public IKernel Kernel => SemanticKernelHelper.GetKernel();
+        public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
 
         public string UserId { get; set; }
         public string ModelName { get; set; }
@@ -53,7 +49,7 @@ namespace Senparc.AI.Kernel.Handlers
 
         public SemanticAiHandler SemanticAiHandler => IWantTo.SemanticAiHandler;
         public SemanticKernelHelper SemanticKernelHelper => IWantTo.SemanticKernelHelper;
-        public IKernel Kernel => SemanticKernelHelper.GetKernel();
+        public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
 
         public IWantToConfig(IWantTo iWantTo)
         {
@@ -67,7 +63,7 @@ namespace Senparc.AI.Kernel.Handlers
 
         public SemanticAiHandler SemanticAiHandler => IWantToConfig.IWantTo.SemanticAiHandler;
         public SemanticKernelHelper SemanticKernelHelper => IWantToConfig.IWantTo.SemanticKernelHelper;
-        public IKernel Kernel => SemanticKernelHelper.GetKernel();
+        public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
 
         public IWantToBuild(IWantToConfig iWantToConfig)
         {
@@ -78,20 +74,20 @@ namespace Senparc.AI.Kernel.Handlers
     public class IWantToRun
     {
         public IWantToBuild IWantToBuild { get; set; }
-        //public ISKFunction ISKFunction { get; set; }
-        public SenparcAiContext StoredAiContext { get; set; }
+        //public KernelFunction KernelFunction { get; set; }
+        public SenparcAiArguments StoredAiArguments { get; set; }
         public PromptConfigParameter PromptConfigParameter { get; set; }
 
-        public List<ISKFunction> Functions { get; set; }
+        public List<KernelFunction> Functions { get; set; }
 
         public SemanticAiHandler SemanticAiHandler => IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
         public SemanticKernelHelper SemanticKernelHelper => IWantToBuild.IWantToConfig.IWantTo.SemanticKernelHelper;
-        public IKernel Kernel => SemanticKernelHelper.GetKernel();
+        public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
         public IWantToRun(IWantToBuild iWantToBuild)
         {
             IWantToBuild = iWantToBuild;
-            StoredAiContext = new SenparcAiContext();
-            Functions = new List<ISKFunction>();
+            StoredAiArguments = new SenparcAiArguments();
+            Functions = new List<KernelFunction>();
         }
 
         /// <summary>
@@ -101,9 +97,9 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="name"></param>
         /// <returns></returns>
         public T GetService<T>(string name = "")
-            where T : IAIService
+            where T : class, IAIService
         {
-            return Kernel.GetService<T>(name);
+            return Kernel.GetRequiredService<T>(name);
         }
     }
 }

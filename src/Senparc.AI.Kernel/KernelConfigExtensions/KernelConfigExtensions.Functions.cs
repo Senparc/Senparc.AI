@@ -12,12 +12,12 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="skillInstance">Instance of a class containing functions</param>
         /// <param name="pluginName">Name of the skill for skill collection and prompt templates. If the value is empty functions are registered in the global namespace.</param>
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
-        public static (IWantToRun iWantToRun, IDictionary<string, ISKFunction> skillList) ImportFunctions(this IWantToRun iWantToRun, object skillInstance, string pluginName = "")
+        public static (IWantToRun iWantToRun, IKernelPlugin skillList) ImportFunctions(this IWantToRun iWantToRun, object skillInstance, string pluginName = "")
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
             var helper = handler.SemanticKernelHelper;
             var kernel = helper.GetKernel();
-            var skillList = kernel.ImportFunctions(skillInstance, pluginName);
+            var skillList = kernel.ImportPluginFromObject(skillInstance, pluginName);
             return (iWantToRun, skillList);
         }
 
@@ -62,13 +62,14 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="skillDirectoryName">Name of the directory containing the selected skill, e.g. "StrategyPlugin"</param>
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
         /// <returns></returns>
-        public static (IWantToRun iWantToRun, IDictionary<string, ISKFunction> skillList) ImportPluginFromDirectory(this IWantToRun iWantToRun, string parentDirectory, string skillDirectoryName)
+        public static (IWantToRun iWantToRun, IKernelPlugin skillList) ImportPluginFromDirectory(this IWantToRun iWantToRun, string parentDirectory, string skillDirectoryName)
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
             var helper = handler.SemanticKernelHelper;
             var kernel = helper.GetKernel();
 
-            var skillList = kernel.ImportSemanticFunctionsFromDirectory(parentDirectory, skillDirectoryName);
+            var skillList = kernel.ImportPluginFromPromptDirectory(parentDirectory, skillDirectoryName);
+
             return (iWantToRun, skillList);
         }
     }

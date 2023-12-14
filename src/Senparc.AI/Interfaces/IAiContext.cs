@@ -11,7 +11,7 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// 基础上下文
         /// </summary>
-        IEnumerable<KeyValuePair<string, string>> Context { get; set; }
+        IDictionary<string, object?> Context { get; set; }
         //bool StoreToContainer { get; set; }
     }
 
@@ -20,7 +20,7 @@ namespace Senparc.AI.Interfaces
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IAiContext<T> : IAiContext
-        where T : class, IEnumerable<KeyValuePair<string, string>>
+        where T : class, IDictionary<string, object?>
     {
         // /// <summary>
         // /// 扩展类型的上下文
@@ -30,6 +30,6 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// 扩展类型的上下文
         /// </summary>
-        T ContextVariables { get; set; }
+        T KernelArguments { get; set; }
     }
 }

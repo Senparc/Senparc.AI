@@ -40,7 +40,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             Assert.IsTrue(result.Output.Length > 0);
             Assert.IsTrue(result.LastException == null);
 
-            ((SenparcAiContext)result.InputContext).ContextVariables.TryGetValue("human_input", out var question);
+            ((SenparcAiArguments)result.InputContext).KernelArguments.TryGetValue("human_input", out var question);
             await Console.Out.WriteLineAsync("Q: " + question);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -51,7 +51,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第二轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
 
-            ((SenparcAiContext)result.InputContext).ContextVariables.TryGetValue("human_input", out var question2);
+            ((SenparcAiArguments)result.InputContext).KernelArguments.TryGetValue("human_input", out var question2);
             await Console.Out.WriteLineAsync("Q: " + question2);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -62,7 +62,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第三轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
 
-            ((SenparcAiContext)result.InputContext).ContextVariables.TryGetValue("human_input", out var question3);
+            ((SenparcAiArguments)result.InputContext).KernelArguments.TryGetValue("human_input", out var question3);
             await Console.Out.WriteLineAsync("Q: " + question3);
             await Console.Out.WriteLineAsync("A: " + result.Output);
             await Console.Out.WriteLineAsync();
@@ -72,7 +72,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             prompt = "将上面包含GDP那一条提问的回答，翻译成中文。";
             result = await handler.ChatAsync(iWantToRun, prompt);
             await Console.Out.WriteLineAsync($"第四轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
-            ((SenparcAiContext)result.InputContext).ContextVariables.TryGetValue("human_input", out var question4);
+            ((SenparcAiArguments)result.InputContext).KernelArguments.TryGetValue("human_input", out var question4);
             await Console.Out.WriteLineAsync("Q: " + question4);
             await Console.Out.WriteLineAsync("A: " + result.Output);
         }
@@ -98,7 +98,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                         .BuildKernel()
-                        .RegisterSemanticFunction("ChatBot", "Chat", promptParameter)
+                        .CreateFunctionFromPrompt("ChatBot", "Chat", promptParameter)
                         .iWantToRun;
 
             // 设置输入/提问
@@ -153,7 +153,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                         .BuildKernel()
-                        .RegisterSemanticFunction("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
+                        .CreateFunctionFromPrompt("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
 
             var request = iWantToRun.CreateRequest("床前明月光，", true);
             var result = await iWantToRun.RunAsync(request);
@@ -206,7 +206,7 @@ MynameIsJeffrey,I'maChinese.ThisisAtest.HappYbIrthday!
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                         .BuildKernel();
 
-            iWantToRun.RegisterSemanticFunction("WordsOperation", "Format", promptParameter, funtcionPrompt);
+            iWantToRun.CreateFunctionFromPrompt("WordsOperation", "Format", promptParameter, funtcionPrompt);
 
             var request = iWantToRun.CreateRequest("  he llo w orld !  thi s is a n ew w orld.  ", true);
             var result = await iWantToRun.RunAsync(request);

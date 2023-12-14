@@ -51,7 +51,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                  _semanticAiHandler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, Model)
                         .BuildKernel()
-                        .RegisterSemanticFunction("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
+                        .CreateFunctionFromPrompt("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
 
 
 

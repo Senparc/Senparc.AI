@@ -1,12 +1,13 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI;
-using Microsoft.SemanticKernel.Orchestration;
-using Microsoft.SemanticKernel.Planners;
 using Microsoft.SemanticKernel.Planning;
+using Microsoft.SemanticKernel.Planning.Handlebars;
+using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.KernelConfigExtensions;
+using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -57,31 +58,28 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var ask = Console.ReadLine();
             await Console.Out.WriteLineAsync();
 
-
-            var planner = new SequentialPlanner(iWantToRun.Kernel);
+#pragma warning disable SKEXP0060
+            var plannerConfig = new HandlebarsPlannerOptions { MaxTokens = 2000 };
+            var planner = new HandlebarsPlanner(plannerConfig);
             //var ask = "If my investment of 2130.23 dollars increased by 23%, how much would I have after I spent 5 on a latte?";
 
 
-            var plan = await planner.CreatePlanAsync(ask);
+            var plan = await planner.CreatePlanAsync(iWantToRun.Kernel, ask);
 
             await Console.Out.WriteLineAsync("Plan:");
             await Console.Out.WriteLineAsync(plan.ToJson(true));
 
             // Execute the plan
-            var aiRequestSettings = new AIRequestSettings()
+            var executionSetting = iWantToRun.SemanticKernelHelper.GetExecutionSetting(new PromptConfigParameter()
             {
-                ExtensionData = new Dictionary<string, object>()
-                    {
-                        { "Temperature",0.01 },
-                        { "TopP", 0.1 },
-                        { "MaxTokens", 5000 },
-                        { "PresencePenalty", 0 },
-                        { "FrequencyPenalty", 0 },
-                        { "StopSequences", "[]" }
-                    }
-            };
+                Temperature = 0.01,
+                TopP = 0.1,
+                PresencePenalty = 0,
+                FrequencyPenalty = 0,
+                StopSequences = null,
+            });
 
-            var skContext = iWantToRun.CreateNewContext();//TODO: 直返会一个对象？
+            var skContext = iWantToRun.CreateNewArguments();//TODO: 直返会一个对象？
 
             var result = await plan.InvokeAsync(skContext.context, aiRequestSettings);
 
@@ -101,7 +99,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 Rewrite the above in the style of Shakespeare.
 Give me the plan less than 5 steps.
 ";
-            var shakespeareFunction = iWantToRun.CreateSemanticFunction(prompt, "shakespeare", "ShakespearePlugin", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
+            var shakespeareFunction = iWantToRun.CreateFunctionFromPrompt(prompt, "shakespeare", "ShakespearePlugin", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
 
             var newPlan = await planner.CreatePlanAsync(ask);
             await Console.Out.WriteLineAsync("New Plan:");
@@ -110,7 +108,7 @@ Give me the plan less than 5 steps.
             Console.WriteLine("Updated plan:\n");
             // Execute the plan
 
-            var newContext = iWantToRun.CreateNewContext();//TODO: 直返会一个对象？
+            var newContext = iWantToRun.CreateNewArguments();//TODO: 直返会一个对象？
             var newResult = await newPlan.InvokeAsync(newContext.context, aiRequestSettings);
 
             Console.WriteLine("Plan results:");

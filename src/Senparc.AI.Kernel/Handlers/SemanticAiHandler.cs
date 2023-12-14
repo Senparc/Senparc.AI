@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
@@ -15,12 +14,12 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// SenmanticKernel 处理器
     /// </summary>
-    public class SemanticAiHandler : IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext>
+    public class SemanticAiHandler : IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiArguments>
     {
         private readonly ILoggerFactory loggerFactory;
 
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
-        private IKernel _kernel => SemanticKernelHelper.GetKernel();
+        private Microsoft.SemanticKernel.Kernel _kernel => SemanticKernelHelper.GetKernel();
 
 
         public SemanticAiHandler(SemanticKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null)
@@ -49,13 +48,13 @@ namespace Senparc.AI.Kernel
             return result;
         }
 
-        public (IWantToRun iWantToRun, ISKFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
+        public (IWantToRun iWantToRun, KernelFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
             string userId, string modelName = "text-davinci-003")
         {
             var result = this.IWantTo()
                 .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                 .BuildKernel()
-                .RegisterSemanticFunction("ChatBot", "Chat", promptConfigParameter);
+                .CreateFunctionFromPrompt("ChatBot", "Chat", promptConfigParameter);
 
             return result;
         }

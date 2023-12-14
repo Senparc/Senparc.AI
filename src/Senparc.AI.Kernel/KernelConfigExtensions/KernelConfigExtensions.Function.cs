@@ -37,14 +37,14 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
-using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.TemplateEngine;
-using Microsoft.SemanticKernel.TemplateEngine.Basic;
 using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
+using Senparc.AI.Kernel.Helpers;
 using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Senparc.AI.Kernel.Handlers
@@ -59,13 +59,13 @@ namespace Senparc.AI.Kernel.Handlers
         /// Build and register a function in the internal skill collection.
         /// </summary>
         /// <param name="iWantToRun"></param>
-        /// <param name="pluginName">Name of the skill containing the function. The name can contain only alphanumeric chars + underscore.</param>
+        /// <param name="templateName">Name of the skill containing the function. The name can contain only alphanumeric chars + underscore.</param>
         /// <param name="functionName">Name of the semantic function. The name can contain only alphanumeric chars + underscore.</param>
         /// <param name="promptConfigPara"></param>
         /// <param name="skPrompt"></param>
         /// <returns>A C# function wrapping AI logic, usually defined with natural language</returns>
-        public static (IWantToRun iWantToRun, ISKFunction newFunction) RegisterSemanticFunction(this IWantToRun iWantToRun, string pluginName,
-            string functionName, PromptConfigParameter promptConfigPara, string? skPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT)
+        public static (IWantToRun iWantToRun, KernelFunction newFunction) CreateFunctionFromPrompt(this IWantToRun iWantToRun, string templateName,
+            string functionName, PromptConfigParameter promptConfigPara, string? skPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT, string description = null)
         {
             promptConfigPara ??= new PromptConfigParameter();
 
@@ -73,40 +73,31 @@ namespace Senparc.AI.Kernel.Handlers
             var helper = iWantToRun.SemanticKernelHelper;
             var kernel = iWantToRun.Kernel;
 
-            AIRequestSettings aiRequestSettings = new AIRequestSettings()
-            {
-                ExtensionData = new Dictionary<string, object>()
-                {
-                    { "Temperature", promptConfigPara.Temperature ?? 0 },
-                    { "TopP", promptConfigPara.TopP ?? 0 },
-                    { "MaxTokens", promptConfigPara.MaxTokens ?? 0 },
-                    { "PresencePenalty", promptConfigPara.PresencePenalty ?? 0 },
-                    { "FrequencyPenalty", promptConfigPara.FrequencyPenalty ?? 0 },
-                    { "StopSequences", promptConfigPara.StopSequences??new List<string>() }
-                }
-            };
+            var executionSetting = helper.GetExecutionSetting(promptConfigPara);
 
-            var promptTemplateConfig = new PromptTemplateConfig();
-            promptTemplateConfig.ModelSettings.Add(aiRequestSettings);
+            //var promptTemplateConfig = new PromptTemplateConfig();
+            //promptTemplateConfig.ModelSettings.Add(aiRequestSettings);
 
-            var promptTemplateFactory = new BasicPromptTemplateFactory();
-            var promptTemplate = promptTemplateFactory.Create(
-                skPrompt, // Prompt template defined in natural language
-                promptTemplateConfig // Prompt configuration
-            );
+            //var promptTemplateFactory = new BasicPromptTemplateFactory();
+            //var promptTemplate = promptTemplateFactory.Create(
+            //    skPrompt, // Prompt template defined in natural language
+            //    promptTemplateConfig // Prompt configuration
+            //);
+
+            var promptTemplateFactory = new KernelPromptTemplateFactory();
 
             var newFunction =
-                kernel.RegisterSemanticFunction(pluginName /*"ChatBot"*/, functionName /*"Chat"*/, promptTemplateConfig, promptTemplate);
+                kernel.CreateFunctionFromPrompt(templateName /*"ChatBot"*/, executionSetting, functionName /*"Chat"*/, description, promptTemplateFactory);
 
-            var aiContext = new SenparcAiContext();
+            var aiContext = new SenparcAiArguments();
 
             //TODO:独立 Context
             var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
             var history = "";
-            aiContext.ContextVariables.Set(serviceId, history);
+            aiContext.KernelArguments.Set(serviceId, history);
 
-            //iWantToRun.ISKFunction = chatFunction;
-            iWantToRun.StoredAiContext = aiContext;
+            //iWantToRun.KernelFunction = chatFunction;
+            iWantToRun.StoredAiArguments = aiContext;
             iWantToRun.PromptConfigParameter = promptConfigPara;
             iWantToRun.Functions.Add(newFunction);
 
@@ -130,7 +121,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="frequencyPenalty">Frequency Penalty parameter passed to LLM</param>
         /// <param name="stopSequences">Strings the LLM will detect to stop generating (before reaching max tokens)</param>
         /// <returns>A function ready to use</returns>
-        public static (IWantToRun iWantToRun, ISKFunction function) CreateSemanticFunction(this IWantToRun iWantToRun,
+        public static (IWantToRun iWantToRun, KernelFunction function) CreateFunctionFromPrompt(this IWantToRun iWantToRun,
             string promptTemplate,
             string? functionName = null,
             string pluginName = "",
@@ -140,66 +131,52 @@ namespace Senparc.AI.Kernel.Handlers
             double topP = 0,
             double presencePenalty = 0,
             double frequencyPenalty = 0,
-            IEnumerable<string>? stopSequences = null)
+            IList<string>? stopSequences = null)
         {
+
+            PromptExecutionSettings executionSettings = iWantToRun
+                .SemanticKernelHelper.GetExecutionSetting(
+                     maxTokens: maxTokens,
+                     temperature: temperature,
+                     topP: topP,
+                     presencePenalty: presencePenalty,
+                     frequencyPenalty: frequencyPenalty,
+                     stopSequences: stopSequences
+                    );
+
+            var promptTemplateFactory = new KernelPromptTemplateFactory();
+            //var promptTemplateConfig = new PromptTemplateConfig()
+            //{
+            //    ExecutionSettings = new List<PromptExecutionSettings> { executionSettings }
+            //};
+            //var promptTemplate = promptTemplateFactory.Create(promptTemplateConfig);
+
             var kernel = iWantToRun.Kernel;
-
-            var aiRequestSettings = new AIRequestSettings()
-            {
-                ExtensionData = new Dictionary<string, object>()
-                {
-                    { "Temperature", temperature },
-                    { "TopP", topP },
-                    { "MaxTokens", maxTokens },
-                    { "PresencePenalty", presencePenalty },
-                    { "FrequencyPenalty", frequencyPenalty },
-                    { "StopSequences", stopSequences.ToJson() }
-                }
-            };
-
-            var function = kernel.CreateSemanticFunction(promptTemplate, functionName, pluginName, description, aiRequestSettings);
+            var function = kernel.CreateFunctionFromPrompt(promptTemplate, executionSettings, pluginName, description, promptTemplateFactory);
             iWantToRun.Functions.Add(function);
             return (iWantToRun, function);
         }
 
-        /// <summary>
-        /// Build and register a function in the internal skill collection, in a global generic skill.
-        /// </summary>
-        /// <param name="iWantToRun"></param>
-        /// <param name="pluginName">Name of the skill containing the function. The name can contain only alphanumeric chars + underscore.</param>
-        /// <param name="functionName">Name of the semantic function. The name can contain only alphanumeric chars + underscore.</param>
-        /// <param name="promptTemplateConfig">Prompt template configuration.</param>
-        /// <param name="promptTemplate">Prompt template.</param>
-        public static (IWantToRun iWantToRun, ISKFunction function) RegisterSemanticFunction(this IWantToRun iWantToRun,
-            string pluginName,
-            string functionName,
-            PromptTemplateConfig promptTemplateConfig,
-            IPromptTemplate promptTemplate)
-        {
-            var kernel = iWantToRun.Kernel;
-            var function = kernel.RegisterSemanticFunction(pluginName, functionName, promptTemplateConfig, promptTemplate);
-            iWantToRun.Functions.Add(function);
-            return (iWantToRun, function);
-        }
+        ///// <summary>
+        ///// Build and register a function in the internal skill collection, in a global generic skill.
+        ///// </summary>
+        ///// <param name="iWantToRun"></param>
+        //public static (IWantToRun iWantToRun, KernelFunction function) CreateFunctionFromPrompt(this IWantToRun iWantToRun,
+        //    string promptTemplate,
+        //    string functionName,
+        //    PromptConfigParameter promptConfigPara,
+        //    string? description = null)
+        //{
+        //    var kernel = iWantToRun.Kernel;
+        //    var helper = iWantToRun.SemanticKernelHelper;
+        //    var executionSetting = helper.GetExecutionSetting(promptConfigPara);
 
-        /// <summary>
-        /// Build and register a function in the internal skill collection, in a global generic skill.
-        /// </summary>
-        /// <param name="iWantToRun"></param>
-        /// <param name="functionName">Name of the semantic function. The name can contain only alphanumeric chars + underscore.</param>
-        /// <param name="promptTemplateConfig">Prompt template configuration.</param>
-        /// <param name="promptTemplate">Prompt template.</param>
-        public static (IWantToRun iWantToRun, ISKFunction function) RegisterSemanticFunction(this IWantToRun iWantToRun,
-            string functionName,
-            PromptTemplateConfig promptTemplateConfig,
-            IPromptTemplate template)
-        {
-            var kernel = iWantToRun.Kernel;
-            var function = kernel.RegisterSemanticFunction(functionName, promptTemplateConfig, template);
-            iWantToRun.Functions.Add(function);
-            return (iWantToRun, function);
-        }
+        //    var function = kernel.CreateFunctionFromPrompt(promptTemplate, executionSetting, functionName, description);
+        //    iWantToRun.Functions.Add(function);
+        //    return (iWantToRun, function);
+        //}
 
+ 
         #endregion
     }
 }

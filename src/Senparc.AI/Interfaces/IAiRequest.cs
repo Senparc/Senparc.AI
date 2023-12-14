@@ -29,6 +29,6 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// 上下文
         /// </summary>
-        TContext TempAiContext { get; set; }
+        TContext TempAiArguments { get; set; }
     }
 }

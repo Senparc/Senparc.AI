@@ -4,7 +4,7 @@ Last modifier: FelixJ
 */
 
 
-using Microsoft.SemanticKernel.Orchestration;
+using Microsoft.SemanticKernel;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Handlers;
 using System;
@@ -80,9 +80,9 @@ namespace Senparc.AI.Kernel
         }
     }
 
-    public class SenparcKernelAiResult : SenaprcAiResult<KernelResult>, IAiResult
+    public class SenparcKernelAiResult : SenaprcAiResult<FunctionResult>, IAiResult
     {
-        public KernelResult /*SKContext*/ Result { get; set; }
+        public FunctionResult /*SKContext*/ Result { get; set; }
         
         public SenparcKernelAiResult(IWantToRun iWwantToRun, string? inputContent)
              : base(iWwantToRun, inputContent)
