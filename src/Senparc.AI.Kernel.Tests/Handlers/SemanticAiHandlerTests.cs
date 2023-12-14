@@ -107,7 +107,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                                       .SetStoredContext("human_input", prompt);
 
             //初始化对话历史（可选）
-            if (!aiRequest.GetStoredContext("history", out var history))
+            if (!aiRequest.GetStoredArguments("history", out var history))
             {
                 aiRequest.SetStoredContext("history", "");
             }

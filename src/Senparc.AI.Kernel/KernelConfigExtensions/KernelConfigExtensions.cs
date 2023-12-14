@@ -5,6 +5,7 @@
 */
 
 
+using Azure.Core;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.Plugins.Memory;
@@ -48,7 +49,7 @@ namespace Senparc.AI.Kernel.Handlers
             var kernelBuilder = configModel switch
             {
                 AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, senparcAiSetting,
-                    existedKernelBuilder),
+                    existedKernelBuilder, modelName),
                 AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName, existedKernelBuilder),
                 AI.ConfigModel.ImageGeneration => iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder),
                 _ => throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel)
@@ -245,7 +246,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static bool GetTempContext(this SenparcAiRequest request, string key, out object? value)
+        public static bool GetTempArguments(this SenparcAiRequest request, string key, out object? value)
         {
             return request.TempAiArguments.KernelArguments.TryGetValue(key, out value);
         }
@@ -257,7 +258,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static bool GetStoredContext(this SenparcAiRequest request, string key, out object? value)
+        public static bool GetStoredArguments(this SenparcAiRequest request, string key, out object? value)
         {
             return request.StoreAiArguments.KernelArguments.TryGetValue(key, out value);
         }
@@ -311,8 +312,8 @@ namespace Senparc.AI.Kernel.Handlers
                 {
                     //注意：此处即使直接输入 prompt 作为第一个 String 参数，也会被封装到 Context，
                     //      并赋值给 Key 为 INPUT 的参数
-                    var kernelFunction = iWanToRun.CreateFunctionFromPrompt(prompt ?? "").function;
-                    functionResult = await kernel.InvokeAsync(kernelFunction);
+                    //var kernelFunction = iWanToRun.CreateFunctionFromPrompt(prompt ?? "").function;
+                    functionResult = await kernel.InvokePromptAsync(prompt ?? "", storedArguments);
                 }
 
                 result.InputContent = prompt;
@@ -321,7 +322,7 @@ namespace Senparc.AI.Kernel.Handlers
             {
                 //输入缓存中的上下文
                 //botAnswer = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), storedArguments);
-                functionResult = await kernel.InvokePromptAsync(prompt ?? "", storedArguments);
+                functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), storedArguments);
                 result.InputContext = new SenparcAiArguments(storedArguments);
             }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.SemanticKernel.AI.ImageGeneration;
+﻿using Azure.AI.OpenAI;
+using Microsoft.SemanticKernel.AI.TextToImage;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
@@ -43,8 +44,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var iWantTo = _semanticAiHandler.IWantTo()
                                 .ConfigModel(ConfigModel.ImageGeneration, userId, "image-generation")
                                 .BuildKernel();
-
-            var dallE = iWantTo.GetService<IImageGeneration>();
+#pragma warning disable SKEXP0002
+            var dallE = iWantTo.GetService<ITextToImageService>();
 
             string request;
             string lastImageUrl = null;

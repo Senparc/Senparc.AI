@@ -103,7 +103,7 @@ Give me the plan less than 5 steps.
 ";
             var shakespeareFunction = iWantToRun.CreateFunctionFromPrompt(prompt, "shakespeare", "ShakespearePlugin", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
 
-            var newPlan = await planner.CreatePlanAsync(ask);
+            var newPlan = await planner.CreatePlanAsync(iWantToRun.Kernel, ask);
             await Console.Out.WriteLineAsync("New Plan:");
             await Console.Out.WriteLineAsync(newPlan.ToJson(true));
 
@@ -111,10 +111,10 @@ Give me the plan less than 5 steps.
             // Execute the plan
 
             var newContext = iWantToRun.CreateNewArguments();//TODO: 直返会一个对象？
-            var newResult = await newPlan.InvokeAsync(newContext.context, aiRequestSettings);
+            var newResult = newPlan.Invoke(iWantToRun.Kernel, newContext.arguments);
 
             Console.WriteLine("Plan results:");
-            Console.WriteLine(newResult.GetValue<string>());
+            Console.WriteLine(newResult);
             Console.WriteLine();
 
             await Console.Out.WriteLineAsync("== plan execute finish ==");

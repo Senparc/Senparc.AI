@@ -40,7 +40,7 @@ namespace Senparc.AI.Kernel
             //TODO:未正式启用
 
             //TODO:此方法暂时还不能用
-            var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null);
+            var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null,request.ModelName);
             var kernel = kernelBuilder.Build();
             // KernelResult result = await kernel.RunAsync(input: request.RequestContent!, pipeline: request.FunctionPipeline);
 
@@ -68,7 +68,7 @@ namespace Senparc.AI.Kernel
 
             //历史记录
             //初始化对话历史（可选）
-            if (!request.GetStoredContext("history", out var history))
+            if (!request.GetStoredArguments("history", out var history))
             {
                 request.SetStoredContext("history", "");
             }
@@ -82,7 +82,7 @@ namespace Senparc.AI.Kernel
             var aiResult = await iWantToRun.RunAsync(newRequest);
 
             //记录对话历史（可选）
-            request.SetStoredContext("history", history + $"\nHuman: {prompt}\nBot: {request.RequestContent}");
+            request.SetStoredContext("history", history + $"\nHuman: {prompt}\nBot: {aiResult.Output}");
 
             return aiResult;
         }

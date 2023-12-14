@@ -47,7 +47,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
 
             var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey",
-                modelName: SampleHelper.Default_TextCompletion_ModeName /*, modelName: "gpt-4-32k"*/);
+                modelName: SampleHelper.Default_Chat_ModeName /*, modelName: "gpt-4-32k"*/);
             var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();
@@ -78,7 +78,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                         multiLineContent.Append(prompt);
                     }
                 }
-
 
                 if (prompt == "exit")
                 {
@@ -118,6 +117,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 else
                 {
                     var result = await _semanticAiHandler.ChatAsync(iWantToRun, prompt);
+
+
 
                     await Console.Out.WriteLineAsync("机器：");
                     await Console.Out.WriteLineAsync(result.Output);
