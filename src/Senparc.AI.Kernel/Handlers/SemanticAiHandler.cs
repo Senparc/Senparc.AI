@@ -76,7 +76,7 @@ namespace Senparc.AI.Kernel
             //本次记录
             request.SetStoredContext("human_input", prompt);
 
-            var newRequest = request with { RequestContent = null };
+            var newRequest = request with { RequestContent = "" };
 
             //运行
             var aiResult = await iWantToRun.RunAsync(newRequest);
