@@ -1,6 +1,4 @@
 ﻿using Microsoft.SemanticKernel.AI;
-using Microsoft.SemanticKernel.AI.TextCompletion;
-using Microsoft.SemanticKernel.Connectors.AI.HuggingFace.TextCompletion;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
@@ -26,7 +24,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             _aiHandler = aiHandler;
         }
 
-        private const string Endpoint = "http://sk.frp.senparc.com/completions/";
+        private const string Endpoint = "http://fc.frp.senparc.com/completions/";
         private const string Model = "chatglm2";
 
         public async Task RunAsync()
@@ -48,7 +46,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //var remoteResponse = await huggingFaceRemote.CompleteAsync(Input);
 
 
-            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey", modelName: SampleHelper.Default_TextCompletion_ModeName/*, modelName: "gpt-4-32k"*/);
+            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey",
+                modelName: SampleHelper.Default_Chat_ModeName /*, modelName: "gpt-4-32k"*/);
             var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();
@@ -80,7 +79,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     }
                 }
 
-
                 if (prompt == "exit")
                 {
                     break;
@@ -91,6 +89,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 // Arrange
                 if (false)
                 {
+                    /*
                     var huggingFaceLocal = new HuggingFaceTextCompletion(Model, endpoint: Endpoint);
                     var huggingFaceRemote = new HuggingFaceTextCompletion(Model);
 
@@ -98,7 +97,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     {
                         ExtensionData = new Dictionary<string, object>()
                         {
-                            { "Temperature",0.7 },
+                            { "Temperature", 0.7 },
                             { "TopP", 0.5 },
                             { "MaxTokens", 3000 }
                         }
@@ -109,12 +108,17 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                     await Console.Out.WriteLineAsync("机器：");
                     await Console.Out.WriteLineAsync(localResponse.ToString());
+
+                    */
+
                     //await Console.Out.WriteLineAsync("===1=====");
                     //localResponse.ToList().ForEach(x => Console.Write(x));
                 }
                 else
                 {
                     var result = await _semanticAiHandler.ChatAsync(iWantToRun, prompt);
+
+
 
                     await Console.Out.WriteLineAsync("机器：");
                     await Console.Out.WriteLineAsync(result.Output);

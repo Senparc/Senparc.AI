@@ -1,5 +1,5 @@
+ï»¿using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
@@ -12,44 +12,49 @@ using System.Threading.Tasks;
 namespace Senparc.AI.Kernel
 {
     /// <summary>
-    /// SenmanticKernel ´¦ÀíÆ÷
+    /// SenmanticKernel å¤„ç†å™¨
     /// </summary>
-    public class SemanticAiHandler :
-        IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext>
+    public class SemanticAiHandler : IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiArguments>
     {
+        private readonly ILoggerFactory loggerFactory;
+
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
-        private IKernel _kernel => SemanticKernelHelper.GetKernel();
+        private Microsoft.SemanticKernel.Kernel _kernel => SemanticKernelHelper.GetKernel();
 
 
-
-        public SemanticAiHandler(SemanticKernelHelper? semanticAiHelper = null)
+        public SemanticAiHandler(SemanticKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null)
         {
             SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper();
+            this.loggerFactory = loggerFactory;
         }
 
         /// <summary>
         /// <inheritdoc/>
-        /// Î´ÕıÊ½ÆôÓÃ
+        /// æœªæ­£å¼å¯ç”¨
         /// </summary>
         /// <param name="request"><inheritdoc/></param>
+        /// <param name="senparcAiSetting"></param>
         /// <returns></returns>
-        public SenparcAiResult Run(SenparcAiRequest request, ISenparcAiSetting senparcAiSetting = null)
+        public SenparcAiResult Run(SenparcAiRequest request, ISenparcAiSetting? senparcAiSetting = null)
         {
-            //TODO:Î´ÕıÊ½ÆôÓÃ
+            //TODO:æœªæ­£å¼å¯ç”¨
 
-            //TODO:´Ë·½·¨ÔİÊ±»¹²»ÄÜÓÃ
-            SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null);
+            //TODO:æ­¤æ–¹æ³•æš‚æ—¶è¿˜ä¸èƒ½ç”¨
+            var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null,request.ModelName);
+            var kernel = kernelBuilder.Build();
+            // KernelResult result = await kernel.RunAsync(input: request.RequestContent!, pipeline: request.FunctionPipeline);
 
-            var senparcAiResult = new SenparcAiResult(new IWantToRun(new IWantToBuild(new IWantToConfig(new IWantTo()))), request.RequestContent);
-            return senparcAiResult;
+            var result = new SenparcKernelAiResult(request.IWantToRun, request.RequestContent);
+            return result;
         }
 
-        public (IWantToRun iWantToRun, ISKFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter, string userId, string modelName = "text-davinci-003")
+        public (IWantToRun iWantToRun, KernelFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
+            string userId, string modelName = "text-davinci-003")
         {
             var result = this.IWantTo()
-                                    .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
-                                    .BuildKernel()
-                                    .RegisterSemanticFunction("ChatBot", "Chat", promptConfigParameter);
+                .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                .BuildKernel()
+                .CreateFunctionFromPrompt("ChatBot", "Chat", promptConfigParameter);
 
             return result;
         }
@@ -61,30 +66,25 @@ namespace Senparc.AI.Kernel
 
             var request = iWantToRun.CreateRequest(true);
 
-            //ÀúÊ·¼ÇÂ¼
-            //³õÊ¼»¯¶Ô»°ÀúÊ·£¨¿ÉÑ¡£©
-            if (!request.GetStoredContext("history", out var history))
+            //å†å²è®°å½•
+            //åˆå§‹åŒ–å¯¹è¯å†å²ï¼ˆå¯é€‰ï¼‰
+            if (!request.GetStoredArguments("history", out var history))
             {
                 request.SetStoredContext("history", "");
             }
 
-            //±¾´Î¼ÇÂ¼
+            //æœ¬æ¬¡è®°å½•
             request.SetStoredContext("human_input", prompt);
 
-            var newRequest = request with { RequestContent = null };
+            var newRequest = request with { RequestContent = "" };
 
-            //ÔËĞĞ
+            //è¿è¡Œ
             var aiResult = await iWantToRun.RunAsync(newRequest);
 
-            //¼ÇÂ¼¶Ô»°ÀúÊ·£¨¿ÉÑ¡£©
-            request.SetStoredContext("history", history + $"\nHuman: {prompt}\nBot: {request.RequestContent}");
+            //è®°å½•å¯¹è¯å†å²ï¼ˆå¯é€‰ï¼‰
+            request.SetStoredContext("history", history + $"\nHuman: {prompt}\nBot: {aiResult.Output}");
 
             return aiResult;
         }
-
-
     }
-
 }
-
-

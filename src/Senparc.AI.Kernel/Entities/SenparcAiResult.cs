@@ -1,4 +1,10 @@
-using Microsoft.SemanticKernel.Orchestration;
+﻿/**
+Last modified: 20231207 - 修复拼写错误和中文编码错误
+Last modifier: FelixJ 
+*/
+
+
+using Microsoft.SemanticKernel;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Handlers;
 using System;
@@ -6,7 +12,7 @@ using System;
 namespace Senparc.AI.Kernel
 {
     /// <summary>
-    /// Senparc.AI.Kernel ģ��� AI �ӿڷ�����Ϣ
+    /// Senparc.AI.Kernel 模块的 AI 接口返回信息
     /// </summary>
     public class SenparcAiResult : IAiResult
     {
@@ -59,31 +65,31 @@ namespace Senparc.AI.Kernel
         }
     }
 
-    public class SenaprcTextAiResult : SenaprcAiResult<string>, IAiResult
+    public class SenparcTextAiResult : SenaprcAiResult<string>, IAiResult
     {
         public string Result { get; set; }
 
-        public SenaprcTextAiResult(IWantToRun iWwantToRun, string inputContent)
+        public SenparcTextAiResult(IWantToRun iWwantToRun, string inputContent)
              : base(iWwantToRun, inputContent)
         {
         }
 
-        public SenaprcTextAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+        public SenparcTextAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
            : base(iWwantToRun, inputContext)
         {
         }
     }
 
-    public class SenaprcKernelAiResult : SenaprcAiResult<KernelResult>, IAiResult
+    public class SenparcKernelAiResult : SenaprcAiResult<FunctionResult>, IAiResult
     {
-        public KernelResult /*SKContext*/ Result { get; set; }
+        public FunctionResult /*SKContext*/ Result { get; set; }
         
-        public SenaprcKernelAiResult(IWantToRun iWwantToRun, string inputContent)
+        public SenparcKernelAiResult(IWantToRun iWwantToRun, string? inputContent)
              : base(iWwantToRun, inputContent)
         {
         }
 
-        public SenaprcKernelAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+        public SenparcKernelAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
            : base(iWwantToRun, inputContext)
         {
         }

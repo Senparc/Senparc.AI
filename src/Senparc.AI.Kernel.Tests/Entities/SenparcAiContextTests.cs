@@ -14,15 +14,15 @@ namespace Senparc.AI.Kernel.Entities.Tests
         [TestMethod()]
         public void TryInitExtendContextTest()
         {
-            var context = new SenparcAiContext();
-            Assert.IsNotNull(context.ContextVariables);
+            var context = new SenparcAiArguments();
+            Assert.IsNotNull(context.KernelArguments);
 
             //执行初始化
-            var extendContextHashCode = context.ContextVariables.GetHashCode();
-            Assert.IsNotNull(context.ContextVariables);
+            var extendContextHashCode = context.KernelArguments.GetHashCode();
+            Assert.IsNotNull(context.KernelArguments);
 
             //再次执行初始化
-            Assert.AreEqual(extendContextHashCode, context.ContextVariables.GetHashCode());
+            Assert.AreEqual(extendContextHashCode, context.KernelArguments.GetHashCode());
         }
     }
 }

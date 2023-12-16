@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI;
-using Microsoft.SemanticKernel.Orchestration;
-using Microsoft.SemanticKernel.Planners;
-using Microsoft.SemanticKernel.Planning;
 using Microsoft.VisualStudio.TestPlatform;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.KernelConfigExtensions;
@@ -59,7 +56,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                 var plan = await planner.CreatePlanAsync(ask);
 
                 // Execute the plan
-                var skContext = iWantToRun.CreateNewContext().context;
+                var skContext = iWantToRun.CreateNewArguments().context;
                 var result = await plan.InvokeAsync(skContext, aiRequestSettings);
 
                 Console.WriteLine("Plan results:");
@@ -74,7 +71,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                 ask += "Check the Tokens used, make sure less then 1000 total token used. Chekc the plan's steps, ensure there are less then 4 plans.";
 
                 Console.WriteLine("== Start New Plan ==");
-                var shakespeareFunction = iWantToRun.CreateSemanticFunction(ask, "shakespeare", "ShakespearePlugin", maxTokens: 1000, temperature: 0.2, topP: 0.5).function;
+                var shakespeareFunction = iWantToRun.CreateFunctionFromPrompt(ask, "shakespeare", "ShakespearePlugin", maxTokens: 1000, temperature: 0.2, topP: 0.5).function;
 
                 var newPlanner = new SequentialPlanner(iWantToRun.Kernel, new SequentialPlannerConfig()
                 {

@@ -122,13 +122,13 @@ User: {{$userInput}}
 ChatBot: ";
 
 
-            var chatFunction = iWantToRun.CreateSemanticFunction(skPrompt, maxTokens: 200, temperature: 0.8);
+            var chatFunction = iWantToRun.CreateFunctionFromPrompt(skPrompt, maxTokens: 200, temperature: 0.8);
 
             //增加了 1 个 Function
             Assert.AreEqual(1 + 4/* 4 个默认的 Function*/,
                            iWantToRun.Kernel.Functions.GetFunctionViews().Count);
 
-            var context = iWantToRun.CreateNewContext().context;
+            var context = iWantToRun.CreateNewArguments().context;
 
             context.Variables["fact1"] = "what is my name?";
             context.Variables["fact2"] = "where do I live?";

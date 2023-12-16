@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+#pragma warning disable SKEXP0003
+
 namespace Senparc.AI.Kernel.Entities
 {
     /// <summary>
