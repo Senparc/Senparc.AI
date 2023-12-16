@@ -98,9 +98,11 @@ switch (index)
                         break;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                goto case "2";
+                Console.WriteLine(ex);
+
+                goto case "3";
             }
         }
         break;

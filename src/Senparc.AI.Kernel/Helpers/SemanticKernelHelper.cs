@@ -1,17 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI;
+using Microsoft.SemanticKernel.AI.Embeddings;
 using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
+using Senparc.CO2NET;
 
 // Memory functionality is experimental
 #pragma warning disable SKEXP0003, SKEXP0011, SKEXP0052, SKEXP0020
@@ -86,23 +90,6 @@ namespace Senparc.AI.Kernel.Helpers
 
             _kernel = kernelBuilder.Build();
             return _kernel;
-        }
-
-
-        /// <summary>
-        /// 获取 Kernel.Memory 对象
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete("该方法已被SK放弃，原文为：Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]
-        public ISemanticTextMemory? GetMemory()
-        {
-            var memoryBuilder = new MemoryBuilder();
-
-            memoryBuilder.WithMemoryStore(new VolatileMemoryStore());
-
-            var memory = memoryBuilder.Build();
-
-            return memory;
         }
 
         /// <summary>
@@ -268,6 +255,46 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         #region Memory 相关
+
+        ISemanticTextMemory _textMemory = null;//TODO:适配多重不同的请求
+
+        /// <summary>
+        /// 获取 Kernel.Memory 对象
+        /// </summary>
+        /// <returns></returns>
+        //[Obsolete("该方法已被SK放弃，原文为：Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]
+#pragma warning disable SKEXP0001
+        public ISemanticTextMemory? GetMemory(string modelName, ISenparcAiSetting senparcAiSetting,
+            KernelBuilder? kernelBuilder, string azureDeployName = null, ITextEmbeddingGeneration textEmbeddingGeneration = null)
+        {
+            if (_textMemory == null)
+            {
+                senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
+                var aiPlatForm = senparcAiSetting.AiPlatform;
+
+                var memoryBuilder = new MemoryBuilder();
+
+                _ = aiPlatForm switch
+                {
+                    AiPlatform.OpenAI => memoryBuilder.WithOpenAITextEmbeddingGeneration(modelName, senparcAiSetting.ApiKey, senparcAiSetting.OrganizationId),
+                    AiPlatform.AzureOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey),
+                    AiPlatform.NeuCharOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey),
+                    AiPlatform.HuggingFace => memoryBuilder.WithTextEmbeddingGeneration(textEmbeddingGeneration),
+                    _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                };
+
+
+                memoryBuilder.WithMemoryStore(new VolatileMemoryStore());
+                //.WithMemoryStore(new AzureAISearchMemoryStore(senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey))
+
+                _textMemory = memoryBuilder.Build();
+            }
+
+
+            return _textMemory;
+        }
+
+
 
         /// <summary>
         /// Save some information into the semantic memory, keeping only a reference to the source information.

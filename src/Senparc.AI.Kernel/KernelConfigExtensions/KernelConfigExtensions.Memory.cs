@@ -1,4 +1,5 @@
-﻿using Senparc.AI.Kernel.Entities;
+﻿using Microsoft.SemanticKernel.AI.Embeddings;
+using Senparc.AI.Kernel.Entities;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,17 +9,21 @@ namespace Senparc.AI.Kernel.Handlers
     {
         #region Memory 相关
 
+#pragma warning disable SKEXP0001
         public static IWantToRun MemorySaveInformation(this IWantToRun iWantToRun,
+            string modelName,
             string collection,
             string text,
             string id,
             string? description = null,
             string? additionalMetadata = null,
+            string azureDeployName = null,
+            ITextEmbeddingGeneration textEmbeddingGeneration = null,
             Microsoft.SemanticKernel.Kernel kernel = null,
             CancellationToken cancel = default)
         {
             var helper = iWantToRun.SemanticKernelHelper;
-            var memory = helper.GetMemory();
+            var memory = helper.GetMemory(modelName, Senparc.AI.Config.SenparcAiSetting, null, azureDeployName, textEmbeddingGeneration);
             var task = helper.MemorySaveInformationAsync(memory, collection, text, id, description, additionalMetadata, kernel, cancel);
             helper.AddMemory(task);
 
@@ -26,18 +31,21 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         public static IWantToRun MemorySaveReference(this IWantToRun iWantToRun,
+               string modelName,
                string collection,
                string text,
                string externalId,
                string externalSourceName,
                string? description = null,
                string? additionalMetadata = null,
+               string azureDeployName = null,
+               ITextEmbeddingGeneration textEmbeddingGeneration = null,
                Microsoft.SemanticKernel.Kernel kernel = null,
                CancellationToken cancel = default)
         {
             var helper = iWantToRun.SemanticKernelHelper;
             //var kernel = helper.GetKernel();
-            var memory = helper.GetMemory();
+            var memory = helper.GetMemory(modelName, Senparc.AI.Config.SenparcAiSetting, null, azureDeployName, textEmbeddingGeneration);
             var task = helper.MemorySaveReferenceAsync(memory, collection, text, externalId, externalSourceName, description, additionalMetadata, kernel, cancel);
             helper.AddMemory(task);
 
@@ -63,16 +71,19 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns>Memories found</returns>
         /// <returns></returns>
         public static async Task<SenaprcAiResult_MemoryQuery> MemorySearchAsync(this IWantToRun iWantToRun,
+            string modelName,
             string memoryCollectionName,
             string query,
             int limit = 1,
             double minRelevanceScore = 0.7,
             bool withEmbeddings = false,
+            string azureDeployName = null,
+            ITextEmbeddingGeneration textEmbeddingGeneration = null,
             Microsoft.SemanticKernel.Kernel kernel = null,
             CancellationToken cancel = default)
         {
             var helper = iWantToRun.SemanticKernelHelper;
-            var memory = helper.GetMemory();
+            var memory = helper.GetMemory(modelName, Senparc.AI.Config.SenparcAiSetting, null, azureDeployName, textEmbeddingGeneration);
             var queryResult = memory.SearchAsync(memoryCollectionName, query, limit, minRelevanceScore, withEmbeddings, kernel, cancel);
 
             var aiResult = new SenaprcAiResult_MemoryQuery(iWantToRun, query)

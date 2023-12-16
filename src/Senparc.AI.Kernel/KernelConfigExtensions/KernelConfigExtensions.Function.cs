@@ -87,7 +87,7 @@ namespace Senparc.AI.Kernel.Handlers
             var promptTemplateFactory = new KernelPromptTemplateFactory();
 
             var newFunction =
-                kernel.CreateFunctionFromPrompt(templateName /*"ChatBot"*/, executionSetting, functionName /*"Chat"*/, description, promptTemplateFactory);
+                kernel.CreateFunctionFromPrompt(skPrompt /*"ChatBot"*/, executionSetting, functionName /*"Chat"*/, description, promptTemplateFactory);
 
             var aiContext = new SenparcAiArguments();
 
