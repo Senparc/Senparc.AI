@@ -118,8 +118,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 {
                     var result = await _semanticAiHandler.ChatAsync(iWantToRun, prompt);
 
-
-
                     await Console.Out.WriteLineAsync("机器：");
                     await Console.Out.WriteLineAsync(result.Output);
                     await Console.Out.WriteLineAsync();
