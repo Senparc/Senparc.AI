@@ -1,3 +1,8 @@
+/**
+Last Modified: 20231207 - ä¿®å¤ä¸­æ–‡ä¹±ç 
+Modified By FelixJ
+*/
+
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Entities;
@@ -10,7 +15,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public record class SenparcAiRequest : IAiRequest<SenparcAiContext>
+    public record SenparcAiRequest : IAiRequest<SenparcAiContext>
     {
         /// <summary>
         /// IWanToRun
@@ -34,12 +39,12 @@ namespace Senparc.AI.Kernel
         public PromptConfigParameter ParameterConfig { get; set; }
 
         /// <summary>
-        /// µ¥´ÎÇëÇóµÄÁÙÊ±ÉÏÏÂÎÄ
+        /// å•æ¬¡è¯·æ±‚çš„ä¸´æ—¶ä¸Šä¸‹æ–‡
         /// </summary>
         public SenparcAiContext TempAiContext { get; set; }
 
         /// <summary>
-        /// ÔÚ IWantTo ÀïÃæ»º´æµÄÉÏÏÂÎÄ
+        /// åœ¨ IWantTo é‡Œé¢ç¼“å­˜çš„ä¸Šä¸‹æ–‡
         /// </summary>
         public SenparcAiContext StoreAiContext => IWantToRun.StoredAiContext;
         /// <summary>
@@ -47,11 +52,11 @@ namespace Senparc.AI.Kernel
         /// </summary>
         public ISKFunction[] FunctionPipeline { get; set; }
         ///// <summary>
-        ///// Rqesut.ContextVariables ²ÎÊı²»»á±£´æµ½ÉÏÏÂÎÄ»º´æÖĞ
+        ///// Rqesut.ContextVariables å‚æ•°ä¸ä¼šä¿å­˜åˆ°ä¸Šä¸‹æ–‡ç¼“å­˜ä¸­
         ///// </summary>
         //public ContextVariables TempContextVariables => TempAiContext?.Context as ContextVariables;
         ///// <summary>
-        ///// ÊÇ·ñ´¢´æÉÏÏÂÎÄ£¨ContextVariables ¶ÔÏó£©
+        ///// æ˜¯å¦å‚¨å­˜ä¸Šä¸‹æ–‡ï¼ˆContextVariables å¯¹è±¡ï¼‰
         ///// </summary>
         //public bool StoreContext => AiContext.StoreToContainer;
 

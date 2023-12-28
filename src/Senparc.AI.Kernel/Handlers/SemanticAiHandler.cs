@@ -1,4 +1,4 @@
-using Microsoft.SemanticKernel;
+﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
@@ -14,8 +14,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// SenmanticKernel 处理器
     /// </summary>
-    public class SemanticAiHandler :
-        IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext>
+    public class SemanticAiHandler : IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiContext>
     {
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         private IKernel _kernel => SemanticKernelHelper.GetKernel();
@@ -31,18 +30,19 @@ namespace Senparc.AI.Kernel
         /// 未正式启用
         /// </summary>
         /// <param name="request"><inheritdoc/></param>
+        /// <param name="senparcAiSetting"></param>
         /// <returns></returns>
-        public SenparcAiResult Run(SenparcAiRequest request, ISenparcAiSetting senparcAiSetting = null)
+        public SenparcAiResult Run(SenparcAiRequest request, ISenparcAiSetting? senparcAiSetting = null)
         {
             //TODO:未正式启用
 
             //TODO:此方法暂时还不能用
-            SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null);
-
-            var senparcAiResult =
-                new SenparcAiResult(new IWantToRun(new IWantToBuild(new IWantToConfig(new IWantTo()))),
-                    request.RequestContent);
-            return senparcAiResult;
+            var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null);
+            var kernel = kernelBuilder.Build();
+            // KernelResult result = await kernel.RunAsync(input: request.RequestContent!, pipeline: request.FunctionPipeline);
+            
+            var result = new SenparcKernelAiResult(request.IWantToRun, request.RequestContent);
+            return result;
         }
 
         public (IWantToRun iWantToRun, ISKFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,

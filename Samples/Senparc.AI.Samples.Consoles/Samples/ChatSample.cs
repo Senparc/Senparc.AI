@@ -26,7 +26,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             _aiHandler = aiHandler;
         }
 
-        private const string Endpoint = "http://sk.frp.senparc.com/completions/";
+        private const string Endpoint = "http://fc.frp.senparc.com/completions/";
         private const string Model = "chatglm2";
 
         public async Task RunAsync()

@@ -1,4 +1,11 @@
-﻿using Microsoft.SemanticKernel;
+/**
+* Last Modified: 20231207 By FelixJ
+* 修改了一些拼写错误
+* 更新了部分方法的XML注释以符合代码
+*/
+
+
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.AI.HuggingFace.TextCompletion;
 using Microsoft.SemanticKernel.Orchestration;
@@ -34,18 +41,20 @@ namespace Senparc.AI.Kernel.Handlers
 
         #region 配置 Kernel 生成条件
 
-        public static IWantToConfig ConfigModel(this IWantToConfig iWantToConfig, ConfigModel configModel, string userId, string modelName, ISenparcAiSetting senparcAiSetting = null)
+        public static IWantToConfig ConfigModel(this IWantToConfig iWantToConfig, ConfigModel configModel, string userId, string modelName,
+            ISenparcAiSetting? senparcAiSetting = null)
         {
             var iWantTo = iWantToConfig.IWantTo;
             var existedKernelBuilder = iWantToConfig.IWantTo.KernelBuilder;
             var kernelBuilder = configModel switch
             {
-                AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, senparcAiSetting, existedKernelBuilder),
+                AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, senparcAiSetting,
+                    existedKernelBuilder),
                 AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName, existedKernelBuilder),
                 AI.ConfigModel.ImageGeneration => iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder),
                 _ => throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel)
             };
-            iWantTo.KernelBuilder = kernelBuilder;//进行 Config 必须提供 Kernel
+            iWantTo.KernelBuilder = kernelBuilder; //进行 Config 必须提供 Kernel
             iWantTo.UserId = userId;
             iWantTo.ModelName = modelName;
             return iWantToConfig;
@@ -102,39 +111,40 @@ namespace Senparc.AI.Kernel.Handlers
 
         #region 运行准备
 
-
         /// <summary>
         /// 创建请求实体
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="requestContent"></param>
-        /// <param name="useAllRegistedFunctions">是否使用所有已经注册、创建过的 Function</param>
+        /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
-        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, string requestContent, bool useAllRegistedFunctions = false, params ISKFunction[] pipeline)
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, string? requestContent, bool useAllRegisteredFunctions = false,
+            params ISKFunction[] pipeline)
         {
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
 
-            if (useAllRegistedFunctions && iWantToRun.Functions.Count > 0)
+            if (useAllRegisteredFunctions && iWantToRun.Functions.Count > 0)
             {
                 //合并已经注册的对象
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new ISKFunction[0]).ToArray();
             }
 
-            var request = new SenparcAiRequest(iWantToRun, iWantTo.UserId, iWantTo.ModelName, requestContent, iWantToRun.PromptConfigParameter, pipeline);
+            var request = new SenparcAiRequest(iWantToRun, iWantTo.UserId, iWantTo.ModelName, requestContent!, iWantToRun.PromptConfigParameter,
+                pipeline);
             return request;
         }
 
         /// <summary>
         /// 创建请求实体，使用上下文，不提供单独的 prompt
-        /// </summary>
+        /// </summary> 
         /// <param name="iWantToRun"></param>
-        /// <param name="useAllRegistedFunctions">是否使用所有已经注册、创建过的 Function</param>
+        /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
-        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, bool useAllRegistedFunctions = false, params ISKFunction[] pipeline)
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, bool useAllRegisteredFunctions = false, params ISKFunction[] pipeline)
         {
-            return CreateRequest(iWantToRun, requestContent: null, useAllRegistedFunctions, pipeline);
+            return CreateRequest(iWantToRun, requestContent: null, useAllRegisteredFunctions, pipeline);
         }
 
         /// <summary>
@@ -142,7 +152,6 @@ namespace Senparc.AI.Kernel.Handlers
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="requestContent"></param>
-        /// <param name="useAllRegistedFunctions"></param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
         public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, string requestContent, params ISKFunction[] pipeline)
@@ -155,19 +164,22 @@ namespace Senparc.AI.Kernel.Handlers
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="contextVariables"></param>
-        /// <param name="useAllRegistedFunctions">是否使用所有已经注册、创建过的 Function</param>
+        /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
-        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, ContextVariables contextVariables, bool useAllRegistedFunctions = false, params ISKFunction[] pipeline)
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, ContextVariables contextVariables,
+            bool useAllRegisteredFunctions = false, params ISKFunction[] pipeline)
         {
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
 
-            if (useAllRegistedFunctions && iWantToRun.Functions.Count > 0)
+            if (useAllRegisteredFunctions && iWantToRun.Functions.Count > 0)
             {
                 //合并已经注册的对象
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new ISKFunction[0]).ToArray();
             }
-            var request = new SenparcAiRequest(iWantToRun, iWantTo.UserId, iWantTo.ModelName, contextVariables, iWantToRun.PromptConfigParameter, pipeline);
+
+            var request = new SenparcAiRequest(iWantToRun, iWantTo.UserId, iWantTo.ModelName, contextVariables, iWantToRun.PromptConfigParameter,
+                pipeline);
             return request;
         }
 
@@ -249,7 +261,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        public static async Task<SenaprcKernelAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
+        public static async Task<SenparcKernelAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWanToRun.SemanticKernelHelper;
@@ -268,7 +280,7 @@ namespace Senparc.AI.Kernel.Handlers
 
             KernelResult? botAnswer;
 
-            var result = new SenaprcKernelAiResult(iWanToRun, inputContent: null);
+            var result = new SenparcKernelAiResult(iWanToRun, inputContent: null);
 
             if (tempContext != null && tempContext.Count() != 0)
             {
@@ -292,6 +304,7 @@ namespace Senparc.AI.Kernel.Handlers
                     //      并赋值给 Key 为 INPUT 的参数
                     botAnswer = await kernel.RunAsync(prompt, functionPipline);
                 }
+
                 result.InputContent = prompt;
             }
             else
@@ -335,15 +348,13 @@ namespace Senparc.AI.Kernel.Handlers
             {
                 _ = new SenparcAiException("无法转换为指定类型：" + typeof(T).Name);
             }
+
             result.Result = kernelResult.GetValue<T>();
             //result.LastException = botAnswer.LastException;
 
             return result;
         }
 
-
         #endregion
-
     }
-
 }
