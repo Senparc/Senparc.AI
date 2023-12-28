@@ -11,10 +11,13 @@ namespace Senparc.AI
     {
         UnSet = 0,
         None = 1,
-        OpenAI = 2,
+        Other = 2,
+        [Obsolete("已过期，请使用 NeuCharAI", true)]
         NeuCharOpenAI = 4,
-        AzureOpenAI = 8,
-        HuggingFace = 16,
+        NeuCharAI = 4,
+        OpenAI = 8,
+        AzureOpenAI = 16,
+        HuggingFace = 32,
         //Oobabooga = 32
     }
 

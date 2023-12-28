@@ -25,7 +25,7 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// 是否使用 NeuChar OpenAI
         /// </summary>
-        bool UseNeuCharOpenAI => AiPlatform == AiPlatform.NeuCharOpenAI;
+        bool UseNeuCharOpenAI => AiPlatform == AiPlatform.NeuCharAI;
         /// <summary>
         /// AI 平台类型
         /// </summary>
