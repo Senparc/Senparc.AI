@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.6.4-rc3</Version>
+		<Version>0.6.5-rc3</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI</AssemblyName>
@@ -30,6 +30,7 @@
 			v0.4.0 支持外部 ISenparcAiSetting 输入到模型配置过程
 			v0.5.0 适配 Semantic Kernel 1.0.0-beta2
 			v0.6.0 优化 Plugin 等通用接口
+			v0.6.5 AiPlatform.NeuCharOpenAI 枚举更名为 AiPlatform.NeuCharAI
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

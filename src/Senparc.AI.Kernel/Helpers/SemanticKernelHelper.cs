@@ -126,7 +126,7 @@ namespace Senparc.AI.Kernel.Helpers
                         modelId: modelName,
                         endpoint: senparcAiSetting.AzureEndpoint,
                         apiKey: senparcAiSetting.ApiKey),
-                AiPlatform.NeuCharOpenAI => kernelBuilder.AddAzureOpenAIChatCompletion(
+                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAIChatCompletion(
                         deploymentName: azureDeployName,
                         modelId: modelName,
                         endpoint: senparcAiSetting.NeuCharEndpoint,
@@ -173,7 +173,7 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(modelName,
                     senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey, senparcAiSetting.AzureOpenAIApiVersion),
 
-                AiPlatform.NeuCharOpenAI => kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(modelName,
+                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(modelName,
                     senparcAiSetting.NeuCharEndpoint, senparcAiSetting.ApiKey, senparcAiSetting.AzureOpenAIApiVersion),
 
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextEmbeddingGeneration(modelName,
@@ -189,7 +189,7 @@ namespace Senparc.AI.Kernel.Helpers
             //        {
             //            AiPlatform.OpenAI => new OpenAITextEmbeddingGeneration(modelName, AiSetting.ApiKey, AiSetting.OrganizationId),
 
-            //            AiPlatform.NeuCharOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.NeuCharOpenAIApiVersion),
+            //            AiPlatform.NeuCharAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.NeuCharEndpoint, AiSetting.ApiKey, AiSetting.NeuCharOpenAIApiVersion),
 
             //            AiPlatform.AzureOpenAI => new AzureTextEmbeddingGeneration(modelName, AiSetting.AzureEndpoint, AiSetting.ApiKey, AiSetting.AzureOpenAIApiVersion),
 
@@ -228,7 +228,7 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(AiSetting.AzureEndpoint, azureModeId,
                     AiSetting.ApiKey),
 
-                AiPlatform.NeuCharOpenAI => kernelBuilder.AddAzureOpenAITextToImage(
+                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToImage(
                     AiSetting.NeuCharEndpoint, azureModeId, AiSetting.ApiKey),
 
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
@@ -278,7 +278,7 @@ namespace Senparc.AI.Kernel.Helpers
                 {
                     AiPlatform.OpenAI => memoryBuilder.WithOpenAITextEmbeddingGeneration(modelName, senparcAiSetting.ApiKey, senparcAiSetting.OrganizationId),
                     AiPlatform.AzureOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey),
-                    AiPlatform.NeuCharOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey),
+                    AiPlatform.NeuCharAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey),
                     AiPlatform.HuggingFace => memoryBuilder.WithTextEmbeddingGeneration(textEmbeddingGeneration),
                     _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
                 };
@@ -401,7 +401,7 @@ namespace Senparc.AI.Kernel.Helpers
                 //    StopSequences = stopSequences
                 //},
                 //AiPlatform.AzureOpenAI =>
-                //AiPlatform.NeuCharOpenAI => 
+                //AiPlatform.NeuCharAI => 
                 //AiPlatform.HuggingFace => 
                 _ => new OpenAIPromptExecutionSettings()
                 {

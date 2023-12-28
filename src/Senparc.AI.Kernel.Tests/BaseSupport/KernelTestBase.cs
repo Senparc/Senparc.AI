@@ -44,7 +44,7 @@ namespace Senparc.AI.Kernel.Tests.BaseSupport
                 case AiPlatform.UnSet:
                 case AiPlatform.None:
                 case AiPlatform.OpenAI:
-                case AiPlatform.NeuCharOpenAI:
+                case AiPlatform.NeuCharAI:
                 case AiPlatform.AzureOpenAI:
                 default:
                     Default_TextCompletion = "text-davinci-003";

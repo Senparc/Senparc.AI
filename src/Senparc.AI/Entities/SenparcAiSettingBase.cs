@@ -24,7 +24,7 @@ namespace Senparc.AI.Entities
         /// <summary>
         /// 是否使用 Azure OpenAI
         /// </summary>
-        public virtual bool UseNeuCharOpenAI => AiPlatform == AiPlatform.NeuCharOpenAI;
+        public virtual bool UseNeuCharOpenAI => AiPlatform == AiPlatform.NeuCharAI;
 
         /// <summary>
         /// AI 平台类型
@@ -42,7 +42,7 @@ namespace Senparc.AI.Entities
         public virtual string ApiKey => AiPlatform switch
         {
             AiPlatform.OpenAI => OpenAIKeys.ApiKey,
-            AiPlatform.NeuCharOpenAI => NeuCharOpenAIKeys.ApiKey,
+            AiPlatform.NeuCharAI => NeuCharOpenAIKeys.ApiKey,
             AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey,
             AiPlatform.HuggingFace => "",
             _ => ""
