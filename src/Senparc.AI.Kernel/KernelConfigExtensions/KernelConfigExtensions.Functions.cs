@@ -12,7 +12,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="skillInstance">Instance of a class containing functions</param>
         /// <param name="pluginName">Name of the skill for skill collection and prompt templates. If the value is empty functions are registered in the global namespace.</param>
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
-        public static (IWantToRun iWantToRun, IKernelPlugin skillList) ImportFunctions(this IWantToRun iWantToRun, object skillInstance, string pluginName = "")
+        public static (IWantToRun iWantToRun, KernelPlugin skillList) ImportFunctions(this IWantToRun iWantToRun, object skillInstance, string pluginName = "")
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
             var helper = handler.SemanticKernelHelper;

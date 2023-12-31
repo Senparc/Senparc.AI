@@ -1,5 +1,4 @@
-﻿using Microsoft.SemanticKernel.AI.Embeddings;
-using Microsoft.SemanticKernel.Embeddings;
+﻿using Microsoft.SemanticKernel.Embeddings;
 using Senparc.AI.Kernel.Entities;
 using System.Threading;
 using System.Threading.Tasks;

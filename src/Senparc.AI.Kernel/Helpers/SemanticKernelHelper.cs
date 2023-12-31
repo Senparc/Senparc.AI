@@ -161,7 +161,7 @@ namespace Senparc.AI.Kernel.Helpers
 
             // var kernelBuilder = Microsoft.SemanticKernel.Kernel.Builder;
             // 以上方法已经被SK标注为 Obsolete, 修改为SK推荐的方法
-            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.Create    ;
+            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.CreateBuilder();
 
             // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
             _ = aiPlatForm switch
@@ -207,9 +207,11 @@ namespace Senparc.AI.Kernel.Helpers
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="kernelBuilder"></param>
+        /// <param name="azureModeId">AzureOpenAI 的模型名称</param>
+        /// <param name="azureDallEDepploymentName">AzureAI 的 DallE 模型部署名称</param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
-        public IKernelBuilder ConfigImageGeneration(string userId, IKernelBuilder? kernelBuilder = null, string azureModeId = null)
+        public IKernelBuilder ConfigImageGeneration(string userId, IKernelBuilder? kernelBuilder = null, string azureModeId = null, string azureDallEDepploymentName = null)
         {
             var serviceId = GetServiceId(userId, "image-generation");
             var senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
@@ -224,11 +226,9 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.OpenAI => kernelBuilder.AddOpenAITextToImage(AiSetting.ApiKey,
                     AiSetting.OrganizationId),
 
-                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(AiSetting.AzureEndpoint, azureModeId,
-                    AiSetting.ApiKey),
+                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(azureDallEDepploymentName, AiSetting.AzureEndpoint, AiSetting.ApiKey, azureModeId),
 
-                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToImage(
-                    AiSetting.NeuCharEndpoint, azureModeId, AiSetting.ApiKey),
+                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToImage(AiSetting.NeuCharEndpoint, azureModeId, AiSetting.ApiKey),
 
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };

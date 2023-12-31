@@ -35,8 +35,6 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 
 
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI;
-using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Microsoft.SemanticKernel.TemplateEngine;
 using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
@@ -84,10 +82,11 @@ namespace Senparc.AI.Kernel.Handlers
             //    promptTemplateConfig // Prompt configuration
             //);
 
-            var promptTemplateFactory = new KernelPromptTemplateFactory();
+            //var promptTemplateFactory = new KernelPromptTemplateFactory();
+            
 
             var newFunction =
-                kernel.CreateFunctionFromPrompt(skPrompt /*"ChatBot"*/, executionSetting, functionName /*"Chat"*/, description, promptTemplateFactory);
+                kernel.CreateFunctionFromPrompt(skPrompt, executionSetting, functionName , description/*, null, promptTemplateFactory*/);
 
             var aiContext = new SenparcAiArguments();
 
@@ -144,7 +143,7 @@ namespace Senparc.AI.Kernel.Handlers
                      stopSequences: stopSequences
                     );
 
-            var promptTemplateFactory = new KernelPromptTemplateFactory();
+            //var promptTemplateFactory = new KernelPromptTemplateFactory();
             //var promptTemplateConfig = new PromptTemplateConfig()
             //{
             //    ExecutionSettings = new List<PromptExecutionSettings> { executionSettings }
@@ -152,7 +151,7 @@ namespace Senparc.AI.Kernel.Handlers
             //var promptTemplate = promptTemplateFactory.Create(promptTemplateConfig);
 
             var kernel = iWantToRun.Kernel;
-            var function = kernel.CreateFunctionFromPrompt(promptTemplate, executionSettings, pluginName, description, promptTemplateFactory);
+            var function = kernel.CreateFunctionFromPrompt(promptTemplate, executionSettings, pluginName, description/*, null,promptTemplateFactory*/);
             iWantToRun.Functions.Add(function);
             return (iWantToRun, function);
         }

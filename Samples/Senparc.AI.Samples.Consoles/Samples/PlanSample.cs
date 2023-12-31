@@ -1,5 +1,4 @@
 ﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.Planning;
 using Microsoft.SemanticKernel.Planning.Handlebars;
 using Senparc.AI.Entities;
@@ -59,7 +58,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             await Console.Out.WriteLineAsync();
 
 #pragma warning disable SKEXP0060
-            var plannerConfig = new HandlebarsPlannerConfig { MaxTokens = 2000 };
+            var plannerConfig = new HandlebarsPlannerOptions { MaxTokens = 2000, AllowLoops = true };
             var planner = new HandlebarsPlanner(plannerConfig);
 
             //var ask = "If my investment of 2130.23 dollars increased by 23%, how much would I have after I spent 5 on a latte?";
@@ -83,7 +82,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var skContext = iWantToRun.CreateNewArguments();//TODO: 直返会一个对象？
 
-            var result = plan.Invoke(iWantToRun.Kernel, skContext.arguments);
+            var result = await plan.InvokeAsync(iWantToRun.Kernel, skContext.arguments);
 
             Console.WriteLine("Plan results:");
             Console.WriteLine(result);
@@ -111,7 +110,7 @@ Give me the plan less than 5 steps.
             // Execute the plan
 
             var newContext = iWantToRun.CreateNewArguments();//TODO: 直返会一个对象？
-            var newResult = newPlan.Invoke(iWantToRun.Kernel, newContext.arguments);
+            var newResult = await newPlan.InvokeAsync(iWantToRun.Kernel, newContext.arguments);
 
             Console.WriteLine("Plan results:");
             Console.WriteLine(newResult);

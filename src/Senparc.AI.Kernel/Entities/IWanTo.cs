@@ -9,7 +9,7 @@ namespace Senparc.AI.Kernel.Handlers
 {
     public class IWantTo
     {
-        public KernelBuilder KernelBuilder { get; set; }
+        public IKernelBuilder KernelBuilder { get; set; }
         //public KernelConfig KernelConfig { get; set; }
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         public SemanticAiHandler SemanticAiHandler { get; set; }
@@ -96,10 +96,22 @@ namespace Senparc.AI.Kernel.Handlers
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
         /// <returns></returns>
-        public T GetService<T>(string name = "")
+        public T GetRequiredService<T>(string name = "")
             where T : class, IAIService
         {
             return Kernel.GetRequiredService<T>(name);
+        }
+
+        /// <summary>
+        /// 获取当前类型的所有服务
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public IEnumerable<T> GetAllServices<T>(string name = "")
+           where T : class, IAIService
+        {
+            return Kernel.GetAllServices<T>();
         }
     }
 }
