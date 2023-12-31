@@ -1,5 +1,6 @@
 ﻿using Azure.AI.OpenAI;
-using Microsoft.SemanticKernel.AI.TextToImage;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Microsoft.SemanticKernel.TextToImage;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
@@ -29,23 +30,31 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
         public async Task RunAsync()
         {
-            if (Senparc.AI.Config.SenparcAiSetting.OpenAIKeys == null ||
-                Senparc.AI.Config.SenparcAiSetting.OpenAIKeys.ApiKey.IsNullOrEmpty() ||
-                Senparc.AI.Config.SenparcAiSetting.OpenAIKeys.OrganizationId.IsNullOrEmpty()
+            if ((
+                    Senparc.AI.Config.SenparcAiSetting.OpenAIKeys == null ||
+                    Senparc.AI.Config.SenparcAiSetting.OpenAIKeys.ApiKey.IsNullOrEmpty() ||
+                    Senparc.AI.Config.SenparcAiSetting.OpenAIKeys.OrganizationId.IsNullOrEmpty()
+                ) &&
+                (
+                    Senparc.AI.Config.SenparcAiSetting.AzureOpenAIKeys == null ||
+                    Senparc.AI.Config.SenparcAiSetting.AzureOpenAIKeys.ApiKey.IsNullOrEmpty()
+                )
                 )
             {
-                await Console.Out.WriteLineAsync("DallE 接口需要设置 OpenAI ApiKey 后才能使用！");
+                await Console.Out.WriteLineAsync("DallE 接口需要设置 OpenAI 或 AzureOpenAI ApiKey 后才能使用！");
                 return;
             }
 
-            await Console.Out.WriteLineAsync("DallE 开始运行，请输入需要生成图片的内容，输入 exit 退出，输入s 保存上一张生成的图片。");
+            await Console.Out.WriteLineAsync("DallE 3 开始运行，请输入需要生成图片的内容，输入 exit 退出，输入s 保存上一张生成的图片。");
 
             var userId = "Jeffrey";
             var iWantTo = _semanticAiHandler.IWantTo()
-                                .ConfigModel(ConfigModel.ImageGeneration, userId, "image-generation")
+                                .ConfigModel(ConfigModel.ImageGeneration, userId, "dall-e-3",null, "dall-e-3")
                                 .BuildKernel();
+
+
 #pragma warning disable SKEXP0002
-            var dallE = iWantTo.GetService<ITextToImageService>();
+            var dallE = iWantTo.GetRequiredService<ITextToImageService>();
 
             string request;
             string lastImageUrl = null;
@@ -73,7 +82,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 {
                     //生成图片
                     var imageDescription = request;// "A car fly in the sky, with a panda driver.";
-                    lastImageUrl = await dallE.GenerateImageAsync(imageDescription, 256, 256);
+                    lastImageUrl = await dallE.GenerateImageAsync(imageDescription, 1024, 1024);
 
                     await Console.Out.WriteLineAsync("生成成功！Image URL:" + lastImageUrl);
 

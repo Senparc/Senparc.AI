@@ -20,7 +20,9 @@
 	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
-	  <PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.0.0-rc3" />
+	  <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.0.1" />
+	  <PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.0.1-preview" />
+	  <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.0.1-alpha" />
 	  <!--<PackageReference Include="Microsoft.SemanticKernel.Planning.SequentialPlanner" Version="0.24.230912.2-preview" />-->
     <ProjectReference Include="..\..\src\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
     <ProjectReference Include="..\..\src\Senparc.AI\Senparc.AI.csproj" />

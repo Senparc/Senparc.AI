@@ -35,8 +35,6 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 
 
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI;
-using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Microsoft.SemanticKernel.TemplateEngine;
 using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
@@ -59,13 +57,23 @@ namespace Senparc.AI.Kernel.Handlers
         /// Build and register a function in the internal skill collection.
         /// </summary>
         /// <param name="iWantToRun"></param>
-        /// <param name="templateName">Name of the skill containing the function. The name can contain only alphanumeric chars + underscore.</param>
-        /// <param name="functionName">Name of the semantic function. The name can contain only alphanumeric chars + underscore.</param>
-        /// <param name="promptConfigPara"></param>
-        /// <param name="skPrompt"></param>
-        /// <returns>A C# function wrapping AI logic, usually defined with natural language</returns>
-        public static (IWantToRun iWantToRun, KernelFunction newFunction) CreateFunctionFromPrompt(this IWantToRun iWantToRun, string templateName,
-            string functionName, PromptConfigParameter promptConfigPara, string? skPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT, string description = null)
+        /// <param name="promptTemplate">Prompt template for the function.</param>
+        /// <param name="executionSettings">Default execution settings to use when invoking this prompt function.</param>
+        /// <param name="functionName">The name to use for the function. If null, it will default to a randomly generated name.</param>
+        /// <param name="description">The description to use for the function.</param>
+        /// <param name="templateFormat">The template format of <paramref name="promptTemplate"/>. This must be provided if <paramref name="promptTemplateFactory"/> is not null.</param>
+        /// <param name="promptTemplateFactory">
+        /// The <see cref="IPromptTemplateFactory"/> to use when interpreting the <paramref name="promptTemplate"/> into a <see cref="IPromptTemplate"/>.
+        /// If null, a default factory will be used.
+        /// </param>
+        /// <returns>(IWantToRun iWantToRun, KernelFunction newFunction)</returns>
+        public static (IWantToRun iWantToRun, KernelFunction newFunction) CreateFunctionFromPrompt(this IWantToRun iWantToRun, string promptTemplate,
+            PromptConfigParameter? promptConfigPara = null,
+            string? functionName = null,
+            string? description = null,
+            string? templateFormat = null,
+            IPromptTemplateFactory? promptTemplateFactory = null
+            /*string? skPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT*/)
         {
             promptConfigPara ??= new PromptConfigParameter();
 
@@ -84,10 +92,11 @@ namespace Senparc.AI.Kernel.Handlers
             //    promptTemplateConfig // Prompt configuration
             //);
 
-            var promptTemplateFactory = new KernelPromptTemplateFactory();
+            //var promptTemplateFactory = new KernelPromptTemplateFactory();
+
 
             var newFunction =
-                kernel.CreateFunctionFromPrompt(skPrompt /*"ChatBot"*/, executionSetting, functionName /*"Chat"*/, description, promptTemplateFactory);
+                kernel.CreateFunctionFromPrompt(promptTemplate, executionSetting, functionName, description, templateFormat, promptTemplateFactory);
 
             var aiContext = new SenparcAiArguments();
 
@@ -124,14 +133,15 @@ namespace Senparc.AI.Kernel.Handlers
         public static (IWantToRun iWantToRun, KernelFunction function) CreateFunctionFromPrompt(this IWantToRun iWantToRun,
             string promptTemplate,
             string? functionName = null,
-            string pluginName = "",
             string? description = null,
             int maxTokens = 256,
             double temperature = 0,
             double topP = 0,
             double presencePenalty = 0,
             double frequencyPenalty = 0,
-            IList<string>? stopSequences = null)
+            IList<string>? stopSequences = null,
+            string? templateFormat = null,
+            IPromptTemplateFactory? promptTemplateFactory = null)
         {
 
             PromptExecutionSettings executionSettings = iWantToRun
@@ -144,7 +154,7 @@ namespace Senparc.AI.Kernel.Handlers
                      stopSequences: stopSequences
                     );
 
-            var promptTemplateFactory = new KernelPromptTemplateFactory();
+            //var promptTemplateFactory = new KernelPromptTemplateFactory();
             //var promptTemplateConfig = new PromptTemplateConfig()
             //{
             //    ExecutionSettings = new List<PromptExecutionSettings> { executionSettings }
@@ -152,7 +162,7 @@ namespace Senparc.AI.Kernel.Handlers
             //var promptTemplate = promptTemplateFactory.Create(promptTemplateConfig);
 
             var kernel = iWantToRun.Kernel;
-            var function = kernel.CreateFunctionFromPrompt(promptTemplate, executionSettings, pluginName, description, promptTemplateFactory);
+            var function = kernel.CreateFunctionFromPrompt(promptTemplate, executionSettings, functionName, description, templateFormat, promptTemplateFactory);
             iWantToRun.Functions.Add(function);
             return (iWantToRun, function);
         }
@@ -176,7 +186,7 @@ namespace Senparc.AI.Kernel.Handlers
         //    return (iWantToRun, function);
         //}
 
- 
+
         #endregion
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.SemanticKernel.Memory;
+﻿using Azure.Core;
+using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
@@ -88,6 +89,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
             {
                 await Console.Out.WriteLineAsync("请提问：");
                 var question = Console.ReadLine();
+                if (question=="exit")
+                {
+                    break;
+                }
 
                 var questionDt = DateTime.Now;
                 var limit = isReference ? 3 : 1;

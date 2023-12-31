@@ -12,7 +12,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="skillInstance">Instance of a class containing functions</param>
         /// <param name="pluginName">Name of the skill for skill collection and prompt templates. If the value is empty functions are registered in the global namespace.</param>
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
-        public static (IWantToRun iWantToRun, IKernelPlugin skillList) ImportFunctions(this IWantToRun iWantToRun, object skillInstance, string pluginName = "")
+        public static (IWantToRun iWantToRun, KernelPlugin skillList) ImportFunctions(this IWantToRun iWantToRun, object skillInstance, string pluginName = "")
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
             var helper = handler.SemanticKernelHelper;
@@ -30,39 +30,35 @@ namespace Senparc.AI.Kernel.Handlers
         /// Note: skill and function names can contain only alphanumeric chars and underscore.
         ///
         /// Example:
-        /// D:\plugins\                            # parentDirectory = "D:\plugins"
-        ///
-        ///     |__ OfficePlugin\                  # skillDirectoryName = "SummarizeEmailThread"
-        ///
-        ///         |__ ScheduleMeeting           # semantic function
-        ///             |__ skprompt.txt          # prompt template
-        ///             |__ config.json           # settings (optional file)
-        ///
-        ///         |__ SummarizeEmailThread      # semantic function
-        ///             |__ skprompt.txt          # prompt template
-        ///             |__ config.json           # settings (optional file)
-        ///
-        ///         |__ MergeWordAndExcelDocs     # semantic function
-        ///             |__ skprompt.txt          # prompt template
-        ///             |__ config.json           # settings (optional file)
-        ///
-        ///     |__ XboxPlugin\                    # another skill, etc.
-        ///
-        ///         |__ MessageFriend
-        ///             |__ skprompt.txt
-        ///             |__ config.json
-        ///         |__ LaunchGame
-        ///             |__ skprompt.txt
-        ///             |__ config.json
-        ///
-        /// See https://github.com/microsoft/semantic-kernel/tree/main/samples/plugins for some plugins in our repo.
+        //     A plugin directory contains a set of subdirectories, one for each function in
+        //     the form of a prompt. This method accepts the path of the plugin directory. Each
+        //     subdirectory's name is used as the function name and may contain only alphanumeric
+        //     chars and underscores.
+        //
+        //     The following directory structure, with pluginDirectory = "D:\plugins\OfficePlugin",
+        //
+        //     will create a plugin with three functions:
+        //     D:\plugins\
+        //     |__ OfficePlugin\ # pluginDirectory
+        //     |__ ScheduleMeeting # function directory
+        //     |__ skprompt.txt # prompt template
+        //     |__ config.json # settings (optional file)
+        //     |__ SummarizeEmailThread # function directory
+        //     |__ skprompt.txt # prompt template
+        //     |__ config.json # settings (optional file)
+        //     |__ MergeWordAndExcelDocs # function directory
+        //     |__ skprompt.txt # prompt template
+        //     |__ config.json # settings (optional file)
+        //
+        //     See https://github.com/microsoft/semantic-kernel/tree/main/samples/plugins for
+        //     examples in the Semantic Kernel repository.  
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="parentDirectory">Directory containing the skill directory, e.g. "d:\myAppPlugins"</param>
         /// <param name="skillDirectoryName">Name of the directory containing the selected skill, e.g. "StrategyPlugin"</param>
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
         /// <returns></returns>
-        public static (IWantToRun iWantToRun, IKernelPlugin skillList) ImportPluginFromDirectory(this IWantToRun iWantToRun, string parentDirectory, string skillDirectoryName)
+        public static (IWantToRun iWantToRun, KernelPlugin skillList) ImportPluginFromDirectory(this IWantToRun iWantToRun, string parentDirectory, string skillDirectoryName)
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
             var helper = handler.SemanticKernelHelper;

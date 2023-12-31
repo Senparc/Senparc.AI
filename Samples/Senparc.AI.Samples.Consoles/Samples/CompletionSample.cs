@@ -1,5 +1,4 @@
-﻿using Microsoft.SemanticKernel.AI;
-using Senparc.AI.Entities;
+﻿using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
@@ -49,7 +48,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                  _semanticAiHandler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, Model)
                         .BuildKernel()
-                        .CreateFunctionFromPrompt("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
+                        .CreateFunctionFromPrompt(functionPrompt, promptParameter).iWantToRun;
 
 
 

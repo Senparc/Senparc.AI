@@ -1,5 +1,5 @@
 ﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Planning;
 using Microsoft.SemanticKernel.Planning.Handlebars;
 using Senparc.AI.Entities;
@@ -33,7 +33,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var iWantToRun = _semanticAiHandler
                            .IWantTo()
-                           .ConfigModel(ConfigModel.TextCompletion, _userId, SampleHelper.Default_TextCompletion_ModeName)
+                           .ConfigModel(ConfigModel.TextCompletion, _userId, SampleHelper.Default_Chat_ModeName)
                            .BuildKernel();
 
             //var planner = iWantToRun.ImportPlugin(new TextMemoryPlugin(iWantToRun.Kernel.Memory)).skillList;
@@ -45,12 +45,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //Console.WriteLine("pluginsDirectory:" + pluginsDirectory);
 
             await Console.Out.WriteLineAsync("Add Your Plugins, input q to finish");
-            var skill = Console.ReadLine();
-            while (skill != "q")
+            var plugin = Console.ReadLine();
+            while (plugin != "q")
             {
                 //SummarizePlugin , WriterPlugin , ...
-                iWantToRun.ImportPluginFromDirectory(pluginsDirectory, skill);
-                skill = Console.ReadLine();
+                iWantToRun.ImportPluginFromDirectory(pluginsDirectory, plugin);
+                plugin = Console.ReadLine();
             }
 
             await Console.Out.WriteLineAsync("Tell me your task:");
@@ -59,7 +59,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             await Console.Out.WriteLineAsync();
 
 #pragma warning disable SKEXP0060
-            var plannerConfig = new HandlebarsPlannerConfig { MaxTokens = 2000 };
+            var plannerConfig = new HandlebarsPlannerOptions { MaxTokens = 2000, AllowLoops = true };
             var planner = new HandlebarsPlanner(plannerConfig);
 
             //var ask = "If my investment of 2130.23 dollars increased by 23%, how much would I have after I spent 5 on a latte?";
@@ -68,26 +68,9 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var plan = await planner.CreatePlanAsync(iWantToRun.Kernel, ask);
 
             await Console.Out.WriteLineAsync("Plan:");
-            await Console.Out.WriteLineAsync(plan.ToJson(true));
+            await Console.Out.WriteLineAsync(plan.Prompt);
 
-            // Execute the plan
-            var executionSetting = iWantToRun.SemanticKernelHelper.GetExecutionSetting(new PromptConfigParameter()
-            {
-                Temperature = 0.01,
-                TopP = 0.1,
-                PresencePenalty = 0,
-                FrequencyPenalty = 0,
-                StopSequences = null,
-            });
-
-
-            var skContext = iWantToRun.CreateNewArguments();//TODO: 直返会一个对象？
-
-            var result = plan.Invoke(iWantToRun.Kernel, skContext.arguments);
-
-            Console.WriteLine("Plan results:");
-            Console.WriteLine(result);
-            Console.WriteLine();
+            await Console.Out.WriteLineAsync();
 
             await Console.Out.WriteLineAsync("Now system will add a new plan into your request: Rewrite the above in the style of Shakespeare. Press Enter");
 
@@ -99,19 +82,22 @@ namespace Senparc.AI.Samples.Consoles.Samples
 {{$input}}
 
 Rewrite the above in the style of Shakespeare.
-Give me the plan less than 5 steps.
 ";
             var shakespeareFunction = iWantToRun.CreateFunctionFromPrompt(prompt, "shakespeare", "ShakespearePlugin", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
 
+
+
+            // Execute the new plan
+
             var newPlan = await planner.CreatePlanAsync(iWantToRun.Kernel, ask);
             await Console.Out.WriteLineAsync("New Plan:");
-            await Console.Out.WriteLineAsync(newPlan.ToJson(true));
+            await Console.Out.WriteLineAsync(newPlan.Prompt);
 
             Console.WriteLine("Updated plan:\n");
             // Execute the plan
 
             var newContext = iWantToRun.CreateNewArguments();//TODO: 直返会一个对象？
-            var newResult = newPlan.Invoke(iWantToRun.Kernel, newContext.arguments);
+            var newResult = await newPlan.InvokeAsync(iWantToRun.Kernel, newContext.arguments);
 
             Console.WriteLine("Plan results:");
             Console.WriteLine(newResult);
