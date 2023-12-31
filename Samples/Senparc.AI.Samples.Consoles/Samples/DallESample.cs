@@ -49,7 +49,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var userId = "Jeffrey";
             var iWantTo = _semanticAiHandler.IWantTo()
-                                .ConfigModel(ConfigModel.ImageGeneration, userId, "image-generation")
+                                .ConfigModel(ConfigModel.ImageGeneration, userId, "dall-e-3",null, "dall-e-3")
                                 .BuildKernel();
 
 

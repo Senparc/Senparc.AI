@@ -41,7 +41,7 @@ namespace Senparc.AI.Kernel.Handlers
         #region 配置 Kernel 生成条件
 
         public static IWantToConfig ConfigModel(this IWantToConfig iWantToConfig, ConfigModel configModel, string userId, string modelName,
-            ISenparcAiSetting? senparcAiSetting = null)
+            ISenparcAiSetting? senparcAiSetting = null, string azureDallEDepploymentName = null)
         {
             var iWantTo = iWantToConfig.IWantTo;
             var existedKernelBuilder = iWantToConfig.IWantTo.KernelBuilder;
@@ -50,7 +50,7 @@ namespace Senparc.AI.Kernel.Handlers
                 AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, senparcAiSetting,
                     existedKernelBuilder, modelName),
                 AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName, existedKernelBuilder),
-                AI.ConfigModel.ImageGeneration => iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder),
+                AI.ConfigModel.ImageGeneration => iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder, modelName, azureDallEDepploymentName),
                 _ => throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel)
             };
             iWantTo.KernelBuilder = kernelBuilder; //进行 Config 必须提供 Kernel

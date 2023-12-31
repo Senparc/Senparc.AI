@@ -96,7 +96,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
         /// <returns></returns>
-        public T GetRequiredService<T>(string name = "")
+        public T GetRequiredService<T>(string? name = null)
             where T : class, IAIService
         {
             return Kernel.GetRequiredService<T>(name);
@@ -106,9 +106,8 @@ namespace Senparc.AI.Kernel.Handlers
         /// 获取当前类型的所有服务
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="name"></param>
         /// <returns></returns>
-        public IEnumerable<T> GetAllServices<T>(string name = "")
+        public IEnumerable<T> GetAllServices<T>()
            where T : class, IAIService
         {
             return Kernel.GetAllServices<T>();
