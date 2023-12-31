@@ -1,5 +1,4 @@
-﻿using Microsoft.SemanticKernel.AI;
-using Senparc.AI.Entities;
+﻿using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;

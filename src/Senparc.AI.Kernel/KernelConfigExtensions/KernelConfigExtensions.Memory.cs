@@ -1,4 +1,5 @@
 ﻿using Microsoft.SemanticKernel.AI.Embeddings;
+using Microsoft.SemanticKernel.Embeddings;
 using Senparc.AI.Kernel.Entities;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace Senparc.AI.Kernel.Handlers
             string? description = null,
             string? additionalMetadata = null,
             string azureDeployName = null,
-            ITextEmbeddingGeneration textEmbeddingGeneration = null,
+            ITextEmbeddingGenerationService textEmbeddingGeneration = null,
             Microsoft.SemanticKernel.Kernel kernel = null,
             CancellationToken cancel = default)
         {
@@ -39,7 +40,7 @@ namespace Senparc.AI.Kernel.Handlers
                string? description = null,
                string? additionalMetadata = null,
                string azureDeployName = null,
-               ITextEmbeddingGeneration textEmbeddingGeneration = null,
+               ITextEmbeddingGenerationService textEmbeddingGeneration = null,
                Microsoft.SemanticKernel.Kernel kernel = null,
                CancellationToken cancel = default)
         {
@@ -78,7 +79,7 @@ namespace Senparc.AI.Kernel.Handlers
             double minRelevanceScore = 0.7,
             bool withEmbeddings = false,
             string azureDeployName = null,
-            ITextEmbeddingGeneration textEmbeddingGeneration = null,
+            ITextEmbeddingGenerationService textEmbeddingGeneration = null,
             Microsoft.SemanticKernel.Kernel kernel = null,
             CancellationToken cancel = default)
         {

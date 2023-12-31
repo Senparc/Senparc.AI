@@ -7,7 +7,6 @@
 
 using Azure.Core;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.Plugins.Memory;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
@@ -98,7 +97,7 @@ namespace Senparc.AI.Kernel.Handlers
 
         #region Build Kernel
 
-        public static IWantToRun BuildKernel(this IWantToConfig iWantToConfig, Action<KernelBuilder>? kernelBuilderAction = null)
+        public static IWantToRun BuildKernel(this IWantToConfig iWantToConfig, Action<IKernelBuilder>? kernelBuilderAction = null)
         {
             var iWantTo = iWantToConfig.IWantTo;
             var handler = iWantTo.SemanticKernelHelper;
