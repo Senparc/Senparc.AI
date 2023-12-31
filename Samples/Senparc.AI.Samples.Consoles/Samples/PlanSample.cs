@@ -1,4 +1,5 @@
 ﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Planning;
 using Microsoft.SemanticKernel.Planning.Handlebars;
 using Senparc.AI.Entities;
@@ -32,7 +33,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var iWantToRun = _semanticAiHandler
                            .IWantTo()
-                           .ConfigModel(ConfigModel.TextCompletion, _userId, SampleHelper.Default_TextCompletion_ModeName)
+                           .ConfigModel(ConfigModel.TextCompletion, _userId, SampleHelper.Default_Chat_ModeName)
                            .BuildKernel();
 
             //var planner = iWantToRun.ImportPlugin(new TextMemoryPlugin(iWantToRun.Kernel.Memory)).skillList;
@@ -44,12 +45,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //Console.WriteLine("pluginsDirectory:" + pluginsDirectory);
 
             await Console.Out.WriteLineAsync("Add Your Plugins, input q to finish");
-            var skill = Console.ReadLine();
-            while (skill != "q")
+            var plugin = Console.ReadLine();
+            while (plugin != "q")
             {
                 //SummarizePlugin , WriterPlugin , ...
-                iWantToRun.ImportPluginFromDirectory(pluginsDirectory, skill);
-                skill = Console.ReadLine();
+                iWantToRun.ImportPluginFromDirectory(pluginsDirectory, plugin);
+                plugin = Console.ReadLine();
             }
 
             await Console.Out.WriteLineAsync("Tell me your task:");
@@ -69,11 +70,27 @@ namespace Senparc.AI.Samples.Consoles.Samples
             await Console.Out.WriteLineAsync("Plan:");
             await Console.Out.WriteLineAsync(plan.ToJson(true));
 
+            string skPrompt = """
+{{$input}}
+
+Rewrite the above in the style of Shakespeare.
+""";
+
+            var executionSettings = new OpenAIPromptExecutionSettings
+            {
+                MaxTokens = 2000,
+                Temperature = 0.7,
+                TopP = 0.5
+            };
+
+            var shakespeareFunction = iWantToRun.CreateFunctionFromPrompt(skPrompt, executionSettings, "Shakespeare");
+
+
             // Execute the plan
             var executionSetting = iWantToRun.SemanticKernelHelper.GetExecutionSetting(new PromptConfigParameter()
             {
-                Temperature = 0.01,
-                TopP = 0.1,
+                Temperature = 0.7,
+                TopP = 0.5,
                 PresencePenalty = 0,
                 FrequencyPenalty = 0,
                 StopSequences = null,
