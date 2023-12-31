@@ -40,7 +40,7 @@ namespace Senparc.AI.Kernel
             //TODO:未正式启用
 
             //TODO:此方法暂时还不能用
-            var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null,request.ModelName);
+            var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null, request.ModelName);
             var kernel = kernelBuilder.Build();
             // KernelResult result = await kernel.RunAsync(input: request.RequestContent!, pipeline: request.FunctionPipeline);
 
@@ -51,10 +51,12 @@ namespace Senparc.AI.Kernel
         public (IWantToRun iWantToRun, KernelFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
             string userId, string modelName = "text-davinci-003")
         {
+            var chatPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT;
+
             var result = this.IWantTo()
                 .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                 .BuildKernel()
-                .CreateFunctionFromPrompt("ChatBot", "Chat", promptConfigParameter);
+                .CreateFunctionFromPrompt(chatPrompt, promptConfigParameter);
 
             return result;
         }

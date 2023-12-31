@@ -40,6 +40,17 @@ namespace Senparc.AI.Kernel.Handlers
 
         #region 配置 Kernel 生成条件
 
+        /// <summary>
+        /// 配置模型
+        /// </summary>
+        /// <param name="iWantToConfig"></param>
+        /// <param name="configModel"></param>
+        /// <param name="userId"></param>
+        /// <param name="modelName"></param>
+        /// <param name="senparcAiSetting"></param>
+        /// <param name="azureDallEDepploymentName"></param>
+        /// <returns></returns>
+        /// <exception cref="SenparcAiException"></exception>
         public static IWantToConfig ConfigModel(this IWantToConfig iWantToConfig, ConfigModel configModel, string userId, string modelName,
             ISenparcAiSetting? senparcAiSetting = null, string azureDallEDepploymentName = null)
         {

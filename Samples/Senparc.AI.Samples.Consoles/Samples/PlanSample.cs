@@ -68,42 +68,9 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var plan = await planner.CreatePlanAsync(iWantToRun.Kernel, ask);
 
             await Console.Out.WriteLineAsync("Plan:");
-            await Console.Out.WriteLineAsync(plan.ToJson(true));
+            await Console.Out.WriteLineAsync(plan.Prompt);
 
-            string skPrompt = """
-{{$input}}
-
-Rewrite the above in the style of Shakespeare.
-""";
-
-            var executionSettings = new OpenAIPromptExecutionSettings
-            {
-                MaxTokens = 2000,
-                Temperature = 0.7,
-                TopP = 0.5
-            };
-
-            var shakespeareFunction = iWantToRun.CreateFunctionFromPrompt(skPrompt, executionSettings, "Shakespeare");
-
-
-            // Execute the plan
-            var executionSetting = iWantToRun.SemanticKernelHelper.GetExecutionSetting(new PromptConfigParameter()
-            {
-                Temperature = 0.7,
-                TopP = 0.5,
-                PresencePenalty = 0,
-                FrequencyPenalty = 0,
-                StopSequences = null,
-            });
-
-
-            var skContext = iWantToRun.CreateNewArguments();//TODO: 直返会一个对象？
-
-            var result = await plan.InvokeAsync(iWantToRun.Kernel, skContext.arguments);
-
-            Console.WriteLine("Plan results:");
-            Console.WriteLine(result);
-            Console.WriteLine();
+            await Console.Out.WriteLineAsync();
 
             await Console.Out.WriteLineAsync("Now system will add a new plan into your request: Rewrite the above in the style of Shakespeare. Press Enter");
 
@@ -115,13 +82,16 @@ Rewrite the above in the style of Shakespeare.
 {{$input}}
 
 Rewrite the above in the style of Shakespeare.
-Give me the plan less than 5 steps.
 ";
             var shakespeareFunction = iWantToRun.CreateFunctionFromPrompt(prompt, "shakespeare", "ShakespearePlugin", maxTokens: 2000, temperature: 0.2, topP: 0.5).function;
 
+
+
+            // Execute the new plan
+
             var newPlan = await planner.CreatePlanAsync(iWantToRun.Kernel, ask);
             await Console.Out.WriteLineAsync("New Plan:");
-            await Console.Out.WriteLineAsync(newPlan.ToJson(true));
+            await Console.Out.WriteLineAsync(newPlan.Prompt);
 
             Console.WriteLine("Updated plan:\n");
             // Execute the plan
