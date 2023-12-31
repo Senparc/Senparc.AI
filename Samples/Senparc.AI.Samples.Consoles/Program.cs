@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Reflection.Emit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
@@ -39,6 +40,7 @@ IRegisterService register = RegisterService.Start(senparcSetting)
               .UseSenparcAI(senparcAiSetting);
 
 
+Start:
 Console.WriteLine("启动完毕，当前接口：" + Senparc.AI.Config.SenparcAiSetting.AiPlatform);
 Console.WriteLine("=======================");
 Console.WriteLine();
@@ -48,8 +50,12 @@ Console.WriteLine("[2] Completion 任务机器人");
 Console.WriteLine("[3] 训练 Embedding 任务");
 Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI）");
 Console.WriteLine("[5] Planner 任务计划");
+Console.WriteLine();
 
 var index = Console.ReadLine();
+Console.WriteLine();
+
+Console.WriteLine("任意时间输入 exit 退出选择并重新开始。");
 Console.WriteLine();
 
 switch (index)
@@ -124,3 +130,7 @@ switch (index)
         Console.WriteLine("序号错误，请重新开始！");
         break;
 }
+
+Console.WriteLine("好，让我们重新开始！");
+Console.WriteLine();
+goto Start;
