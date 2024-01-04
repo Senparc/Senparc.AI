@@ -33,17 +33,17 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             var dt1 = DateTime.Now;
             const string MemoryCollectionName = "aboutMe";
-
+            const string azureDeployName = "text-embedding-ada-002";
 
             //新方法（异步，同时进行）
             iWantToRun
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info1", text: "My name is Andrea")
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator")
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005")
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info4", text: "I visited France and Italy five times since 2015")
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info5", text: "My family is from New York")
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info6", text: "I work for Senparc")
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info7", text: "Suzhou Senparc Network Technology Co., Ltd. was founded in 2010, mainly engaged in mobile Internet, e-commerce, software, management system development and implementation. We have in-depth research on Artificial Intelligence, big data and paperless electronic conference systems. Senparc has 5 domestic subsidiaries and 1 overseas subsidiary(in Sydney). Our products and services have been involved in government, medical, education, military, logistics, finance and many other fields. In addition to the major provinces and cities in China, Senparc's products have entered the markets of the United States, Canada, Australia, the Netherlands, Sweden and Spain.")
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info1", text: "My name is Andrea", azureDeployName: azureDeployName)
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator", azureDeployName: azureDeployName)
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005", azureDeployName: azureDeployName)
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info4", text: "I visited France and Italy five times since 2015", azureDeployName: azureDeployName)
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info5", text: "My family is from New York", azureDeployName: azureDeployName)
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info6", text: "I work for Senparc", azureDeployName: azureDeployName)
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info7", text: "Suzhou Senparc Network Technology Co., Ltd. was founded in 2010, mainly engaged in mobile Internet, e-commerce, software, management system development and implementation. We have in-depth research on Artificial Intelligence, big data and paperless electronic conference systems. Senparc has 5 domestic subsidiaries and 1 overseas subsidiary(in Sydney). Our products and services have been involved in government, medical, education, military, logistics, finance and many other fields. In addition to the major provinces and cities in China, Senparc's products have entered the markets of the United States, Canada, Australia, the Netherlands, Sweden and Spain.", azureDeployName: azureDeployName)
                 .MemoryStoreExexute();
 
             var dt2 = DateTime.Now;
@@ -81,7 +81,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             var memory = iWantToRun.SemanticKernelHelper.TryGetMemory();
 
 #pragma warning disable SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-            iWantToRun.ImportFunctions(new TextMemoryPlugin(memory));//TODO: 简化方法
+            iWantToRun.ImportFunctions(new TextMemoryPlugin(memory), "Retrieve");//TODO: 简化方法
 #pragma warning restore SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
             await Console.Out.WriteLineAsync("\nFunctionsViews：");
