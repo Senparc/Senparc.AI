@@ -290,8 +290,8 @@ namespace Senparc.AI.Kernel.Helpers
                 _ = aiPlatForm switch
                 {
                     AiPlatform.OpenAI => memoryBuilder.WithOpenAITextEmbeddingGeneration(modelName, senparcAiSetting.ApiKey, senparcAiSetting.OrganizationId),
-                    AiPlatform.AzureOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey),
-                    AiPlatform.NeuCharAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, modelName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey),
+                    AiPlatform.AzureOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey, modelName),
+                    AiPlatform.NeuCharAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey, modelName),
                     AiPlatform.HuggingFace => memoryBuilder.WithTextEmbeddingGeneration(textEmbeddingGeneration),
                     _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
                 };
