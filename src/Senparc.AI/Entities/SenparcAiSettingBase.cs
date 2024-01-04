@@ -25,7 +25,7 @@ namespace Senparc.AI.Entities
         /// <summary>
         /// 是否使用 Azure OpenAI
         /// </summary>
-        public virtual bool UseNeuCharOpenAI => AiPlatform == AiPlatform.NeuCharAI;
+        public virtual bool UseNeuCharAI => AiPlatform == AiPlatform.NeuCharAI;
 
         /// <summary>
         /// AI 平台类型
@@ -76,7 +76,7 @@ namespace Senparc.AI.Entities
         /// <summary>
         /// Azure OpenAI Endpoint
         /// </summary>
-        public virtual string NeuCharEndpoint => NeuCharOpenAIKeys?.NeuCharEndpoint;
+        public virtual string NeuCharEndpoint => NeuCharAIKeys?.NeuCharEndpoint;
 
         /// <summary>
         /// Azure OpenAI 版本号

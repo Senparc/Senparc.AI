@@ -24,7 +24,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey", KernelTestBase.Default_TextCompletion);
+            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey", KernelTestBase.Default_ChatEmbedding);
             var iWantToRun = chatConfig.iWantToRun;
 
             //第一轮对话
@@ -92,7 +92,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
+            var modelName = KernelTestBase.Default_ChatEmbedding;//默认使用模型
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
@@ -147,7 +147,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
+            var modelName = KernelTestBase.Default_ChatEmbedding;//默认使用模型
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
@@ -198,7 +198,7 @@ MynameIsJeffrey,I'maChinese.ThisisAtest.HappYbIrthday!
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型(gpt-35-turbo-16k 此处不可用)
+            var modelName = KernelTestBase.Default_ChatEmbedding;//默认使用模型(gpt-35-turbo-16k 此处不可用)
 
             var iWantToRun =
                  handler.IWantTo()

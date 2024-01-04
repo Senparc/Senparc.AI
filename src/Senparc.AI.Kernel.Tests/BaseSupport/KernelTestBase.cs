@@ -16,6 +16,7 @@ namespace Senparc.AI.Kernel.Tests.BaseSupport
     {
         public static string Default_TextCompletion = null;
         public static string Default_TextEmbedding = null;
+        public static string Default_ChatEmbedding = null;
 
         static Action<IRegisterService> RegisterAction = r =>
         {
@@ -40,6 +41,7 @@ namespace Senparc.AI.Kernel.Tests.BaseSupport
                 case AiPlatform.HuggingFace:
                     Default_TextCompletion = "chatglm2";
                     Default_TextEmbedding = "chatglm2";
+                    Default_ChatEmbedding = "chatglm2";
                     break;
                 case AiPlatform.UnSet:
                 case AiPlatform.None:
@@ -49,6 +51,7 @@ namespace Senparc.AI.Kernel.Tests.BaseSupport
                 default:
                     Default_TextCompletion = "text-davinci-003";
                     Default_TextEmbedding = "text-embedding-ada-002";
+                    Default_ChatEmbedding = "gpt-35-turbo";
                     break;
             }
 

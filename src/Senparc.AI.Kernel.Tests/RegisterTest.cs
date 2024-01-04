@@ -19,7 +19,7 @@ namespace Senparc.AI.Kernel.Tests
             //TODO: ²âÊÔ NeuChar ½Ó¿Ú
             Assert.AreEqual(AiPlatform.AzureOpenAI, settings.AiPlatform);
             Assert.AreEqual(true, settings.UseAzureOpenAI);
-            Assert.AreEqual(false, settings.UseNeuCharOpenAI);
+            Assert.AreEqual(false, settings.UseNeuCharAI);
         }
 
         [TestMethod]

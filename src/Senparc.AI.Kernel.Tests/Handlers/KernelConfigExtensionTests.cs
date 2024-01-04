@@ -28,7 +28,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             var iWantToRun = handler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextEmbedding)
-                 .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
+                 .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_ChatEmbedding)
                  .BuildKernel(/*b => b.WithMemoryStorage(new VolatileMemoryStore())*/);
 
             var dt1 = DateTime.Now;
@@ -63,7 +63,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             foreach (var q in questions)
             {
                 var questionDt = DateTime.Now;
-                var result = await iWantToRun.MemorySearchAsync(KernelTestBase.Default_TextCompletion, MemoryCollectionName, q);
+                var result = await iWantToRun.MemorySearchAsync(KernelTestBase.Default_TextCompletion, MemoryCollectionName, q, azureDeployName: azureDeployName);
                 var response = result.MemoryQueryResult;
                 Console.Write("Q: " + q + "\r\nA: ");
                 await foreach (var resultItem in response)
@@ -81,18 +81,19 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             var memory = iWantToRun.SemanticKernelHelper.TryGetMemory();
 
 #pragma warning disable SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-            iWantToRun.ImportFunctions(new TextMemoryPlugin(memory), "Retrieve");//TODO: 简化方法
+            iWantToRun.ImportFunctions(new TextMemoryPlugin(memory)/*, "Retrieve"*/);//TODO: 简化方法
 #pragma warning restore SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
             await Console.Out.WriteLineAsync("\nFunctionsViews：");
-            foreach (var item in iWantToRun.Kernel.Data)
+            foreach (var item in iWantToRun.Kernel.Plugins)
             {
                 await Console.Out.WriteLineAsync(item.ToJson());
             }
             // Save, Remove, Recall, Retrieve
 
             //没有增加实际的 Funciton，只有默认的 4 个
-            Assert.AreEqual(0 + 4/* 4 个默认的 Function */, iWantToRun.Kernel.Data.Count);
+            Assert.AreEqual(0 + 1/* 1 个 Skill */, iWantToRun.Kernel.Plugins.Count);
+            Assert.AreEqual(4 /* 4 个默认的 Function */, iWantToRun.Kernel.Plugins.First().Count());
 
             const string skPrompt = @"
 ChatBot can have a conversation with you about any topic.
@@ -115,9 +116,9 @@ ChatBot: ";
 
             var chatFunction = iWantToRun.CreateFunctionFromPrompt(skPrompt, maxTokens: 200, temperature: 0.8);
 
-            //增加了 1 个 Function
-            Assert.AreEqual(1 + 4/* 4 个默认的 Function*/,
-                           iWantToRun.Kernel.Data.Count);
+            //增加了 1 个 Function，但不会影响 Plugins 数量
+            Assert.AreEqual(0 + 1/* 1 个 Skill */, iWantToRun.Kernel.Plugins.Count);
+            Assert.AreEqual(4 /* 4 个默认的 Function */, iWantToRun.Kernel.Plugins.First().Count());
 
             var context = iWantToRun.CreateNewArguments().arguments;
 
@@ -130,6 +131,7 @@ ChatBot: ";
             context["fact7"] = "how many years of R&D experience does Senparc has?";
 #pragma warning disable SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             context[TextMemoryPlugin.CollectionParam] = MemoryCollectionName;
+            context[TextMemoryPlugin.LimitParam] = "2";
             context[TextMemoryPlugin.RelevanceParam] = "0.8";
 #pragma warning restore SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
@@ -139,7 +141,7 @@ ChatBot: ";
             var input = "Where is my company?";
             context["userInput"] = input;
 
-            var answerResult = await chatFunction.function.InvokeAsync(chatFunction.iWantToRun.Kernel);
+            var answerResult = await chatFunction.function.InvokeAsync(chatFunction.iWantToRun.Kernel, context);
             var answer = answerResult.GetValue<string>();
 
             await Console.Out.WriteLineAsync(answer.ToJson());
@@ -156,8 +158,9 @@ ChatBot: ";
 
             input = "Why do you think so? Give me your logic, please.";
             context["userInput"] = input;
-            var functionResult = await chatFunction.function.InvokeAsync(chatFunction.iWantToRun.Kernel);
+            var functionResult = await chatFunction.function.InvokeAsync(chatFunction.iWantToRun.Kernel, context);
             await Console.Out.WriteLineAsync("Question: " + input);
+            await Console.Out.WriteLineAsync("Result(GetValue):"+functionResult.GetValue<string>().Humanize());
             await Console.Out.WriteLineAsync("Answer: " + functionResult.ToJson(true));
         }
 
@@ -169,6 +172,7 @@ ChatBot: ";
             var handler = serviceProvider.GetRequiredService<IAiHandler>()
                             as SemanticAiHandler;
             var userId = "JeffreySu";
+            const string azureDeployName = "text-embedding-ada-002";
 
             //测试 TextEmbedding
             var iWantToRun = handler
@@ -200,7 +204,8 @@ ChatBot: ";
                     description: entry.Value,//只用于展示记录
                     text: entry.Value,//真正用于生成 embedding
                     externalId: entry.Key,
-                    externalSourceName: "NeuCharFramework"
+                    externalSourceName: "NeuCharFramework",
+                    azureDeployName: azureDeployName
                 );
                 Console.WriteLine($"  URL {++j} saved");
             }
