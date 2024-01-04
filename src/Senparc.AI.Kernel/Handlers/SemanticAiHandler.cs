@@ -22,9 +22,9 @@ namespace Senparc.AI.Kernel
         private Microsoft.SemanticKernel.Kernel _kernel => SemanticKernelHelper.GetKernel();
 
 
-        public SemanticAiHandler(SemanticKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null)
+        public SemanticAiHandler(SemanticKernelHelper? semanticAiHelper = null, ISenparcAiSetting senparcAiSetting = null, ILoggerFactory loggerFactory = null)
         {
-            SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper();
+            SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper(senparcAiSetting);
             this.loggerFactory = loggerFactory;
         }
 
@@ -50,7 +50,7 @@ namespace Senparc.AI.Kernel
         }
 
         public (IWantToRun iWantToRun, KernelFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
-            string userId, string modelName = "text-davinci-003", SenparcAiSetting senparcAiSetting = null)
+            string userId, string modelName = "text-davinci-003", ISenparcAiSetting senparcAiSetting = null)
         {
             var chatPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT;
 

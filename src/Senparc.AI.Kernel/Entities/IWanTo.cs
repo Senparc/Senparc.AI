@@ -10,12 +10,22 @@ namespace Senparc.AI.Kernel.Handlers
 {
     public class IWantTo
     {
+
         public IKernelBuilder KernelBuilder { get; set; }
         //public KernelConfig KernelConfig { get; set; }
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         public SemanticAiHandler SemanticAiHandler { get; set; }
 
-        public ISenparcAiSetting SenparcAiSetting { get; set; }
+        private ISenparcAiSetting _senparcAiSetting;
+        public ISenparcAiSetting SenparcAiSetting
+        {
+            get
+            {
+                _senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
+                return _senparcAiSetting;
+            }
+            set => _senparcAiSetting = value;
+        }
 
         public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
 

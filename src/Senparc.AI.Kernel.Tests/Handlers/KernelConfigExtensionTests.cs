@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Humanizer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
@@ -28,36 +29,22 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextEmbedding)
                  .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
-                 .BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
+                 .BuildKernel(/*b => b.WithMemoryStorage(new VolatileMemoryStore())*/);
 
             var dt1 = DateTime.Now;
             const string MemoryCollectionName = "aboutMe";
 
-            var useNewMethod = true;
-            if (!useNewMethod)
-            {
-                //原始方法（异步，依次进行）
-                var kernel = handler.SemanticKernelHelper.GetKernel(); await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info1", text: "My name is Andrea");
-                await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator");
-                await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005");
-                await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info4", text: "I visited France and Italy five times since 2015");
-                await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info5", text: "My family is from New York");
-                await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info6", text: "I'm work for Senparc");
-                await kernel.Memory.SaveInformationAsync(MemoryCollectionName, id: "info7", text: "Suzhou Senparc Network Technology Co., Ltd. was founded in 2010, mainly engaged in mobile Internet, e-commerce, software, management system development and implementation. We have in-depth research on Artificial Intelligence, big data and paperless electronic conference systems. Senparc has 5 domestic subsidiaries and 1 overseas subsidiary(in Sydney). Our products and services have been involved in government, medical, education, military, logistics, finance and many other fields. In addition to the major provinces and cities in China, Senparc's products have entered the markets of the United States, Canada, Australia, the Netherlands, Sweden and Spain.");
-            }
-            else
-            {
-                //新方法（异步，同时进行）
-                iWantToRun
-                    .MemorySaveInformation(MemoryCollectionName, id: "info1", text: "My name is Andrea")
-                    .MemorySaveInformation(MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator")
-                    .MemorySaveInformation(MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005")
-                    .MemorySaveInformation(MemoryCollectionName, id: "info4", text: "I visited France and Italy five times since 2015")
-                    .MemorySaveInformation(MemoryCollectionName, id: "info5", text: "My family is from New York")
-                    .MemorySaveInformation(MemoryCollectionName, id: "info6", text: "I work for Senparc")
-                    .MemorySaveInformation(MemoryCollectionName, id: "info7", text: "Suzhou Senparc Network Technology Co., Ltd. was founded in 2010, mainly engaged in mobile Internet, e-commerce, software, management system development and implementation. We have in-depth research on Artificial Intelligence, big data and paperless electronic conference systems. Senparc has 5 domestic subsidiaries and 1 overseas subsidiary(in Sydney). Our products and services have been involved in government, medical, education, military, logistics, finance and many other fields. In addition to the major provinces and cities in China, Senparc's products have entered the markets of the United States, Canada, Australia, the Netherlands, Sweden and Spain.")
-                    .MemoryStoreExexute();
-            }
+
+            //新方法（异步，同时进行）
+            iWantToRun
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info1", text: "My name is Andrea")
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator")
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005")
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info4", text: "I visited France and Italy five times since 2015")
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info5", text: "My family is from New York")
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info6", text: "I work for Senparc")
+                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info7", text: "Suzhou Senparc Network Technology Co., Ltd. was founded in 2010, mainly engaged in mobile Internet, e-commerce, software, management system development and implementation. We have in-depth research on Artificial Intelligence, big data and paperless electronic conference systems. Senparc has 5 domestic subsidiaries and 1 overseas subsidiary(in Sydney). Our products and services have been involved in government, medical, education, military, logistics, finance and many other fields. In addition to the major provinces and cities in China, Senparc's products have entered the markets of the United States, Canada, Australia, the Netherlands, Sweden and Spain.")
+                .MemoryStoreExexute();
 
             var dt2 = DateTime.Now;
             Console.WriteLine("kernel.Memory.SaveInformationAsync cost:" + (dt2 - dt1).TotalMilliseconds + "ms");
@@ -76,7 +63,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             foreach (var q in questions)
             {
                 var questionDt = DateTime.Now;
-                var result = await iWantToRun.MemorySearchAsync(MemoryCollectionName, q);
+                var result = await iWantToRun.MemorySearchAsync(KernelTestBase.Default_TextCompletion, MemoryCollectionName, q);
                 var response = result.MemoryQueryResult;
                 Console.Write("Q: " + q + "\r\nA: ");
                 await foreach (var resultItem in response)
@@ -89,19 +76,23 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             // 测试 recall
 
-            Assert.AreEqual(0, iWantToRun.Kernel.Functions.GetFunctionViews().Count);
+            Assert.AreEqual(0, iWantToRun.Kernel.Data.Count);
 
-            iWantToRun.ImportFunctions(new TextMemoryPlugin(iWantToRun.Kernel.Memory));//TODO: 简化方法
+            var memory = iWantToRun.SemanticKernelHelper.TryGetMemory();
+
+#pragma warning disable SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+            iWantToRun.ImportFunctions(new TextMemoryPlugin(memory));//TODO: 简化方法
+#pragma warning restore SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
             await Console.Out.WriteLineAsync("\nFunctionsViews：");
-            foreach (var item in iWantToRun.Kernel.Functions.GetFunctionViews())
+            foreach (var item in iWantToRun.Kernel.Data)
             {
                 await Console.Out.WriteLineAsync(item.ToJson());
             }
             // Save, Remove, Recall, Retrieve
-          
+
             //没有增加实际的 Funciton，只有默认的 4 个
-            Assert.AreEqual(0 + 4/* 4 个默认的 Function */, iWantToRun.Kernel.Functions.GetFunctionViews().Count);
+            Assert.AreEqual(0 + 4/* 4 个默认的 Function */, iWantToRun.Kernel.Data.Count);
 
             const string skPrompt = @"
 ChatBot can have a conversation with you about any topic.
@@ -126,27 +117,29 @@ ChatBot: ";
 
             //增加了 1 个 Function
             Assert.AreEqual(1 + 4/* 4 个默认的 Function*/,
-                           iWantToRun.Kernel.Functions.GetFunctionViews().Count);
+                           iWantToRun.Kernel.Data.Count);
 
-            var context = iWantToRun.CreateNewArguments().context;
+            var context = iWantToRun.CreateNewArguments().arguments;
 
-            context.Variables["fact1"] = "what is my name?";
-            context.Variables["fact2"] = "where do I live?";
-            context.Variables["fact3"] = "where is my family from?";
-            context.Variables["fact4"] = "where have I travelled?";
-            context.Variables["fact5"] = "what do I do for work?";
-            context.Variables["fact6"] = "what company I work for?";
-            context.Variables["fact7"] = "how many years of R&D experience does Senparc has?";
-            context.Variables[TextMemoryPlugin.CollectionParam] = MemoryCollectionName;
-            context.Variables[TextMemoryPlugin.RelevanceParam] = "0.8";
+            context["fact1"] = "what is my name?";
+            context["fact2"] = "where do I live?";
+            context["fact3"] = "where is my family from?";
+            context["fact4"] = "where have I travelled?";
+            context["fact5"] = "what do I do for work?";
+            context["fact6"] = "what company I work for?";
+            context["fact7"] = "how many years of R&D experience does Senparc has?";
+#pragma warning disable SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+            context[TextMemoryPlugin.CollectionParam] = MemoryCollectionName;
+            context[TextMemoryPlugin.RelevanceParam] = "0.8";
+#pragma warning restore SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
             var history = "[]";
-            context.Variables["history"] = history;
+            context["history"] = history;
 
             var input = "Where is my company?";
-            context.Variables["userInput"] = input;
+            context["userInput"] = input;
 
-            var answerResult = await chatFunction.function.InvokeAsync(context);
+            var answerResult = await chatFunction.function.InvokeAsync(chatFunction.iWantToRun.Kernel);
             var answer = answerResult.GetValue<string>();
 
             await Console.Out.WriteLineAsync(answer.ToJson());
@@ -154,7 +147,7 @@ ChatBot: ";
             Assert.AreEqual(answer.ToString(), answer);
 
             history += $"\nUser: {input}\nChatBot: {answer}\n";
-            context.Variables["history"] = history;
+            context["history"] = history;
 
             await Console.Out.WriteLineAsync("===== Start recall test =====");
             await Console.Out.WriteLineAsync("Question: " + input);
@@ -162,8 +155,8 @@ ChatBot: ";
             Console.WriteLine();
 
             input = "Why do you think so? Give me your logic, please.";
-            context.Variables["userInput"] = input;
-            var functionResult = await chatFunction.function.InvokeAsync(context);
+            context["userInput"] = input;
+            var functionResult = await chatFunction.function.InvokeAsync(chatFunction.iWantToRun.Kernel);
             await Console.Out.WriteLineAsync("Question: " + input);
             await Console.Out.WriteLineAsync("Answer: " + functionResult.ToJson(true));
         }
@@ -182,7 +175,7 @@ ChatBot: ";
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextEmbedding)
                  .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
-                 .BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
+                 .BuildKernel(/*b => b.WithMemoryStorage(new VolatileMemoryStore())*/);
 
             const string memoryCollectionName = "NcfGitHub";
 
@@ -202,6 +195,7 @@ ChatBot: ";
             foreach (var entry in githubFiles)
             {
                 iWantToRun.MemorySaveReference(
+                    modelName: KernelTestBase.Default_TextEmbedding,
                     collection: memoryCollectionName,
                     description: entry.Value,//只用于展示记录
                     text: entry.Value,//真正用于生成 embedding
@@ -212,7 +206,7 @@ ChatBot: ";
             }
             iWantToRun.MemoryStoreExexute();
 
-            var kernelMemory = await iWantToRun.Kernel.Memory.GetCollectionsAsync();
+            var kernelMemory = await iWantToRun.SemanticKernelHelper.TryGetMemory().GetCollectionsAsync();
 
             Assert.AreEqual(1, kernelMemory.Count);
             Assert.AreEqual("NcfGitHub", kernelMemory.First());
@@ -225,13 +219,14 @@ ChatBot: ";
             var dt3 = SystemTime.Now;
 
             var askPrompt = "我正在使用 Visutal Studio，如何进行开发？";
-            var memories = iWantToRun.MemorySearchAsync(memoryCollectionName, askPrompt, limit: 5, minRelevanceScore: 0.77);
+            var memories = await iWantToRun.MemorySearchAsync(KernelTestBase.Default_TextEmbedding, memoryCollectionName, askPrompt, limit: 5, minRelevanceScore: 0.77);
 
             var dt4 = SystemTime.Now;
 
             await Console.Out.WriteLineAsync("提问：" + askPrompt);
             var h = 0;
-            await foreach (MemoryQueryResult memory in memories.Result.MemoryQueryResult)
+#pragma warning disable SKEXP0003 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+            await foreach (MemoryQueryResult memory in memories.MemoryQueryResult)
             {
                 await Console.Out.WriteLineAsync($"Result {++h}:");
                 await Console.Out.WriteLineAsync("  URL:\t\t\t" + memory.Metadata.Id?.Trim());
@@ -240,6 +235,7 @@ ChatBot: ";
                 await Console.Out.WriteLineAsync("  Relevance:\t" + memory.Relevance);
                 await Console.Out.WriteLineAsync();
             }
+#pragma warning restore SKEXP0003 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             if (h == 0)
             {
                 await Console.Out.WriteLineAsync("没有匹配结果");

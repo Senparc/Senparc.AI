@@ -56,13 +56,13 @@ namespace Senparc.AI.Kernel.Handlers
         {
             var iWantTo = iWantToConfig.IWantTo;
             var existedKernelBuilder = iWantToConfig.IWantTo.KernelBuilder;
-            senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
+            senparcAiSetting ??= iWantTo.SenparcAiSetting;
 
             var kernelBuilder = configModel switch
             {
                 AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, senparcAiSetting,
                     existedKernelBuilder, modelName),
-                AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName, senparcAiSetting,existedKernelBuilder),
+                AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName, senparcAiSetting, existedKernelBuilder),
                 AI.ConfigModel.ImageGeneration => iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder, modelName, senparcAiSetting, azureDallEDepploymentName),
                 _ => throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel)
             };

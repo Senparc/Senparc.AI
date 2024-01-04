@@ -1,4 +1,5 @@
 ﻿using Senparc.AI.Interfaces;
+using Senparc.CO2NET;
 using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,9 @@ namespace Senparc.AI.Entities
         public virtual AiPlatform AiPlatform { get; set; }
 
         public virtual OpenAIKeys OpenAIKeys { get; set; }
-        public virtual NeuCharOpenAIKeys NeuCharOpenAIKeys { get; set; }
+        public virtual NeuCharAIKeys NeuCharAIKeys { get; set; }
+        [Obsolete("即将过期")]
+        public virtual NeuCharAIKeys NeuCharOpenAIKeys { get; set; }
         public virtual AzureOpenAIKeys AzureOpenAIKeys { get; set; }
         public virtual HuggingFaceKeys HuggingFaceKeys { get; set; }
 
@@ -42,7 +45,7 @@ namespace Senparc.AI.Entities
         public virtual string ApiKey => AiPlatform switch
         {
             AiPlatform.OpenAI => OpenAIKeys.ApiKey,
-            AiPlatform.NeuCharAI => NeuCharOpenAIKeys.ApiKey,
+            AiPlatform.NeuCharAI => NeuCharAIKeys.ApiKey,
             AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey,
             AiPlatform.HuggingFace => "",
             _ => ""
@@ -78,7 +81,12 @@ namespace Senparc.AI.Entities
         /// <summary>
         /// Azure OpenAI 版本号
         /// </summary>
-        public virtual string NeuCharOpenAIApiVersion => NeuCharOpenAIKeys?.NeuCharOpenAIApiVersion;
+        [Obsolete("已过期，请使用 NeuCharAIApiVersion", true)]
+        public virtual string NeuCharOpenAIApiVersion => NeuCharAIKeys?.NeuCharAIApiVersion;
+        /// <summary>
+        /// Azure OpenAI 版本号
+        /// </summary>
+        public virtual string NeuCharAIApiVersion => NeuCharAIKeys?.NeuCharAIApiVersion;
 
         #endregion
 
@@ -89,5 +97,65 @@ namespace Senparc.AI.Entities
         #endregion
 
         public virtual bool IsOpenAiKeysSetted => OpenAIKeys != null && !OpenAIKeys.ApiKey.IsNullOrEmpty();
+
+        #region 快速配置方法
+
+        /// <summary>
+        /// 设置 OpenAI
+        /// </summary>
+        /// <param name="apiKey"></param>
+        /// <param name="orgId"></param>
+        public ISenparcAiSetting SetOpenAI(OpenAIKeys openAIKeys)
+        {
+            this.AiPlatform = AiPlatform.OpenAI;
+            this.OpenAIKeys = openAIKeys;
+            return this;
+        }
+
+        ///<summary>
+        /// 设置 AzureOpenAI
+        /// </summary>
+        public ISenparcAiSetting SetAzureOpenAI(AzureOpenAIKeys azureOpenAIKeys)
+        {
+            this.AiPlatform = AiPlatform.AzureOpenAI;
+            this.AzureOpenAIKeys = azureOpenAIKeys;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置 NeuCharAI
+        /// </summary>
+        /// <param name="neuCharAIKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetNeuCharAI(NeuCharAIKeys neuCharAIKeys)
+        {
+            this.AiPlatform = AiPlatform.NeuCharAI;
+            this.NeuCharAIKeys = neuCharAIKeys;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置 HuggingFace
+        /// </summary>
+        /// <param name="huggingFaceKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetFuggingFace(HuggingFaceKeys huggingFaceKeys)
+        {
+            this.AiPlatform = AiPlatform.HuggingFace;
+            this.HuggingFaceKeys = huggingFaceKeys;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置其他平台
+        /// </summary>
+        /// <returns></returns>
+        public ISenparcAiSetting SetOtherPlatform()
+        {
+            this.AiPlatform = AiPlatform.Other;
+            return this;
+        }
+
+        #endregion
     }
 }

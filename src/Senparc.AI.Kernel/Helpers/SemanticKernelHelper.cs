@@ -259,7 +259,21 @@ namespace Senparc.AI.Kernel.Helpers
         ISemanticTextMemory _textMemory = null;//TODO:适配多重不同的请求
 
         /// <summary>
-        /// 获取 Kernel.Memory 对象
+        /// 尝试获取 ISemanticTextMemory 对象
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="SenparcAiException">当 ISemanticTextMemory 未设置时抛出</exception>
+        public ISemanticTextMemory? TryGetMemory()
+        {
+            if (_textMemory == null)
+            {
+                throw new SenparcAiException("_textMemory 未设置！");
+            }
+            return _textMemory;
+        }
+
+        /// <summary>
+        /// 获取 ISemanticTextMemory 对象
         /// </summary>
         /// <returns></returns>
         //[Obsolete("该方法已被SK放弃，原文为：Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]

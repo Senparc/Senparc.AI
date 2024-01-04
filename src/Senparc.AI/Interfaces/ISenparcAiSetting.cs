@@ -67,7 +67,13 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// Azure OpenAI 版本号
         /// </summary>
+        [Obsolete("已过期，请使用 NeuCharAIApiVersion", true)]
         string NeuCharOpenAIApiVersion { get; }
+
+        /// <summary>
+        /// 对应 Azure OpenAI 版本号
+        /// </summary>
+        string NeuCharAIApiVersion { get; }
 
         #endregion
 
