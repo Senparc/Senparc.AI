@@ -104,7 +104,6 @@ namespace Senparc.AI.Kernel.Helpers
             IKernelBuilder? kernelBuilder, string azureDeployName = null)
         {
             var serviceId = GetServiceId(userId, modelName);
-            senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
             var aiPlatForm = senparcAiSetting.AiPlatform;
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
@@ -144,15 +143,15 @@ namespace Senparc.AI.Kernel.Helpers
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="modelName"></param>
+        /// <param name="senparcAiSetting"></param>
         /// <param name="kernelBuilder"></param>
         /// <returns></returns>
         /// <exception cref="Senparc.AI.Exceptions.SenparcAiException"></exception>
-        public IKernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName, IKernelBuilder? kernelBuilder = null)
+        public IKernelBuilder ConfigTextEmbeddingGeneration(string userId, string modelName, ISenparcAiSetting senparcAiSetting, IKernelBuilder? kernelBuilder = null)
         {
             //kernel ??= GetKernel();
 
             var serviceId = GetServiceId(userId, modelName);
-            var senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
             var aiPlatForm = AiSetting.AiPlatform;
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
@@ -208,13 +207,15 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="userId"></param>
         /// <param name="kernelBuilder"></param>
         /// <param name="azureModeId">AzureOpenAI 的模型名称</param>
+        /// <param name="senparcAiSetting"></param>
         /// <param name="azureDallEDepploymentName">AzureAI 的 DallE 模型部署名称</param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
-        public IKernelBuilder ConfigImageGeneration(string userId, IKernelBuilder? kernelBuilder = null, string azureModeId = null, string azureDallEDepploymentName = null)
+        public IKernelBuilder ConfigImageGeneration(string userId, IKernelBuilder? kernelBuilder = null, string azureModeId = null, ISenparcAiSetting senparcAiSetting = null, string azureDallEDepploymentName = null)
         {
+            senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
+
             var serviceId = GetServiceId(userId, "image-generation");
-            var senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
             var aiPlatForm = AiSetting.AiPlatform;
 
             //TODO：Builder 不应该新建
@@ -268,7 +269,6 @@ namespace Senparc.AI.Kernel.Helpers
         {
             if (_textMemory == null)
             {
-                senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
                 var aiPlatForm = senparcAiSetting.AiPlatform;
 
                 var memoryBuilder = new MemoryBuilder();
@@ -383,9 +383,15 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="stopSequences"></param>
         /// <param name="senparcAiSetting"></param>
         /// <returns></returns>
-        public PromptExecutionSettings GetExecutionSetting(double temperature = default, double topP = default, int? maxTokens = default, double presencePenalty = default, double frequencyPenalty = default, IList<string>? stopSequences = default, ISenparcAiSetting? senparcAiSetting = null)
+        public PromptExecutionSettings GetExecutionSetting(ISenparcAiSetting senparcAiSetting, double temperature = default, double topP = default, int? maxTokens = default, double presencePenalty = default, double frequencyPenalty = default, IList<string>? stopSequences = default)
         {
             senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
+
+            if (senparcAiSetting == null)
+            {
+                throw new SenparcAiException("全局未设置 Senparc.AI.Config.SenparcAiSetting，请在参数中提供相关配置！");
+            }
+
             var aiPlatForm = senparcAiSetting.AiPlatform;
 
             var promptExecutiongSetting = aiPlatForm switch
@@ -427,17 +433,17 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="stopSequences"></param>
         /// <param name="senparcAiSetting"></param>
         /// <returns></returns>
-        public PromptExecutionSettings GetExecutionSetting(PromptConfigParameter promptConfigParameter, ISenparcAiSetting? senparcAiSetting = null)
+        public PromptExecutionSettings GetExecutionSetting(PromptConfigParameter promptConfigParameter, ISenparcAiSetting senparcAiSetting)
         {
             return GetExecutionSetting(
+                   senparcAiSetting: senparcAiSetting,
                    temperature: promptConfigParameter.Temperature ?? default,
                    topP: promptConfigParameter.TopP ?? default,
                    maxTokens: promptConfigParameter.MaxTokens,
                    presencePenalty: promptConfigParameter.PresencePenalty ?? default,
                    frequencyPenalty: promptConfigParameter.FrequencyPenalty ?? default,
-                   stopSequences: promptConfigParameter.StopSequences,
-                   senparcAiSetting
-                   );
+                   stopSequences: promptConfigParameter.StopSequences
+                    );
         }
 
         #endregion

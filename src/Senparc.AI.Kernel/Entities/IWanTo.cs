@@ -2,6 +2,7 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Services;
 using Senparc.AI.Entities;
+using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Helpers;
 
@@ -13,6 +14,8 @@ namespace Senparc.AI.Kernel.Handlers
         //public KernelConfig KernelConfig { get; set; }
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         public SemanticAiHandler SemanticAiHandler { get; set; }
+
+        public ISenparcAiSetting SenparcAiSetting { get; set; }
 
         public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
 
@@ -26,10 +29,11 @@ namespace Senparc.AI.Kernel.Handlers
         //    KernelConfig = kernelConfig;
         //}
 
-        public IWantTo(SemanticAiHandler handler)
+        public IWantTo(SemanticAiHandler handler, ISenparcAiSetting senparcAiSetting)
         {
             SemanticAiHandler = handler;
             SemanticKernelHelper = handler.SemanticKernelHelper;
+            SenparcAiSetting = senparcAiSetting ?? Senparc.AI.Config.SenparcAiSetting;
         }
 
 

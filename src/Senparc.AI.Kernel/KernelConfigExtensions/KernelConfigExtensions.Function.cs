@@ -37,6 +37,7 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.TemplateEngine;
 using Senparc.AI.Entities;
+using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Helpers;
 using Senparc.CO2NET.Extensions;
@@ -58,6 +59,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="promptTemplate">Prompt template for the function.</param>
+        /// <param name="promptConfigPara"></param>
         /// <param name="executionSettings">Default execution settings to use when invoking this prompt function.</param>
         /// <param name="functionName">The name to use for the function. If null, it will default to a randomly generated name.</param>
         /// <param name="description">The description to use for the function.</param>
@@ -66,13 +68,15 @@ namespace Senparc.AI.Kernel.Handlers
         /// The <see cref="IPromptTemplateFactory"/> to use when interpreting the <paramref name="promptTemplate"/> into a <see cref="IPromptTemplate"/>.
         /// If null, a default factory will be used.
         /// </param>
+        /// <param name="senparcAiSetting">如果为 null，则默认是用</param>
         /// <returns>(IWantToRun iWantToRun, KernelFunction newFunction)</returns>
         public static (IWantToRun iWantToRun, KernelFunction newFunction) CreateFunctionFromPrompt(this IWantToRun iWantToRun, string promptTemplate,
             PromptConfigParameter? promptConfigPara = null,
             string? functionName = null,
             string? description = null,
             string? templateFormat = null,
-            IPromptTemplateFactory? promptTemplateFactory = null
+            IPromptTemplateFactory? promptTemplateFactory = null,
+            ISenparcAiSetting? senparcAiSetting = null
             /*string? skPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT*/)
         {
             promptConfigPara ??= new PromptConfigParameter();
@@ -81,7 +85,9 @@ namespace Senparc.AI.Kernel.Handlers
             var helper = iWantToRun.SemanticKernelHelper;
             var kernel = iWantToRun.Kernel;
 
-            var executionSetting = helper.GetExecutionSetting(promptConfigPara);
+            senparcAiSetting ??= iWantTo.SenparcAiSetting;
+
+            var executionSetting = helper.GetExecutionSetting(promptConfigPara, senparcAiSetting);
 
             //var promptTemplateConfig = new PromptTemplateConfig();
             //promptTemplateConfig.ModelSettings.Add(aiRequestSettings);
@@ -121,7 +127,6 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="iWantToRun"></param>
         /// <param name="promptTemplate">Plain language definition of the semantic function, using SK template language</param>
         /// <param name="functionName">A name for the given function. The name can be referenced in templates and used by the pipeline planner.</param>
-        /// <param name="pluginName">Optional skill name, for namespacing and avoid collisions</param>
         /// <param name="description">Optional description, useful for the planner</param>
         /// <param name="maxTokens">Max number of tokens to generate</param>
         /// <param name="temperature">Temperature parameter passed to LLM</param>
@@ -129,6 +134,9 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="presencePenalty">Presence Penalty parameter passed to LLM</param>
         /// <param name="frequencyPenalty">Frequency Penalty parameter passed to LLM</param>
         /// <param name="stopSequences">Strings the LLM will detect to stop generating (before reaching max tokens)</param>
+        /// <param name="templateFormat"></param>
+        /// <param name="promptTemplateFactory"></param>
+        /// <param name="senparcAiSetting">如果为 null，则默认是用</param>
         /// <returns>A function ready to use</returns>
         public static (IWantToRun iWantToRun, KernelFunction function) CreateFunctionFromPrompt(this IWantToRun iWantToRun,
             string promptTemplate,
@@ -141,11 +149,15 @@ namespace Senparc.AI.Kernel.Handlers
             double frequencyPenalty = 0,
             IList<string>? stopSequences = null,
             string? templateFormat = null,
-            IPromptTemplateFactory? promptTemplateFactory = null)
+            IPromptTemplateFactory? promptTemplateFactory = null,
+            ISenparcAiSetting? senparcAiSetting = null
+            )
         {
+            senparcAiSetting ??= iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting;
 
             PromptExecutionSettings executionSettings = iWantToRun
                 .SemanticKernelHelper.GetExecutionSetting(
+                    senparcAiSetting: senparcAiSetting,
                      maxTokens: maxTokens,
                      temperature: temperature,
                      topP: topP,
@@ -166,26 +178,6 @@ namespace Senparc.AI.Kernel.Handlers
             iWantToRun.Functions.Add(function);
             return (iWantToRun, function);
         }
-
-        ///// <summary>
-        ///// Build and register a function in the internal skill collection, in a global generic skill.
-        ///// </summary>
-        ///// <param name="iWantToRun"></param>
-        //public static (IWantToRun iWantToRun, KernelFunction function) CreateFunctionFromPrompt(this IWantToRun iWantToRun,
-        //    string promptTemplate,
-        //    string functionName,
-        //    PromptConfigParameter promptConfigPara,
-        //    string? description = null)
-        //{
-        //    var kernel = iWantToRun.Kernel;
-        //    var helper = iWantToRun.SemanticKernelHelper;
-        //    var executionSetting = helper.GetExecutionSetting(promptConfigPara);
-
-        //    var function = kernel.CreateFunctionFromPrompt(promptTemplate, executionSetting, functionName, description);
-        //    iWantToRun.Functions.Add(function);
-        //    return (iWantToRun, function);
-        //}
-
 
         #endregion
     }

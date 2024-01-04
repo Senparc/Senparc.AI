@@ -1,5 +1,4 @@
 ﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
@@ -98,7 +97,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                         .BuildKernel()
-                        .CreateFunctionFromPrompt("ChatBot", "Chat", promptParameter)
+                        .CreateFunctionFromPrompt(Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT, promptParameter)
                         .iWantToRun;
 
             // 设置输入/提问
@@ -153,7 +152,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                         .BuildKernel()
-                        .CreateFunctionFromPrompt("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
+                        .CreateFunctionFromPrompt(functionPrompt, promptParameter).iWantToRun;
 
             var request = iWantToRun.CreateRequest("床前明月光，", true);
             var result = await iWantToRun.RunAsync(request);
@@ -206,7 +205,7 @@ MynameIsJeffrey,I'maChinese.ThisisAtest.HappYbIrthday!
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                         .BuildKernel();
 
-            iWantToRun.CreateFunctionFromPrompt("WordsOperation", "Format", promptParameter, funtcionPrompt);
+            iWantToRun.CreateFunctionFromPrompt(funtcionPrompt, promptParameter);
 
             var request = iWantToRun.CreateRequest("  he llo w orld !  thi s is a n ew w orld.  ", true);
             var result = await iWantToRun.RunAsync(request);
