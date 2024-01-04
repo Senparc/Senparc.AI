@@ -51,18 +51,19 @@ namespace Senparc.AI.Entities
         /// <summary>
         /// OpenAI API Orgaization ID
         /// </summary>
-        public virtual string OrganizationId => OpenAIKeys.OrganizationId;
+        public virtual string OrganizationId => OpenAIKeys?.OrganizationId;
 
         #region Azure OpenAI
 
         /// <summary>
         /// Azure OpenAI Endpoint
         /// </summary>
-        public virtual string AzureEndpoint => AzureOpenAIKeys.AzureEndpoint;
+        public virtual string AzureEndpoint => AzureOpenAIKeys?.AzureEndpoint;
+
         /// <summary>
         /// Azure OpenAI 版本号
         /// </summary>
-        public virtual string AzureOpenAIApiVersion => AzureOpenAIKeys.AzureOpenAIApiVersion;
+        public virtual string AzureOpenAIApiVersion => AzureOpenAIKeys?.AzureOpenAIApiVersion;
 
         #endregion
 
@@ -72,21 +73,21 @@ namespace Senparc.AI.Entities
         /// <summary>
         /// Azure OpenAI Endpoint
         /// </summary>
-        public virtual string NeuCharEndpoint => NeuCharOpenAIKeys.NeuCharEndpoint;
+        public virtual string NeuCharEndpoint => NeuCharOpenAIKeys?.NeuCharEndpoint;
+
         /// <summary>
         /// Azure OpenAI 版本号
         /// </summary>
-        public virtual string NeuCharOpenAIApiVersion => NeuCharOpenAIKeys.NeuCharOpenAIApiVersion;
+        public virtual string NeuCharOpenAIApiVersion => NeuCharOpenAIKeys?.NeuCharOpenAIApiVersion;
 
         #endregion
 
         #region HuggingFace
 
-        public virtual string HuggingFaceEndpoint => HuggingFaceKeys.Endpoint;
+        public virtual string HuggingFaceEndpoint => HuggingFaceKeys?.Endpoint;
 
         #endregion
 
         public virtual bool IsOpenAiKeysSetted => OpenAIKeys != null && !OpenAIKeys.ApiKey.IsNullOrEmpty();
-
     }
 }
