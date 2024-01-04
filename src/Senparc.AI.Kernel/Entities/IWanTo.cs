@@ -2,6 +2,7 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Services;
 using Senparc.AI.Entities;
+using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Helpers;
 
@@ -9,10 +10,22 @@ namespace Senparc.AI.Kernel.Handlers
 {
     public class IWantTo
     {
+
         public IKernelBuilder KernelBuilder { get; set; }
         //public KernelConfig KernelConfig { get; set; }
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         public SemanticAiHandler SemanticAiHandler { get; set; }
+
+        private ISenparcAiSetting _senparcAiSetting;
+        public ISenparcAiSetting SenparcAiSetting
+        {
+            get
+            {
+                _senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
+                return _senparcAiSetting;
+            }
+            set => _senparcAiSetting = value;
+        }
 
         public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
 
@@ -26,10 +39,11 @@ namespace Senparc.AI.Kernel.Handlers
         //    KernelConfig = kernelConfig;
         //}
 
-        public IWantTo(SemanticAiHandler handler)
+        public IWantTo(SemanticAiHandler handler, ISenparcAiSetting senparcAiSetting)
         {
             SemanticAiHandler = handler;
             SemanticKernelHelper = handler.SemanticKernelHelper;
+            SenparcAiSetting = senparcAiSetting ?? Senparc.AI.Config.SenparcAiSetting;
         }
 
 

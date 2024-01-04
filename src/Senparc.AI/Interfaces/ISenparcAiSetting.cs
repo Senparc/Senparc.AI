@@ -25,7 +25,7 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// 是否使用 NeuChar OpenAI
         /// </summary>
-        bool UseNeuCharOpenAI => AiPlatform == AiPlatform.NeuCharAI;
+        bool UseNeuCharAI => AiPlatform == AiPlatform.NeuCharAI;
         /// <summary>
         /// AI 平台类型
         /// </summary>
@@ -67,7 +67,13 @@ namespace Senparc.AI.Interfaces
         /// <summary>
         /// Azure OpenAI 版本号
         /// </summary>
+        [Obsolete("已过期，请使用 NeuCharAIApiVersion", true)]
         string NeuCharOpenAIApiVersion { get; }
+
+        /// <summary>
+        /// 对应 Azure OpenAI 版本号
+        /// </summary>
+        string NeuCharAIApiVersion { get; }
 
         #endregion
 

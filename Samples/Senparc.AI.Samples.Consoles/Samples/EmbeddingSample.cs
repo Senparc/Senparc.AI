@@ -16,7 +16,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         string memoryCollectionName = "EmbeddingTest";
         string textEmbeddingGenerationName = "text-embedding-ada-002";
         string textEmbeddingAzureDeployName = "text-embedding-ada-002";
-        
+
         public EmbeddingSample(IAiHandler aiHandler)
         {
             _aiHandler = aiHandler;
@@ -58,9 +58,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 if (isReference)
                 {
                     iWantToRun.MemorySaveReference(
-                        modelName: textEmbeddingGenerationName,
-                        azureDeployName: textEmbeddingAzureDeployName,
-
+                         modelName: textEmbeddingGenerationName,
+                         azureDeployName: textEmbeddingAzureDeployName,
                          collection: memoryCollectionName,
                          description: info[1],//只用于展示记录
                          text: info[1],//真正用于生成 embedding
@@ -71,12 +70,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
                 else
                 {
-
                     iWantToRun
                     .MemorySaveInformation(
                         modelName: textEmbeddingGenerationName,
                         azureDeployName: textEmbeddingAzureDeployName,
-
                         collection: memoryCollectionName, id: info[0], text: info[1]);
                 }
                 i++;
@@ -84,12 +81,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             iWantToRun.MemoryStoreExexute();
 
-
             while (true)
             {
                 await Console.Out.WriteLineAsync("请提问：");
                 var question = Console.ReadLine();
-                if (question=="exit")
+                if (question == "exit")
                 {
                     break;
                 }

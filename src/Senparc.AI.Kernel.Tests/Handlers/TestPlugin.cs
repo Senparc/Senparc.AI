@@ -1,5 +1,4 @@
 ﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Orchestration;
 
 
 namespace Senparc.AI.Kernel.Tests.Handlers
@@ -12,10 +11,10 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         public TestFunction() { }
 
 
-        [SKFunction, SKName("GenerateText"), System.ComponentModel.Description("创建实体类")]
+        [KernelFunction("GenerateText"), System.ComponentModel.Description("创建实体类")]
         public async Task<string> GenerateText(
             [System.ComponentModel.Description("输入要求")] string input,
-            SKContext sKContext
+            KernelArguments sKContext
             )
         {
             var promptTemplate = @"请根据新文本要求处理文字：
@@ -31,10 +30,10 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
         }
 
-        [SKFunction, SKName("GenerateText2"), System.ComponentModel.Description("创建实体类")]
+        [KernelFunction("GenerateText2"), System.ComponentModel.Description("创建实体类")]
         public async Task GenerateText2(
          //[System.ComponentModel.Description("输入要求")] string input,
-         SKContext sKContext
+         KernelArguments sKContext
          )
         {
             var promptTemplate = @"请根据新文本要求处理文字：
@@ -46,7 +45,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 " +
 "新文本要求为：{{$INPUT}}";
 
-            sKContext.Variables["promptTemplate"] = promptTemplate;
+            sKContext["promptTemplate"] = promptTemplate;
 
             //var result = await kernel.InvokeSemanticFunctionAsync(promptTemplate, maxTokens: 2000, temperature: 0.7, topP: 0.5);
             //return result.Result;

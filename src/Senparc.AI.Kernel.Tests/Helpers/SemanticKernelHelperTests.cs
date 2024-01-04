@@ -1,6 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI.ImageGeneration;
+using Microsoft.SemanticKernel.TextToImage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Helpers;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using System;
@@ -45,7 +46,7 @@ namespace Senparc.AI.Kernel.Helpers.Tests
 
             //测试添加配置
             bool testPass = false;
-            Action<KernelBuilder> kernelBuilderAction = kb =>
+            Action<IKernelBuilder> kernelBuilderAction = kb =>
             {
                 testPass = true;
             };
@@ -58,8 +59,9 @@ namespace Senparc.AI.Kernel.Helpers.Tests
         [TestMethod]
         public void ConfigTest()
         {
+            ISenparcAiSetting senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
             var helper = new SemanticKernelHelper();
-            var kernel = helper.ConfigTextCompletion("Jeffrey", KernelTestBase.Default_TextCompletion, null, KernelTestBase.Default_TextCompletion);
+            var kernel = helper.ConfigTextCompletion("Jeffrey", KernelTestBase.Default_TextCompletion, senparcAiSetting, null, KernelTestBase.Default_TextCompletion);
             Assert.IsNotNull(kernel);
         }
 
@@ -71,9 +73,11 @@ namespace Senparc.AI.Kernel.Helpers.Tests
             var helper = new SemanticKernelHelper();
             var kernel = helper.ConfigImageGeneration("Jeffrey").Build();
 
-            var dallE = kernel.GetService<IImageGeneration>();
+#pragma warning disable SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+            var dallE = kernel.GetRequiredService<ITextToImageService>();
             var imageDescription = "A car fly in the sky, with a panda driver.";
             var image = await dallE.GenerateImageAsync(imageDescription, 256, 256);
+#pragma warning restore SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
             await Console.Out.WriteLineAsync("Image URL:" + image);
             //返回：

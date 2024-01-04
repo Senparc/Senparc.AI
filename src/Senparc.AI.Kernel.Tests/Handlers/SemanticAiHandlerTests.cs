@@ -1,5 +1,4 @@
 ﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
@@ -25,7 +24,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey", KernelTestBase.Default_TextCompletion);
+            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey", KernelTestBase.Default_ChatEmbedding);
             var iWantToRun = chatConfig.iWantToRun;
 
             //第一轮对话
@@ -93,12 +92,12 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
+            var modelName = KernelTestBase.Default_ChatEmbedding;//默认使用模型
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                         .BuildKernel()
-                        .CreateFunctionFromPrompt("ChatBot", "Chat", promptParameter)
+                        .CreateFunctionFromPrompt(Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT, promptParameter)
                         .iWantToRun;
 
             // 设置输入/提问
@@ -148,12 +147,12 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型
+            var modelName = KernelTestBase.Default_ChatEmbedding;//默认使用模型
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                         .BuildKernel()
-                        .CreateFunctionFromPrompt("CreateClass", "NcfGen", promptParameter, functionPrompt).iWantToRun;
+                        .CreateFunctionFromPrompt(functionPrompt, promptParameter).iWantToRun;
 
             var request = iWantToRun.CreateRequest("床前明月光，", true);
             var result = await iWantToRun.RunAsync(request);
@@ -199,14 +198,14 @@ MynameIsJeffrey,I'maChinese.ThisisAtest.HappYbIrthday!
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_TextCompletion;//默认使用模型(gpt-35-turbo-16k 此处不可用)
+            var modelName = KernelTestBase.Default_ChatEmbedding;//默认使用模型(gpt-35-turbo-16k 此处不可用)
 
             var iWantToRun =
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                         .BuildKernel();
 
-            iWantToRun.CreateFunctionFromPrompt("WordsOperation", "Format", promptParameter, funtcionPrompt);
+            iWantToRun.CreateFunctionFromPrompt(funtcionPrompt, promptParameter);
 
             var request = iWantToRun.CreateRequest("  he llo w orld !  thi s is a n ew w orld.  ", true);
             var result = await iWantToRun.RunAsync(request);

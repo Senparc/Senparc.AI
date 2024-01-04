@@ -44,6 +44,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //await Console.Out.WriteLineAsync(localResponse);
             //var remoteResponse = await huggingFaceRemote.CompleteAsync(Input);
 
+            ISenparcAiSetting senparcAiSetting = new SenparcAiSetting()
+            {
+                AiPlatform = AiPlatform.AzureOpenAI
+            };
 
             var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey",
                 modelName: SampleHelper.Default_Chat_ModeName /*, modelName: "gpt-4-32k"*/);

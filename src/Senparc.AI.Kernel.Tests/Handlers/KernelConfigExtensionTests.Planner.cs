@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI;
 using Microsoft.VisualStudio.TestPlatform;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.KernelConfigExtensions;
@@ -10,8 +9,11 @@ using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Kernel.Handlers.Tests
 {
+
     public partial class KernelConfigExtensionTests
     {
+        /* Planner 目前官方 SK 版本不稳定
+         * 
         [TestMethod]
         public async Task PlannerTest()
         {
@@ -93,5 +95,6 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                 Console.WriteLine(newResult);
             }
         }
+        */
     }
 }
