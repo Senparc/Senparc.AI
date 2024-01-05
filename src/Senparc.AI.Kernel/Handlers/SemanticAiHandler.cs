@@ -50,10 +50,8 @@ namespace Senparc.AI.Kernel
         }
 
         public (IWantToRun iWantToRun, KernelFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
-            string userId, string modelName = "text-davinci-003", ISenparcAiSetting senparcAiSetting = null)
+            string userId, string modelName = "text-davinci-003", string chatPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT, ISenparcAiSetting senparcAiSetting = null)
         {
-            var chatPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT;
-
             var result = this.IWantTo(senparcAiSetting)
                 .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                 .BuildKernel()
