@@ -38,7 +38,6 @@ public class SampleSetting
     {
         SettingItems currentChoose = SampleHelper.ChooseItems<SettingItems>();
 
-
     Start:
         var exit = false;
         switch (currentChoose)

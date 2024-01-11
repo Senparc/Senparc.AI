@@ -1,4 +1,5 @@
 ﻿using System.Reflection.Emit;
+using System.Threading.Channels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Senparc.AI.Interfaces;
@@ -57,7 +58,7 @@ Console.WriteLine();
 var index = Console.ReadLine();
 Console.WriteLine();
 
-Console.WriteLine("任意时间输入 exit 退出选择并重新开始。");
+await Console.Out.WriteLineAsync("任意时间输入 exit 退出选择并重新开始。");
 Console.WriteLine();
 
 switch (index)

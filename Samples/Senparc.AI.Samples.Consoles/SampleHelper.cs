@@ -31,53 +31,87 @@ namespace Senparc.AI.Samples.Consoles
             return "appsettings.json";
         }
 
+        /// <summary>
+        /// 根据枚举值提供选项
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T ChooseItems<T>()
             where T : Enum
         {
-            return  (T)Enum.ToObject(typeof(T), ChooseItems(Enum.GetNames(typeof(T))));
+            return (T)Enum.ToObject(typeof(T), ChooseItems(Enum.GetNames(typeof(T))));
         }
 
-        public static int ChooseItems(IEnumerable<string> options)
+        /// <summary>
+        /// 提供选项
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static int ChooseItems(string[] options)
         {
             int currentSelection = 0; // 默认选项是第一个
 
+            // 保存初始光标位置
+            int savedCursorTop = Console.CursorTop;
+            int savedCursorLeft = Console.CursorLeft;
+
+            // 计算选项打印的起始位置
+            int optionsCursorTop = Math.Min(savedCursorTop, Console.BufferHeight - options.Length - 1);
+
             ConsoleKey key;
+            PrintOptions(options, currentSelection, optionsCursorTop);
 
             do
             {
-                Console.Clear();
-
-                for (int i = 0; i < options.Count(); i++)
-                {
-                    if (i == currentSelection)
-                        Console.BackgroundColor = ConsoleColor.Gray; // 高亮显示当前选择
-
-                    Console.WriteLine(options.Take(i));
-                    Console.ResetColor();
-                }
-
                 key = Console.ReadKey(true).Key; // 读取键盘输入
 
                 switch (key)
                 {
                     case ConsoleKey.UpArrow:
-                        currentSelection--;
-                        if (currentSelection < 0)
+                        if (currentSelection > 0)
                         {
-                            currentSelection = options.Count() - 1;
+                            currentSelection--;
+                            PrintOptions(options, currentSelection, optionsCursorTop); // 更新选项显示
                         }
                         break;
                     case ConsoleKey.DownArrow:
-                        currentSelection++;
-                        if (currentSelection == options.Count())
+                        if (currentSelection < options.Length - 1)
                         {
-                            currentSelection = 0;
+                            currentSelection++;
+                            PrintOptions(options, currentSelection, optionsCursorTop); // 更新选项显示
                         }
                         break;
                 }
             }
             while (key != ConsoleKey.Enter); // 按回车键确认选择
+
+            // 恢复初始光标位置
+            Console.SetCursorPosition(savedCursorLeft, savedCursorTop + 1);
+
             return currentSelection;
         }
+
+        static void PrintOptions(string[] options, int currentSelection, int cursorTop)
+        {
+            int originalCursorLeft = Console.CursorLeft;
+
+            for (int i = 0; i < options.Length; i++)
+            {
+                Console.SetCursorPosition(originalCursorLeft, cursorTop + i);
+
+                if (i == currentSelection)
+                {
+                    Console.BackgroundColor = ConsoleColor.Gray; // 高亮显示当前选择
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                }
+
+                Console.WriteLine(options[i].PadRight(Console.WindowWidth - originalCursorLeft));
+                Console.ResetColor();
+            }
+        }
+
+
     }
+
+
 }
