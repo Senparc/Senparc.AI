@@ -32,6 +32,7 @@ services.AddScoped<CompletionSample>();
 services.AddScoped<EmbeddingSample>();
 services.AddScoped<DallESample>();
 services.AddScoped<PlanSample>();
+services.AddScoped<SampleSetting>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -50,6 +51,7 @@ Console.WriteLine("[2] Completion 任务机器人");
 Console.WriteLine("[3] 训练 Embedding 任务");
 Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI 或 AzureOpenAI）");
 Console.WriteLine("[5] Planner 任务计划");
+Console.WriteLine("[0] 进入设置");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -124,6 +126,13 @@ switch (index)
             //Plan Sample
             var pnalSample = serviceProvider.GetRequiredService<PlanSample>();
             await pnalSample.RunAsync();
+        }
+        break;
+    case "0":
+        {
+            //Setting
+            var setting = serviceProvider.GetRequiredService<SampleSetting>();
+            await setting.RunAsync();
         }
         break;
     default:

@@ -30,5 +30,54 @@ namespace Senparc.AI.Samples.Consoles
 
             return "appsettings.json";
         }
+
+        public static T ChooseItems<T>()
+            where T : Enum
+        {
+            return  (T)Enum.ToObject(typeof(T), ChooseItems(Enum.GetNames(typeof(T))));
+        }
+
+        public static int ChooseItems(IEnumerable<string> options)
+        {
+            int currentSelection = 0; // 默认选项是第一个
+
+            ConsoleKey key;
+
+            do
+            {
+                Console.Clear();
+
+                for (int i = 0; i < options.Count(); i++)
+                {
+                    if (i == currentSelection)
+                        Console.BackgroundColor = ConsoleColor.Gray; // 高亮显示当前选择
+
+                    Console.WriteLine(options.Take(i));
+                    Console.ResetColor();
+                }
+
+                key = Console.ReadKey(true).Key; // 读取键盘输入
+
+                switch (key)
+                {
+                    case ConsoleKey.UpArrow:
+                        currentSelection--;
+                        if (currentSelection < 0)
+                        {
+                            currentSelection = options.Count() - 1;
+                        }
+                        break;
+                    case ConsoleKey.DownArrow:
+                        currentSelection++;
+                        if (currentSelection == options.Count())
+                        {
+                            currentSelection = 0;
+                        }
+                        break;
+                }
+            }
+            while (key != ConsoleKey.Enter); // 按回车键确认选择
+            return currentSelection;
+        }
     }
 }
