@@ -30,28 +30,32 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
         public async Task RunAsync()
         {
+            var dalleSetting = ((SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting)["AzureDallE3"];
             if ((
-                    Senparc.AI.Config.SenparcAiSetting.OpenAIKeys == null ||
-                    Senparc.AI.Config.SenparcAiSetting.OpenAIKeys.ApiKey.IsNullOrEmpty() ||
-                    Senparc.AI.Config.SenparcAiSetting.OpenAIKeys.OrganizationId.IsNullOrEmpty()
+                    dalleSetting.OpenAIKeys == null ||
+                    dalleSetting.OpenAIKeys.ApiKey.IsNullOrEmpty() ||
+                    dalleSetting.OpenAIKeys.OrganizationId.IsNullOrEmpty()
                 ) &&
                 (
-                    Senparc.AI.Config.SenparcAiSetting.AzureOpenAIKeys == null ||
-                    Senparc.AI.Config.SenparcAiSetting.AzureOpenAIKeys.ApiKey.IsNullOrEmpty()
+                    dalleSetting.AzureOpenAIKeys == null ||
+                    dalleSetting.AzureOpenAIKeys.ApiKey.IsNullOrEmpty()
+                ) &&
+                (
+                    dalleSetting.AiPlatform != AiPlatform.OpenAI && dalleSetting.AiPlatform != AiPlatform.AzureOpenAI
                 )
-                )
+               )
             {
                 await Console.Out.WriteLineAsync("DallE 接口需要设置 OpenAI 或 AzureOpenAI ApiKey 后才能使用！");
                 return;
             }
 
             await Console.Out.WriteLineAsync("DallE 3 开始运行，请输入需要生成图片的内容，输入 exit 退出，输入s 保存上一张生成的图片。");
+            await Console.Out.WriteLineAsync("JSON:" + dalleSetting.ToJson(true));
 
             var userId = "Jeffrey";
-            var iWantTo = _semanticAiHandler.IWantTo()
-                                .ConfigModel(ConfigModel.ImageGeneration, userId, "dall-e-3",null, "dall-e-3")
+            var iWantTo = _semanticAiHandler.IWantTo(dalleSetting)
+                                .ConfigModel(ConfigModel.ImageGeneration, userId, "dall-e-3", dalleSetting, "dall-e-3")
                                 .BuildKernel();
-
 
 #pragma warning disable SKEXP0002
             var dallE = iWantTo.GetRequiredService<ITextToImageService>();

@@ -2,11 +2,36 @@
 using Senparc.CO2NET;
 using Senparc.CO2NET.Extensions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Senparc.AI.Entities
 {
+    /// <summary>
+    /// SenparcAiSetting<T> 基类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class SenparcAiSettingBase<T> : SenparcAiSettingBase, ISenparcAiSetting<T>
+        where T : ISenparcAiSetting
+    {
+        /// <summary>
+        /// 多级不同模型配置
+        /// </summary>
+        public virtual ConcurrentDictionary<string, T> Items { get; set; } = new ConcurrentDictionary<string, T>();
+
+        /// <summary>
+        /// 获取自定义配置
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public virtual T this[string key]
+        {
+            get => Items[key];
+            set => Items[key] = value;
+        }
+    }
+
     /// <summary>
     /// SenparcAiSetting 基类
     /// </summary>
