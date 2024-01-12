@@ -105,6 +105,7 @@ namespace Senparc.AI.Kernel.Helpers
         {
             var serviceId = GetServiceId(userId, modelName);
             var aiPlatForm = senparcAiSetting.AiPlatform;
+            
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
@@ -224,12 +225,12 @@ namespace Senparc.AI.Kernel.Helpers
 #pragma warning disable SKEXP0012
             _ = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.AddOpenAITextToImage(AiSetting.ApiKey,
-                    AiSetting.OrganizationId),
+                AiPlatform.OpenAI => kernelBuilder.AddOpenAITextToImage(senparcAiSetting.ApiKey,
+                    senparcAiSetting.OrganizationId),
 
-                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(azureDallEDepploymentName, AiSetting.AzureEndpoint, AiSetting.ApiKey, azureModeId),
+                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(azureDallEDepploymentName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey, azureModeId),
 
-                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToImage(AiSetting.NeuCharEndpoint, azureModeId, AiSetting.ApiKey),
+                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToImage(senparcAiSetting.NeuCharEndpoint, azureModeId, senparcAiSetting.ApiKey),
 
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };

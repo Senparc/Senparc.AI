@@ -1,8 +1,5 @@
-﻿using System.Reflection.Emit;
-using System.Threading.Channels;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Samples.Consoles;
 using Senparc.AI.Samples.Consoles.Samples;
@@ -21,13 +18,11 @@ Console.WriteLine("完成 ServiceCollection 和 ConfigurationBuilder 初始化")
 var senparcSetting = new SenparcSetting();
 config.GetSection("SenparcSetting").Bind(senparcSetting);
 
-var senparcAiSetting = new Senparc.AI.Kernel.SenparcAiSetting();
-config.GetSection("SenparcAiSetting").Bind(senparcAiSetting);
-
 var services = new ServiceCollection();
-services.AddSenparcGlobalServices(config);
 
-services.AddScoped<IAiHandler, SemanticAiHandler>();
+services.AddSenparcGlobalServices(config)
+        .AddSenparcAI(config);
+
 services.AddScoped<ChatSample>();
 services.AddScoped<CompletionSample>();
 services.AddScoped<EmbeddingSample>();
@@ -39,7 +34,7 @@ var serviceProvider = services.BuildServiceProvider();
 
 IRegisterService register = RegisterService.Start(senparcSetting)
               .UseSenparcGlobal()
-              .UseSenparcAI(senparcAiSetting);
+              .UseSenparcAI();
 
 Start:
 Console.WriteLine("启动完毕，当前接口：" + Senparc.AI.Config.SenparcAiSetting.AiPlatform);

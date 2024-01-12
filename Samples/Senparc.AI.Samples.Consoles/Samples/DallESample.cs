@@ -1,16 +1,8 @@
-﻿using Azure.AI.OpenAI;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
-using Microsoft.SemanticKernel.TextToImage;
+﻿using Microsoft.SemanticKernel.TextToImage;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
-using Senparc.AI.Kernel.Helpers;
 using Senparc.CO2NET.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -26,7 +18,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
             _aiHandler = aiHandler;
             _serviceProvider = serviceProvider;
         }
-
 
         public async Task RunAsync()
         {
@@ -50,7 +41,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
             }
 
             await Console.Out.WriteLineAsync("DallE 3 开始运行，请输入需要生成图片的内容，输入 exit 退出，输入 s 保存上一张生成的图片。");
-            await Console.Out.WriteLineAsync("JSON:" + dalleSetting.ToJson(true));
 
             var userId = "Jeffrey";
             var iWantTo = _semanticAiHandler.IWantTo(dalleSetting)

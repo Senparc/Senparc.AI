@@ -22,7 +22,7 @@ namespace Senparc.AI.Kernel
         private Microsoft.SemanticKernel.Kernel _kernel => SemanticKernelHelper.GetKernel();
 
 
-        public SemanticAiHandler(SemanticKernelHelper? semanticAiHelper = null, ISenparcAiSetting senparcAiSetting = null, ILoggerFactory loggerFactory = null)
+        public SemanticAiHandler(ISenparcAiSetting senparcAiSetting, SemanticKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null)
         {
             SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper(senparcAiSetting);
             this.loggerFactory = loggerFactory;
