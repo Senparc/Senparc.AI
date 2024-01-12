@@ -41,7 +41,6 @@ IRegisterService register = RegisterService.Start(senparcSetting)
               .UseSenparcGlobal()
               .UseSenparcAI(senparcAiSetting);
 
-
 Start:
 Console.WriteLine("启动完毕，当前接口：" + Senparc.AI.Config.SenparcAiSetting.AiPlatform);
 Console.WriteLine("=======================");

@@ -49,12 +49,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 return;
             }
 
-            await Console.Out.WriteLineAsync("DallE 3 开始运行，请输入需要生成图片的内容，输入 exit 退出，输入s 保存上一张生成的图片。");
+            await Console.Out.WriteLineAsync("DallE 3 开始运行，请输入需要生成图片的内容，输入 exit 退出，输入 s 保存上一张生成的图片。");
             await Console.Out.WriteLineAsync("JSON:" + dalleSetting.ToJson(true));
 
             var userId = "Jeffrey";
             var iWantTo = _semanticAiHandler.IWantTo(dalleSetting)
-                                .ConfigModel(ConfigModel.ImageGeneration, userId, "dall-e-3", dalleSetting, "dall-e-3")
+                                .ConfigModel(ConfigModel.ImageGeneration, userId, "dall-e-3", null, "dall-e-3")
                                 .BuildKernel();
 
 #pragma warning disable SKEXP0002
