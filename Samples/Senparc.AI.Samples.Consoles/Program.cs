@@ -133,7 +133,7 @@ switch (index)
         {
             //Setting
             var setting = serviceProvider.GetRequiredService<SampleSetting>();
-            await setting.RunAsync();
+            setting.RunAsync();
         }
         break;
     default:

@@ -55,11 +55,15 @@ namespace Senparc.AI.Samples.Consoles
             int savedCursorTop = Console.CursorTop;
             int savedCursorLeft = Console.CursorLeft;
 
-            // 计算选项打印的起始位置
-            int optionsCursorTop = Math.Min(savedCursorTop, Console.BufferHeight - options.Length - 1);
+            // 确保选项列表在屏幕范围内
+            if (savedCursorTop + options.Length >= Console.BufferHeight)
+            {
+                Console.SetCursorPosition(savedCursorLeft, Console.BufferHeight - options.Length - 1);
+                savedCursorTop = Console.CursorTop;
+            }
 
             ConsoleKey key;
-            PrintOptions(options, currentSelection, optionsCursorTop);
+            PrintOptions(options, currentSelection, savedCursorTop);
 
             do
             {
@@ -71,33 +75,33 @@ namespace Senparc.AI.Samples.Consoles
                         if (currentSelection > 0)
                         {
                             currentSelection--;
-                            PrintOptions(options, currentSelection, optionsCursorTop); // 更新选项显示
+                            PrintOptions(options, currentSelection, savedCursorTop); // 更新选项显示
                         }
                         break;
                     case ConsoleKey.DownArrow:
                         if (currentSelection < options.Length - 1)
                         {
                             currentSelection++;
-                            PrintOptions(options, currentSelection, optionsCursorTop); // 更新选项显示
+                            PrintOptions(options, currentSelection, savedCursorTop); // 更新选项显示
                         }
                         break;
                 }
             }
             while (key != ConsoleKey.Enter); // 按回车键确认选择
 
-            // 恢复初始光标位置
-            Console.SetCursorPosition(savedCursorLeft, savedCursorTop + 1);
+            // 将光标移动到列表最后一项的下一行
+            Console.SetCursorPosition(savedCursorLeft, savedCursorTop + options.Length);
+
+            Console.WriteLine("您选择了：" + options[currentSelection]);
 
             return currentSelection;
         }
 
         static void PrintOptions(string[] options, int currentSelection, int cursorTop)
         {
-            int originalCursorLeft = Console.CursorLeft;
-
             for (int i = 0; i < options.Length; i++)
             {
-                Console.SetCursorPosition(originalCursorLeft, cursorTop + i);
+                Console.SetCursorPosition(0, cursorTop + i);
 
                 if (i == currentSelection)
                 {
@@ -105,10 +109,13 @@ namespace Senparc.AI.Samples.Consoles
                     Console.ForegroundColor = ConsoleColor.Blue;
                 }
 
-                Console.WriteLine(options[i].PadRight(Console.WindowWidth - originalCursorLeft));
+                Console.WriteLine(options[i].PadRight(Console.WindowWidth));
                 Console.ResetColor();
             }
         }
+
+
+
 
 
     }

@@ -10,7 +10,7 @@ public class SampleSetting
         设置字体颜色 = 3,
     }
 
-    private async Task SetModelAsync()
+    private void SetModelAsync()
     {
 
     }
@@ -20,7 +20,7 @@ public class SampleSetting
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    private async Task SetBackgroundColorAsync()
+    private void SetBackgroundColorAsync()
     {
         Console.BackgroundColor = SampleHelper.ChooseItems<ConsoleColor>();
     }
@@ -30,15 +30,17 @@ public class SampleSetting
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    private async Task SetForegroundColorAsync()
+    private void SetForegroundColorAsync()
     {
-        Console.ForegroundColor = SampleHelper.ChooseItems<ConsoleColor>();
+        var color = SampleHelper.ChooseItems<ConsoleColor>();
+        //Console.WriteLine("Color:" + color);
+        Console.ForegroundColor = color;
     }
-    public async Task RunAsync()
+
+    public void RunAsync()
     {
         SettingItems currentChoose = SampleHelper.ChooseItems<SettingItems>();
 
-    Start:
         var exit = false;
         switch (currentChoose)
         {
@@ -46,22 +48,23 @@ public class SampleSetting
                 exit = true;
                 break;
             case SettingItems.自定义模型:
-                await SetModelAsync();
+                 SetModelAsync();
                 break;
             case SettingItems.设置背景颜色:
-                await SetBackgroundColorAsync();
+                 SetBackgroundColorAsync();
                 break;
             case SettingItems.设置字体颜色:
-                await SetForegroundColorAsync();
+                 SetForegroundColorAsync();
                 break;
             default:
-                await Console.Out.WriteLineAsync("请选择正确的选项");
-                goto Start;
+                 Console.Out.WriteLineAsync("请选择正确的选项");
+                 RunAsync();
+                break;
         }
 
         if (!exit)
         {
-            goto Start;
+            RunAsync();
         }
     }
 
