@@ -1,7 +1,5 @@
-﻿using System.Reflection.Emit;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Samples.Consoles;
 using Senparc.AI.Samples.Consoles.Samples;
@@ -20,25 +18,23 @@ Console.WriteLine("完成 ServiceCollection 和 ConfigurationBuilder 初始化")
 var senparcSetting = new SenparcSetting();
 config.GetSection("SenparcSetting").Bind(senparcSetting);
 
-var senparcAiSetting = new Senparc.AI.Kernel.SenparcAiSetting();
-config.GetSection("SenparcAiSetting").Bind(senparcAiSetting);
-
 var services = new ServiceCollection();
-services.AddSenparcGlobalServices(config);
 
-services.AddScoped<IAiHandler, SemanticAiHandler>();
+services.AddSenparcGlobalServices(config)
+        .AddSenparcAI(config);
+
 services.AddScoped<ChatSample>();
 services.AddScoped<CompletionSample>();
 services.AddScoped<EmbeddingSample>();
 services.AddScoped<DallESample>();
 services.AddScoped<PlanSample>();
+services.AddScoped<SampleSetting>();
 
 var serviceProvider = services.BuildServiceProvider();
 
 IRegisterService register = RegisterService.Start(senparcSetting)
               .UseSenparcGlobal()
-              .UseSenparcAI(senparcAiSetting);
-
+              .UseSenparcAI();
 
 Start:
 Console.WriteLine("启动完毕，当前接口：" + Senparc.AI.Config.SenparcAiSetting.AiPlatform);
@@ -50,12 +46,13 @@ Console.WriteLine("[2] Completion 任务机器人");
 Console.WriteLine("[3] 训练 Embedding 任务");
 Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI 或 AzureOpenAI）");
 Console.WriteLine("[5] Planner 任务计划");
+//Console.WriteLine("[0] 进入设置");
 Console.WriteLine();
 
 var index = Console.ReadLine();
 Console.WriteLine();
 
-Console.WriteLine("任意时间输入 exit 退出选择并重新开始。");
+await Console.Out.WriteLineAsync("任意时间输入 exit 退出选择并重新开始。");
 Console.WriteLine();
 
 switch (index)
@@ -124,6 +121,13 @@ switch (index)
             //Plan Sample
             var pnalSample = serviceProvider.GetRequiredService<PlanSample>();
             await pnalSample.RunAsync();
+        }
+        break;
+    case "0":
+        {
+            //Setting
+            var setting = serviceProvider.GetRequiredService<SampleSetting>();
+            setting.RunAsync();
         }
         break;
     default:

@@ -1,12 +1,28 @@
 ﻿using Senparc.AI.Entities;
 using Senparc.CO2NET.Extensions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Senparc.AI.Interfaces
 {
+    /// <summary>
+    /// Senparc.AI 基础配置，附带 Items 设置多模型配置
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ISenparcAiSetting<T> where T : ISenparcAiSetting
+    {
+        ConcurrentDictionary<string, T> Items { get; set; }
+
+        T this[string key]
+        {
+            get => Items[key];
+            set => Items[key] = value;
+        }
+    }
+
     /// <summary>
     /// Senparc.AI 基础配置
     /// </summary>
@@ -31,7 +47,9 @@ namespace Senparc.AI.Interfaces
         /// </summary>
         AiPlatform AiPlatform { get; set; }
 
+
         AzureOpenAIKeys AzureOpenAIKeys { get; set; }
+        NeuCharAIKeys NeuCharAIKeys { get; set; }
         OpenAIKeys OpenAIKeys { get; set; }
         HuggingFaceKeys HuggingFaceKeys { get; set; }
 

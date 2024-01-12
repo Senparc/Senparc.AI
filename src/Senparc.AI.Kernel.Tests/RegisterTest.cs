@@ -28,5 +28,23 @@ namespace Senparc.AI.Kernel.Tests
             var settings = Senparc.AI.Config.SenparcAiSetting;
             Assert.AreEqual("https://HuggingfaceAPI", settings.HuggingFaceEndpoint);
         }
+
+        [TestMethod]
+        public void ItemsTest()
+        {
+            var settings = Senparc.AI.Config.SenparcAiSetting as SenparcAiSetting;
+            Assert.AreEqual(2, settings.Items.Count);
+
+            var dalle3Setting = settings.Items["AzureDallE3"];
+
+            Assert.IsNotNull(dalle3Setting);
+            Assert.AreEqual(settings["AzureDallE3"], dalle3Setting);//两种获取方式通用
+            Assert.AreEqual("2022-12-01", dalle3Setting.AzureOpenAIApiVersion);
+
+            var neucharAISetting = settings["MyNeuCharAI"].NeuCharAIKeys;
+            Assert.IsNotNull(neucharAISetting);
+            Assert.AreEqual("MyNeuCharAIKey", neucharAISetting.ApiKey);
+            Assert.AreEqual("https://www.neuchar.com/2/", neucharAISetting.NeuCharEndpoint);
+        }
     }
 }

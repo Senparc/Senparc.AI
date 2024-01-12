@@ -8,3 +8,5 @@ appsettings.test.json
 /src/Senparc.AI.Kernel.Tests/App_Data/SenparcTraceLog
 *.DS_Store
 /src/.idea/.idea.Senparc.AI/.idea
+/Samples/Senparc.AI.Samples.Consoles/Properties/PublishProfiles
+/Samples/Senparc.AI.Samples.Consoles/Senparc.AI.Samples.Consoles.csproj.user
