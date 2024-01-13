@@ -38,7 +38,7 @@ namespace Senparc.AI.Kernel
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IServiceCollection AddSenparcAI(this IServiceCollection services, IConfigurationRoot config, ISenparcAiSetting senparcAiSetting = null)
+        public static IServiceCollection AddSenparcAI(this IServiceCollection services, IConfiguration config, ISenparcAiSetting senparcAiSetting = null)
         {
             if (senparcAiSetting == null)
             {
