@@ -91,8 +91,9 @@ namespace Senparc.AI.Samples.Consoles
 
             // 将光标移动到列表最后一项的下一行
             Console.SetCursorPosition(savedCursorLeft, savedCursorTop + options.Length);
-
+            Console.WriteLine();
             Console.WriteLine("您选择了：" + options[currentSelection]);
+            Console.WriteLine();
 
             return currentSelection;
         }
@@ -103,22 +104,19 @@ namespace Senparc.AI.Samples.Consoles
             {
                 Console.SetCursorPosition(0, cursorTop + i);
 
+                //Console.ResetColor();
+
+                Console.BackgroundColor = SampleSetting.BackgroundColor;
+                Console.ForegroundColor = SampleSetting.ForceColor;
+
                 if (i == currentSelection)
                 {
                     Console.BackgroundColor = ConsoleColor.Gray; // 高亮显示当前选择
                     Console.ForegroundColor = ConsoleColor.Blue;
                 }
 
-                Console.WriteLine(options[i].PadRight(Console.WindowWidth));
-                Console.ResetColor();
+                Console.WriteLine("  " + options[i].PadRight(Console.WindowWidth - options[i].Length - 2));
             }
         }
-
-
-
-
-
     }
-
-
 }
