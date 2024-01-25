@@ -37,16 +37,18 @@ IRegisterService register = RegisterService.Start(senparcSetting)
               .UseSenparcAI();
 
 Start:
-Console.WriteLine("启动完毕，当前接口：" + Senparc.AI.Config.SenparcAiSetting.AiPlatform);
+Console.WriteLine();
+Console.WriteLine("Senparc.AI Sample 启动完毕");
+Console.WriteLine($"当前模型：{SampleSetting.CurrentSettingKey} / {SampleSetting.CurrentSetting.AiPlatform}");
 Console.WriteLine("=======================");
 Console.WriteLine();
 Console.WriteLine("请输入序号，开始对应功能测试：");
+Console.WriteLine("[0] 进入设置");
 Console.WriteLine("[1] ChatGPT 对话机器人");
 Console.WriteLine("[2] Completion 任务机器人");
 Console.WriteLine("[3] 训练 Embedding 任务");
 Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI 或 AzureOpenAI）");
 Console.WriteLine("[5] Planner 任务计划");
-//Console.WriteLine("[0] 进入设置");
 Console.WriteLine();
 
 var index = Console.ReadLine();

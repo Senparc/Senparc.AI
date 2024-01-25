@@ -8,7 +8,7 @@ namespace Senparc.AI.Samples.Consoles
 {
     public static class SampleHelper
     {
-        public static string Default_Chat_ModeName = "gpt-35-turbo";//gpt-4-1106
+        public static string Default_Chat_ModeName = "chatglm2";//"gpt-35-turbo";//gpt-4-1106
         public static string Default_TextCompletion_ModeName = "text-davinci-003";//gpt-4-1106
         public static string Default_TextEmbedding_ModeName = "text-embedding-ada-002";
         //public static string Default_TextCompletion_ModeName = "chatglm2";
@@ -91,8 +91,9 @@ namespace Senparc.AI.Samples.Consoles
 
             // 将光标移动到列表最后一项的下一行
             Console.SetCursorPosition(savedCursorLeft, savedCursorTop + options.Length);
-
+            Console.WriteLine();
             Console.WriteLine("您选择了：" + options[currentSelection]);
+            Console.WriteLine();
 
             return currentSelection;
         }
@@ -103,22 +104,19 @@ namespace Senparc.AI.Samples.Consoles
             {
                 Console.SetCursorPosition(0, cursorTop + i);
 
+                //Console.ResetColor();
+
+                Console.BackgroundColor = SampleSetting.BackgroundColor;
+                Console.ForegroundColor = SampleSetting.ForceColor;
+
                 if (i == currentSelection)
                 {
                     Console.BackgroundColor = ConsoleColor.Gray; // 高亮显示当前选择
                     Console.ForegroundColor = ConsoleColor.Blue;
                 }
 
-                Console.WriteLine(options[i].PadRight(Console.WindowWidth));
-                Console.ResetColor();
+                Console.WriteLine("  " + options[i].PadRight(Console.WindowWidth - options[i].Length - 2));
             }
         }
-
-
-
-
-
     }
-
-
 }

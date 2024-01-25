@@ -15,7 +15,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         [TestMethod]
         public async Task ChatAsyncTest()
         {
-            var handler = new SemanticAiHandler();//IAiHandler
+            var handler = new SemanticAiHandler(Senparc.AI.Config.SenparcAiSetting);//IAiHandler
 
             var parameter = new PromptConfigParameter()
             {
@@ -80,7 +80,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         public async Task ReadMeDemoTest()
         {
             //创建 AI Handler 处理器（也可以通过工厂依赖注入）
-            var handler = new SemanticAiHandler();
+            var handler = new SemanticAiHandler(Senparc.AI.Config.SenparcAiSetting);
 
             //定义 AI 接口调用参数和 Token 限制等
             var promptParameter = new PromptConfigParameter()
@@ -133,7 +133,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         public async Task PureFunctionTextCompletionTest1()
         {
             //创建 AI Handler 处理器（也可以通过工厂依赖注入）
-            var handler = new SemanticAiHandler();
+            var handler = new SemanticAiHandler(Senparc.AI.Config.SenparcAiSetting);
 
             //定义 AI 接口调用参数和 Token 限制等
             var promptParameter = new PromptConfigParameter()
@@ -167,7 +167,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         public async Task PureFunctionTextCompletionTest2()
         {
             //创建 AI Handler 处理器（也可以通过工厂依赖注入）
-            var handler = new SemanticAiHandler();
+            var handler = new SemanticAiHandler(Senparc.AI.Config.SenparcAiSetting);
 
             //定义 AI 接口调用参数和 Token 限制等
             var promptParameter = new PromptConfigParameter()

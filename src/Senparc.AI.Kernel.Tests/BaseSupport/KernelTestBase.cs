@@ -20,7 +20,7 @@ namespace Senparc.AI.Kernel.Tests.BaseSupport
 
         static Action<IRegisterService> RegisterAction = r =>
         {
-            r.UseSenparcAI(BaseTest._senparcAiSetting);
+            r.UseSenparcAI();
         };
 
         static Func<IConfigurationRoot, SenparcAiSetting> getSenparcAiSettingFunc = config =>

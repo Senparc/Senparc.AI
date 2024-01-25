@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel.Tests.MockEntities
 {
-    public class MockSenparcAiSetting : SenparcAiSettingBase, ISenparcAiSetting
+    public class MockSenparcAiSetting : SenparcAiSetting /*SenparcAiSettingBase*/, ISenparcAiSetting
     {
         /// <summary>
         /// <inheritdoc/>

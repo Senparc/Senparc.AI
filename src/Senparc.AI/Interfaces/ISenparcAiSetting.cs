@@ -101,6 +101,13 @@ namespace Senparc.AI.Interfaces
 
         #endregion
 
+
+        #region FastAPI
+
+        string FastAPIEndpoint { get; }
+
+        #endregion
+
         /// <summary>
         /// OpenAIKeys 是否已经设置
         /// </summary>
