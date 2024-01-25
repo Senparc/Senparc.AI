@@ -64,6 +64,8 @@ namespace Senparc.AI.Entities
         public virtual AzureOpenAIKeys AzureOpenAIKeys { get; set; }
         public virtual HuggingFaceKeys HuggingFaceKeys { get; set; }
 
+        public virtual FastAPIKeys FastAPIKeys { get; set; }
+
         /// <summary>
         /// Azure OpenAI 或 OpenAI API Key
         /// </summary>
@@ -73,13 +75,16 @@ namespace Senparc.AI.Entities
             AiPlatform.NeuCharAI => NeuCharAIKeys.ApiKey,
             AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey,
             AiPlatform.HuggingFace => "",
+            AiPlatform.FastAPI => FastAPIKeys.ApiKey,
             _ => ""
         };
 
         /// <summary>
         /// OpenAI API Orgaization ID
         /// </summary>
-        public virtual string OrganizationId => OpenAIKeys?.OrganizationId;
+        public virtual string OrganizationId => AiPlatform == AiPlatform.OpenAI 
+                                                    ? OpenAIKeys?.OrganizationId 
+                                                    : FastAPIKeys?.OrganizationId;
 
         #region Azure OpenAI
 
@@ -121,7 +126,13 @@ namespace Senparc.AI.Entities
 
         #endregion
 
+        #region FastAPI
+        public string FastAPIEndpoint => FastAPIKeys?.Endpoint;
+
+        #endregion
+
         public virtual bool IsOpenAiKeysSetted => OpenAIKeys != null && !OpenAIKeys.ApiKey.IsNullOrEmpty();
+
 
         #region 快速配置方法
 

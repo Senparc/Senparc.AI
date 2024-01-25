@@ -49,13 +49,29 @@ namespace Senparc.AI.Kernel
             return result;
         }
 
+        /// <summary>
+        /// 配置 Chat 参数
+        /// </summary>
+        /// <param name="promptConfigParameter"></param>
+        /// <param name="userId"></param>
+        /// <param name="modelName"></param>
+        /// <param name="chatPrompt"></param>
+        /// <param name="senparcAiSetting"></param>
+        /// <returns></returns>
         public (IWantToRun iWantToRun, KernelFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
-            string userId, string modelName = "text-davinci-003", string chatPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT, ISenparcAiSetting senparcAiSetting = null)
+            string userId,
+            string modelName = "text-davinci-003",
+            int maxHistoryStore = 0,
+            string chatPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT,
+            ISenparcAiSetting senparcAiSetting = null)
         {
             var result = this.IWantTo(senparcAiSetting)
                 .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
                 .BuildKernel()
                 .CreateFunctionFromPrompt(chatPrompt, promptConfigParameter);
+
+            var iWantTo = result.iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
+            iWantTo.TempStore["MaxHistoryCount"] = maxHistoryStore;
 
             return result;
         }
@@ -82,8 +98,19 @@ namespace Senparc.AI.Kernel
             //运行
             var aiResult = await iWantToRun.RunAsync(newRequest);
 
+            string newHistory = history + $"\nHuman: {prompt}\nBot: {aiResult.Output}";
+
+            //判断最大历史记录数
+            var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
+            if (iWantTo.TempStore.TryGetValue("MaxHistoryCount", out object maxHistoryCountObj) &&
+                (maxHistoryCountObj is int maxHistoryCount))
+            {
+
+            }
+
             //记录对话历史（可选）
-            request.SetStoredContext("history", history + $"\nHuman: {prompt}\nBot: {aiResult.Output}");
+            request.SetStoredContext("history", newHistory);
+
 
             return aiResult;
         }

@@ -6,8 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Senparc.AI.Interfaces;
+using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Tests.MockEntities;
 using Senparc.CO2NET;
+using Senparc.CO2NET.AspNet.RegisterServices;
 using Senparc.CO2NET.RegisterServices;
 
 namespace Senparc.AI.Tests
@@ -19,6 +21,7 @@ namespace Senparc.AI.Tests
         protected static IRegisterService registerService;
         protected static SenparcSetting _senparcSetting;
         protected static ISenparcAiSetting _senparcAiSetting;
+        private static bool _useTestAppSettings = false;
 
 
         public BaseTest(Action<IRegisterService> registerAction, Func<IConfigurationRoot, ISenparcAiSetting> senparcAiSettingFunc,
@@ -37,14 +40,16 @@ namespace Senparc.AI.Tests
         /// <summary>
         /// 注册 IServiceCollection 和 MemoryCache
         /// </summary>
-        public static void RegisterServiceCollection(Func<IConfigurationRoot, ISenparcAiSetting> senparcAiSettingFunc, Action<ServiceCollection> serviceAction)
+        public void RegisterServiceCollection(Func<IConfigurationRoot, ISenparcAiSetting> senparcAiSettingFunc, Action<ServiceCollection> serviceAction)
         {
             var serviceCollection = new ServiceCollection();
 
             var configBuilder = new ConfigurationBuilder();
 
             var testFile = Path.Combine(Senparc.CO2NET.Utilities.ServerUtility.AppDomainAppPath, "appsettings.test.json");
-            var appsettingFileName = File.Exists(testFile) ? "appsettings.test.json" : "appsettings.json";
+            var appsettingFileName = _useTestAppSettings && File.Exists(testFile) 
+                ? "appsettings.test.json" 
+                : "appsettings.json";
 
             configBuilder.AddJsonFile(appsettingFileName, false, false);
             var config = configBuilder.Build();
@@ -54,12 +59,15 @@ namespace Senparc.AI.Tests
             config.GetSection("SenparcSetting").Bind(_senparcSetting);
 
             _senparcAiSetting ??= senparcAiSettingFunc?.Invoke(config)
-                                   ?? new MockSenparcAiSetting() { IsDebug = true };
+                                   ??new SenparcAiSetting() /*new MockSenparcAiSetting() */{ IsDebug = true };
+
             config.GetSection("SenparcAiSetting").Bind(_senparcAiSetting);
 
             serviceAction?.Invoke(serviceCollection);
 
             serviceCollection.AddMemoryCache();//使用内存缓存
+
+            serviceCollection.AddSenparcAI(config, _senparcAiSetting);
 
             serviceProvider = serviceCollection.BuildServiceProvider();
         }
@@ -67,7 +75,7 @@ namespace Senparc.AI.Tests
         /// <summary>
         /// 注册 RegisterService.Start()
         /// </summary>
-        public static void RegisterServiceStart(Action<IRegisterService> registerAction, bool autoScanExtensionCacheStrategies = false)
+        public void RegisterServiceStart(Action<IRegisterService> registerAction, bool autoScanExtensionCacheStrategies = false)
         {
             //注册
             var mockEnv = new Mock<Microsoft.Extensions.Hosting.IHostEnvironment/*IHostingEnvironment*/>();
@@ -80,6 +88,8 @@ namespace Senparc.AI.Tests
 
 
             registerService.ChangeDefaultCacheNamespace("Senparc.AI Tests");
+
+            registerService.UseSenparcAI();
 
             //配置全局使用Redis缓存（按需，独立）
             var redisConfigurationStr = _senparcSetting.Cache_Redis_Configuration;

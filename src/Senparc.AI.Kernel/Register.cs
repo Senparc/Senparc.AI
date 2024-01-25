@@ -44,12 +44,12 @@ namespace Senparc.AI.Kernel
             {
                 senparcAiSetting = new Senparc.AI.Kernel.SenparcAiSetting();
                 config.GetSection("SenparcAiSetting").Bind(senparcAiSetting);
+            }
 
-                if (Config.SenparcAiSetting == null || Config.SenparcAiSetting.AiPlatform == AiPlatform.UnSet)
-                {
-                    //只在原始配置未设置的时候机型覆盖
-                    Senparc.AI.Config.SenparcAiSetting = senparcAiSetting;
-                }
+            if (Config.SenparcAiSetting == null || Config.SenparcAiSetting.AiPlatform == AiPlatform.UnSet)
+            {
+                //只在原始配置未设置的时候机型覆盖
+                Senparc.AI.Config.SenparcAiSetting = senparcAiSetting;
             }
             services.AddScoped<ISenparcAiSetting>(s => Config.SenparcAiSetting);
             services.AddScoped<IAiHandler, SemanticAiHandler>();

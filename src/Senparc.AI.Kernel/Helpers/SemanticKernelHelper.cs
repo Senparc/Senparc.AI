@@ -105,7 +105,7 @@ namespace Senparc.AI.Kernel.Helpers
         {
             var serviceId = GetServiceId(userId, modelName);
             var aiPlatForm = senparcAiSetting.AiPlatform;
-            
+
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
@@ -133,6 +133,13 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextGeneration(
                         model: modelName,
                         endpoint: senparcAiSetting.HuggingFaceEndpoint),
+                AiPlatform.FastAPI => kernelBuilder.AddFastAPIChatCompletion(
+                        modelId: modelName,
+                        apiKey: senparcAiSetting.ApiKey,
+                        orgId: senparcAiSetting.OrganizationId,
+                        endpoint: senparcAiSetting.FastAPIEndpoint,
+                        serviceId: null
+                    ),
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
