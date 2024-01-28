@@ -39,6 +39,8 @@ IRegisterService register = RegisterService.Start(senparcSetting)
 Start:
 Console.WriteLine();
 Console.WriteLine("Senparc.AI Sample 启动完毕");
+Console.WriteLine("开源地址：https://github.com/Senparc/Senparc.AI");
+Console.WriteLine("=======================");
 Console.WriteLine($"当前模型：{SampleSetting.CurrentSettingKey} / {SampleSetting.CurrentSetting.AiPlatform}");
 Console.WriteLine("=======================");
 Console.WriteLine();
