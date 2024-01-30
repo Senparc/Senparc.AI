@@ -40,8 +40,8 @@ Start:
 Console.WriteLine();
 Console.WriteLine("Senparc.AI Sample 启动完毕");
 Console.WriteLine("开源地址：https://github.com/Senparc/Senparc.AI");
-Console.WriteLine("=======================");
-Console.WriteLine($"当前模型：{SampleSetting.CurrentSettingKey} / {SampleSetting.CurrentSetting.AiPlatform}");
+Console.WriteLine("-----------------------");
+Console.WriteLine($"当前模型：{SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform} - {SampleSetting.CurrentSetting.Endpoint}");
 Console.WriteLine("=======================");
 Console.WriteLine();
 Console.WriteLine("请输入序号，开始对应功能测试：");
