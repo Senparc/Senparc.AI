@@ -1,0 +1,10 @@
+Senparc.AI Console Sample 使用说明
+
+
+1、打开文件夹 AI
+2、使用写字板打开 appsettings.json，填写 AI 模型相关信息
+	如果您目前没有任何模型可供使用，可加微信号：SenparcWeChat，获取免费用量用于测试
+3、打开程序是直接使用
+
+Windows 用户：打开同级目录下 Senparc.AI.Samples.Consoles.exe 即可出现使用界面
+MacOS 用户：

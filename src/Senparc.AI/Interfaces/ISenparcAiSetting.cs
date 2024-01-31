@@ -1,4 +1,5 @@
 ﻿using Senparc.AI.Entities;
+using Senparc.AI.Exceptions;
 using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Concurrent;
@@ -32,6 +33,15 @@ namespace Senparc.AI.Interfaces
         /// 是否处于调试状态
         /// </summary>
         bool IsDebug { get; set; }
+
+        string Endpoint => AiPlatform switch
+        {
+            AiPlatform.AzureOpenAI => AzureEndpoint,
+            AiPlatform.NeuCharAI => NeuCharEndpoint,
+            AiPlatform.HuggingFace => HuggingFaceEndpoint,
+            AiPlatform.FastAPI => FastAPIEndpoint,
+            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 Endpoint 输出")
+        };
 
         /// <summary>
         /// 是否使用 Azure OpenAI
