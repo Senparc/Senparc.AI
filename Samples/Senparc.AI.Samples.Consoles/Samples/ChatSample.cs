@@ -44,10 +44,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //await Console.Out.WriteLineAsync(localResponse);
             //var remoteResponse = await huggingFaceRemote.CompleteAsync(Input);
 
-            var setting = ((SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting)["ChatGLM"];
+            var setting = (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;
+            var modelName = setting.AiPlatform == AiPlatform.FastAPI ? "chatglm2" : "gpt-35-turbo";
 
             var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey",
-                modelName: SampleHelper.Default_Chat_ModeName /*, modelName: "gpt-4-32k"*/, senparcAiSetting: setting);
+                modelName: modelName /*, modelName: "gpt-4-32k"*/, senparcAiSetting: setting);
             var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();
