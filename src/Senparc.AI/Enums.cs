@@ -27,6 +27,7 @@ namespace Senparc.AI
     /// </summary>
     public enum ConfigModel
     {
+        Chat,
         TextCompletion,
         TextEmbedding,
         ImageGeneration,

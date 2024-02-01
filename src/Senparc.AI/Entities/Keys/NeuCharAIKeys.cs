@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Senparc.AI.Entities.Keys;
 
 namespace Senparc.AI
 {
@@ -15,7 +16,7 @@ namespace Senparc.AI
         public string NeuCharOpenAIApiVersion { get; set; } = "2022-12-01";
     }
 
-    public class NeuCharAIKeys
+    public class NeuCharAIKeys : BaseKeys
     {
         public string ApiKey { get; set; }
         public string NeuCharEndpoint { get; set; }

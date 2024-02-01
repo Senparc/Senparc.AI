@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Senparc.AI.Entities;
+using Senparc.AI.Entities.Keys;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Entities;
@@ -41,7 +42,7 @@ namespace Senparc.AI.Kernel
 
             //TODO:此方法暂时还不能用
 
-            var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, request.ModelName, senparcAiSetting, null, request.ModelName);
+            var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId,senparcAiSetting: senparcAiSetting);
             var kernel = kernelBuilder.Build();
             // KernelResult result = await kernel.RunAsync(input: request.RequestContent!, pipeline: request.FunctionPipeline);
 
@@ -60,13 +61,13 @@ namespace Senparc.AI.Kernel
         /// <returns></returns>
         public (IWantToRun iWantToRun, KernelFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
             string userId,
-            string modelName = "text-davinci-003",
+            ModelName modelName = null,
             int maxHistoryStore = 0,
             string chatPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT,
             ISenparcAiSetting senparcAiSetting = null)
         {
             var result = this.IWantTo(senparcAiSetting)
-                .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                .ConfigModel(ConfigModel.Chat, userId, modelName)
                 .BuildKernel()
                 .CreateFunctionFromPrompt(chatPrompt, promptConfigParameter);
 

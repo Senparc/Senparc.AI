@@ -44,7 +44,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var userId = "Jeffrey";
             var iWantTo = _semanticAiHandler.IWantTo(dalleSetting)
-                                .ConfigModel(ConfigModel.ImageGeneration, userId, "dall-e-3", null, "dall-e-3")
+                                .ConfigModel(ConfigModel.ImageGeneration, userId)
                                 .BuildKernel();
 
 #pragma warning disable SKEXP0002

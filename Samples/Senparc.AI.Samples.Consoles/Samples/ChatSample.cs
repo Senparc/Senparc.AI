@@ -23,9 +23,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
             _aiHandler = aiHandler;
         }
 
-        private const string Endpoint = "http://fc.frp.senparc.com/completions/";
-        private const string Model = "chatglm2";
-
         public async Task RunAsync()
         {
             await Console.Out.WriteLineAsync(@"ChatSample 开始运行，请输入对话内容。
@@ -43,12 +40,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             //await Console.Out.WriteLineAsync(localResponse);
             //var remoteResponse = await huggingFaceRemote.CompleteAsync(Input);
-
+            // modelName: "gpt-4-32k"*/
             var setting = (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;
-            var modelName = setting.AiPlatform == AiPlatform.FastAPI ? "chatglm2" : "gpt-35-turbo";
 
-            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey",
-                modelName: modelName /*, modelName: "gpt-4-32k"*/, senparcAiSetting: setting);
+            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey", senparcAiSetting: setting);
             var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();

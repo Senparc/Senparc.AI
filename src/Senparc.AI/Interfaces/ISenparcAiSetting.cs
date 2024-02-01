@@ -1,4 +1,5 @@
 ﻿using Senparc.AI.Entities;
+using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
 using Senparc.CO2NET.Extensions;
 using System;
@@ -36,6 +37,7 @@ namespace Senparc.AI.Interfaces
 
         string Endpoint => AiPlatform switch
         {
+            AiPlatform.OpenAI => "无需配置",
             AiPlatform.AzureOpenAI => AzureEndpoint,
             AiPlatform.NeuCharAI => NeuCharEndpoint,
             AiPlatform.HuggingFace => HuggingFaceEndpoint,
@@ -57,11 +59,11 @@ namespace Senparc.AI.Interfaces
         /// </summary>
         AiPlatform AiPlatform { get; set; }
 
-
         AzureOpenAIKeys AzureOpenAIKeys { get; set; }
         NeuCharAIKeys NeuCharAIKeys { get; set; }
         OpenAIKeys OpenAIKeys { get; set; }
         HuggingFaceKeys HuggingFaceKeys { get; set; }
+        FastAPIKeys FastAPIKeys { get; set; }
 
         /// <summary>
         /// Neuchar OpenAI 或 Azure OpenAI 或 OpenAI API Key
@@ -122,5 +124,26 @@ namespace Senparc.AI.Interfaces
         /// OpenAIKeys 是否已经设置
         /// </summary>
         public bool IsOpenAiKeysSetted { get; }
+
+
+        ModelName ModelName => AiPlatform switch
+        {
+            AiPlatform.OpenAI => OpenAIKeys.ModelName,
+            AiPlatform.AzureOpenAI => AzureOpenAIKeys.ModelName,
+            AiPlatform.NeuCharAI => NeuCharAIKeys.ModelName,
+            AiPlatform.HuggingFace => HuggingFaceKeys.ModelName,
+            AiPlatform.FastAPI => FastAPIKeys.ModelName,
+            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 Endpoint 输出")
+        };
+
+        string DeploymentName => AiPlatform switch
+        {
+            AiPlatform.AzureOpenAI => AzureOpenAIKeys.DeploymentName,
+            AiPlatform.OpenAI |
+            AiPlatform.NeuCharAI |
+            AiPlatform.HuggingFace |
+            AiPlatform.FastAPI => null,
+            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 DeploymentName 输出")
+        };
     }
 }

@@ -24,7 +24,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey", KernelTestBase.Default_ChatEmbedding);
+            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey");
             var iWantToRun = chatConfig.iWantToRun;
 
             //第一轮对话
@@ -92,10 +92,9 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_ChatEmbedding;//默认使用模型
             var iWantToRun =
                  handler.IWantTo()
-                        .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                        .ConfigModel(ConfigModel.TextCompletion, userId)
                         .BuildKernel()
                         .CreateFunctionFromPrompt(Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT, promptParameter)
                         .iWantToRun;
@@ -133,7 +132,8 @@ namespace Senparc.AI.Kernel.Tests.Handlers
         public async Task PureFunctionTextCompletionTest1()
         {
             //创建 AI Handler 处理器（也可以通过工厂依赖注入）
-            var handler = new SemanticAiHandler(Senparc.AI.Config.SenparcAiSetting);
+            var setting = Senparc.AI.Config.SenparcAiSetting;
+            var handler = new SemanticAiHandler(setting);
 
             //定义 AI 接口调用参数和 Token 限制等
             var promptParameter = new PromptConfigParameter()
@@ -147,10 +147,10 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_ChatEmbedding;//默认使用模型
+            var modelName = Senparc.AI.Config.SenparcAiSetting.ModelName.Chat;//默认使用模型
             var iWantToRun =
                  handler.IWantTo()
-                        .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                        .ConfigModel(ConfigModel.TextCompletion, userId)
                         .BuildKernel()
                         .CreateFunctionFromPrompt(functionPrompt, promptParameter).iWantToRun;
 
@@ -198,11 +198,10 @@ MynameIsJeffrey,I'maChinese.ThisisAtest.HappYbIrthday!
 
             //准备运行
             var userId = "JeffreySu";//区分用户
-            var modelName = KernelTestBase.Default_ChatEmbedding;//默认使用模型(gpt-35-turbo-16k 此处不可用)
 
             var iWantToRun =
                  handler.IWantTo()
-                        .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                        .ConfigModel(ConfigModel.TextCompletion, userId)
                         .BuildKernel();
 
             iWantToRun.CreateFunctionFromPrompt(funtcionPrompt, promptParameter);

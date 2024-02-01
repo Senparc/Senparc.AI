@@ -8,6 +8,7 @@ using Senparc.AI.Kernel.KernelConfigExtensions;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.AI.Tests;
 using Senparc.CO2NET.Extensions;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Senparc.AI.Kernel.Handlers.Tests
@@ -27,23 +28,28 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             //测试 TextEmbedding
             var iWantToRun = handler
                  .IWantTo()
-                 .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextEmbedding)
-                 .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_ChatEmbedding)
+                 .ConfigModel(ConfigModel.TextEmbedding, userId)
+                 .ConfigModel(ConfigModel.TextCompletion, userId)
                  .BuildKernel(/*b => b.WithMemoryStorage(new VolatileMemoryStore())*/);
 
             var dt1 = DateTime.Now;
             const string MemoryCollectionName = "aboutMe";
-            const string azureDeployName = "text-embedding-ada-002";
+
+            var setting = Senparc.AI.Config.SenparcAiSetting;
+            string textCompletionModelName = setting.ModelName.TextCompletion;
+            string textCpmpetionDeployName = setting.DeploymentName ?? textCompletionModelName;
+            string embeddingModelName = setting.ModelName.Embedding;
+            string embeddingDeployName = setting.DeploymentName ?? embeddingModelName;//"text-embedding-ada-002";
 
             //新方法（异步，同时进行）
             iWantToRun
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info1", text: "My name is Andrea", azureDeployName: azureDeployName)
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator", azureDeployName: azureDeployName)
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005", azureDeployName: azureDeployName)
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info4", text: "I visited France and Italy five times since 2015", azureDeployName: azureDeployName)
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info5", text: "My family is from New York", azureDeployName: azureDeployName)
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info6", text: "I work for Senparc", azureDeployName: azureDeployName)
-                .MemorySaveInformation(KernelTestBase.Default_TextCompletion, MemoryCollectionName, id: "info7", text: "Suzhou Senparc Network Technology Co., Ltd. was founded in 2010, mainly engaged in mobile Internet, e-commerce, software, management system development and implementation. We have in-depth research on Artificial Intelligence, big data and paperless electronic conference systems. Senparc has 5 domestic subsidiaries and 1 overseas subsidiary(in Sydney). Our products and services have been involved in government, medical, education, military, logistics, finance and many other fields. In addition to the major provinces and cities in China, Senparc's products have entered the markets of the United States, Canada, Australia, the Netherlands, Sweden and Spain.", azureDeployName: azureDeployName)
+                .MemorySaveInformation(textCompletionModelName, MemoryCollectionName, id: "info1", text: "My name is Andrea", azureDeployName: embeddingDeployName)
+                .MemorySaveInformation(textCompletionModelName, MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator", azureDeployName: embeddingDeployName)
+                .MemorySaveInformation(textCompletionModelName, MemoryCollectionName, id: "info3", text: "I currently live in Seattle and have been living there since 2005", azureDeployName: embeddingDeployName)
+                .MemorySaveInformation(textCompletionModelName, MemoryCollectionName, id: "info4", text: "I visited France and Italy five times since 2015", azureDeployName: embeddingDeployName)
+                .MemorySaveInformation(textCompletionModelName, MemoryCollectionName, id: "info5", text: "My family is from New York", azureDeployName: embeddingDeployName)
+                .MemorySaveInformation(textCompletionModelName, MemoryCollectionName, id: "info6", text: "I work for Senparc", azureDeployName: embeddingDeployName)
+                .MemorySaveInformation(textCompletionModelName, MemoryCollectionName, id: "info7", text: "Suzhou Senparc Network Technology Co., Ltd. was founded in 2010, mainly engaged in mobile Internet, e-commerce, software, management system development and implementation. We have in-depth research on Artificial Intelligence, big data and paperless electronic conference systems. Senparc has 5 domestic subsidiaries and 1 overseas subsidiary(in Sydney). Our products and services have been involved in government, medical, education, military, logistics, finance and many other fields. In addition to the major provinces and cities in China, Senparc's products have entered the markets of the United States, Canada, Australia, the Netherlands, Sweden and Spain.", azureDeployName: embeddingDeployName)
                 .MemoryStoreExexute();
 
             var dt2 = DateTime.Now;
@@ -63,7 +69,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             foreach (var q in questions)
             {
                 var questionDt = DateTime.Now;
-                var result = await iWantToRun.MemorySearchAsync(KernelTestBase.Default_TextCompletion, MemoryCollectionName, q, azureDeployName: azureDeployName);
+                var result = await iWantToRun.MemorySearchAsync(textCompletionModelName, MemoryCollectionName, q, azureDeployName: embeddingDeployName);
                 var response = result.MemoryQueryResult;
                 Console.Write("Q: " + q + "\r\nA: ");
                 await foreach (var resultItem in response)
@@ -160,7 +166,7 @@ ChatBot: ";
             context["userInput"] = input;
             var functionResult = await chatFunction.function.InvokeAsync(chatFunction.iWantToRun.Kernel, context);
             await Console.Out.WriteLineAsync("Question: " + input);
-            await Console.Out.WriteLineAsync("Result(GetValue):"+functionResult.GetValue<string>().Humanize());
+            await Console.Out.WriteLineAsync("Result(GetValue):" + functionResult.GetValue<string>().Humanize());
             await Console.Out.WriteLineAsync("Answer: " + functionResult.ToJson(true));
         }
 
@@ -172,16 +178,20 @@ ChatBot: ";
             var handler = serviceProvider.GetRequiredService<IAiHandler>()
                             as SemanticAiHandler;
             var userId = "JeffreySu";
-            const string azureDeployName = "text-embedding-ada-002";
+          
 
             //测试 TextEmbedding
             var iWantToRun = handler
                  .IWantTo()
-                 .ConfigModel(ConfigModel.TextEmbedding, userId, KernelTestBase.Default_TextEmbedding)
-                 .ConfigModel(ConfigModel.TextCompletion, userId, KernelTestBase.Default_TextCompletion)
+                 .ConfigModel(ConfigModel.TextEmbedding, userId)
+                 .ConfigModel(ConfigModel.TextCompletion, userId)
                  .BuildKernel(/*b => b.WithMemoryStorage(new VolatileMemoryStore())*/);
 
             const string memoryCollectionName = "NcfGitHub";
+
+            var setting = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting;
+            var embeddingModelName = setting.ModelName.Embedding;
+            var embeddingDeployName = setting.DeploymentName ?? embeddingModelName;
 
             var githubFiles = new Dictionary<string, string>()
             {
@@ -195,17 +205,18 @@ ChatBot: ";
 
             var j = 0;
             var dt2 = SystemTime.Now;
+         
             //载入
             foreach (var entry in githubFiles)
             {
                 iWantToRun.MemorySaveReference(
-                    modelName: KernelTestBase.Default_TextEmbedding,
+                    modelName: embeddingModelName,
                     collection: memoryCollectionName,
                     description: entry.Value,//只用于展示记录
                     text: entry.Value,//真正用于生成 embedding
                     externalId: entry.Key,
                     externalSourceName: "NeuCharFramework",
-                    azureDeployName: azureDeployName
+                    azureDeployName: embeddingDeployName
                 );
                 Console.WriteLine($"  URL {++j} saved");
             }
@@ -224,7 +235,7 @@ ChatBot: ";
             var dt3 = SystemTime.Now;
 
             var askPrompt = "我正在使用 Visutal Studio，如何进行开发？";
-            var memories = await iWantToRun.MemorySearchAsync(KernelTestBase.Default_TextEmbedding, memoryCollectionName, askPrompt, limit: 5, minRelevanceScore: 0.77);
+            var memories = await iWantToRun.MemorySearchAsync(embeddingModelName, memoryCollectionName, askPrompt, limit: 5, minRelevanceScore: 0.77);
 
             var dt4 = SystemTime.Now;
 
