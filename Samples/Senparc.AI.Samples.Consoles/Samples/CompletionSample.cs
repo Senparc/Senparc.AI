@@ -28,7 +28,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
         public async Task RunAsync()
         {
-            await Console.Out.WriteLineAsync(@"CompletionSample 开始运行，请输入对话内容。
+            await Console.Out.WriteLineAsync(@"CompletionSample 开始运行，请输入对话内容（不具备历史上下文）。
 
 输入 exit 退出。");
 
@@ -40,7 +40,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             };
             ;
 
-            var functionPrompt = @"{$input}";
+            var functionPrompt = @"{{$input}}";
 
             //准备运行
             var userId = "JeffreySu";//区分用户
@@ -49,8 +49,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                         .ConfigModel(ConfigModel.TextCompletion, userId)
                         .BuildKernel()
                         .CreateFunctionFromPrompt(functionPrompt, promptParameter).iWantToRun;
-
-
 
             var multiLineContent = new StringBuilder();
             var useMultiLine = false;

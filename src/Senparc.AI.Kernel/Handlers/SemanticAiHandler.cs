@@ -67,7 +67,7 @@ namespace Senparc.AI.Kernel
             ISenparcAiSetting senparcAiSetting = null)
         {
             var result = this.IWantTo(senparcAiSetting)
-                .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+                .ConfigModel(ConfigModel.Chat, userId, modelName)
                 .BuildKernel()
                 .CreateFunctionFromPrompt(chatPrompt, promptConfigParameter);
 
