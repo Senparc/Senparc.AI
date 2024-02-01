@@ -21,7 +21,7 @@ namespace Senparc.AI.Tests
             Assert.AreEqual(false, senparcAiSetting.UseNeuCharAI);
             Assert.IsFalse(senparcAiSetting.NeuCharEndpoint.IsNullOrEmpty());
             Assert.IsFalse(senparcAiSetting.ApiKey.IsNullOrEmpty());
-            Assert.IsFalse(senparcAiSetting.OrganizationId.IsNullOrEmpty());
+            Assert.IsTrue(senparcAiSetting.OrganizationId.IsNullOrEmpty());
 
 
             //全局变量

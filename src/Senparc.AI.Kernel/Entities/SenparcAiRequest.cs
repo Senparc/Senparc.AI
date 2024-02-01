@@ -24,10 +24,10 @@ namespace Senparc.AI.Kernel
         /// <inheritdoc/>
         /// </summary>
         public string UserId { get; set; }
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
-        public string ModelName { get; set; }
+        ///// <summary>
+        ///// <inheritdoc/>
+        ///// </summary>
+        //public string ModelName { get; set; }
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
@@ -59,22 +59,20 @@ namespace Senparc.AI.Kernel
         ///// </summary>
         //public bool StoreContext => AiContext.StoreToContainer;
 
-        public SenparcAiRequest(IWantToRun iWantToRun, string userId, string modelName, string requestContent,PromptConfigParameter parameterConfig, params KernelFunction[] pipeline)
+        public SenparcAiRequest(IWantToRun iWantToRun, string userId, string requestContent,PromptConfigParameter parameterConfig, params KernelFunction[] pipeline)
         {
             IWantToRun = iWantToRun;
             UserId = userId;
-            ModelName = modelName;
             RequestContent = requestContent;
             ParameterConfig = parameterConfig;
             TempAiArguments = new SenparcAiArguments();
             FunctionPipeline = pipeline;
         }
 
-        public SenparcAiRequest(IWantToRun iWantToRun, string userId, string modelName, KernelArguments contextVariables, PromptConfigParameter parameterConfig, params KernelFunction[] pipeline)
+        public SenparcAiRequest(IWantToRun iWantToRun, string userId, KernelArguments contextVariables, PromptConfigParameter parameterConfig, params KernelFunction[] pipeline)
         {
             IWantToRun = iWantToRun;
             UserId = userId;
-            ModelName = modelName;
             ParameterConfig = parameterConfig;
             TempAiArguments = new SenparcAiArguments(contextVariables);
             FunctionPipeline = pipeline;

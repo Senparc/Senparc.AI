@@ -1,6 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.TextToImage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Senparc.AI.Entities.Keys;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Helpers;
 using Senparc.AI.Kernel.Tests.BaseSupport;
@@ -9,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Senparc.AI.Kernel.Handlers;
+using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Kernel.Helpers.Tests
 {
@@ -21,8 +24,9 @@ namespace Senparc.AI.Kernel.Helpers.Tests
         public void GetServiceIdTest()
         {
             var helper = new SemanticKernelHelper();
-            var result = helper.GetServiceId("Jeffrey", KernelTestBase.Default_TextCompletion);
-            Assert.AreEqual($"Jeffrey-{KernelTestBase.Default_TextCompletion}", result);
+            var modelName = "MyModelName";
+            var result = helper.GetServiceId("Jeffrey", modelName);
+            Assert.AreEqual($"Jeffrey-{modelName}", result);
         }
 
         [TestMethod]
@@ -61,7 +65,7 @@ namespace Senparc.AI.Kernel.Helpers.Tests
         {
             ISenparcAiSetting senparcAiSetting = Senparc.AI.Config.SenparcAiSetting;
             var helper = new SemanticKernelHelper();
-            var kernel = helper.ConfigTextCompletion("Jeffrey", KernelTestBase.Default_TextCompletion, senparcAiSetting, null, KernelTestBase.Default_TextCompletion);
+            var kernel = helper.ConfigTextCompletion("Jeffrey", senparcAiSetting: senparcAiSetting);
             Assert.IsNotNull(kernel);
         }
 
@@ -69,14 +73,22 @@ namespace Senparc.AI.Kernel.Helpers.Tests
         [TestMethod()]
         public async Task ConfigImageGenerationTest()
         {
-            return;
-            var helper = new SemanticKernelHelper();
-            var kernel = helper.ConfigImageGeneration("Jeffrey").Build();
+            //return;
+
+            var dalleSetting = ((SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting)["AzureDallE3"];
+
+            await Console.Out.WriteLineAsync(dalleSetting.ToJson(true));
+
+            var handler = new SemanticAiHandler(dalleSetting);
+            var userId = "Jeffrey";
+            var iWantTo = handler.IWantTo(dalleSetting)
+                                .ConfigModel(ConfigModel.ImageGeneration, userId)
+                                .BuildKernel();
 
 #pragma warning disable SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-            var dallE = kernel.GetRequiredService<ITextToImageService>();
+            var dallE = iWantTo.GetRequiredService<ITextToImageService>();
             var imageDescription = "A car fly in the sky, with a panda driver.";
-            var image = await dallE.GenerateImageAsync(imageDescription, 256, 256);
+            var image = await dallE.GenerateImageAsync(imageDescription, 1024, 1024);
 #pragma warning restore SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
             await Console.Out.WriteLineAsync("Image URL:" + image);

@@ -43,14 +43,30 @@ namespace Senparc.AI.Entities
         public virtual bool IsDebug { get; set; }
 
         /// <summary>
+        /// 是否使用 OpenAI
+        /// </summary>
+        public virtual bool UseOpenAI => AiPlatform == AiPlatform.OpenAI;
+
+        /// <summary>
         /// 是否使用 Azure OpenAI
         /// </summary>
         public virtual bool UseAzureOpenAI => AiPlatform == AiPlatform.AzureOpenAI;
 
         /// <summary>
-        /// 是否使用 Azure OpenAI
+        /// 是否使用 NeuCharAI
         /// </summary>
         public virtual bool UseNeuCharAI => AiPlatform == AiPlatform.NeuCharAI;
+
+        /// <summary>
+        /// 是否使用 HuggingFace
+        /// </summary>
+        public virtual bool UseHuggingFace => AiPlatform == AiPlatform.HuggingFace;
+
+        /// <summary>
+        /// 是否使用 FastAPI
+        /// </summary>
+        public virtual bool UseFastAPI => AiPlatform == AiPlatform.FastAPI;
+
 
         /// <summary>
         /// AI 平台类型
@@ -82,8 +98,8 @@ namespace Senparc.AI.Entities
         /// <summary>
         /// OpenAI API Orgaization ID
         /// </summary>
-        public virtual string OrganizationId => AiPlatform == AiPlatform.OpenAI 
-                                                    ? OpenAIKeys?.OrganizationId 
+        public virtual string OrganizationId => AiPlatform == AiPlatform.OpenAI
+                                                    ? OpenAIKeys?.OrganizationId
                                                     : FastAPIKeys?.OrganizationId;
 
         #region Azure OpenAI
@@ -139,8 +155,7 @@ namespace Senparc.AI.Entities
         /// <summary>
         /// 设置 OpenAI
         /// </summary>
-        /// <param name="apiKey"></param>
-        /// <param name="orgId"></param>
+        /// <param name="openAIKeys"></param>
         public ISenparcAiSetting SetOpenAI(OpenAIKeys openAIKeys)
         {
             this.AiPlatform = AiPlatform.OpenAI;
@@ -175,10 +190,23 @@ namespace Senparc.AI.Entities
         /// </summary>
         /// <param name="huggingFaceKeys"></param>
         /// <returns></returns>
-        public ISenparcAiSetting SetFuggingFace(HuggingFaceKeys huggingFaceKeys)
+        public ISenparcAiSetting SetHuggingFace(HuggingFaceKeys huggingFaceKeys)
         {
             this.AiPlatform = AiPlatform.HuggingFace;
             this.HuggingFaceKeys = huggingFaceKeys;
+            return this;
+        }
+
+
+        /// <summary>
+        /// 设置 FastAPIKeys
+        /// </summary>
+        /// <param name="fastAPIKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetFastAPI(FastAPIKeys fastAPIKeys)
+        {
+            this.AiPlatform = AiPlatform.FastAPI;
+            this.FastAPIKeys = fastAPIKeys;
             return this;
         }
 

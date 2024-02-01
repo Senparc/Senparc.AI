@@ -46,7 +46,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var userId = "JeffreySu";//区分用户
             var iWantToRun =
                  _semanticAiHandler.IWantTo()
-                        .ConfigModel(ConfigModel.TextCompletion, userId, Model)
+                        .ConfigModel(ConfigModel.TextCompletion, userId)
                         .BuildKernel()
                         .CreateFunctionFromPrompt(functionPrompt, promptParameter).iWantToRun;
 

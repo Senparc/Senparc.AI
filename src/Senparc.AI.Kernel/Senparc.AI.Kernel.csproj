@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.10.1</Version>
+		<Version>0.11.0</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -36,6 +36,7 @@
 			v0.9.0 重构 SenparcAiSetting，支持多模型配置
 			v0.10.0 添加 FastAPI 模型选项
 			v0.10.1 提供 SenparcAiSetting.Endpoint 属性
+			v0.11.0 重构 ModelName 获取方式，可根据模型平台自动获取 ModelName 和 DepolymentName
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

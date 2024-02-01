@@ -21,7 +21,7 @@ namespace Senparc.AI.Tests
         protected static IRegisterService registerService;
         protected static SenparcSetting _senparcSetting;
         protected static ISenparcAiSetting _senparcAiSetting;
-        private static bool _useTestAppSettings = false;
+        private static bool _useTestAppSettings = true;
 
 
         public BaseTest(Action<IRegisterService> registerAction, Func<IConfigurationRoot, ISenparcAiSetting> senparcAiSettingFunc,
@@ -50,6 +50,8 @@ namespace Senparc.AI.Tests
             var appsettingFileName = _useTestAppSettings && File.Exists(testFile) 
                 ? "appsettings.test.json" 
                 : "appsettings.json";
+
+            Console.WriteLine("appsettingFileName: "+ appsettingFileName);
 
             configBuilder.AddJsonFile(appsettingFileName, false, false);
             var config = configBuilder.Build();

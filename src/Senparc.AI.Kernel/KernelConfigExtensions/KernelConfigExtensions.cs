@@ -9,6 +9,7 @@ using Azure.Core;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Plugins.Memory;
 using Senparc.AI.Entities;
+using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
@@ -46,29 +47,49 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="iWantToConfig"></param>
         /// <param name="configModel"></param>
         /// <param name="userId"></param>
-        /// <param name="modelName"></param>
+        /// <param name="modelName">模型名称配置，如果为 null，则从配置中自动获取</param>
         /// <param name="senparcAiSetting"></param>
         /// <param name="azureDallEDepploymentName"></param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
-        public static IWantToConfig ConfigModel(this IWantToConfig iWantToConfig, ConfigModel configModel, string userId, string modelName,
+        public static IWantToConfig ConfigModel(this IWantToConfig iWantToConfig, ConfigModel configModel, string userId, ModelName modelName = null,
             ISenparcAiSetting? senparcAiSetting = null, string azureDallEDepploymentName = null)
         {
             var iWantTo = iWantToConfig.IWantTo;
             var existedKernelBuilder = iWantToConfig.IWantTo.KernelBuilder;
             senparcAiSetting ??= iWantTo.SenparcAiSetting;
+            modelName ??= senparcAiSetting.ModelName;
 
-            var kernelBuilder = configModel switch
+            string modelNameStr = string.Empty;
+            IKernelBuilder kernelBuilder = null;
+
+            switch (configModel)
             {
-                AI.ConfigModel.TextCompletion => iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelName, senparcAiSetting,
-                    existedKernelBuilder, modelName),
-                AI.ConfigModel.TextEmbedding => iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelName, senparcAiSetting, existedKernelBuilder),
-                AI.ConfigModel.ImageGeneration => iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder, modelName, senparcAiSetting, azureDallEDepploymentName),
-                _ => throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel)
-            };
+                case AI.ConfigModel.Chat:
+                    modelNameStr = modelName.TextCompletion;
+                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigChat(userId, modelNameStr, senparcAiSetting,
+                    existedKernelBuilder, senparcAiSetting.DeploymentName ?? modelNameStr);
+                    break;
+                case AI.ConfigModel.TextCompletion:
+                    modelNameStr = modelName.TextCompletion;
+                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelNameStr, senparcAiSetting,
+                    existedKernelBuilder, senparcAiSetting.DeploymentName ?? modelNameStr);
+                    break;
+                case AI.ConfigModel.TextEmbedding:
+                    modelNameStr = modelName.Embedding;
+                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder);
+                    break;
+                case AI.ConfigModel.ImageGeneration:
+                    modelNameStr = modelName.TextToImage;
+                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, senparcAiSetting.DeploymentName ?? modelNameStr);
+                    break;
+                default:
+                    throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel);
+            }
+
             iWantTo.KernelBuilder = kernelBuilder; //进行 Config 必须提供 Kernel
             iWantTo.UserId = userId;
-            iWantTo.ModelName = modelName;
+            iWantTo.ModelName = modelNameStr;
             return iWantToConfig;
         }
 
@@ -152,7 +173,7 @@ namespace Senparc.AI.Kernel.Handlers
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new KernelFunction[0]).ToArray();
             }
 
-            var request = new SenparcAiRequest(iWantToRun, iWantTo.UserId, iWantTo.ModelName, requestContent!, iWantToRun.PromptConfigParameter,
+            var request = new SenparcAiRequest(iWantToRun, iWantTo.UserId, requestContent!, iWantToRun.PromptConfigParameter,
                 pipeline);
             return request;
         }
@@ -200,7 +221,7 @@ namespace Senparc.AI.Kernel.Handlers
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new KernelFunction[0]).ToArray();
             }
 
-            var request = new SenparcAiRequest(iWantToRun, iWantTo.UserId, iWantTo.ModelName, arguments, iWantToRun.PromptConfigParameter,
+            var request = new SenparcAiRequest(iWantToRun, iWantTo.UserId, arguments, iWantToRun.PromptConfigParameter,
                 pipeline);
             return request;
         }

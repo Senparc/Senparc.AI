@@ -33,7 +33,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var iWantToRun = _semanticAiHandler
                            .IWantTo()
-                           .ConfigModel(ConfigModel.TextCompletion, _userId, SampleHelper.Default_Chat_ModeName)
+                           .ConfigModel(ConfigModel.TextCompletion, _userId)
                            .BuildKernel();
 
             //var planner = iWantToRun.ImportPlugin(new TextMemoryPlugin(iWantToRun.Kernel.Memory)).skillList;
