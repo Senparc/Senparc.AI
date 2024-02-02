@@ -23,9 +23,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
             _aiHandler = aiHandler;
         }
 
-        private const string Endpoint = "http://fc.frp.senparc.com/completions/";
-        private const string Model = "gpt-35-turbo-16k";
-
         public async Task RunAsync()
         {
             await Console.Out.WriteLineAsync(@"CompletionSample 开始运行，请输入对话内容（不具备历史上下文）。
