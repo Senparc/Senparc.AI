@@ -63,9 +63,10 @@ namespace Senparc.AI.Kernel
             string userId,
             ModelName modelName = null,
             int maxHistoryStore = 0,
-            string chatPrompt = Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT,
+            string chatPrompt = null,
             ISenparcAiSetting senparcAiSetting = null)
         {
+            chatPrompt ??= Senparc.AI.DefaultSetting.DefaultPromptForChat;
             var result = this.IWantTo(senparcAiSetting)
                 .ConfigModel(ConfigModel.Chat, userId, modelName)
                 .BuildKernel()

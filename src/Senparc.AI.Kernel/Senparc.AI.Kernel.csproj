@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.11.0</Version>
+		<Version>0.11.1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -11,7 +11,7 @@
 			Senparc.AI 核心模块，目前为快速迭代，和 Senaprc.Weixin.AI 一起维护，V2.0 后期将独立项目
 			https://github.com/Senparc/Senaprc.Weixin.AI
 		</Description>
-		<Copyright>Senparc Copyright © 2004~2023</Copyright>
+		<Copyright>Senparc Copyright © 2004~2024</Copyright>
 		<PackageTags>
 			Senparc,AI,Kernel,C#,AIGC,GenAI,AGI,LLM,SemanticKernel
 		</PackageTags>

@@ -96,7 +96,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId)
                         .BuildKernel()
-                        .CreateFunctionFromPrompt(Senparc.AI.DefaultSetting.DEFAULT_PROMPT_FOR_CHAT, promptParameter)
+                        .CreateFunctionFromPrompt(Senparc.AI.DefaultSetting.DefaultPromptForChat, promptParameter)
                         .iWantToRun;
 
             // 设置输入/提问
