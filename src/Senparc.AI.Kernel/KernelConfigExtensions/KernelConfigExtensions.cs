@@ -66,7 +66,7 @@ namespace Senparc.AI.Kernel.Handlers
             switch (configModel)
             {
                 case AI.ConfigModel.Chat:
-                    modelNameStr = modelName.TextCompletion;
+                    modelNameStr = modelName.Chat;
                     kernelBuilder = iWantTo.SemanticKernelHelper.ConfigChat(userId, modelNameStr, senparcAiSetting,
                     existedKernelBuilder, senparcAiSetting.DeploymentName ?? modelNameStr);
                     break;
