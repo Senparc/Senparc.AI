@@ -53,6 +53,10 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 > 提示：AzureOpenAI 调用限制请参考：https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quotas-limits<br>
 > OpenAI 调用限制请参考 OpenAI 后台：https://platform.openai.com/docs/guides/rate-limits
 
+#### 进阶（一）：配置多模型环境
+
+#### 进阶（二）：动态配置模型参数
+
 ### 第二步：开发
 
 Senparc.AI 使用了创新的对话式编程体验，您无需了解过多不同平台、SDK 的详细用法，只需要按照自己的想法进行定义和编程，最后接收结果，以目前最火的聊天场景（Chat）为例：
