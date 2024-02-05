@@ -26,16 +26,16 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
       "NeuCharEndpoint": "https://www.neuchar.com/<DeveloperId>/" //查看 ApiKey 时可看到 DeveloperId
     },
     "AzureOpenAIKeys": {
-      "ApiKey": "<Your AzureApiKey>", //TODO：加密
-      "AzureEndpoint": "<Your AzureEndPoint>",//https://xxxx.openai.azure.com/
+      "ApiKey": "<Your AzureApiKey>", 
+      "AzureEndpoint": "<Your AzureEndPoint>",
       "AzureOpenAIApiVersion": "2022-12-01" 
     },
     "OpenAIKeys": {
-      "ApiKey": "<Your OpenAIKey>", //TODO：加密
+      "ApiKey": "<Your OpenAIKey>",
       "OrganizationId": "<Your OpenAIOrgId>"
     },
     "HuggingFaceKeys": {
-      "Endpoint": "<Your EndPoint>" //HuggingFace 的 Endpoint
+      "Endpoint": "<Your EndPoint>"
     }
   }
 

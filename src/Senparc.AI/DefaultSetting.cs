@@ -6,7 +6,10 @@ namespace Senparc.AI
 {
     public class DefaultSetting
     {
-        public const string DEFAULT_PROMPT_FOR_CHAT = @"
+        /// <summary>
+        /// 默认给 Chat 用的 Prompt
+        /// </summary>
+        public static string DefaultPromptForChat { get; set; } = @"
 ChatBot can have a conversation with you about any topic.
 It can give explicit instructions or say 'I don't know' if it does not have an answer.
 
