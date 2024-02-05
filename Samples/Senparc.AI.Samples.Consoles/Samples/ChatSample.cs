@@ -2,6 +2,7 @@
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
+using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,10 +26,31 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
         public async Task RunAsync()
         {
-            await Console.Out.WriteLineAsync(@"ChatSample 开始运行，请输入对话内容。
+            await Console.Out.WriteLineAsync(@"ChatSample 开始运行");
+            await Console.Out.WriteLineAsync($@"[聊天设置 - 1/2] 请输入机器人系统信息（System Message），默认信息如下，如无需修改可直接输入回车。");
+            await Console.Out.WriteLineAsync();
+            await Console.Out.WriteLineAsync("------ System Message Start------");
+            await Console.Out.WriteLineAsync(Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE);
+            await Console.Out.WriteLineAsync("------ System Message End------");
+            await Console.Out.WriteLineAsync();
+
+            var systemMessage = Console.ReadLine();
+            systemMessage = systemMessage.IsNullOrEmpty() ? Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE : systemMessage;
+
+            int maxHistoryCount = 0;
+            do
+            {
+                await Console.Out.WriteLineAsync("[聊天设置 - 2/2] 请输入最大保留历史对话数量，建议 5-20 之间");
+            } while (int.TryParse(Console.ReadLine(), out maxHistoryCount) && maxHistoryCount <= 0);
+
+            await Console.Out.WriteLineAsync();
+
+            await Console.Out.WriteLineAsync(@"配置完成，请输入对话内容。
 输入 [ML] 开启单次对话的多行模式
 输入 [END] 完成所有多行输入
 输入 exit 退出。");
+
+            await Console.Out.WriteLineAsync();
 
             var parameter = new PromptConfigParameter()
             {
@@ -37,13 +59,17 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 TopP = 0.5,
             };
 
-
             //await Console.Out.WriteLineAsync(localResponse);
             //var remoteResponse = await huggingFaceRemote.CompleteAsync(Input);
             // modelName: "gpt-4-32k"*/
-            var setting = (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;
 
-            var chatConfig = _semanticAiHandler.ChatConfig(parameter, userId: "Jeffrey", senparcAiSetting: setting);
+            var setting = (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;//也可以留空，将自动获取
+
+            var chatConfig = _semanticAiHandler.ChatConfig(parameter, 
+                                userId: "Jeffrey", 
+                                maxHistoryStore: maxHistoryCount,
+                                chatSystemMessage:systemMessage, 
+                                senparcAiSetting: setting);
             var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();

@@ -6,15 +6,25 @@ namespace Senparc.AI
 {
     public class DefaultSetting
     {
-        /// <summary>
-        /// 默认给 Chat 用的 Prompt
-        /// </summary>
-        public static string DefaultPromptForChat { get; set; } = @"
-ChatBot can have a conversation with you about any topic.
-It can give explicit instructions or say 'I don't know' if it does not have an answer.
+        public const string DEFAULT_SYSTEM_MESSAGE = @"ChatBot can have a conversation with you about any topic.
+It can give explicit instructions or say 'I don't know' if it does not have an answer.";
 
-{{$history}}
-Human: {{$human_input}}
-ChatBot:";
+        /// <summary>
+        /// 获取给 Chat 用的 Prompt
+        /// </summary>
+        /// <param name="systemMessage"></param>
+        /// <param name="humanId"></param>
+        /// <param name="robotId"></param>
+        /// <param name="hisgoryArgName"></param>
+        /// <param name="humanInputArgName"></param>
+        /// <returns></returns>
+        public static string GetPromptForChat(string systemMessage = DEFAULT_SYSTEM_MESSAGE, string humanId = "Human", string robotId = "ChatBot", string hisgoryArgName = "history", string humanInputArgName = "human_input")
+        {
+            return $@"{systemMessage}
+
+{{{{${hisgoryArgName}}}}}
+{humanId}: {{{{${humanInputArgName}}}}}
+{robotId}:";
+        }
     }
 }

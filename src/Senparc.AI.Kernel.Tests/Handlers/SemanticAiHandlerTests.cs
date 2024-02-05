@@ -1,4 +1,6 @@
-﻿using Microsoft.SemanticKernel;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Senparc.AI.Kernel;
+using Microsoft.SemanticKernel;
 using Senparc.AI.Entities;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
@@ -6,6 +8,7 @@ using Senparc.AI.Kernel.KernelConfigExtensions;
 using Senparc.AI.Kernel.Tests.BaseSupport;
 using Senparc.CO2NET.Extensions;
 using System.Formats.Asn1;
+using System.Text.RegularExpressions;
 
 namespace Senparc.AI.Kernel.Tests.Handlers
 {
@@ -24,7 +27,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey");
+            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey", maxHistoryStore: 10);
             var iWantToRun = chatConfig.iWantToRun;
 
             //第一轮对话
@@ -96,7 +99,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                  handler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId)
                         .BuildKernel()
-                        .CreateFunctionFromPrompt(Senparc.AI.DefaultSetting.DefaultPromptForChat, promptParameter)
+                        .CreateFunctionFromPrompt(Senparc.AI.DefaultSetting.GetPromptForChat(), promptParameter)
                         .iWantToRun;
 
             // 设置输入/提问
@@ -214,6 +217,104 @@ MynameIsJeffrey,I'maChinese.ThisisAtest.HappYbIrthday!
             Assert.IsNotNull(result);
             await Console.Out.WriteLineAsync(result.Output);
             Assert.AreEqual("Helloworld!Thisisanewworld.", result.Output);
+        }
+
+        [TestMethod()]
+        public void RemoveHistoryTest()
+        {
+            var handler = new SemanticAiHandler(Senparc.AI.Config.SenparcAiSetting);
+
+            var history = @"ChatBot can have a conversation with you about any topic.
+It can give explicit instructions or say 'I don't know' if it does not have an answer.
+
+Human: One
+Still One
+ChatBot: Two
+Still Tow
+Human: Three
+ChatBot:Four
+Human: Five
+Still File
+ChatBot: Six
+Still Six
+Human: Same
+ChatBot: Same
+Human: Same
+ChatBot: Same";
+
+            string pattern = @"Human:.*?ChatBot:.*?(?=(Human:|$))";
+
+            // 找到所有的匹配  
+            MatchCollection matches = Regex.Matches(history, pattern, RegexOptions.Singleline);
+            foreach (Match match in matches)
+            {
+                Console.WriteLine(match.Value);
+            }
+
+            Assert.AreEqual(5, matches.Count);
+
+            //保留 1 条历史记录
+            var maxHistoryCount = 1;
+            var result = handler.RemoveHistory(history, maxHistoryCount);
+            Assert.AreEqual(@"ChatBot can have a conversation with you about any topic.
+It can give explicit instructions or say 'I don't know' if it does not have an answer.
+
+Human: Same
+ChatBot: Same", result);
+
+
+            //保留 2 条历史记录
+            maxHistoryCount = 2;
+            result = handler.RemoveHistory(history, maxHistoryCount);
+            Assert.AreEqual(@"ChatBot can have a conversation with you about any topic.
+It can give explicit instructions or say 'I don't know' if it does not have an answer.
+
+Human: Same
+ChatBot: Same
+Human: Same
+ChatBot: Same", result);
+
+            //保留 3 条历史记录
+            maxHistoryCount = 3;
+            result = handler.RemoveHistory(history, maxHistoryCount);
+            Assert.AreEqual(@"ChatBot can have a conversation with you about any topic.
+It can give explicit instructions or say 'I don't know' if it does not have an answer.
+
+Human: Five
+Still File
+ChatBot: Six
+Still Six
+Human: Same
+ChatBot: Same
+Human: Same
+ChatBot: Same", result);
+
+            //保留 4 条历史记录
+            maxHistoryCount = 4;
+            result = handler.RemoveHistory(history, maxHistoryCount);
+            Assert.AreEqual(@"ChatBot can have a conversation with you about any topic.
+It can give explicit instructions or say 'I don't know' if it does not have an answer.
+
+Human: Three
+ChatBot:Four
+Human: Five
+Still File
+ChatBot: Six
+Still Six
+Human: Same
+ChatBot: Same
+Human: Same
+ChatBot: Same", result);
+
+            //保留 5 条历史记录：全部保留
+            maxHistoryCount = 5;
+            result = handler.RemoveHistory(history, maxHistoryCount);
+            Assert.AreEqual(history, result);
+
+            //保留 6 条历史记录：全部保留
+            maxHistoryCount = 6;
+            result = handler.RemoveHistory(history, maxHistoryCount);
+            Assert.AreEqual(history, result);
         }
     }
 }
