@@ -29,9 +29,9 @@ namespace Senparc.AI.Samples.Consoles.Samples
             await Console.Out.WriteLineAsync(@"ChatSample 开始运行");
             await Console.Out.WriteLineAsync($@"[聊天设置 - 1/2] 请输入机器人系统信息（System Message），默认信息如下，如无需修改可直接输入回车。");
             await Console.Out.WriteLineAsync();
-            await Console.Out.WriteLineAsync("------ System Message Start------");
+            await Console.Out.WriteLineAsync("------ System Message Start ------");
             await Console.Out.WriteLineAsync(Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE);
-            await Console.Out.WriteLineAsync("------ System Message End------");
+            await Console.Out.WriteLineAsync("------  System Message End  ------");
             await Console.Out.WriteLineAsync();
 
             var systemMessage = Console.ReadLine();
