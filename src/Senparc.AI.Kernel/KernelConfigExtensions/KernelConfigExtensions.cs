@@ -303,8 +303,9 @@ namespace Senparc.AI.Kernel.Handlers
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
+        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
         /// <returns></returns>
-        public static async Task<SenparcKernelAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request)
+        public static async Task<SenparcKernelAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWanToRun.SemanticKernelHelper;
@@ -321,14 +322,22 @@ namespace Senparc.AI.Kernel.Handlers
             var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
             var tempArguments = request.TempAiArguments?.KernelArguments;
 
-            FunctionResult? functionResult;
-
+            FunctionResult? functionResult = null;
             var result = new SenparcKernelAiResult(iWanToRun, inputContent: null);
+
+            var useStream = inStreamItemProceessing != null;
 
             if (tempArguments != null && tempArguments.Count() != 0)
             {
                 //输入特定的本次请求临时上下文
-                functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), tempArguments);
+                if (useStream)
+                {
+                    result.StreamResult = kernel.InvokeStreamingAsync(functionPipline.FirstOrDefault(), tempArguments);
+                }
+                else
+                {
+                    functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), tempArguments);
+                }
                 result.InputContext = new SenparcAiArguments(tempArguments);
             }
             else if (!prompt.IsNullOrEmpty())
@@ -339,14 +348,29 @@ namespace Senparc.AI.Kernel.Handlers
                     tempArguments = new KernelArguments();
                     tempArguments["INPUT"] = prompt;
 
-                    functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), tempArguments);
+                    if (useStream)
+                    {
+                        result.StreamResult = kernel.InvokeStreamingAsync(functionPipline.FirstOrDefault(), tempArguments);
+                    }
+                    else
+                    {
+                        functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), tempArguments);
+                    }
                 }
                 else
                 {
                     //注意：此处即使直接输入 prompt 作为第一个 String 参数，也会被封装到 Context，
                     //      并赋值给 Key 为 INPUT 的参数
                     //var kernelFunction = iWanToRun.CreateFunctionFromPrompt(prompt ?? "").function;
-                    functionResult = await kernel.InvokePromptAsync(prompt ?? "", storedArguments);
+
+                    if (useStream)
+                    {
+                        result.StreamResult = kernel.InvokePromptStreamingAsync(prompt ?? "", storedArguments);
+                    }
+                    else
+                    {
+                        functionResult = await kernel.InvokePromptAsync(prompt ?? "", storedArguments);
+                    }
                 }
 
                 result.InputContent = prompt;
@@ -355,16 +379,58 @@ namespace Senparc.AI.Kernel.Handlers
             {
                 //输入缓存中的上下文
                 //botAnswer = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), storedArguments);
-                functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), storedArguments);
+
+                if (useStream)
+                {
+                    result.StreamResult = kernel.InvokeStreamingAsync(functionPipline.FirstOrDefault(), storedArguments);
+                }
+                else
+                {
+                    functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), storedArguments);
+                }
                 result.InputContext = new SenparcAiArguments(storedArguments);
             }
 
             result.InputContent = prompt;
-            result.Output = functionResult.GetValue<string>()?.TrimStart('\n') ?? "";
-            result.Result = functionResult;
+
+            if (!useStream)
+            {
+                result.Output = functionResult.GetValue<string>()?.TrimStart('\n') ?? "";
+                result.Result = functionResult;
+            }
+            else
+            {
+                var stringResult = new StringBuilder();
+
+                if (result.StreamResult != null)
+                {
+                    await foreach (var item in result.StreamResult)
+                    {
+                        stringResult.Append(item);
+                        inStreamItemProceessing?.Invoke(item);//执行流
+                    }
+                }
+
+                result.Output = stringResult.ToString();
+            }
+
             //result.LastException = botAnswer.LastException;
 
             return result;
+        }
+
+        /// <summary>
+        /// 使用 Stream（流）的方式运行
+        /// </summary>
+        /// <param name="iWanToRun"></param>
+        /// <param name="request"></param>
+        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。</param>
+        /// <returns></returns>
+        public static Task<SenparcKernelAiResult> RunStreamAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
+        {
+            inStreamItemProceessing ??= (item) => { };
+            return RunAsync(iWanToRun, request, inStreamItemProceessing);
+
         }
 
         /// <summary>

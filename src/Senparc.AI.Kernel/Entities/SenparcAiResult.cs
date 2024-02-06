@@ -8,6 +8,9 @@ using Microsoft.SemanticKernel;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Handlers;
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel
 {
@@ -47,7 +50,6 @@ namespace Senparc.AI.Kernel
             IWantToRun = iwantToRun;
             InputContext = inputContext;
         }
-
     }
 
     public class SenaprcAiResult<T> : SenparcAiResult, IAiResult
@@ -83,7 +85,8 @@ namespace Senparc.AI.Kernel
     public class SenparcKernelAiResult : SenaprcAiResult<FunctionResult>, IAiResult
     {
         public FunctionResult /*SKContext*/ Result { get; set; }
-        
+        public IAsyncEnumerable<StreamingKernelContent>? /*SKContext*/ StreamResult { get; set; }
+
         public SenparcKernelAiResult(IWantToRun iWwantToRun, string? inputContent)
              : base(iWwantToRun, inputContent)
         {

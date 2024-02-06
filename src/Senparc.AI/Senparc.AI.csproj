@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.12.0</Version>
+		<Version>0.13.0</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI</AssemblyName>
@@ -38,6 +38,7 @@
 			v0.10.1 提供 SenparcAiSetting.Endpoint 属性
 			v0.11.0 重构 ModelName 获取方式，可根据模型平台自动获取 ModelName 和 DepolymentName
 			v0.12.0 完善 SemanticAiHandler.ChatAsync() 方法，提供指定保留 N 条历史记录的能力
+			v0.13.0 完善流式输出
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

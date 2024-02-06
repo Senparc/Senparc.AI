@@ -1,4 +1,5 @@
-﻿using Senparc.AI.Entities;
+﻿using Microsoft.SemanticKernel;
+using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
@@ -85,10 +86,25 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
 
                 var request = iWantToRun.CreateRequest(prompt, true);
-                var result = await iWantToRun.RunAsync(request);
-
                 await Console.Out.WriteLineAsync("回复：");
-                await Console.Out.WriteLineAsync(result.Output);
+
+                var useStream = true;
+                if (useStream)
+                {
+                    //使用流式输出
+                    Action<StreamingKernelContent> streamItemProceessing = async item =>
+                    {
+                        await Console.Out.WriteAsync(item.ToString());
+                    };
+                    var result = await iWantToRun.RunAsync(request, streamItemProceessing);
+                }
+                else
+                {
+                    //使用整体输出
+                    var result = await iWantToRun.RunAsync(request);
+                    await Console.Out.WriteLineAsync(result.Output);
+                }
+              
                 await Console.Out.WriteLineAsync();
             }
         }
