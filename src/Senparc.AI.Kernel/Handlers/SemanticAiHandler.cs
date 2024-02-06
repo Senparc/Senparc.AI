@@ -7,6 +7,7 @@ using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -71,7 +72,7 @@ namespace Senparc.AI.Kernel
             string humanId = "Human", string robotId = "ChatBot", string hisgoryArgName = "history", string humanInputArgName = "human_input")
         {
             chatSystemMessage ??= Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE;
-            var chatPrompt = Senparc.AI.DefaultSetting.GetPromptForChat(chatSystemMessage,humanId,robotId, hisgoryArgName,humanInputArgName);
+            var chatPrompt = Senparc.AI.DefaultSetting.GetPromptForChat(chatSystemMessage, humanId, robotId, hisgoryArgName, humanInputArgName);
             var result = this.IWantTo(senparcAiSetting)
                 .ConfigModel(ConfigModel.Chat, userId, modelName)
                 .BuildKernel()
@@ -87,10 +88,13 @@ namespace Senparc.AI.Kernel
         /// 获取聊天结果
         /// </summary>
         /// <param name="iWantToRun"></param>
-        /// <param name="prompt">本次聊天内容</param>
+        /// <param name="input">本次聊天内容</param>
         /// <param name="keepHistoryCount">需要保留的聊天记录条数（建议为 5-20 条）</param>
+        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
         /// <returns></returns>
-        public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string prompt, string humanId = "Human", string robotId = "ChatBot", string historyArgName="history",string humanInputArgName= "human_input")
+        public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string input,
+            Action<StreamingKernelContent> inStreamItemProceessing = null,
+            string humanId = "Human", string robotId = "ChatBot", string historyArgName = "history", string humanInputArgName = "human_input")
         {
             //var function = iWantToRun.Kernel.Plugins.GetSemanticFunction("Chat");
             //request.FunctionPipeline = new[] { function };
@@ -105,12 +109,12 @@ namespace Senparc.AI.Kernel
             }
 
             //本次记录
-            request.SetStoredContext(humanInputArgName, prompt);
+            request.SetStoredContext(humanInputArgName, input);
 
             var newRequest = request with { RequestContent = "" };
 
             //运行
-            var aiResult = await iWantToRun.RunAsync(newRequest);
+            var aiResult = await iWantToRun.RunAsync(newRequest, inStreamItemProceessing);
 
             //判断最大历史记录数
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
@@ -123,7 +127,7 @@ namespace Senparc.AI.Kernel
                 newHistory = this.RemoveHistory(history, maxHistoryCount - 1);
             }
 
-            newHistory = newHistory + $"\n{humanId}: {prompt}\n{robotId}: {aiResult.Output}";
+            newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.Output}";
 
             //记录对话历史（可选）
             request.SetStoredContext(historyArgName, newHistory);

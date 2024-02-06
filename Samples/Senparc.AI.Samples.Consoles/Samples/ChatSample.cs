@@ -1,15 +1,9 @@
-﻿using Senparc.AI.Entities;
+﻿using System.Text;
+using Microsoft.SemanticKernel;
+using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
-using Senparc.AI.Kernel.Handlers;
 using Senparc.CO2NET.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -65,10 +59,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var setting = (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;//也可以留空，将自动获取
 
-            var chatConfig = _semanticAiHandler.ChatConfig(parameter, 
-                                userId: "Jeffrey", 
+            var chatConfig = _semanticAiHandler.ChatConfig(parameter,
+                                userId: "Jeffrey",
                                 maxHistoryStore: maxHistoryCount,
-                                chatSystemMessage:systemMessage, 
+                                chatSystemMessage: systemMessage,
                                 senparcAiSetting: setting);
             var iWantToRun = chatConfig.iWantToRun;
 
@@ -78,9 +72,9 @@ namespace Senparc.AI.Samples.Consoles.Samples
             while (true)
             {
                 await Console.Out.WriteLineAsync("人类：");
-                var prompt = Console.ReadLine();
+                var input = Console.ReadLine() ?? "";
 
-                if (prompt.ToUpper() == "[ML]")
+                if (input.ToUpper() == "[ML]")
                 {
                     await Console.Out.WriteLineAsync("识别到多行模式，请继续输入");
                     useMultiLine = true;
@@ -88,20 +82,20 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 while (useMultiLine)
                 {
-                    if (prompt.ToUpper() == "[END]")
+                    if (input.ToUpper() == "[END]")
                     {
                         useMultiLine = false;
-                        prompt = multiLineContent.ToString();
+                        input = multiLineContent.ToString();
                     }
                     else
                     {
                         await Console.Out.WriteLineAsync("请继续输入，直到输入 [END] 停止...");
-                        prompt = Console.ReadLine();
-                        multiLineContent.Append(prompt);
+                        input = Console.ReadLine();
+                        multiLineContent.Append(input);
                     }
                 }
 
-                if (prompt == "exit")
+                if (input == "exit")
                 {
                     break;
                 }
@@ -138,10 +132,25 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
                 else
                 {
-                    var result = await _semanticAiHandler.ChatAsync(iWantToRun, prompt);
-
                     await Console.Out.WriteLineAsync("机器：");
-                    await Console.Out.WriteLineAsync(result.Output);
+
+                    var useStream = true;
+                    if (useStream)
+                    {
+                        //使用流式输出
+                        Action<StreamingKernelContent> streamItemProceessing = async item =>
+                        {
+                            await Console.Out.WriteAsync(item.ToString());
+                        };
+                        var result = await _semanticAiHandler.ChatAsync(iWantToRun, input, streamItemProceessing);
+                    }
+                    else
+                    {
+                        //使用整体输出
+                        var result = await _semanticAiHandler.ChatAsync(iWantToRun, input);
+                        await Console.Out.WriteLineAsync(result.Output);
+                    }
+
                     await Console.Out.WriteLineAsync();
                 }
             }
