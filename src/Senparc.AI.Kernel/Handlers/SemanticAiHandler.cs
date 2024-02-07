@@ -60,7 +60,8 @@ namespace Senparc.AI.Kernel
         /// <param name="promptConfigParameter"></param>
         /// <param name="userId"></param>
         /// <param name="modelName"></param>
-        /// <param name="chatSystemMessage"></param>
+        /// <param name="chatSystemMessage">System Message，仅在 <paramref name="promptTemplate"/> 为 null 时有效，否则会被忽略</param>
+        /// <param name="promptTemplate">完整的 Prompt，一般会包含 System Message，设置后 <paramref name="chatSystemMessage"/> 参数会被忽略</param>
         /// <param name="senparcAiSetting"></param>
         /// <returns></returns>
         public (IWantToRun iWantToRun, KernelFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
@@ -68,15 +69,15 @@ namespace Senparc.AI.Kernel
             int maxHistoryStore,
             ModelName modelName = null,
             string chatSystemMessage = null,
+            string promptTemplate = null,
             ISenparcAiSetting senparcAiSetting = null,
             string humanId = "Human", string robotId = "ChatBot", string hisgoryArgName = "history", string humanInputArgName = "human_input")
         {
-            chatSystemMessage ??= Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE;
-            var chatPrompt = Senparc.AI.DefaultSetting.GetPromptForChat(chatSystemMessage, humanId, robotId, hisgoryArgName, humanInputArgName);
+            promptTemplate ??= DefaultSetting.GetPromptForChat(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE, humanId, robotId, hisgoryArgName, humanInputArgName);
             var result = this.IWantTo(senparcAiSetting)
                 .ConfigModel(ConfigModel.Chat, userId, modelName)
                 .BuildKernel()
-                .CreateFunctionFromPrompt(chatPrompt, promptConfigParameter);
+                .CreateFunctionFromPrompt(promptTemplate, promptConfigParameter);
 
             var iWantTo = result.iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
             iWantTo.TempStore["MaxHistoryCount"] = maxHistoryStore;
