@@ -49,11 +49,11 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="userId"></param>
         /// <param name="modelName">模型名称配置，如果为 null，则从配置中自动获取</param>
         /// <param name="senparcAiSetting"></param>
-        /// <param name="azureDallEDepploymentName"></param>
+        /// <param name="deploymentName"></param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
         public static IWantToConfig ConfigModel(this IWantToConfig iWantToConfig, ConfigModel configModel, string userId, ModelName modelName = null,
-            ISenparcAiSetting? senparcAiSetting = null, string azureDallEDepploymentName = null)
+            ISenparcAiSetting? senparcAiSetting = null, string deploymentName = null)
         {
             var iWantTo = iWantToConfig.IWantTo;
             var existedKernelBuilder = iWantToConfig.IWantTo.KernelBuilder;
@@ -61,6 +61,20 @@ namespace Senparc.AI.Kernel.Handlers
             modelName ??= senparcAiSetting.ModelName;
 
             string modelNameStr = string.Empty;
+
+            Func<string, string> GetDeploymentName = (modelNameStr) =>
+            {
+                if (!deploymentName.IsNullOrEmpty())
+                {
+                    return deploymentName;
+                }
+                else if(!senparcAiSetting.DeploymentName.IsNullOrEmpty())
+                {
+                    return senparcAiSetting.DeploymentName;
+                }
+                return modelNameStr;
+            };
+
             IKernelBuilder kernelBuilder = null;
 
             switch (configModel)
@@ -68,20 +82,22 @@ namespace Senparc.AI.Kernel.Handlers
                 case AI.ConfigModel.Chat:
                     modelNameStr = modelName.Chat;
                     kernelBuilder = iWantTo.SemanticKernelHelper.ConfigChat(userId, modelNameStr, senparcAiSetting,
-                    existedKernelBuilder, senparcAiSetting.DeploymentName ?? modelNameStr);
+                    existedKernelBuilder, GetDeploymentName(modelNameStr));
                     break;
                 case AI.ConfigModel.TextCompletion:
                     modelNameStr = modelName.TextCompletion;
                     kernelBuilder = iWantTo.SemanticKernelHelper.ConfigTextCompletion(userId, modelNameStr, senparcAiSetting,
-                    existedKernelBuilder, senparcAiSetting.DeploymentName ?? modelNameStr);
+                    existedKernelBuilder, GetDeploymentName(modelNameStr));
                     break;
                 case AI.ConfigModel.TextEmbedding:
                     modelNameStr = modelName.Embedding;
                     kernelBuilder = iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder);
                     break;
-                case AI.ConfigModel.ImageGeneration:
+                case AI.ConfigModel.TextToImage:
                     modelNameStr = modelName.TextToImage;
-                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, senparcAiSetting.DeploymentName ?? modelNameStr);
+                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
+                    Console.WriteLine($"[调试]GetDeploymentName：{modelNameStr} / {GetDeploymentName(modelNameStr)}");
+                    Console.WriteLine($"[调试]{senparcAiSetting.AiPlatform}-{senparcAiSetting.AzureOpenAIKeys.DeploymentName}-{senparcAiSetting.AzureOpenAIKeys.AzureEndpoint}\r\n{senparcAiSetting.AzureOpenAIKeys.ModelName.ToJson(true)}");
                     break;
                 default:
                     throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel);
