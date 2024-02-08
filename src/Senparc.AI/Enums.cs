@@ -27,9 +27,18 @@ namespace Senparc.AI
     /// </summary>
     public enum ConfigModel
     {
-        Chat,
-        TextCompletion,
-        TextEmbedding,
-        ImageGeneration,
+        /*注意：值一旦确定，请勿修改！*/
+        Other = -1,
+        Unknown = 0,
+        TextCompletion = 1,
+        Chat = 2,
+        TextEmbedding = 3,
+        TextToImage = 4,
+        [Obsolete("请使用 " + nameof(TextToImage))]
+        ImageGeneration = 4,
+        ImageToText = 5,
+        TextToSpeech = 6,
+        SpeechToText = 7,
+        SpeechRecognition = 8
     }
 }
