@@ -65,8 +65,7 @@ namespace Senparc.AI.Kernel
         /// <returns></returns>
         public static IRegisterService UseSenparcAI(this IRegisterService registerService)
         {
-            return Senparc.AI.Register.UseSenparcAI(registerService);
+            return Senparc.AI.Register.UseSenparcAICore(registerService);
         }
-
     }
 }
