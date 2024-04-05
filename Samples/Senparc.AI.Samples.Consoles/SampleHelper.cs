@@ -20,10 +20,10 @@ namespace Senparc.AI.Samples.Consoles
         /// <returns></returns>
         public static string GetAppSettingsFile()
         {
-            if (File.Exists("appsettings.test.json"))
+            if (File.Exists("appsettings.Development.json"))
             {
-                Console.WriteLine("use appsettings.test.json");
-                return "appsettings.test.json";
+                Console.WriteLine("use appsettings.Development.json");
+                return "appsettings.Development.json";
             }
 
             Console.WriteLine("use appsettings.json");

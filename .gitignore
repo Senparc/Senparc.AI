@@ -5,6 +5,7 @@ obj/
 /BuildOutPut
 /.DS_Store
 appsettings.test.json
+appsettings.Development.json
 /src/Senparc.AI.Kernel.Tests/App_Data/SenparcTraceLog
 *.DS_Store
 /src/.idea/.idea.Senparc.AI/.idea
