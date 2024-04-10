@@ -20,7 +20,7 @@ namespace Senparc.AI
         /// <param name="registerService"></param>
         /// <param name="senparcAiSetting"></param>
         /// <returns></returns>
-        public static IRegisterService UseSenparcAI(this IRegisterService registerService)
+        public static IRegisterService UseSenparcAICore(this IRegisterService registerService)
         {
            
             return registerService;
