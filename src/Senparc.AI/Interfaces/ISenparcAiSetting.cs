@@ -133,17 +133,29 @@ namespace Senparc.AI.Interfaces
             AiPlatform.NeuCharAI => NeuCharAIKeys.ModelName,
             AiPlatform.HuggingFace => HuggingFaceKeys.ModelName,
             AiPlatform.FastAPI => FastAPIKeys.ModelName,
-            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 Endpoint 输出")
+            _ => throw new SenparcAiException($"100-未配置 {AiPlatform} 的 Endpoint 输出")
         };
 
-        string DeploymentName => AiPlatform switch
+        string DeploymentName
         {
-            AiPlatform.AzureOpenAI => AzureOpenAIKeys.DeploymentName,
-            AiPlatform.OpenAI |
-            AiPlatform.NeuCharAI |
-            AiPlatform.HuggingFace |
-            AiPlatform.FastAPI => null,
-            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 DeploymentName 输出")
-        };
+            get
+            {
+                switch (AiPlatform)
+                {
+                    case AiPlatform.AzureOpenAI:
+                        return AzureOpenAIKeys.DeploymentName;
+                    case AiPlatform.NeuCharAI:
+                    case AiPlatform.UnSet:
+                    case AiPlatform.OpenAI:
+                    case AiPlatform.HuggingFace:
+                    case AiPlatform.FastAPI:
+                        return null;
+                    case AiPlatform.None:
+                    case AiPlatform.Other:
+                    default:
+                        throw new SenparcAiException($"101-未配置 {AiPlatform} 的 DeploymentName 输出");
+                }
+            }
+        }
     }
 }
