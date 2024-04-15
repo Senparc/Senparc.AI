@@ -120,7 +120,7 @@ namespace Senparc.AI.Entities
         #region NeuChar
 
         /// <summary>
-        /// Azure OpenAI Endpoint
+        /// NeuChar Endpoint
         /// </summary>
         public virtual string NeuCharEndpoint => NeuCharAIKeys?.NeuCharEndpoint;
 
