@@ -136,26 +136,17 @@ namespace Senparc.AI.Interfaces
             _ => throw new SenparcAiException($"100-未配置 {AiPlatform} 的 Endpoint 输出")
         };
 
-        string DeploymentName
+#pragma warning disable CS8603 // 可能返回 null 引用。
+        string DeploymentName => AiPlatform switch
         {
-            get
-            {
-                switch (AiPlatform)
-                {
-                    case AiPlatform.AzureOpenAI:
-                        return AzureOpenAIKeys.DeploymentName;
-                    case AiPlatform.NeuCharAI:
-                    case AiPlatform.UnSet:
-                    case AiPlatform.OpenAI:
-                    case AiPlatform.HuggingFace:
-                    case AiPlatform.FastAPI:
-                        return null;
-                    case AiPlatform.None:
-                    case AiPlatform.Other:
-                    default:
-                        throw new SenparcAiException($"101-未配置 {AiPlatform} 的 DeploymentName 输出");
-                }
-            }
-        }
+            AiPlatform.AzureOpenAI => AzureOpenAIKeys.DeploymentName,
+            AiPlatform.OpenAI => null,
+            AiPlatform.NeuCharAI => null,
+            AiPlatform.HuggingFace => null,
+            AiPlatform.FastAPI => null,
+            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 DeploymentName 输出")
+        };
+#pragma warning restore CS8603 // 可能返回 null 引用。
+
     }
 }
