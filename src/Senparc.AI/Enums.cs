@@ -12,8 +12,8 @@ namespace Senparc.AI
         UnSet = 0,
         None = 1,
         Other = 2,
-        [Obsolete("已过期，请使用 NeuCharAI", true)]
-        NeuCharOpenAI = 4,
+        //[Obsolete("已过期，请使用 NeuCharAI", true)]
+        //NeuCharOpenAI = 4,
         NeuCharAI = 4,
         OpenAI = 8,
         AzureOpenAI = 16,

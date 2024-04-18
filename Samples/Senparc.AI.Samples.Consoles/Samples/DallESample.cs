@@ -16,6 +16,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         public DallESample(IAiHandler aiHandler, IServiceProvider serviceProvider)
         {
             _aiHandler = aiHandler;
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
             _serviceProvider = serviceProvider;
         }
 

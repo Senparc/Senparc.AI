@@ -22,6 +22,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         public CompletionSample(IAiHandler aiHandler)
         {
             _aiHandler = aiHandler;
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
         }
 
         public async Task RunAsync()
@@ -36,7 +37,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 Temperature = 0.7,
                 TopP = 0.5,
             };
-            ;
 
             var functionPrompt = @"{{$input}}";
 
@@ -88,7 +88,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 var request = iWantToRun.CreateRequest(prompt, true);
                 await Console.Out.WriteLineAsync("回复：");
 
-                var useStream = true;
+                var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
                 if (useStream)
                 {
                     //使用流式输出
@@ -104,7 +104,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     var result = await iWantToRun.RunAsync(request);
                     await Console.Out.WriteLineAsync(result.Output);
                 }
-              
                 await Console.Out.WriteLineAsync();
             }
         }
