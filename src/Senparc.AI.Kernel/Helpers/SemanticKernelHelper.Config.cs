@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Senparc.CO2NET.Extensions;
+using Microsoft.Extensions.Http.Logging;
+using System.Net.Http;
 
 // Memory functionality is experimental
 #pragma warning disable SKEXP0003, SKEXP0011, SKEXP0052, SKEXP0020, SKEXP0012, SKEXP0001
@@ -23,6 +25,8 @@ namespace Senparc.AI.Kernel.Helpers
         1. 相关方法为较底层的调用方法，会直接使用 Semantic Kernel 等模块接口
         2. 所有 modelName、deploymentName，都是用字符串传入，如果留空，则使用 SenparcAiSetting 参数自动获取。
        */
+
+
 
         #region Config
 
@@ -57,22 +61,26 @@ namespace Senparc.AI.Kernel.Helpers
             {
                 AiPlatform.OpenAI => kernelBuilder.AddOpenAIChatCompletion(modelName,
                         apiKey: senparcAiSetting.ApiKey,
-                        orgId: senparcAiSetting.OrganizationId),
+                        orgId: senparcAiSetting.OrganizationId,
+                        httpClient: _httpClient),
                 AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAIChatCompletion(
                         deploymentName: deploymentName,
                         modelId: modelName,
                         endpoint: senparcAiSetting.AzureEndpoint,
-                        apiKey: senparcAiSetting.ApiKey),
+                        apiKey: senparcAiSetting.ApiKey,
+                        httpClient: _httpClient),
                 AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAIChatCompletion(
                         deploymentName: deploymentName,
                         modelId: modelName,
                         endpoint: senparcAiSetting.NeuCharEndpoint,
-                        apiKey: senparcAiSetting.ApiKey),
+                        apiKey: senparcAiSetting.ApiKey,
+                        httpClient: _httpClient),
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextGeneration(
                         model: modelName,
                         apiKey: null,
                         endpoint: senparcAiSetting.HuggingFaceEndpoint,
-                        serviceId: null),
+                        serviceId: null,
+                        httpClient: _httpClient),
                 AiPlatform.FastAPI => kernelBuilder.AddFastAPIChatCompletion(
                         modelId: modelName,
                         apiKey: senparcAiSetting.ApiKey,
@@ -104,7 +112,7 @@ namespace Senparc.AI.Kernel.Helpers
 
             var serviceId = GetServiceId(userId, modelName);
             var aiPlatForm = senparcAiSetting.AiPlatform;
-            
+
             kernelBuilder ??= Microsoft.SemanticKernel.Kernel.CreateBuilder();
 
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
@@ -113,26 +121,31 @@ namespace Senparc.AI.Kernel.Helpers
             // 以上方法已经被SK标注为 Obsolete, 修改为SK推荐的方法
 
             // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
+
             _ = aiPlatForm switch
             {
                 AiPlatform.OpenAI => kernelBuilder.AddOpenAITextGeneration(modelName,
                         apiKey: senparcAiSetting.ApiKey,
-                        orgId: senparcAiSetting.OrganizationId),
+                        orgId: senparcAiSetting.OrganizationId,
+                        httpClient: _httpClient),
                 AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextGeneration(
                         deploymentName: deploymentName,
                         modelId: modelName,
-                        endpoint: senparcAiSetting.AzureEndpoint,
-                        apiKey: senparcAiSetting.ApiKey),
+                        endpoint: senparcAiSetting.Endpoint,
+                        apiKey: senparcAiSetting.ApiKey,
+                        httpClient: _httpClient),
                 AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextGeneration(
                         deploymentName: deploymentName,
                         modelId: modelName,
-                        endpoint: senparcAiSetting.NeuCharEndpoint,
-                        apiKey: senparcAiSetting.ApiKey),
+                        endpoint: senparcAiSetting.Endpoint,
+                        apiKey: senparcAiSetting.ApiKey,
+                        httpClient: _httpClient),
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextGeneration(
-                       model: modelName,
+                        model: modelName,
                         apiKey: null,
-                        endpoint: senparcAiSetting.HuggingFaceEndpoint,
-                        serviceId: null),
+                        endpoint: senparcAiSetting.Endpoint,
+                        serviceId: null,
+                        httpClient: _httpClient),
                 AiPlatform.FastAPI => kernelBuilder.AddFastAPIChatCompletion(
                         modelId: modelName,
                         apiKey: senparcAiSetting.ApiKey,
@@ -159,7 +172,7 @@ namespace Senparc.AI.Kernel.Helpers
         {
             //kernel ??= GetKernel();
 
-            senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
+            senparcAiSetting ??= this.AiSetting;
             modelName ??= senparcAiSetting.ModelName.Embedding;
             deploymentName ??= senparcAiSetting.DeploymentName ?? modelName;
 
@@ -176,17 +189,30 @@ namespace Senparc.AI.Kernel.Helpers
             // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
             _ = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.AddOpenAITextEmbeddingGeneration(modelName, senparcAiSetting.ApiKey,
-                    AiSetting.OrganizationId),
+                AiPlatform.OpenAI => kernelBuilder.AddOpenAITextEmbeddingGeneration(
+                    modelId: modelName,
+                    apiKey: senparcAiSetting.ApiKey,
+                    orgId: senparcAiSetting.OrganizationId,
+                    httpClient: _httpClient),
 
-                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(modelName,
-                    senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey, senparcAiSetting.AzureOpenAIApiVersion),
+                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(
+                    deploymentName: deploymentName,
+                    endpoint: senparcAiSetting.Endpoint,
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelId: modelName,
+                    httpClient: _httpClient),
 
-                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(modelName,
-                    senparcAiSetting.NeuCharEndpoint, senparcAiSetting.ApiKey, senparcAiSetting.NeuCharAIApiVersion),
+                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(
+                    deploymentName:deploymentName,
+                    endpoint:senparcAiSetting.Endpoint,
+                    apiKey:senparcAiSetting.ApiKey,
+                    modelId:modelName,
+                    httpClient: _httpClient),
 
-                AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextEmbeddingGeneration(modelName,
-                    senparcAiSetting.HuggingFaceEndpoint),
+                AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextEmbeddingGeneration(
+                    model: modelName,
+                    endpoint: senparcAiSetting.Endpoint,
+                    httpClient: _httpClient),
 
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
@@ -209,22 +235,34 @@ namespace Senparc.AI.Kernel.Helpers
         /// <exception cref="SenparcAiException"></exception>
         public IKernelBuilder ConfigImageGeneration(string userId, IKernelBuilder? kernelBuilder = null, string azureModeId = null, ISenparcAiSetting senparcAiSetting = null, string azureDallEDepploymentName = null)
         {
-            senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
+            senparcAiSetting ??= this.AiSetting;
 
             var serviceId = GetServiceId(userId, "image-generation");
-            var aiPlatForm = AiSetting.AiPlatform;
+            var aiPlatForm = senparcAiSetting.AiPlatform;
 
             //TODO：Builder 不应该新建
             kernelBuilder ??= Microsoft.SemanticKernel.Kernel.CreateBuilder();
 
             _ = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.AddOpenAITextToImage(senparcAiSetting.ApiKey,
-                    senparcAiSetting.OrganizationId),
+                AiPlatform.OpenAI => kernelBuilder.AddOpenAITextToImage(
+                    apiKey: senparcAiSetting.ApiKey,
+                    orgId: senparcAiSetting.OrganizationId,
+                    httpClient: _httpClient),
 
-                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(azureDallEDepploymentName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey, azureModeId),
+                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(
+                    deploymentName: azureDallEDepploymentName,
+                    endpoint: senparcAiSetting.Endpoint,
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelId: azureModeId,
+                    httpClient: _httpClient),
 
-                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToImage(senparcAiSetting.NeuCharEndpoint, azureModeId, senparcAiSetting.ApiKey),
+                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToImage(
+                    deploymentName:azureDallEDepploymentName,
+                    endpoint: senparcAiSetting.Endpoint,
+                    apiKey:senparcAiSetting.ApiKey,
+                    modelId: azureModeId,
+                    httpClient: _httpClient),
 
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
@@ -260,16 +298,33 @@ namespace Senparc.AI.Kernel.Helpers
         {
             if (_textMemory == null)
             {
+                senparcAiSetting ??= this.AiSetting;
                 var aiPlatForm = senparcAiSetting.AiPlatform;
 
                 var memoryBuilder = new MemoryBuilder();
+                memoryBuilder.WithHttpClient(_httpClient);
 
                 _ = aiPlatForm switch
                 {
-                    AiPlatform.OpenAI => memoryBuilder.WithOpenAITextEmbeddingGeneration(modelName, senparcAiSetting.ApiKey, senparcAiSetting.OrganizationId),
-                    AiPlatform.AzureOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey, modelName),
-                    AiPlatform.NeuCharAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(azureDeployName, senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey, modelName),
-                    AiPlatform.HuggingFace => memoryBuilder.WithTextEmbeddingGeneration(textEmbeddingGeneration),
+                    AiPlatform.OpenAI => memoryBuilder.WithOpenAITextEmbeddingGeneration(
+                        modelId: modelName,
+                        apiKey: senparcAiSetting.ApiKey,
+                        orgId: senparcAiSetting.OrganizationId,
+                        httpClient:_httpClient),
+                    AiPlatform.AzureOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(
+                        deploymentName: azureDeployName,
+                        endpoint: senparcAiSetting.Endpoint,
+                        apiKey: senparcAiSetting.ApiKey,
+                        modelId: modelName,
+                        httpClient: _httpClient),
+                    AiPlatform.NeuCharAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(
+                        deploymentName: azureDeployName,
+                        endpoint: senparcAiSetting.Endpoint,
+                        apiKey: senparcAiSetting.ApiKey,
+                        modelId: modelName,
+                        httpClient: _httpClient),
+                    AiPlatform.HuggingFace => memoryBuilder.WithTextEmbeddingGeneration(
+                        textEmbeddingGeneration: textEmbeddingGeneration),
                     _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
                 };
 

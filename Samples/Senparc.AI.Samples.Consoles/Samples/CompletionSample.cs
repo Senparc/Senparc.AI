@@ -36,7 +36,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 Temperature = 0.7,
                 TopP = 0.5,
             };
-            ;
 
             var functionPrompt = @"{{$input}}";
 
@@ -104,7 +103,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     var result = await iWantToRun.RunAsync(request);
                     await Console.Out.WriteLineAsync(result.Output);
                 }
-              
                 await Console.Out.WriteLineAsync();
             }
         }

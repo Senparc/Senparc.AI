@@ -358,19 +358,20 @@ namespace Senparc.AI.Kernel.Handlers
             }
             else if (!prompt.IsNullOrEmpty())
             {
+                //tempArguments 为空
                 //输入纯文字
                 if (functionPipline?.Length > 0)
                 {
-                    tempArguments = new KernelArguments();
-                    tempArguments["INPUT"] = prompt;
+                    tempArguments = new() { ["input"] = prompt };
 
                     if (useStream)
                     {
-                        result.StreamResult = kernel.InvokeStreamingAsync(functionPipline.FirstOrDefault(), tempArguments);
+                        result.StreamResult = kernel.InvokeStreamingAsync(functionPipline.First(), tempArguments);
                     }
                     else
                     {
-                        functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), tempArguments);
+                        //TODO: 此方法在 NeuCharAI 接口中，不会给服务器传送 Body 内容
+                        functionResult = await kernel.InvokeAsync(functionPipline.First(), tempArguments);
                     }
                 }
                 else

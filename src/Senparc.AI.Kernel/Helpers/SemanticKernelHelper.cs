@@ -38,11 +38,23 @@ namespace Senparc.AI.Kernel.Helpers
         private List<Task> _memoryExecuteList = new List<Task>();
         private readonly ILoggerFactory? loggerFactory;
 
+        //private LoggingHttpMessageHandler _httpHandler;
+        public HttpClient _httpClient;
 
-        public SemanticKernelHelper(ISenparcAiSetting? aiSetting = null, ILoggerFactory? loggerFactory = null)
+        public SemanticKernelHelper(ISenparcAiSetting? aiSetting = null, ILoggerFactory? loggerFactory = null, HttpClient httpClient = null)
         {
             AiSetting = aiSetting ?? Senparc.AI.Config.SenparcAiSetting;
             this.loggerFactory = loggerFactory;
+            this.ResetHttpClient(httpClient);
+        }
+
+        /// <summary>
+        /// 重置 HttpClient
+        /// </summary>
+        /// <param name="httpClient"></param>
+        public void ResetHttpClient(HttpClient httpClient = null)
+        {
+            _httpClient = httpClient ?? new HttpClient(new Senparc.AI.Kernel.LoggingHttpMessageHandler(new HttpClientHandler())); ;
         }
 
         /// <summary>
