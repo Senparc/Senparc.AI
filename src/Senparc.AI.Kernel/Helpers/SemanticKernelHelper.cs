@@ -41,20 +41,27 @@ namespace Senparc.AI.Kernel.Helpers
         //private LoggingHttpMessageHandler _httpHandler;
         public HttpClient _httpClient;
 
-        public SemanticKernelHelper(ISenparcAiSetting? aiSetting = null, ILoggerFactory? loggerFactory = null, HttpClient httpClient = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="aiSetting"></param>
+        /// <param name="loggerFactory"></param>
+        /// <param name="httpClient">为 null 时，自动使用 <see cref="LoggingHttpMessageHandler"/> 构建 <see cref="HttpClient" /></param>
+        /// <param name="enableLog">是否开启 <paramref name="httpClient"/> 的日志（仅在 <paramref name="httpClient"/> 为 null 时，会自动构建 <see cref="LoggingHttpMessageHandler"/> 时生效。</param>
+        public SemanticKernelHelper(ISenparcAiSetting? aiSetting = null, ILoggerFactory? loggerFactory = null, HttpClient httpClient = null, bool enableLog = false)
         {
             AiSetting = aiSetting ?? Senparc.AI.Config.SenparcAiSetting;
             this.loggerFactory = loggerFactory;
-            this.ResetHttpClient(httpClient);
+            this.ResetHttpClient(httpClient, enableLog);
         }
 
         /// <summary>
         /// 重置 HttpClient
         /// </summary>
         /// <param name="httpClient"></param>
-        public void ResetHttpClient(HttpClient httpClient = null)
+        public void ResetHttpClient(HttpClient httpClient = null, bool enableLog = false)
         {
-            _httpClient = httpClient ?? new HttpClient(new Senparc.AI.Kernel.LoggingHttpMessageHandler(new HttpClientHandler())); ;
+            _httpClient = httpClient ?? new HttpClient(new LoggingHttpMessageHandler(new HttpClientHandler(), enableLog));
         }
 
         /// <summary>

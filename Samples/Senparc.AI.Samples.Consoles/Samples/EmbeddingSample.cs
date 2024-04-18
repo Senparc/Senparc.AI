@@ -20,6 +20,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         public EmbeddingSample(IAiHandler aiHandler)
         {
             _aiHandler = aiHandler;
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
         }
 
         public async Task RunAsync(bool isReference = false)

@@ -16,6 +16,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         public ChatSample(IAiHandler aiHandler)
         {
             _aiHandler = aiHandler;
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
         }
 
         public async Task RunAsync()
@@ -134,7 +135,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 {
                     await Console.Out.WriteLineAsync("机器：");
 
-                    var useStream = true;
+                    var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
                     if (useStream)
                     {
                         //使用流式输出

@@ -5,6 +5,8 @@ using Senparc.AI.Samples.Consoles;
 public class SampleSetting
 {
     internal static string CurrentSettingKey { get; set; } = "Default";
+    internal static bool EnableHttpClientLog { get; set; } = true;
+
     internal static ISenparcAiSetting CurrentSetting
     {
         get
@@ -28,7 +30,8 @@ public class SampleSetting
         自定义模型 = 2,
         设置背景颜色 = 3,
         设置字体颜色 = 4,
-        全部重置=5,
+        启用或关闭HttpClient日志=5,
+        全部重置=6,
     }
 
     private void SetModelAsync()
@@ -87,6 +90,10 @@ public class SampleSetting
                 break;
             case SettingItems.设置字体颜色:
                 ForceColor = SetForegroundColorAsync();
+                break;
+            case SettingItems.启用或关闭HttpClient日志:
+                EnableHttpClientLog =!EnableHttpClientLog;
+                Console.WriteLine($"HttpClient 日志已{(EnableHttpClientLog?"启用":"关闭")}");
                 break;
             case SettingItems.全部重置:
                 BackgroundColor = ConsoleColor.Black;

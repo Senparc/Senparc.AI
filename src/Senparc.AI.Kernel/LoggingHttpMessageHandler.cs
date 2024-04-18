@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -21,31 +23,99 @@ namespace Senparc.AI.Kernel
 
     public class LoggingHttpMessageHandler : DelegatingHandler
     {
-        public LoggingHttpMessageHandler(HttpMessageHandler innerHandler) : base(innerHandler)
+        public bool EnableLog { get; }
+
+        private void Log(string msg)
         {
+            if (!EnableLog)
+            {
+                return;
+            }
+
+            var oldForegroundColor = Console.ForegroundColor;
+            var oldBackgroundColor = Console.BackgroundColor;
+
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine($"\t [HttpClient Log / {SystemTime.Now.ToString("G")}] {msg}");
+
+            Console.ForegroundColor = oldForegroundColor;
+            Console.BackgroundColor = oldBackgroundColor;
         }
+
+
+
+        public LoggingHttpMessageHandler(HttpMessageHandler innerHandler, bool enableLog = false) : base(innerHandler)
+        {
+            //TODO: 增加 ILoggerFactory? loggerFactory = null
+            EnableLog = enableLog;
+        }
+
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            Console.WriteLine($"Request: {request.Method} {request.RequestUri}");
-
-            if (request.Content != null)
+            Log($"Request: {request.Method} {request.RequestUri}");
+            if (EnableLog && request.Content != null)
             {
-                string requestBody = await request.Content.ReadAsStringAsync();
-                Console.WriteLine($"Request Body: {requestBody}");
+                var contentStream = await request.Content.ReadAsStreamAsync();
+                contentStream.Seek(0, SeekOrigin.Begin);
+                using var streamReader = new StreamReader(contentStream);
+                var requestBody = await streamReader.ReadToEndAsync();
+                contentStream.Seek(0, SeekOrigin.Begin); // 重置流位置 
+
+                Log($"Request Body: {requestBody}");
             }
 
             HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
 
-            Console.WriteLine($"Response: {(int)response.StatusCode} {response.StatusCode}");
+            Log($"Response: {(int)response.StatusCode} {response.StatusCode}");
 
-            if (response.Content != null)
+            if (EnableLog && response.Content != null)
             {
-                string responseBody = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Response Body: {responseBody}");
+                // 缓冲响应内容  
+                await response.Content.LoadIntoBufferAsync();
+
+                var contentStream = await response.Content.ReadAsStreamAsync();
+                string responseBody;
+                using (var streamReader = new StreamReader(contentStream))
+                {
+                    responseBody = await streamReader.ReadToEndAsync();
+                    Log($"Response Body: {responseBody}");
+                }
+
+                // 创建一个新的 MemoryStream，以防止 ObjectDisposedException  
+                contentStream.Seek(0, SeekOrigin.Begin);
+                var memoryStream = new MemoryStream();
+                await contentStream.CopyToAsync(memoryStream);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+
+                response.Content = new StreamContent(memoryStream);
             }
 
             return response;
+        }
+    }
+
+    public class BufferedHttpContent : HttpContent
+    {
+        private readonly byte[] _content;
+
+        public BufferedHttpContent(byte[] content)
+        {
+            _content = content;
+        }
+
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
+        {
+            using var memoryStream = new MemoryStream(_content);
+            await memoryStream.CopyToAsync(stream);
+        }
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = _content.Length;
+            return true;
         }
     }
 }

@@ -1,18 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Net.Http;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Interfaces;
-using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Senparc.AI.Kernel
 {
@@ -26,10 +23,17 @@ namespace Senparc.AI.Kernel
         public SemanticKernelHelper SemanticKernelHelper { get; set; }
         private Microsoft.SemanticKernel.Kernel _kernel => SemanticKernelHelper.GetKernel();
 
-
-        public SemanticAiHandler(ISenparcAiSetting senparcAiSetting, SemanticKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="senparcAiSetting"></param>
+        /// <param name="semanticAiHelper"></param>
+        /// <param name="loggerFactory"></param>
+        /// <param name="httpClient">为 null 时，自动使用 <see cref="LoggingHttpMessageHandler"/> 构建 <see cref="HttpClient" /></param>
+        /// <param name="enableLog">是否开启 <paramref name="httpClient"/> 的日志（仅在 <paramref name="httpClient"/> 为 null 时，会自动构建 <see cref="LoggingHttpMessageHandler"/> 时生效。</param>
+        public SemanticAiHandler(ISenparcAiSetting senparcAiSetting, SemanticKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null, HttpClient httpClient = null, bool enableLog = false)
         {
-            SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper(senparcAiSetting);
+            SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper(senparcAiSetting, loggerFactory, httpClient, enableLog);
             this.loggerFactory = loggerFactory;
         }
 
