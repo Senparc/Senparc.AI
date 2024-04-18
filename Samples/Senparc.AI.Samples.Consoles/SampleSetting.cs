@@ -5,7 +5,7 @@ using Senparc.AI.Samples.Consoles;
 public class SampleSetting
 {
     internal static string CurrentSettingKey { get; set; } = "Default";
-    internal static bool EnableHttpClientLog { get; set; } = true;
+    internal static bool EnableHttpClientLog { get; set; } = false;
 
     internal static ISenparcAiSetting CurrentSetting
     {
@@ -70,6 +70,10 @@ public class SampleSetting
     {
         Console.Clear();
         Console.WriteLine("[请选择设置内容]");
+        Console.WriteLine();
+        Console.WriteLine($"*请注意：设置 HttpClient 日之后，可能无法使用 Stream 方式获取返回内容。当前状态：{(EnableHttpClientLog?"启用":"关闭")}");
+        Console.WriteLine();
+
         SettingItems currentChoose = SampleHelper.ChooseItems<SettingItems>();
 
         var exit = false;
@@ -106,6 +110,7 @@ public class SampleSetting
                 RunAsync();
                 break;
         }
+
 
         Console.BackgroundColor = BackgroundColor;
         Console.ForegroundColor = ForceColor;
