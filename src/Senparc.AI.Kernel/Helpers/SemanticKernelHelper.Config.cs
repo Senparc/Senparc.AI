@@ -78,8 +78,8 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextGeneration(
                         model: modelName,
                         apiKey: null,
-                        endpoint: senparcAiSetting.HuggingFaceEndpoint,
-                        serviceId: null,
+                        endpoint: new Uri(senparcAiSetting.HuggingFaceEndpoint ?? throw new SenparcAiException("HuggingFace 必须提供 Endpoint")),
+                        serviceId: serviceId,
                         httpClient: _httpClient),
                 AiPlatform.FastAPI => kernelBuilder.AddFastAPIChatCompletion(
                         modelId: modelName,
@@ -143,7 +143,7 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextGeneration(
                         model: modelName,
                         apiKey: null,
-                        endpoint: senparcAiSetting.Endpoint,
+                        endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace 必须提供 Endpoint")),
                         serviceId: null,
                         httpClient: _httpClient),
                 AiPlatform.FastAPI => kernelBuilder.AddFastAPIChatCompletion(
@@ -203,15 +203,15 @@ namespace Senparc.AI.Kernel.Helpers
                     httpClient: _httpClient),
 
                 AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(
-                    deploymentName:deploymentName,
-                    endpoint:senparcAiSetting.Endpoint,
-                    apiKey:senparcAiSetting.ApiKey,
-                    modelId:modelName,
+                    deploymentName: deploymentName,
+                    endpoint: senparcAiSetting.Endpoint,
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelId: modelName,
                     httpClient: _httpClient),
 
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextEmbeddingGeneration(
                     model: modelName,
-                    endpoint: senparcAiSetting.Endpoint,
+                    endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace 必须提供 Endpoint")),
                     httpClient: _httpClient),
 
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
@@ -258,9 +258,9 @@ namespace Senparc.AI.Kernel.Helpers
                     httpClient: _httpClient),
 
                 AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToImage(
-                    deploymentName:azureDallEDepploymentName,
+                    deploymentName: azureDallEDepploymentName,
                     endpoint: senparcAiSetting.Endpoint,
-                    apiKey:senparcAiSetting.ApiKey,
+                    apiKey: senparcAiSetting.ApiKey,
                     modelId: azureModeId,
                     httpClient: _httpClient),
 
@@ -310,7 +310,7 @@ namespace Senparc.AI.Kernel.Helpers
                         modelId: modelName,
                         apiKey: senparcAiSetting.ApiKey,
                         orgId: senparcAiSetting.OrganizationId,
-                        httpClient:_httpClient),
+                        httpClient: _httpClient),
                     AiPlatform.AzureOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(
                         deploymentName: azureDeployName,
                         endpoint: senparcAiSetting.Endpoint,
