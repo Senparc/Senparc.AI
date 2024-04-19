@@ -86,9 +86,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             var memory = iWantToRun.SemanticKernelHelper.TryGetMemory();
 
-#pragma warning disable SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             iWantToRun.ImportFunctions(new TextMemoryPlugin(memory)/*, "Retrieve"*/);//TODO: 简化方法
-#pragma warning restore SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
             await Console.Out.WriteLineAsync("\nFunctionsViews：");
             foreach (var item in iWantToRun.Kernel.Plugins)

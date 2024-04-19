@@ -60,11 +60,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
             await Console.Out.WriteLineAsync();
 
 #pragma warning disable SKEXP0060
-            var plannerConfig = new HandlebarsPlannerOptions { MaxTokens = 2000, AllowLoops = true };
+            var plannerConfig = new HandlebarsPlannerOptions { /*MaxTokens = 2000,*/ AllowLoops = true };
             var planner = new HandlebarsPlanner(plannerConfig);
 
             //var ask = "If my investment of 2130.23 dollars increased by 23%, how much would I have after I spent 5 on a latte?";
-
 
             var plan = await planner.CreatePlanAsync(iWantToRun.Kernel, ask);
 
