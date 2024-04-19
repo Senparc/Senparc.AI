@@ -102,6 +102,15 @@ namespace Senparc.AI.Entities
                                                     ? OpenAIKeys?.OrganizationId
                                                     : FastAPIKeys?.OrganizationId;
 
+        #region OpenAI
+
+        /// <summary>
+        /// Proxy OpenAI Endpoint
+        /// </summary>
+        public virtual string OpenAIProxyEndpoint => OpenAIKeys?.OpenAIProxyEndpoint;
+
+        #endregion
+
         #region Azure OpenAI
 
         /// <summary>

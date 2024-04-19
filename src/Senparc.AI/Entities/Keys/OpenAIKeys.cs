@@ -9,5 +9,6 @@ namespace Senparc.AI
     {
         public string ApiKey { get; set; }
         public string OrganizationId { get; set; }
+        public string OpenAIProxyEndpoint {  get; set; }
     }
 }

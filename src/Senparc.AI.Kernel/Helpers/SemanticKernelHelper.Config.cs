@@ -62,7 +62,7 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.OpenAI => kernelBuilder.AddOpenAIChatCompletion(modelName,
                         apiKey: senparcAiSetting.ApiKey,
                         orgId: senparcAiSetting.OrganizationId,
-                        httpClient: _httpClient),
+                        httpClient: GetRedirectedHttpClient(senparcAiSetting.OpenAIProxyEndpoint)),
                 AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAIChatCompletion(
                         deploymentName: deploymentName,
                         modelId: modelName,
@@ -127,7 +127,7 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.OpenAI => kernelBuilder.AddOpenAITextGeneration(modelName,
                         apiKey: senparcAiSetting.ApiKey,
                         orgId: senparcAiSetting.OrganizationId,
-                        httpClient: _httpClient),
+                        httpClient: GetRedirectedHttpClient(senparcAiSetting.OpenAIProxyEndpoint)),
                 AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextGeneration(
                         deploymentName: deploymentName,
                         modelId: modelName,
@@ -193,7 +193,7 @@ namespace Senparc.AI.Kernel.Helpers
                     modelId: modelName,
                     apiKey: senparcAiSetting.ApiKey,
                     orgId: senparcAiSetting.OrganizationId,
-                    httpClient: _httpClient),
+                    httpClient: GetRedirectedHttpClient(senparcAiSetting.OpenAIProxyEndpoint)),
 
                 AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextEmbeddingGeneration(
                     deploymentName: deploymentName,
@@ -248,7 +248,7 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.OpenAI => kernelBuilder.AddOpenAITextToImage(
                     apiKey: senparcAiSetting.ApiKey,
                     orgId: senparcAiSetting.OrganizationId,
-                    httpClient: _httpClient),
+                    httpClient: GetRedirectedHttpClient(senparcAiSetting.OpenAIProxyEndpoint)),
 
                 AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(
                     deploymentName: azureDallEDepploymentName,
@@ -310,7 +310,7 @@ namespace Senparc.AI.Kernel.Helpers
                         modelId: modelName,
                         apiKey: senparcAiSetting.ApiKey,
                         orgId: senparcAiSetting.OrganizationId,
-                        httpClient:_httpClient),
+                        httpClient: GetRedirectedHttpClient(senparcAiSetting.OpenAIProxyEndpoint)),
                     AiPlatform.AzureOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(
                         deploymentName: azureDeployName,
                         endpoint: senparcAiSetting.Endpoint,
@@ -416,6 +416,16 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         #endregion
+
+        private HttpClient GetRedirectedHttpClient(string? endpoint)
+        {
+            if (endpoint.IsNullOrEmpty())
+            {
+                return new HttpClient();
+            }
+
+            return new HttpClient(new HttpClientRedirectingHandler(endpoint!));
+        }
     }
 }
 
