@@ -10,6 +10,7 @@ using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.Helpers;
+using Senparc.AI.Kernel.HttpMessageHandlers;
 
 namespace Senparc.AI.Kernel
 {

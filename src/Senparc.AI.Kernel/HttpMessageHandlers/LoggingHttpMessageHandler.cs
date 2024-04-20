@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Senparc.AI.Kernel
+namespace Senparc.AI.Kernel.HttpMessageHandlers
 {
     //public class CustomHttpMessageHandler : HttpClientHandler
     //{
