@@ -15,6 +15,7 @@ using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
+using Senparc.AI.Kernel.HttpMessageHandlers;
 using Senparc.CO2NET;
 
 // Memory functionality is experimental
@@ -61,7 +62,14 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="httpClient"></param>
         public void ResetHttpClient(HttpClient httpClient = null, bool enableLog = false)
         {
-            _httpClient = httpClient ?? new HttpClient(new LoggingHttpMessageHandler(new HttpClientHandler(), enableLog));
+            var builder = new HttpMessageHandlerBuilder();
+
+            var handler = new HttpClientHandler();
+
+            builder.Add(new LoggingHttpMessageHandler(handler, enableLog));
+            builder.Add(new RedirectingHttpMessageHandler(handler, AiSetting));
+
+            _httpClient = httpClient ?? new HttpClient(builder.Build());
         }
 
         /// <summary>

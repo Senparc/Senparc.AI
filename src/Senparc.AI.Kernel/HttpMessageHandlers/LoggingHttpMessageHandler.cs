@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Senparc.AI.Kernel
+namespace Senparc.AI.Kernel.HttpMessageHandlers
 {
     //public class CustomHttpMessageHandler : HttpClientHandler
     //{
@@ -34,7 +34,6 @@ namespace Senparc.AI.Kernel
 
             var oldForegroundColor = Console.ForegroundColor;
             var oldBackgroundColor = Console.BackgroundColor;
-
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.BackgroundColor = ConsoleColor.Black;
@@ -78,11 +77,9 @@ namespace Senparc.AI.Kernel
 
                 var contentStream = await response.Content.ReadAsStreamAsync();
                 string responseBody;
-                using (var streamReader = new StreamReader(contentStream))
-                {
-                    responseBody = await streamReader.ReadToEndAsync();
-                    Log($"Response Body: {responseBody}");
-                }
+                var streamReader = new StreamReader(contentStream);
+                responseBody = await streamReader.ReadToEndAsync();
+                Log($"Response Body: {responseBody}");
 
                 // 创建一个新的 MemoryStream，以防止 ObjectDisposedException  
                 contentStream.Seek(0, SeekOrigin.Begin);
@@ -91,6 +88,7 @@ namespace Senparc.AI.Kernel
                 memoryStream.Seek(0, SeekOrigin.Begin);
 
                 response.Content = new StreamContent(memoryStream);
+                await response.Content.LoadIntoBufferAsync();
             }
 
             return response;

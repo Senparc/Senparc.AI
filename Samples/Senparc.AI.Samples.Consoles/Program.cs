@@ -23,12 +23,12 @@ var services = new ServiceCollection();
 services.AddSenparcGlobalServices(config)
         .AddSenparcAI(config);
 
-services.AddScoped<ChatSample>();
-services.AddScoped<CompletionSample>();
-services.AddScoped<EmbeddingSample>();
-services.AddScoped<DallESample>();
-services.AddScoped<PlanSample>();
-services.AddScoped<SampleSetting>();
+services.AddTransient<ChatSample>();
+services.AddTransient<CompletionSample>();
+services.AddTransient<EmbeddingSample>();
+services.AddTransient<DallESample>();
+services.AddTransient<PlanSample>();
+services.AddTransient<SampleSetting>();
 
 var serviceProvider = services.BuildServiceProvider();
 
