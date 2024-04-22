@@ -77,19 +77,18 @@ namespace Senparc.AI.Kernel.HttpMessageHandlers
 
                 var contentStream = await response.Content.ReadAsStreamAsync();
                 string responseBody;
-                using (var streamReader = new StreamReader(contentStream))
-                {
-                    responseBody = await streamReader.ReadToEndAsync();
-                    Log($"Response Body: {responseBody}");
+                var streamReader = new StreamReader(contentStream);
+                responseBody = await streamReader.ReadToEndAsync();
+                Log($"Response Body: {responseBody}");
 
-                    // 创建一个新的 MemoryStream，以防止 ObjectDisposedException  
-                    contentStream.Seek(0, SeekOrigin.Begin);
-                    var memoryStream = new MemoryStream();
-                    await contentStream.CopyToAsync(memoryStream);
-                    memoryStream.Seek(0, SeekOrigin.Begin);
+                // 创建一个新的 MemoryStream，以防止 ObjectDisposedException  
+                contentStream.Seek(0, SeekOrigin.Begin);
+                var memoryStream = new MemoryStream();
+                await contentStream.CopyToAsync(memoryStream);
+                memoryStream.Seek(0, SeekOrigin.Begin);
 
-                    response.Content = new StreamContent(memoryStream);
-                }
+                response.Content = new StreamContent(memoryStream);
+                await response.Content.LoadIntoBufferAsync();
             }
 
             return response;
