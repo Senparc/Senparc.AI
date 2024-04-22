@@ -67,7 +67,7 @@ namespace Senparc.AI.Kernel.Helpers
             var handler = new HttpClientHandler();
 
             builder.Add(new LoggingHttpMessageHandler(handler, enableLog));
-            builder.Add(new RedirectingHttpMessageHandler(handler, AiSetting.AiPlatform, AiSetting.OpenAIEndpoint));
+            builder.Add(new RedirectingHttpMessageHandler(handler, AiSetting));
 
             _httpClient = httpClient ?? new HttpClient(builder.Build());
         }
