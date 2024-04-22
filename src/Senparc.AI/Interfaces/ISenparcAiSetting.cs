@@ -37,7 +37,7 @@ namespace Senparc.AI.Interfaces
 
         string Endpoint => AiPlatform switch
         {
-            AiPlatform.OpenAI => "无需配置",
+            AiPlatform.OpenAI => OpenAIEndpoint,
             AiPlatform.AzureOpenAI => AzureEndpoint,
             AiPlatform.NeuCharAI => NeuCharEndpoint,
             AiPlatform.HuggingFace => HuggingFaceEndpoint,
@@ -74,6 +74,15 @@ namespace Senparc.AI.Interfaces
         /// OpenAI API Orgaization ID
         /// </summary>
         string OrganizationId { get; }
+
+        #region OpenAI
+
+        /// <summary>
+        /// OpenAI Endpoint
+        /// </summary>
+        string OpenAIEndpoint { get; }
+
+        #endregion
 
         #region Azure OpenAI
 
