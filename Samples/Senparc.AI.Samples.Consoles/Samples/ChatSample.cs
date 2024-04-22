@@ -32,18 +32,36 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var systemMessage = Console.ReadLine();
             systemMessage = systemMessage.IsNullOrEmpty() ? Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE : systemMessage;
 
+            int defaultMaxHistoryCount = 5;
             int maxHistoryCount = 0;
-            do
+            while (true)
             {
-                await Console.Out.WriteLineAsync("[聊天设置 - 2/2] 请输入最大保留历史对话数量，建议 5-20 之间");
-            } while (int.TryParse(Console.ReadLine(), out maxHistoryCount) && maxHistoryCount <= 0);
+                await Console.Out.WriteLineAsync($"[聊天设置 - 2/2] 请输入最大保留历史对话数量，建议 5-20 之间。留空则默认保留 {defaultMaxHistoryCount} 条。");
+
+                var maxHistoryCountString = Console.ReadLine();
+                if (maxHistoryCountString.IsNullOrEmpty())
+                {
+                    maxHistoryCount = defaultMaxHistoryCount;
+                    break;
+                }
+                else if (!int.TryParse(maxHistoryCountString, out maxHistoryCount) || maxHistoryCount <= 0)
+                {
+                    await Console.Out.WriteLineAsync("请输入正确的数字！");
+                }
+            }
+
+            await Console.Out.WriteLineAsync($"对话历史记录数将保留 {maxHistoryCount} 条");
+
 
             await Console.Out.WriteLineAsync();
 
             await Console.Out.WriteLineAsync(@"配置完成，请输入对话内容。
+
+---------------------------------
 输入 [ML] 开启单次对话的多行模式
 输入 [END] 完成所有多行输入
-输入 exit 退出。");
+输入 exit 退出。
+---------------------------------");
 
             await Console.Out.WriteLineAsync();
 
