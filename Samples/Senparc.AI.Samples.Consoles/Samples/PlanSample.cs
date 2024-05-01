@@ -58,7 +58,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     iWantToRun.ImportPluginFromPromptDirectory(pluginsDirectory, plugin);
                     plugin = Console.ReadLine();
                 }
-
+                
                 await Console.Out.WriteLineAsync("Tell me your task:");
                 //Tomorrow is Valentine's day. I need to come up with a few date ideas and e-mail them to my significant other
                 var ask = Console.ReadLine();

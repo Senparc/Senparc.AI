@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.15.2.1</Version>
+		<Version>0.15.3</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -44,6 +44,7 @@
 			v0.15.0 添加 HttpClient 日志功能，完善内容输出机制
 			v0.15.1 升级到 SK 最新版本（v1.7.1）
 			v0.15.2 添加 RedirectingHttpMessageHandler
+			v0.15.3 添加 IWantToRun.SetPromptConfigParameter() 方法
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
