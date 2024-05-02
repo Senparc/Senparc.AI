@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.15.3</Version>
+		<Version>0.15.4</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -45,6 +45,7 @@
 			v0.15.1 升级到 SK 最新版本（v1.7.1）
 			v0.15.2 添加 RedirectingHttpMessageHandler
 			v0.15.3 添加 IWantToRun.SetPromptConfigParameter() 方法
+			v0.15.4 升级到 SK 1.10.0
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
@@ -63,10 +64,10 @@
 		<None Include="KernelConfigExtensions\KernelConfigExtensions.Function.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SemanticKernel" Version="1.7.1" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.7.1-preview" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.10.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.10.0-preview" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
-		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.7.1-alpha" />
+		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.10.0-alpha" />
 
 		<PackageReference Include="Senparc.CO2NET" Version="2.4.0.1" />
 	</ItemGroup>

@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
@@ -164,7 +163,7 @@ ChatBot: ";
             context["userInput"] = input;
             var functionResult = await chatFunction.function.InvokeAsync(chatFunction.iWantToRun.Kernel, context);
             await Console.Out.WriteLineAsync("Question: " + input);
-            await Console.Out.WriteLineAsync("Result(GetValue):" + functionResult.GetValue<string>().Humanize());
+            await Console.Out.WriteLineAsync("Result(GetValue):" + functionResult.GetValue<string>());
             await Console.Out.WriteLineAsync("Answer: " + functionResult.ToJson(true));
         }
 
