@@ -68,7 +68,7 @@ namespace Senparc.AI.Kernel.Handlers
                 {
                     return deploymentName;
                 }
-                else if(!senparcAiSetting.DeploymentName.IsNullOrEmpty())
+                else if (!senparcAiSetting.DeploymentName.IsNullOrEmpty())
                 {
                     return senparcAiSetting.DeploymentName;
                 }
@@ -321,7 +321,21 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="request"></param>
         /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
         /// <returns></returns>
-        public static async Task<SenparcKernelAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
+        public static Task<SenparcKernelAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
+        {
+            return RunAsync<string>(iWanToRun, request, inStreamItemProceessing);
+        }
+
+        /// <summary>
+        /// 运行
+        /// </summary>
+        /// <param name="iWanToRun"></param>
+        /// <param name="request"></param>
+        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
+        /// <typeparam name="T">指定返回结果类型</typeparam>
+        /// <returns></returns>
+
+        public static async Task<SenparcKernelAiResult> RunAsync<T>(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWanToRun.SemanticKernelHelper;
@@ -412,7 +426,23 @@ namespace Senparc.AI.Kernel.Handlers
 
             if (!useStream)
             {
-                result.Output = functionResult.GetValue<string>()?.TrimStart('\n') ?? "";
+                try
+                {
+                    result.Output = functionResult.GetValue<string>()?.TrimStart('\n') ?? "";
+
+                }
+                catch (Exception)
+                {
+                    //TODO: 提供 Output 的泛型
+                    try
+                    {
+                        result.Output = functionResult.GetValue<T>()?.ToJson()?.TrimStart('\n') ?? "";
+                    }
+                    catch (Exception)
+                    {
+                        result.Output = functionResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
+                    }
+                }
                 result.Result = functionResult;
             }
             else
