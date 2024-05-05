@@ -13,13 +13,13 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="skillInstance">Instance of a class containing functions</param>
         /// <param name="pluginName">Name of the skill for skill collection and prompt templates. If the value is empty functions are registered in the global namespace.</param>
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
-        public static (IWantToRun iWantToRun, KernelPlugin skillList) ImportFunctions(this IWantToRun iWantToRun, object skillInstance, string pluginName = null)
+        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportFunctions(this IWantToRun iWantToRun, object skillInstance, string pluginName = null)
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
             var helper = handler.SemanticKernelHelper;
             var kernel = helper.GetKernel();
-            var skillList = kernel.ImportPluginFromObject(skillInstance, pluginName);
-            return (iWantToRun, skillList);
+            var kernelPlugin = kernel.ImportPluginFromObject(skillInstance, pluginName);
+            return (iWantToRun, kernelPlugin);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
         /// <returns></returns>
         [Obsolete($"This method is obsolete, please use {nameof(ImportPluginFromPromptDirectory)} instead.", true)]
-        public static (IWantToRun iWantToRun, KernelPlugin skillList) ImportPluginFromDirectory(this IWantToRun iWantToRun, string parentDirectory, string skillDirectoryName)
+        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromDirectory(this IWantToRun iWantToRun, string parentDirectory, string skillDirectoryName)
         {
             return ImportPluginFromDirectory(iWantToRun, parentDirectory, skillDirectoryName);
         }
@@ -99,26 +99,27 @@ namespace Senparc.AI.Kernel.Handlers
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="parentDirectory">Directory containing the skill directory, e.g. "d:\myAppPlugins"</param>
-        /// <param name="skillDirectoryName">Name of the directory containing the selected skill, e.g. "StrategyPlugin"</param>
+        /// <param name="pluginName">Name of the directory containing the selected skill, e.g. "StrategyPlugin"</param>
+        /// <param name="promptTemplateFactory">The Microsoft.SemanticKernel.IPromptTemplateFactory to use when interpreting discovered prompts into Microsoft.SemanticKernel.IPromptTemplates. If null, a default factory will be used.
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
         /// <returns></returns>
-        public static (IWantToRun iWantToRun, KernelPlugin skillList) ImportPluginFromPromptDirectory(this IWantToRun iWantToRun, string parentDirectory, string skillDirectoryName)
+        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromPromptDirectory(this IWantToRun iWantToRun, string parentDirectory, string pluginName, IPromptTemplateFactory? promptTemplateFactory = null)
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
             var helper = handler.SemanticKernelHelper;
             var kernel = helper.GetKernel();
 
-            KernelPlugin skillList;
-            if (kernel.Plugins.Contains("skillDirectoryName"))
+            KernelPlugin kernelPlugin;
+            if (kernel.Plugins.Contains(pluginName))
             {
-                skillList = kernel.Plugins[skillDirectoryName];
+                kernelPlugin = kernel.Plugins[pluginName];
             }
             else
             {
-                skillList = kernel.ImportPluginFromPromptDirectory(parentDirectory, skillDirectoryName);
+                kernelPlugin = kernel.ImportPluginFromPromptDirectory(parentDirectory, pluginName, promptTemplateFactory);
             }
 
-            return (iWantToRun, skillList);
+            return (iWantToRun, kernelPlugin);
         }
     }
 }
