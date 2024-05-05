@@ -55,7 +55,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     //iWantToRun.ImportPluginFromPromptDirectory(Path.Combine(pluginsDirectory, "WriterPlugin"), plugin);
                     //iWantToRun.ImportPluginFromPromptDirectory(Path.Combine(pluginsDirectory, "SummarizePlugin"), plugin);
 
-                    iWantToRun.ImportPluginFromPromptDirectory(pluginsDirectory, plugin);
+                    var importResult = iWantToRun.ImportPluginFromPromptDirectory(pluginsDirectory, plugin);
                     plugin = Console.ReadLine();
                 }
 

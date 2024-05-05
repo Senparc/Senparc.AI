@@ -3,6 +3,7 @@ using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
+using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +57,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 await Console.Out.WriteLineAsync("提示词：");
                 var prompt = Console.ReadLine();
+
+                if (prompt.IsNullOrEmpty())
+                {
+                    await Console.Out.WriteLineAsync("请填写提示词！");
+                    continue;
+                }
 
                 if (prompt == "exit")
                 {
