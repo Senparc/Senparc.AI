@@ -13,6 +13,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="skillInstance">Instance of a class containing functions</param>
         /// <param name="pluginName">Name of the skill for skill collection and prompt templates. If the value is empty functions are registered in the global namespace.</param>
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
+        [Obsolete($"This method is obsolete, please use {nameof(ImportPluginFromObject)} instead.", true)]
         public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportFunctions(this IWantToRun iWantToRun, object skillInstance, string pluginName = null)
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
@@ -101,16 +102,17 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="parentDirectory">Directory containing the skill directory, e.g. "d:\myAppPlugins"</param>
         /// <param name="pluginName">Name of the directory containing the selected skill, e.g. "StrategyPlugin"</param>
         /// <param name="promptTemplateFactory">The Microsoft.SemanticKernel.IPromptTemplateFactory to use when interpreting discovered prompts into Microsoft.SemanticKernel.IPromptTemplates. If null, a default factory will be used.
+        /// <param name="throwExceptionWhenSamePluginNameExisted">If true, throw exception when the same plugin name existed.</param>
         /// <returns>A list of all the semantic functions found in the directory, indexed by function name.</returns>
         /// <returns></returns>
-        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromPromptDirectory(this IWantToRun iWantToRun, string parentDirectory, string pluginName, IPromptTemplateFactory? promptTemplateFactory = null)
+        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromPromptDirectory(this IWantToRun iWantToRun, string parentDirectory, string pluginName, IPromptTemplateFactory? promptTemplateFactory = null, bool throwExceptionWhenSamePluginNameExisted = false)
         {
             var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
             var helper = handler.SemanticKernelHelper;
             var kernel = helper.GetKernel();
 
             KernelPlugin kernelPlugin;
-            if (kernel.Plugins.Contains(pluginName))
+            if (!throwExceptionWhenSamePluginNameExisted && kernel.Plugins.Contains(pluginName))
             {
                 kernelPlugin = kernel.Plugins[pluginName];
             }
@@ -121,5 +123,94 @@ namespace Senparc.AI.Kernel.Handlers
 
             return (iWantToRun, kernelPlugin);
         }
+
+        /// <summary>
+        /// Creates a plugin that wraps the specified target object and imports it into the kernel's plugin collection.
+        /// </summary>
+        /// <param name="iWantToRun"></param>
+        /// <param name="target">The instance of the class to be wrapped.</param>
+        /// <param name="throwExceptionWhenSamePluginNameExisted">If true, throw exception when the same plugin name existed.</param>
+        /// <param name="pluginName">Name of the plugin for function collection and prompt templates. If the value is null, a plugin name is derived from the type of the target.</param>
+        /// <returns>A Microsoft.SemanticKernel.KernelPlugin containing Microsoft.SemanticKernel.KernelFunctions for all relevant members of target.</returns>
+        /// <remarks>Public methods that have the Microsoft.SemanticKernel.KernelFunctionFromPrompt attribute will be included in the plugin.</remarks>
+        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromObject(this IWantToRun iWantToRun, object target, string? pluginName = null, bool throwExceptionWhenSamePluginNameExisted = false)
+        {
+            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
+            var helper = handler.SemanticKernelHelper;
+            var kernel = helper.GetKernel();
+
+            KernelPlugin kernelPlugin;
+            pluginName ??= target.GetType().Name;
+
+            if (!throwExceptionWhenSamePluginNameExisted && kernel.Plugins.Contains(pluginName))
+            {
+                kernelPlugin = kernel.Plugins[pluginName];
+            }
+            else
+            {
+                kernelPlugin = kernel.ImportPluginFromObject(target, pluginName);
+            }
+
+            return (iWantToRun, kernelPlugin);
+        }
+
+        /// <summary>
+        /// The Microsoft.SemanticKernel.Kernel containing services, plugins, and other state for use throughout the operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="iWantToRun"></param>
+        /// <param name="pluginName">Name of the plugin for function collection and prompt templates. If the value is null, a plugin name is derived from the type of the T.</param>
+        /// <param name="throwExceptionWhenSamePluginNameExisted">If true, throw exception when the same plugin name existed.</param>
+        /// <returns>A Microsoft.SemanticKernel.KernelPlugin containing Microsoft.SemanticKernel.KernelFunctions for all relevant members of T.</returns>
+        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromType<T>(this IWantToRun iWantToRun, string? pluginName = null, bool throwExceptionWhenSamePluginNameExisted = false)
+        {
+            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
+            var helper = handler.SemanticKernelHelper;
+            var kernel = helper.GetKernel();
+
+            KernelPlugin kernelPlugin;
+            pluginName ??= typeof(T).Name;
+
+            if (!throwExceptionWhenSamePluginNameExisted && kernel.Plugins.Contains(pluginName))
+            {
+                kernelPlugin = kernel.Plugins[pluginName];
+            }
+            else
+            {
+                kernelPlugin = kernel.ImportPluginFromType<T>(pluginName);
+            }
+
+            return (iWantToRun, kernelPlugin);
+        }
+
+        /// <summary>
+        ///  Creates a plugin that contains the specified functions and imports it into the kernel's plugin collection.
+        /// </summary>
+        /// <param name="iWantToRun"></param>
+        /// <param name="pluginName">The name for the plugin.</param>
+        /// <param name="functions">The initial functions to be available as part of the plugin.</param>
+        /// <param name="throwExceptionWhenSamePluginNameExisted">If true, throw exception when the same plugin name existed.</param>
+        /// <returns>A Microsoft.SemanticKernel.KernelPlugin containing the functions provided in functions.</returns>
+        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromFunctions(this IWantToRun iWantToRun, string pluginName, IEnumerable<KernelFunction>? functions = null, bool throwExceptionWhenSamePluginNameExisted = false)
+        {
+            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
+            var helper = handler.SemanticKernelHelper;
+            var kernel = helper.GetKernel();
+
+            KernelPlugin kernelPlugin;
+
+            if (!throwExceptionWhenSamePluginNameExisted && kernel.Plugins.Contains(pluginName))
+            {
+                kernelPlugin = kernel.Plugins[pluginName];
+            }
+            else
+            {
+                kernelPlugin = kernel.ImportPluginFromFunctions(pluginName, functions);
+            }
+
+            return (iWantToRun, kernelPlugin);
+        }
+
+
     }
 }
