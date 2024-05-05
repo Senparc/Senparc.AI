@@ -108,7 +108,15 @@ namespace Senparc.AI.Kernel.Handlers
             var helper = handler.SemanticKernelHelper;
             var kernel = helper.GetKernel();
 
-            var skillList = kernel.ImportPluginFromPromptDirectory(parentDirectory, skillDirectoryName);
+            KernelPlugin skillList;
+            if (kernel.Plugins.Contains("skillDirectoryName"))
+            {
+                skillList = kernel.Plugins[skillDirectoryName];
+            }
+            else
+            {
+                skillList = kernel.ImportPluginFromPromptDirectory(parentDirectory, skillDirectoryName);
+            }
 
             return (iWantToRun, skillList);
         }
