@@ -146,6 +146,7 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
 即将开始执行以下步骤：
 1、从一个独立 Function 中随机获取一个 URL
 2、自动抓取这个 URL 的内容
+3、使用 AI 接口分析当前网页内容
 
 输入回车开始，输入 exit 返回上一级
 ");
