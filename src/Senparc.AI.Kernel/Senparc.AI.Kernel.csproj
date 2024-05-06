@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.16.0-beta1</Version>
+		<Version>0.16.1-beta1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -46,6 +46,7 @@
 			v0.15.2 添加 RedirectingHttpMessageHandler
 			v0.15.3 添加 IWantToRun.SetPromptConfigParameter() 方法
 			v0.15.4 升级到 SK 1.10.0，为 ImportPluginFromPromptDirectory() 方法添加已有对象的检测
+			v0.16.1 添加 RunAsync(kernelFunction) 方法
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

@@ -441,6 +441,7 @@ namespace Senparc.AI.Kernel.Handlers
                 {
                     //TODO: 提供 Output 的泛型
                     result.OutputString = functionResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
+                    _ = new SenparcAiException("无法转换为指定类型：" + typeof(T).Name);
                 }
                 result.Result = functionResult;
             }
@@ -483,9 +484,42 @@ namespace Senparc.AI.Kernel.Handlers
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="iWanToRun"></param>
-        /// <param name="pipeline"></param>
+        /// <param name="kernelFunction"></param>
         /// <returns></returns>
-        public static async Task<SenaprcAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, params KernelFunction[] pipeline)
+        public static async Task<SenparcKernelAiResult> RunAsync(this IWantToRun iWanToRun, KernelFunction kernelFunction)
+        {
+            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
+            var helper = iWanToRun.SemanticKernelHelper;
+            var kernel = helper.GetKernel();
+            //var function = iWanToRun.KernelFunction;
+
+            var result = new SenparcKernelAiResult(iWanToRun, inputContent: null);
+
+            var kernelResult = await kernel.InvokeAsync(kernelFunction);
+
+            try
+            {
+                result.OutputString = kernelResult.GetValue<string>()?.TrimStart('\n') ?? "";
+            }
+            catch (Exception)
+            {
+                //TODO: 提供 Output 的泛型
+                result.OutputString = kernelResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
+            }
+
+            result.Result = kernelResult;
+
+            return result;
+        }
+
+        /// <summary>
+        /// 运行
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="iWanToRun"></param>
+        /// <param name="kernelFunction"></param>
+        /// <returns></returns>
+        public static async Task<SenaprcAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, KernelFunction kernelFunction)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWanToRun.SemanticKernelHelper;
@@ -494,14 +528,23 @@ namespace Senparc.AI.Kernel.Handlers
 
             var result = new SenaprcAiResult<T>(iWanToRun, inputContent: null);
 
-            var kernelResult = await kernel.InvokeAsync(pipeline.FirstOrDefault());
+            var kernelResult = await kernel.InvokeAsync(kernelFunction);
 
             try
             {
-                result.OutputString = kernelResult.GetValue<string>() ?? "";
+                if (typeof(T) == typeof(string))
+                {
+                    result.OutputString = kernelResult.GetValue<string>()?.TrimStart('\n') ?? "";
+                }
+                else
+                {
+                    result.OutputString = kernelResult.GetValue<T>()?.ToJson()?.TrimStart('\n') ?? "";
+                }
             }
             catch (Exception)
             {
+                //TODO: 提供 Output 的泛型
+                result.OutputString = kernelResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
                 _ = new SenparcAiException("无法转换为指定类型：" + typeof(T).Name);
             }
 
