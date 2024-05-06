@@ -29,6 +29,7 @@ services.AddTransient<EmbeddingSample>();
 services.AddTransient<DallESample>();
 services.AddTransient<PlanSample>();
 services.AddTransient<SampleSetting>();
+services.AddTransient<FunctionSample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -52,6 +53,7 @@ Console.WriteLine("[2] Completion 任务机器人");
 Console.WriteLine("[3] 训练 Embedding 任务");
 Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI 或 AzureOpenAI）");
 Console.WriteLine("[5] Planner 任务计划");
+Console.WriteLine("[6] Function");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -124,8 +126,15 @@ switch (index)
     case "5":
         {
             //Plan Sample
-            var pnalSample = serviceProvider.GetRequiredService<PlanSample>();
-            await pnalSample.RunAsync();
+            var planSample = serviceProvider.GetRequiredService<PlanSample>();
+            await planSample.RunAsync();
+        }
+        break;
+    case "6":
+        {
+            //Function Sample
+            var functionSample = serviceProvider.GetRequiredService<FunctionSample>();
+            await functionSample.RunAsync();
         }
         break;
     case "0":
