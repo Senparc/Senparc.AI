@@ -18,9 +18,9 @@ namespace Senparc.AI.Interfaces
         /// </summary>
         IAiContext InputContext { get; set; }
         /// <summary>
-        /// 输出内容
+        /// 输出内容（文本）
         /// </summary>
-        string Output { get; set; }
+        string OutputString { get; set; }
         /// <summary>
         /// 最近一个异常
         /// </summary>

@@ -133,7 +133,7 @@ namespace Senparc.AI.Kernel
                 newHistory = this.RemoveHistory(history, maxHistoryCount - 1);
             }
 
-            newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.Output}";
+            newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
 
             //记录对话历史（可选）
             request.SetStoredContext(historyArgName, newHistory);

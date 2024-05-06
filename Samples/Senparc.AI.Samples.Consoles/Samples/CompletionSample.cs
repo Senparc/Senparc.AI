@@ -109,7 +109,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 {
                     //使用整体输出
                     var result = await iWantToRun.RunAsync(request);
-                    await Console.Out.WriteLineAsync(result.Output);
+                    await Console.Out.WriteLineAsync(result.OutputString);
                 }
                 await Console.Out.WriteLineAsync();
             }

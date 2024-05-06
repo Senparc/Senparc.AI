@@ -14,7 +14,7 @@ namespace Senparc.AI.Kernel.Entities
     /// </summary>
     public class SenaprcAiResult_MemoryQuery : SenparcAiResult
     {
-        public override string Output { get => throw new SenparcAiException("请从 MemoryQueryResult 获取"); set => throw new SenparcAiException("当前方法内无法设置"); }
+        public override string OutputString { get => throw new SenparcAiException("请从 MemoryQueryResult 获取"); set => throw new SenparcAiException("当前方法内无法设置"); }
         /// <summary>
         /// Whether the source data used to calculate embeddings are stored in the local
         /// storage provider or is available through an external service, such as web site, MS Graph, etc.
