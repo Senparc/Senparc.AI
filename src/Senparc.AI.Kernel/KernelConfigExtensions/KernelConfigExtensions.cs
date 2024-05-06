@@ -321,7 +321,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="request"></param>
         /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
         /// <returns></returns>
-        public static Task<SenparcKernelAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
+        public static Task<SenparcKernelAiResult<string>> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             return RunAsync<string>(iWanToRun, request, inStreamItemProceessing);
         }
@@ -335,7 +335,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <typeparam name="T">指定返回结果类型</typeparam>
         /// <returns></returns>
 
-        public static async Task<SenparcKernelAiResult> RunAsync<T>(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
+        public static async Task<SenparcKernelAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWanToRun.SemanticKernelHelper;
@@ -353,7 +353,7 @@ namespace Senparc.AI.Kernel.Handlers
             var tempArguments = request.TempAiArguments?.KernelArguments;
 
             FunctionResult? functionResult = null;
-            var result = new SenparcKernelAiResult(iWanToRun, inputContent: null);
+            var result = new SenparcKernelAiResult<T>(iWanToRun, inputContent: null);
 
             var useStream = inStreamItemProceessing != null;
 
@@ -428,20 +428,19 @@ namespace Senparc.AI.Kernel.Handlers
             {
                 try
                 {
-                    result.Output = functionResult.GetValue<string>()?.TrimStart('\n') ?? "";
-
+                    if (typeof(T) == typeof(string))
+                    {
+                        result.OutputString = functionResult.GetValue<string>()?.TrimStart('\n') ?? "";
+                    }
+                    else
+                    {
+                        result.OutputString = functionResult.GetValue<T>()?.ToJson()?.TrimStart('\n') ?? "";
+                    }
                 }
                 catch (Exception)
                 {
                     //TODO: 提供 Output 的泛型
-                    try
-                    {
-                        result.Output = functionResult.GetValue<T>()?.ToJson()?.TrimStart('\n') ?? "";
-                    }
-                    catch (Exception)
-                    {
-                        result.Output = functionResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
-                    }
+                    result.OutputString = functionResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
                 }
                 result.Result = functionResult;
             }
@@ -458,7 +457,7 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 }
 
-                result.Output = stringResult.ToString();
+                result.OutputString = stringResult.ToString();
             }
 
             //result.LastException = botAnswer.LastException;
@@ -473,11 +472,10 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="request"></param>
         /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。</param>
         /// <returns></returns>
-        public static Task<SenparcKernelAiResult> RunStreamAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
+        public static Task<SenparcKernelAiResult<string>> RunStreamAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             inStreamItemProceessing ??= (item) => { };
             return RunAsync(iWanToRun, request, inStreamItemProceessing);
-
         }
 
         /// <summary>
@@ -500,7 +498,7 @@ namespace Senparc.AI.Kernel.Handlers
 
             try
             {
-                result.Output = kernelResult.GetValue<string>() ?? "";
+                result.OutputString = kernelResult.GetValue<string>() ?? "";
             }
             catch (Exception)
             {

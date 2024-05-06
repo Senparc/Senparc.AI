@@ -30,7 +30,7 @@ namespace Senparc.AI.Kernel
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public virtual string Output { get; set; }
+        public virtual string OutputString { get; set; }
 
         /// <summary>
         /// <inheritdoc/>
@@ -55,6 +55,7 @@ namespace Senparc.AI.Kernel
     public class SenaprcAiResult<T> : SenparcAiResult, IAiResult
     {
         public T Result { get; set; }
+        public IAsyncEnumerable<StreamingKernelContent>? /*SKContext*/ StreamResult { get; set; }
 
         public SenaprcAiResult(IWantToRun iWwantToRun, string inputContent)
             : base(iWwantToRun, inputContent)
@@ -82,14 +83,30 @@ namespace Senparc.AI.Kernel
         }
     }
 
-    public class SenparcKernelAiResult : SenaprcAiResult<FunctionResult>, IAiResult
+    public class SenparcKernelAiResult : SenparcKernelAiResult<string>, IAiResult
     {
+        public SenparcKernelAiResult(IWantToRun iWwantToRun, string? inputContent)
+             : base(iWwantToRun, inputContent)
+        {
+        }
+
+        public SenparcKernelAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+           : base(iWwantToRun, inputContext)
+        {
+        }
+    }
+
+    public class SenparcKernelAiResult<T> : SenaprcAiResult<FunctionResult>, IAiResult
+    {
+        public T? Output => Result.GetValue<T>();
+
         public FunctionResult /*SKContext*/ Result { get; set; }
         public IAsyncEnumerable<StreamingKernelContent>? /*SKContext*/ StreamResult { get; set; }
 
         public SenparcKernelAiResult(IWantToRun iWwantToRun, string? inputContent)
              : base(iWwantToRun, inputContent)
         {
+
         }
 
         public SenparcKernelAiResult(IWantToRun iWwantToRun, IAiContext inputContext)

@@ -39,12 +39,12 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             Assert.IsNotNull(result);
             //await Console.Out.WriteLineAsync(result.ToJson(true));
-            Assert.IsTrue(result.Output.Length > 0);
+            Assert.IsTrue(result.OutputString.Length > 0);
             Assert.IsTrue(result.LastException == null);
 
             ((SenparcAiArguments)result.InputContext).KernelArguments.TryGetValue("human_input", out var question);
             await Console.Out.WriteLineAsync("Q: " + question);
-            await Console.Out.WriteLineAsync("A: " + result.Output);
+            await Console.Out.WriteLineAsync("A: " + result.OutputString);
             await Console.Out.WriteLineAsync();
 
             //第二轮对话
@@ -55,7 +55,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             ((SenparcAiArguments)result.InputContext).KernelArguments.TryGetValue("human_input", out var question2);
             await Console.Out.WriteLineAsync("Q: " + question2);
-            await Console.Out.WriteLineAsync("A: " + result.Output);
+            await Console.Out.WriteLineAsync("A: " + result.OutputString);
             await Console.Out.WriteLineAsync();
 
             //第三轮对话
@@ -66,7 +66,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             ((SenparcAiArguments)result.InputContext).KernelArguments.TryGetValue("human_input", out var question3);
             await Console.Out.WriteLineAsync("Q: " + question3);
-            await Console.Out.WriteLineAsync("A: " + result.Output);
+            await Console.Out.WriteLineAsync("A: " + result.OutputString);
             await Console.Out.WriteLineAsync();
 
             //第四轮对话
@@ -76,7 +76,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             await Console.Out.WriteLineAsync($"第四轮对话（耗时：{SystemTime.DiffTotalMS(dt)}ms）");
             ((SenparcAiArguments)result.InputContext).KernelArguments.TryGetValue("human_input", out var question4);
             await Console.Out.WriteLineAsync("Q: " + question4);
-            await Console.Out.WriteLineAsync("A: " + result.Output);
+            await Console.Out.WriteLineAsync("A: " + result.OutputString);
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             aiRequest.SetStoredContext("history", history + $"\nHuman: {prompt}\nBot: {aiRequest.RequestContent}");
 
             //aiResult.Result 结果：中国的人口约为13.8亿。
-            await Console.Out.WriteLineAsync(aiResult.Output);
+            await Console.Out.WriteLineAsync(aiResult.OutputString);
             //await Console.Out.WriteLineAsync(aiResult.ToJson(true));
 
             //第二次对话，包含上下文，自动理解提问目标是人口数量
@@ -128,7 +128,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
 
             aiResult = await iWantToRun.RunAsync(aiRequest);
             //aiResult.Result 结果：美国的人口大约为3.2亿。
-            await Console.Out.WriteLineAsync(aiResult.Output);
+            await Console.Out.WriteLineAsync(aiResult.OutputString);
         }
 
         [TestMethod]
@@ -163,7 +163,7 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             //await Console.Out.WriteLineAsync(Senparc.AI.Config.SenparcAiSetting.ToJson(true));
 
             Assert.IsNotNull(result);
-            await Console.Out.WriteLineAsync(result.Output);
+            await Console.Out.WriteLineAsync(result.OutputString);
         }
 
         [TestMethod]
@@ -215,8 +215,8 @@ MynameIsJeffrey,I'maChinese.ThisisAtest.HappYbIrthday!
             //await Console.Out.WriteLineAsync(Senparc.AI.Config.SenparcAiSetting.ToJson(true));
 
             Assert.IsNotNull(result);
-            await Console.Out.WriteLineAsync(result.Output);
-            Assert.AreEqual("Helloworld!Thisisanewworld.", result.Output);
+            await Console.Out.WriteLineAsync(result.OutputString);
+            Assert.AreEqual("Helloworld!Thisisanewworld.", result.OutputString);
         }
 
         [TestMethod()]
