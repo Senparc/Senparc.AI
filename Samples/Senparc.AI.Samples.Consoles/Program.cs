@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Senparc.AI.Kernel;
 using Senparc.AI.Samples.Consoles;
 using Senparc.AI.Samples.Consoles.Samples;
+using Senparc.AI.Samples.Consoles.Samples.Plugins;
 using Senparc.CO2NET;
 using Senparc.CO2NET.RegisterServices;
 
@@ -29,7 +30,7 @@ services.AddTransient<EmbeddingSample>();
 services.AddTransient<DallESample>();
 services.AddTransient<PlanSample>();
 services.AddTransient<SampleSetting>();
-services.AddTransient<FunctionSample>();
+services.AddTransient<PluginFromObjectSample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -53,7 +54,7 @@ Console.WriteLine("[2] Completion 任务机器人");
 Console.WriteLine("[3] 训练 Embedding 任务");
 Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI 或 AzureOpenAI）");
 Console.WriteLine("[5] Planner 任务计划");
-Console.WriteLine("[6] Function");
+Console.WriteLine("[6] PluginFromObject 测试");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -133,7 +134,7 @@ switch (index)
     case "6":
         {
             //Function Sample
-            var functionSample = serviceProvider.GetRequiredService<FunctionSample>();
+            var functionSample = serviceProvider.GetRequiredService<PluginFromObjectSample>();
             await functionSample.RunAsync();
         }
         break;
