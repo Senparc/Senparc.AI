@@ -28,14 +28,42 @@ namespace Senaprc.AI.Samples.Agents.AgentUtility
                 Console.WriteLine();
                 if (recentUpdate != null && !(recentUpdate is TextMessage))
                 {
-                    Console.WriteLine(recentUpdate.FormatMessage());
+                    Console.WriteLine("STREAM: " + recentUpdate.FormatMessage());
                 }
+
+                await Console.Out.WriteLineAsync();
+                await Console.Out.WriteLineAsync("====StreamAgent====");
+                await Console.Out.WriteLineAsync();
 
                 return recentUpdate ?? throw new InvalidOperationException("The message is not a valid message");
             }
 
             IMessage obj = await agent.GenerateReplyAsync(context.Messages, context.Options, cancellationToken);
+
+            var wechatMessage = obj.FormatMessage();
+            string key = null;
+            switch (agent.Name)
+            {
+                case "行政主管":
+                    key = AgentKeys.AgentKey1;
+                    break;
+                case "产品经理":
+                    key = AgentKeys.AgentKey2;
+                    break;
+                case "项目经理":
+                    key = AgentKeys.AgentKey3;
+                    break;
+                default:
+                    break;
+            }
+
+            if (key!=null)
+            {
+                await Senparc.Weixin.Work.AdvancedAPIs.Webhook.WebhookApi.SendTextAsync(key, wechatMessage);
+            }
+
             Console.WriteLine(obj.FormatMessage());
+
             return obj;
         }
 

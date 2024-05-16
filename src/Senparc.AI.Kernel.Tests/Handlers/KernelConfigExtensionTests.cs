@@ -85,7 +85,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             var memory = iWantToRun.SemanticKernelHelper.TryGetMemory();
 
-            iWantToRun.ImportFunctions(new TextMemoryPlugin(memory)/*, "Retrieve"*/);//TODO: 简化方法
+            iWantToRun.ImportPluginFromObject(new TextMemoryPlugin(memory)/*, "Retrieve"*/);//TODO: 简化方法
 
             await Console.Out.WriteLineAsync("\nFunctionsViews：");
             foreach (var item in iWantToRun.Kernel.Plugins)

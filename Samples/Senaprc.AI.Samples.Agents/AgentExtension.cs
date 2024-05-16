@@ -2,6 +2,7 @@
 using AutoGen.Core;
 using AutoGen.OpenAI;
 using AutoGen.SemanticKernel;
+using Senaprc.AI.Samples.Agents.AgentUtility;
 
 namespace Senparc.AI.Samples.Agents;
 
@@ -20,7 +21,7 @@ public static class AgentExtension
 
     public static MiddlewareAgent<TAgent> RegisterPrintWechatMessage<TAgent>(this MiddlewareAgent<TAgent> agent) where TAgent : IAgent
     {
-        PrintMessageMiddleware middleware = new PrintMessageMiddleware();
+        PrintWechatMessageMiddleware middleware = new PrintWechatMessageMiddleware();
         MiddlewareAgent<TAgent> middlewareAgent = new MiddlewareAgent<TAgent>(agent);
         middlewareAgent.Use(middleware);
         return middlewareAgent;
