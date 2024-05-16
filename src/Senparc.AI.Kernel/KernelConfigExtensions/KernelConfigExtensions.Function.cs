@@ -52,6 +52,19 @@ namespace Senparc.AI.Kernel.Handlers
 
     public static partial class KernelConfigExtensions
     {
+        /// <summary>
+        /// 设置 PromptConfigParameter
+        /// </summary>
+        /// <param name="iWantToRun"></param>
+        /// <param name="promptConfigParameter"></param>
+        /// <returns></returns>
+        public static IWantToRun SetPromptConfigParameter(this IWantToRun iWantToRun, PromptConfigParameter promptConfigParameter)
+        {
+            iWantToRun.PromptConfigParameter = promptConfigParameter;
+            return iWantToRun;
+        }
+
+
         #region SemanticFunction
 
         /// <summary>
@@ -60,7 +73,6 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="iWantToRun"></param>
         /// <param name="promptTemplate">Prompt template for the function.</param>
         /// <param name="promptConfigPara"></param>
-        /// <param name="executionSettings">Default execution settings to use when invoking this prompt function.</param>
         /// <param name="functionName">The name to use for the function. If null, it will default to a randomly generated name.</param>
         /// <param name="description">The description to use for the function.</param>
         /// <param name="templateFormat">The template format of <paramref name="promptTemplate"/>. This must be provided if <paramref name="promptTemplateFactory"/> is not null.</param>
@@ -118,6 +130,8 @@ namespace Senparc.AI.Kernel.Handlers
 
             return (iWantToRun, newFunction);
         }
+
+
 
         /// <summary>
         /// Define a string-to-string semantic function, with no direct support for input context.

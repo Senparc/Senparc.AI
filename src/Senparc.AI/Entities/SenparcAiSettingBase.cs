@@ -75,8 +75,8 @@ namespace Senparc.AI.Entities
 
         public virtual OpenAIKeys OpenAIKeys { get; set; }
         public virtual NeuCharAIKeys NeuCharAIKeys { get; set; }
-        [Obsolete("即将过期")]
-        public virtual NeuCharAIKeys NeuCharOpenAIKeys { get; set; }
+        //[Obsolete("即将过期")]
+        //public virtual NeuCharAIKeys NeuCharOpenAIKeys { get; set; }
         public virtual AzureOpenAIKeys AzureOpenAIKeys { get; set; }
         public virtual HuggingFaceKeys HuggingFaceKeys { get; set; }
 
@@ -102,6 +102,15 @@ namespace Senparc.AI.Entities
                                                     ? OpenAIKeys?.OrganizationId
                                                     : FastAPIKeys?.OrganizationId;
 
+        #region OpenAI
+
+        /// <summary>
+        /// OpenAI Endpoint
+        /// </summary>
+        public virtual string OpenAIEndpoint => OpenAIKeys?.OpenAIEndpoint;
+
+        #endregion
+
         #region Azure OpenAI
 
         /// <summary>
@@ -120,15 +129,15 @@ namespace Senparc.AI.Entities
         #region NeuChar
 
         /// <summary>
-        /// Azure OpenAI Endpoint
+        /// NeuChar Endpoint
         /// </summary>
         public virtual string NeuCharEndpoint => NeuCharAIKeys?.NeuCharEndpoint;
 
         /// <summary>
         /// Azure OpenAI 版本号
         /// </summary>
-        [Obsolete("已过期，请使用 NeuCharAIApiVersion", true)]
-        public virtual string NeuCharOpenAIApiVersion => NeuCharAIKeys?.NeuCharAIApiVersion;
+        //[Obsolete("已过期，请使用 NeuCharAIApiVersion", true)]
+        //public virtual string NeuCharOpenAIApiVersion => NeuCharAIKeys?.NeuCharAIApiVersion;
         /// <summary>
         /// Azure OpenAI 版本号
         /// </summary>

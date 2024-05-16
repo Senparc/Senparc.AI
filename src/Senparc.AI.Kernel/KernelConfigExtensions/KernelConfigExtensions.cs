@@ -68,7 +68,7 @@ namespace Senparc.AI.Kernel.Handlers
                 {
                     return deploymentName;
                 }
-                else if(!senparcAiSetting.DeploymentName.IsNullOrEmpty())
+                else if (!senparcAiSetting.DeploymentName.IsNullOrEmpty())
                 {
                     return senparcAiSetting.DeploymentName;
                 }
@@ -321,7 +321,21 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="request"></param>
         /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
         /// <returns></returns>
-        public static async Task<SenparcKernelAiResult> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
+        public static Task<SenparcKernelAiResult<string>> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
+        {
+            return RunAsync<string>(iWanToRun, request, inStreamItemProceessing);
+        }
+
+        /// <summary>
+        /// 运行
+        /// </summary>
+        /// <param name="iWanToRun"></param>
+        /// <param name="request"></param>
+        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
+        /// <typeparam name="T">指定返回结果类型</typeparam>
+        /// <returns></returns>
+
+        public static async Task<SenparcKernelAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWanToRun.SemanticKernelHelper;
@@ -339,7 +353,7 @@ namespace Senparc.AI.Kernel.Handlers
             var tempArguments = request.TempAiArguments?.KernelArguments;
 
             FunctionResult? functionResult = null;
-            var result = new SenparcKernelAiResult(iWanToRun, inputContent: null);
+            var result = new SenparcKernelAiResult<T>(iWanToRun, inputContent: null);
 
             var useStream = inStreamItemProceessing != null;
 
@@ -358,19 +372,20 @@ namespace Senparc.AI.Kernel.Handlers
             }
             else if (!prompt.IsNullOrEmpty())
             {
+                //tempArguments 为空
                 //输入纯文字
                 if (functionPipline?.Length > 0)
                 {
-                    tempArguments = new KernelArguments();
-                    tempArguments["INPUT"] = prompt;
+                    tempArguments = new() { ["input"] = prompt };
 
                     if (useStream)
                     {
-                        result.StreamResult = kernel.InvokeStreamingAsync(functionPipline.FirstOrDefault(), tempArguments);
+                        result.StreamResult = kernel.InvokeStreamingAsync(functionPipline.First(), tempArguments);
                     }
                     else
                     {
-                        functionResult = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), tempArguments);
+                        //TODO: 此方法在 NeuCharAI 接口中，不会给服务器传送 Body 内容
+                        functionResult = await kernel.InvokeAsync(functionPipline.First(), tempArguments);
                     }
                 }
                 else
@@ -411,7 +426,23 @@ namespace Senparc.AI.Kernel.Handlers
 
             if (!useStream)
             {
-                result.Output = functionResult.GetValue<string>()?.TrimStart('\n') ?? "";
+                try
+                {
+                    if (typeof(T) == typeof(string))
+                    {
+                        result.OutputString = functionResult.GetValue<string>()?.TrimStart('\n') ?? "";
+                    }
+                    else
+                    {
+                        result.OutputString = functionResult.GetValue<T>()?.ToJson()?.TrimStart('\n') ?? "";
+                    }
+                }
+                catch (Exception)
+                {
+                    //TODO: 提供 Output 的泛型
+                    result.OutputString = functionResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
+                    _ = new SenparcAiException("无法转换为指定类型：" + typeof(T).Name);
+                }
                 result.Result = functionResult;
             }
             else
@@ -427,7 +458,7 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 }
 
-                result.Output = stringResult.ToString();
+                result.OutputString = stringResult.ToString();
             }
 
             //result.LastException = botAnswer.LastException;
@@ -442,11 +473,10 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="request"></param>
         /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。</param>
         /// <returns></returns>
-        public static Task<SenparcKernelAiResult> RunStreamAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
+        public static Task<SenparcKernelAiResult<string>> RunStreamAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             inStreamItemProceessing ??= (item) => { };
             return RunAsync(iWanToRun, request, inStreamItemProceessing);
-
         }
 
         /// <summary>
@@ -454,9 +484,42 @@ namespace Senparc.AI.Kernel.Handlers
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="iWanToRun"></param>
-        /// <param name="pipeline"></param>
+        /// <param name="kernelFunction"></param>
         /// <returns></returns>
-        public static async Task<SenaprcAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, params KernelFunction[] pipeline)
+        public static async Task<SenparcKernelAiResult> RunAsync(this IWantToRun iWanToRun, KernelFunction kernelFunction)
+        {
+            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
+            var helper = iWanToRun.SemanticKernelHelper;
+            var kernel = helper.GetKernel();
+            //var function = iWanToRun.KernelFunction;
+
+            var result = new SenparcKernelAiResult(iWanToRun, inputContent: null);
+
+            var kernelResult = await kernel.InvokeAsync(kernelFunction);
+
+            try
+            {
+                result.OutputString = kernelResult.GetValue<string>()?.TrimStart('\n') ?? "";
+            }
+            catch (Exception)
+            {
+                //TODO: 提供 Output 的泛型
+                result.OutputString = kernelResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
+            }
+
+            result.Result = kernelResult;
+
+            return result;
+        }
+
+        /// <summary>
+        /// 运行
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="iWanToRun"></param>
+        /// <param name="kernelFunction"></param>
+        /// <returns></returns>
+        public static async Task<SenaprcAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, KernelFunction kernelFunction)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWanToRun.SemanticKernelHelper;
@@ -465,14 +528,23 @@ namespace Senparc.AI.Kernel.Handlers
 
             var result = new SenaprcAiResult<T>(iWanToRun, inputContent: null);
 
-            var kernelResult = await kernel.InvokeAsync(pipeline.FirstOrDefault());
+            var kernelResult = await kernel.InvokeAsync(kernelFunction);
 
             try
             {
-                result.Output = kernelResult.GetValue<string>() ?? "";
+                if (typeof(T) == typeof(string))
+                {
+                    result.OutputString = kernelResult.GetValue<string>()?.TrimStart('\n') ?? "";
+                }
+                else
+                {
+                    result.OutputString = kernelResult.GetValue<T>()?.ToJson()?.TrimStart('\n') ?? "";
+                }
             }
             catch (Exception)
             {
+                //TODO: 提供 Output 的泛型
+                result.OutputString = kernelResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
                 _ = new SenparcAiException("无法转换为指定类型：" + typeof(T).Name);
             }
 

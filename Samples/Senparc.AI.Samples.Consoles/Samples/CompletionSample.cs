@@ -3,6 +3,7 @@ using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
+using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         public CompletionSample(IAiHandler aiHandler)
         {
             _aiHandler = aiHandler;
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
         }
 
         public async Task RunAsync()
@@ -36,7 +38,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 Temperature = 0.7,
                 TopP = 0.5,
             };
-            ;
 
             var functionPrompt = @"{{$input}}";
 
@@ -56,6 +57,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 await Console.Out.WriteLineAsync("提示词：");
                 var prompt = Console.ReadLine();
+
+                if (prompt.IsNullOrEmpty())
+                {
+                    await Console.Out.WriteLineAsync("请填写提示词！");
+                    continue;
+                }
 
                 if (prompt == "exit")
                 {
@@ -88,7 +95,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 var request = iWantToRun.CreateRequest(prompt, true);
                 await Console.Out.WriteLineAsync("回复：");
 
-                var useStream = true;
+                var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
                 if (useStream)
                 {
                     //使用流式输出
@@ -102,9 +109,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 {
                     //使用整体输出
                     var result = await iWantToRun.RunAsync(request);
-                    await Console.Out.WriteLineAsync(result.Output);
+                    await Console.Out.WriteLineAsync(result.OutputString);
                 }
-              
                 await Console.Out.WriteLineAsync();
             }
         }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Senparc.AI.Kernel;
 using Senparc.AI.Samples.Consoles;
 using Senparc.AI.Samples.Consoles.Samples;
+using Senparc.AI.Samples.Consoles.Samples.Plugins;
 using Senparc.CO2NET;
 using Senparc.CO2NET.RegisterServices;
 
@@ -23,12 +24,13 @@ var services = new ServiceCollection();
 services.AddSenparcGlobalServices(config)
         .AddSenparcAI(config);
 
-services.AddScoped<ChatSample>();
-services.AddScoped<CompletionSample>();
-services.AddScoped<EmbeddingSample>();
-services.AddScoped<DallESample>();
-services.AddScoped<PlanSample>();
-services.AddScoped<SampleSetting>();
+services.AddTransient<ChatSample>();
+services.AddTransient<CompletionSample>();
+services.AddTransient<EmbeddingSample>();
+services.AddTransient<DallESample>();
+services.AddTransient<PlanSample>();
+services.AddTransient<SampleSetting>();
+services.AddTransient<PluginFromObjectSample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -42,6 +44,7 @@ Console.WriteLine("Senparc.AI Sample 启动完毕");
 Console.WriteLine("开源地址：https://github.com/Senparc/Senparc.AI");
 Console.WriteLine("-----------------------");
 Console.WriteLine($"当前模型：{SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform} - {SampleSetting.CurrentSetting.Endpoint}");
+Console.WriteLine($"当前 HttpClient 日志开关：{(SampleSetting.EnableHttpClientLog ? "开启" : "关闭")}");
 Console.WriteLine("=======================");
 Console.WriteLine();
 Console.WriteLine("请输入序号，开始对应功能测试：");
@@ -51,6 +54,7 @@ Console.WriteLine("[2] Completion 任务机器人");
 Console.WriteLine("[3] 训练 Embedding 任务");
 Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI 或 AzureOpenAI）");
 Console.WriteLine("[5] Planner 任务计划");
+Console.WriteLine("[6] PluginFromObject 测试");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -123,8 +127,15 @@ switch (index)
     case "5":
         {
             //Plan Sample
-            var pnalSample = serviceProvider.GetRequiredService<PlanSample>();
-            await pnalSample.RunAsync();
+            var planSample = serviceProvider.GetRequiredService<PlanSample>();
+            await planSample.RunAsync();
+        }
+        break;
+    case "6":
+        {
+            //Function Sample
+            var functionSample = serviceProvider.GetRequiredService<PluginFromObjectSample>();
+            await functionSample.RunAsync();
         }
         break;
     case "0":

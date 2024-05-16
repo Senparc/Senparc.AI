@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
@@ -86,9 +85,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
             var memory = iWantToRun.SemanticKernelHelper.TryGetMemory();
 
-#pragma warning disable SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             iWantToRun.ImportFunctions(new TextMemoryPlugin(memory)/*, "Retrieve"*/);//TODO: 简化方法
-#pragma warning restore SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
             await Console.Out.WriteLineAsync("\nFunctionsViews：");
             foreach (var item in iWantToRun.Kernel.Plugins)
@@ -166,7 +163,7 @@ ChatBot: ";
             context["userInput"] = input;
             var functionResult = await chatFunction.function.InvokeAsync(chatFunction.iWantToRun.Kernel, context);
             await Console.Out.WriteLineAsync("Question: " + input);
-            await Console.Out.WriteLineAsync("Result(GetValue):" + functionResult.GetValue<string>().Humanize());
+            await Console.Out.WriteLineAsync("Result(GetValue):" + functionResult.GetValue<string>());
             await Console.Out.WriteLineAsync("Answer: " + functionResult.ToJson(true));
         }
 
