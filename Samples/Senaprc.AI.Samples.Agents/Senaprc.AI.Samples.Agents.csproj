@@ -36,6 +36,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
+    <ProjectReference Include="..\..\src\Senparc.AI\Senparc.AI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="AgentMiddleware\" />
   </ItemGroup>
 
 </Project>
