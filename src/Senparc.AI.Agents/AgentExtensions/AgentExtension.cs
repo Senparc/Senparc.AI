@@ -2,13 +2,11 @@
 using AutoGen.Core;
 using AutoGen.OpenAI;
 using AutoGen.SemanticKernel;
-using Senaprc.AI.Samples.Agents.AgentUtility;
 
-namespace Senaprc.AI.Samples.Agents.AgentExtensions;
+namespace Senaprc.AI.Agents.AgentExtensions;
 
 public static class AgentExtension
 {
-
     public static MiddlewareAgent<SemanticKernelAgent> RegisterTextMessageConnector(this SemanticKernelAgent agent, SemanticKernelChatMessageContentConnector? connector = null)
     {
         if (connector == null)
@@ -19,11 +17,15 @@ public static class AgentExtension
         return agent.RegisterMiddleware(connector);
     }
 
-    public static MiddlewareAgent<TAgent> RegisterPrintWechatMessage<TAgent>(this MiddlewareAgent<TAgent> agent) where TAgent : IAgent
+    public static MiddlewareAgent<TAgent> RegisterCustomPrintMessage<TAgent, IPrintMessageMiddleware>(this MiddlewareAgent<TAgent> agent, IPrintMessageMiddleware printMessageMiddleware)
+        where TAgent : IAgent
+        where IPrintMessageMiddleware : IStreamingMiddleware, IMiddleware
     {
-        PrintWechatMessageMiddleware middleware = new PrintWechatMessageMiddleware();
+        //IPrintMessageMiddleware middleware = new IPrintMessageMiddleware();
+        //printMessageMiddleware ??= new IPrintMessageMiddleware();
+
         MiddlewareAgent<TAgent> middlewareAgent = new MiddlewareAgent<TAgent>(agent);
-        middlewareAgent.Use(middleware);
+        middlewareAgent.Use(printMessageMiddleware);
         return middlewareAgent;
     }
 

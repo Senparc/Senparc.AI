@@ -5,14 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoGen.Core;
 
-namespace Senaprc.AI.Samples.Agents.AgentExtensions
+namespace Senaprc.AI.Agents.AgentExtensions
 {
 
     public record class GraphConnector
     {
         public Graph Graph { get; set; }
         public IAgent FromAgent { get; set; }
-        public GroupChatBuilder GroupChatBuilder { get; }
         public IAgent AdminAgent { get; set; }
 
         public Dictionary<string, IAgent> Agents { get; set; }
@@ -22,11 +21,10 @@ namespace Senaprc.AI.Samples.Agents.AgentExtensions
             Graph = new Graph(new List<Transition>());
         }
 
-        public GraphConnector(Graph graph, IAgent fromAgent, GroupChatBuilder groupChatBuilder = null)
+        public GraphConnector(Graph graph, IAgent fromAgent)
         {
             Graph = graph;
             FromAgent = fromAgent;
-            GroupChatBuilder = groupChatBuilder;
             Agents = new Dictionary<string, IAgent>();
 
             AddAgent(fromAgent);

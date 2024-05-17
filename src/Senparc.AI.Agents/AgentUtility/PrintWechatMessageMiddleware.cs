@@ -3,14 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoGen.Core;
 
-namespace Senaprc.AI.Samples.Agents.AgentUtility
+namespace Senaprc.AI.Agents.AgentUtility
 {
     public class PrintWechatMessageMiddleware : IStreamingMiddleware, IMiddleware
     {
+        private readonly Action<IAgent, IMessage, string>? _sendMessageAction;
+
         public string? Name => "PrintWechatMessageMiddleware";
+
+
+        public PrintWechatMessageMiddleware(Action<IAgent, IMessage, string>? sendMessageAction)
+        {
+            this._sendMessageAction = sendMessageAction;
+        }
 
         public async Task<IMessage> InvokeAsync(MiddlewareContext context, IAgent agent, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -40,27 +49,9 @@ namespace Senaprc.AI.Samples.Agents.AgentUtility
 
             IMessage obj = await agent.GenerateReplyAsync(context.Messages, context.Options, cancellationToken);
 
-            var wechatMessage = obj.FormatMessage();
-            string key = null;
-            switch (agent.Name)
-            {
-                case "行政主管":
-                    key = AgentKeys.AgentKey1;
-                    break;
-                case "产品经理":
-                    key = AgentKeys.AgentKey2;
-                    break;
-                case "项目经理":
-                    key = AgentKeys.AgentKey3;
-                    break;
-                default:
-                    break;
-            }
+            var outputMessage = obj.FormatMessage();
 
-            if (key!=null)
-            {
-                await Senparc.Weixin.Work.AdvancedAPIs.Webhook.WebhookApi.SendTextAsync(key, wechatMessage);
-            }
+            _sendMessageAction?.Invoke(agent, obj, outputMessage);
 
             Console.WriteLine(obj.FormatMessage());
 

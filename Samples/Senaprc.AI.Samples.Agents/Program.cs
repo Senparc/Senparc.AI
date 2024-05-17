@@ -2,14 +2,16 @@
 
 using AutoGen;
 using AutoGen.Core;
+using AutoGen.Mistral;
 using AutoGen.SemanticKernel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Plugins.Web;
 using Microsoft.SemanticKernel.Plugins.Web.Bing;
-using Senaprc.AI.Samples.Agents;
-using Senaprc.AI.Samples.Agents.AgentExtensions;
+using Senaprc.AI.Agents;
+using Senaprc.AI.Agents.AgentExtensions;
+using Senaprc.AI.Agents.AgentUtility;
 using Senparc.AI;
 using Senparc.AI.Entities;
 using Senparc.AI.Kernel;
@@ -39,7 +41,6 @@ services.AddSenparcGlobalServices(config)
 
 Console.WriteLine("完成 ServiceCollection 和 ConfigurationBuilder 初始化");
 #endregion
-
 
 #region 初始化模型配置
 
@@ -92,7 +93,7 @@ var administrator = new SemanticKernelAgent(
     - 项目经理: 项目经理负责所有项目的开发任务的安排和功能可行性的评估。
     """)
     .RegisterTextMessageConnector()
-    .RegisterPrintWechatMessage();
+    .RegisterCustomPrintMessage(new PrintWechatMessageMiddleware(AgentKeys.SendWechatMessage));
 
 // Create the Product Manager
 var productManager = new SemanticKernelAgent(
@@ -104,7 +105,7 @@ var productManager = new SemanticKernelAgent(
        为了确保你有最新的信息，你可以使用网络搜索插件在回答问题之前在网上搜索信息，也可以根据你的经验，按照要求回答问题，并作出相对应的规划和决策。
        """)
     .RegisterTextMessageConnector()
-    .RegisterPrintWechatMessage();
+    .RegisterCustomPrintMessage(new PrintWechatMessageMiddleware(AgentKeys.SendWechatMessage));
 
 // Create the Project Manager
 var projectManager = new SemanticKernelAgent(
@@ -125,7 +126,7 @@ var projectManager = new SemanticKernelAgent(
        当安排项目开发任务时，你的任务安排中需要包含这些人员的名字具体的任务安排，任务需要细分到具体的开发内容而不仅仅是功能点
        """)
     .RegisterTextMessageConnector()
-    .RegisterPrintWechatMessage();
+    .RegisterCustomPrintMessage(new PrintWechatMessageMiddleware(AgentKeys.SendWechatMessage));
 
 
 // Create the hearing member

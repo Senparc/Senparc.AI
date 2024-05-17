@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoGen.Core;
 
-namespace Senaprc.AI.Samples.Agents.AgentExtensions
+namespace Senaprc.AI.Agents.AgentExtensions
 {
     public static class GraphBuilder
     {
