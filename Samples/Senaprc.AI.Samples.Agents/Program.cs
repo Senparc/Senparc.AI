@@ -117,12 +117,6 @@ var projectManager = new SemanticKernelAgent(
 
        为了确保你有最新的信息，你可以使用网络搜索插件在回答问题之前在网上搜索信息，也可以根据你的经验，按照要求回答问题，并作出相对应的规划和决策。
 
-       下面是你在当前项目中可以调用的开发人员信息：
-       - 前端开发工程师名字：Light、Damon、Karl
-       - 后端开发工程师名字：Adens、Dylan
-       - 测试工程师名字：Amy
-       - 设计师名字：Ida
-
        当安排项目开发任务时，你的任务安排中需要包含这些人员的名字具体的任务安排，任务需要细分到具体的开发内容而不仅仅是功能点
        """)
     .RegisterTextMessageConnector()
