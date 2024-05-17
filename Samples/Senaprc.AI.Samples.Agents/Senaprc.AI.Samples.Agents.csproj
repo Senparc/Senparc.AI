@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	  <NoWarn>SKEXP0050;</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="bak\**" />
+    <EmbeddedResource Remove="bak\**" />
+    <None Remove="bak\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings.Development.json" />
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoGen" Version="0.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Web" Version="1.11.1-alpha" />
+    <PackageReference Include="Senparc.Weixin.Work" Version="3.21.1" />
+    <PackageReference Include="Senparc.Weixin.Work.Middleware" Version="1.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Senparc.AI.Agents\Senparc.AI.Agents.csproj" />
+    <ProjectReference Include="..\..\src\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
+    <ProjectReference Include="..\..\src\Senparc.AI\Senparc.AI.csproj" />
+  </ItemGroup>
+
+</Project>
