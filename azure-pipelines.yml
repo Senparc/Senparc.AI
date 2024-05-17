@@ -95,7 +95,27 @@ steps:
   continueOnError: true
   condition: succeededOrFailed()
 
-# 系统模块 结束
+- task: NuGetCommand@2
+  displayName: Senparc.AI.Agents -V0
+  inputs:
+    command: push
+    packagesToPush: '**/Senparc.AI.Agents.*.nupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'nuget-jeffrey-full-key'
+  continueOnError: true
+  condition: succeededOrFailed()
+
+- task: NuGetCommand@2
+  displayName: 'Senparc.AI.Agents -V0 - Symbol'
+  inputs:
+    command: push
+    packagesToPush: '**/Senparc.AI.Agents.*.snupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'nuget-jeffrey-full-key'
+  continueOnError: true
+  condition: succeededOrFailed()
+  
+  # 系统模块 结束
 
 - task: DotNetCoreCLI@2
   displayName: Publish
