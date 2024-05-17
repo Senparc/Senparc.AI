@@ -12,6 +12,8 @@ namespace Senaprc.AI.Samples.Agents.AgentExtensions
     {
         public Graph Graph { get; set; }
         public IAgent FromAgent { get; set; }
+        public GroupChatBuilder GroupChatBuilder { get; }
+        public IAgent AdminAgent { get; set; }
 
         public Dictionary<string, IAgent> Agents { get; set; }
 
@@ -20,10 +22,11 @@ namespace Senaprc.AI.Samples.Agents.AgentExtensions
             Graph = new Graph(new List<Transition>());
         }
 
-        public GraphConnector(Graph graph, IAgent fromAgent)
+        public GraphConnector(Graph graph, IAgent fromAgent, GroupChatBuilder groupChatBuilder = null)
         {
             Graph = graph;
             FromAgent = fromAgent;
+            GroupChatBuilder = groupChatBuilder;
             Agents = new Dictionary<string, IAgent>();
 
             AddAgent(fromAgent);

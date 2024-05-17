@@ -2,11 +2,7 @@
 
 using AutoGen;
 using AutoGen.Core;
-using AutoGen.OpenAI;
-using AutoGen.OpenAI.Extension;
 using AutoGen.SemanticKernel;
-using AutoGen.SemanticKernel.Extension;
-using Azure.AI.OpenAI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
@@ -16,8 +12,6 @@ using Senaprc.AI.Samples.Agents;
 using Senaprc.AI.Samples.Agents.AgentExtensions;
 using Senparc.AI;
 using Senparc.AI.Entities;
-using Senparc.AI.Entities.Keys;
-using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Samples.Agents;
@@ -172,21 +166,24 @@ var admin = new SemanticKernelAgent(
 //    productManager2Administrator,
 //    administrator2HearingMember]);
 
+//var aiTeam = new GroupChat(
+//    members: graphConnect.Agents.Values,
+//    admin: admin,
+//    workflow: graphConnect.Graph);
+
 #endregion
 
-var graphConnect = GraphBuilder.Build()
+var graphConnector = GraphBuilder.Start()
     .ConnectFrom(hearingMember).TwoWay(administrator)
     .ConnectFrom(administrator).TwoWay(projectManager).AlsoTwoWay(productManager)
     .Finish();
 
-var aiTeam = new GroupChat(
-    members: graphConnect.Agents.Values,
-    admin: admin,
-    workflow: graphConnect.Graph);
+var aiTeam = graphConnector.CreateAiTeam(admin);
 
 // start the chat
 // generate a greeting message to hearing member from Administrator
 var greetingMessage = await administrator.SendAsync("你好，如果已经就绪，请告诉我们“已就位”，并和 BA 打个招呼");
+
 await administrator.SendMessageToGroupAsync(
     groupChat: aiTeam,
     chatHistory: [greetingMessage],
