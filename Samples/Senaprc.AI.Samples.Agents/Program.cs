@@ -13,6 +13,7 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Plugins.Web;
 using Microsoft.SemanticKernel.Plugins.Web.Bing;
 using Senaprc.AI.Samples.Agents;
+using Senaprc.AI.Samples.Agents.AgentExtensions;
 using Senparc.AI;
 using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
@@ -31,6 +32,8 @@ configBuilder.AddJsonFile(appsettingsJsonFileName, false, false);
 Console.WriteLine("完成 appsettings.json 添加");
 var config = configBuilder.Build();
 
+#region 初始化 Senparc 基座
+
 var senparcSetting = new SenparcSetting();
 config.GetSection("SenparcSetting").Bind(senparcSetting);
 
@@ -41,16 +44,14 @@ services.AddSenparcGlobalServices(config)
 
 
 Console.WriteLine("完成 ServiceCollection 和 ConfigurationBuilder 初始化");
+#endregion
+
+
+#region 初始化模型配置
 
 var setting = (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;//也可以留空，将自动获取
 
 var _semanticAiHandler = new SemanticAiHandler(setting);
-
-var bingSearchAPIKey = config.GetSection("BingSearchAPIKey").Value;
-
-AgentKeys.AgentKey1 = config.GetSection("AgentKey1").Value;
-AgentKeys.AgentKey2 = config.GetSection("AgentKey2").Value;
-AgentKeys.AgentKey3 = config.GetSection("AgentKey3").Value;
 
 var parameter = new PromptConfigParameter()
 {
@@ -62,12 +63,25 @@ var parameter = new PromptConfigParameter()
 var iWantToRunConfig = _semanticAiHandler.IWantTo(setting)
                 .ConfigModel(ConfigModel.Chat, "JeffreySu");
 
+
+var bingSearchAPIKey = config.GetSection("BingSearchAPIKey").Value;
+
 var bingSearch = new BingConnector(bingSearchAPIKey);
 var webSearchPlugin = new WebSearchEnginePlugin(bingSearch);
 iWantToRunConfig.Kernel.Plugins.AddFromObject(webSearchPlugin);
 
 var iWantToRun = iWantToRunConfig.BuildKernel();
 var kernel = iWantToRun.Kernel;
+
+#endregion
+
+#region 企业微信用的 AgentKey
+
+AgentKeys.AgentKey1 = config.GetSection("AgentKey1").Value;
+AgentKeys.AgentKey2 = config.GetSection("AgentKey2").Value;
+AgentKeys.AgentKey3 = config.GetSection("AgentKey3").Value;
+
+#endregion
 
 // Create the Administrtor
 var administrator = new SemanticKernelAgent(
@@ -85,8 +99,6 @@ var administrator = new SemanticKernelAgent(
     """)
     .RegisterTextMessageConnector()
     .RegisterPrintWechatMessage();
-
-//iWantToRun.ImportPluginFromObject(webSearchPlugin);
 
 // Create the Product Manager
 var productManager = new SemanticKernelAgent(
@@ -110,11 +122,13 @@ var projectManager = new SemanticKernelAgent(
 
        为了确保你有最新的信息，你可以使用网络搜索插件在回答问题之前在网上搜索信息，也可以根据你的经验，按照要求回答问题，并作出相对应的规划和决策。
 
-       下面是你在当前项目中的下属，可以进行任务的开发，你的任务安排中需要包含人名和具体的任务安排，任务需要细分到具体的开发内容而不仅仅是功能点：
-       - 前端开发工程师：Light、Damon、Karl
-       - 后端开发工程师：Adens、Dylan
-       - 测试工程师：Amy
-       - 设计师：Ida
+       下面是你在当前项目中可以调用的开发人员信息：
+       - 前端开发工程师名字：Light、Damon、Karl
+       - 后端开发工程师名字：Adens、Dylan
+       - 测试工程师名字：Amy
+       - 设计师名字：Ida
+
+       当安排项目开发任务时，你的任务安排中需要包含这些人员的名字具体的任务安排，任务需要细分到具体的开发内容而不仅仅是功能点
        """)
     .RegisterTextMessageConnector()
     .RegisterPrintWechatMessage();
@@ -140,25 +154,35 @@ var admin = new SemanticKernelAgent(
 // 产品经理 -> 行政
 // 行政 -> hearingMember
 
-var hearingMember2Administrator = Transition.Create(hearingMember, administrator);
+#region 旧方法
 
-var admin2ProjectManager = Transition.Create(administrator, projectManager);
-var admin2ProductManager = Transition.Create(administrator, productManager);
-var projectManager2Administrator = Transition.Create(projectManager, administrator);
-var productManager2Administrator = Transition.Create(productManager, administrator);
+//var hearingMember2Administrator = Transition.Create(hearingMember, administrator);
 
-var administrator2HearingMember = Transition.Create(administrator, hearingMember);
+//var admin2ProjectManager = Transition.Create(administrator, projectManager);
+//var admin2ProductManager = Transition.Create(administrator, productManager);
+//var projectManager2Administrator = Transition.Create(projectManager, administrator);
+//var productManager2Administrator = Transition.Create(productManager, administrator);
 
-var graph = new Graph([hearingMember2Administrator,
-    admin2ProjectManager,
-    admin2ProductManager,
-    projectManager2Administrator,
-    productManager2Administrator,
-    administrator2HearingMember]);
+//var administrator2HearingMember = Transition.Create(administrator, hearingMember);
+
+//var graph = new Graph([hearingMember2Administrator,
+//    admin2ProjectManager,
+//    admin2ProductManager,
+//    projectManager2Administrator,
+//    productManager2Administrator,
+//    administrator2HearingMember]);
+
+#endregion
+
+var graphConnect = GraphBuilder.Build()
+    .ConnectFrom(hearingMember).TwoWay(administrator)
+    .ConnectFrom(administrator).TwoWay(projectManager).AlsoTwoWay(productManager)
+    .Finish();
+
 var aiTeam = new GroupChat(
-    members: [hearingMember, administrator, productManager, projectManager],
+    members: graphConnect.Agents.Values,
     admin: admin,
-    workflow: graph);
+    workflow: graphConnect.Graph);
 
 // start the chat
 // generate a greeting message to hearing member from Administrator
