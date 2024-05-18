@@ -8,8 +8,7 @@
 		<RootNamespace>Senparc.AI.Agents</RootNamespace>
 		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
 		<Description>
-			Senparc.AI 核心模块，目前为快速迭代，和 Senaprc.Weixin.AI 一起维护，V2.0 后期将独立项目
-			https://github.com/Senparc/Senaprc.Weixin.AI
+			Senparc.AI.Agents - AI Agents（智能体），支持 AutoGen，可配置 Agent 进行协作
 		</Description>
 		<Copyright>Senparc Copyright © 2004~2024</Copyright>
 		<PackageTags>

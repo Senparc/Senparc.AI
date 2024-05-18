@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoGen.Core;
+using Senparc.CO2NET.Trace;
 
 namespace Senaprc.AI.Agents
 {
@@ -33,7 +34,14 @@ namespace Senaprc.AI.Agents
 
              if (key != null)
              {
-                 await Senparc.Weixin.Work.AdvancedAPIs.Webhook.WebhookApi.SendTextAsync(key, message);
+                 try
+                 {
+                     await Senparc.Weixin.Work.AdvancedAPIs.Webhook.WebhookApi.SendTextAsync(key, message);
+                 }
+                 catch (Exception ex)
+                 {
+                     SenparcTrace.BaseExceptionLog(ex);
+                 }
              }
          };
     }
