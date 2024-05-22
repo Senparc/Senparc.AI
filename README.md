@@ -146,11 +146,11 @@ Samples/Senparc.AI.Samples.Agents | Agent（智能体）测试，已集成 AutoG
 
 初始界面中输入 `4`，进入 DallE 接口的绘图操作：
 
-<img width="943" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/1a3a5c32-98dc-473e-be00-ed4fd0319f4b">
+<img width="941" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/e353b059-3399-425a-80f3-ec0eed767b90">
 
 结果将以 URL 的形式返回，此时出入 `s` ，可保存图片到本地：
 
-<img width="941" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/e353b059-3399-425a-80f3-ec0eed767b90">
+<img width="951" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/61daa2e3-a781-40ea-b47b-c360a3cc4464">
 
 > 注意：接口返回的 URL 是一个暂存地址，不可用于持久化的展示，需要及时保存，
 
