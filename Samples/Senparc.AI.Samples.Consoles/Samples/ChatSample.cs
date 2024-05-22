@@ -39,7 +39,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 await Console.Out.WriteLineAsync($"[聊天设置 - 2/2] 请输入最大保留历史对话数量，建议 5-20 之间。留空则默认保留 {defaultMaxHistoryCount} 条。");
 
                 var maxHistoryCountString = Console.ReadLine();
-                if (maxHistoryCountString.IsNullOrEmpty())
+                if (!maxHistoryCountString.IsNullOrEmpty())
                 {
                     maxHistoryCount = defaultMaxHistoryCount;
                     break;
