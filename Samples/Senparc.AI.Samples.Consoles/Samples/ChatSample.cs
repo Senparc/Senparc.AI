@@ -88,9 +88,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var multiLineContent = new StringBuilder();
             var useMultiLine = false;
             //开始对话
+            var talkingRounds= 0;
             while (true)
             {
-                await Console.Out.WriteLineAsync("人类：");
+                talkingRounds++;
+
+                await Console.Out.WriteLineAsync($"[{talkingRounds}]人类：");
                 var input = Console.ReadLine() ?? "";
 
                 if (input.ToUpper() == "[ML]")
@@ -151,7 +154,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
                 else
                 {
-                    await Console.Out.WriteLineAsync("机器：");
+                    await Console.Out.WriteLineAsync($"[{talkingRounds}]机器：");
 
                     var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
                     if (useStream)
@@ -172,6 +175,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                     await Console.Out.WriteLineAsync();
                 }
+
+                await Console.Out.WriteLineAsync();
             }
         }
     }
