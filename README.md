@@ -18,31 +18,48 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 在 appsettings.json 中配置 OpenAI 或 Azure OpenAI 的接口信息，如：
 
 ``` json
-   //Senparc.AI 设置
-  "SenparcAiSetting": {
-    "IsDebug": true,
-    "AiPlatform": "AzureOpenAI", //注意修改为自己平台对应的枚举值
-    "NeuCharOpenAIKeys": {
-      "ApiKey": "<Your ApiKey>", //在 https://www.neuchar.com/Developer/AiApp 申请
-      "NeuCharEndpoint": "https://www.neuchar.com/<DeveloperId>/" //查看 ApiKey 时可看到 DeveloperId
-    },
-    "AzureOpenAIKeys": {
-      "ApiKey": "<Your AzureApiKey>", 
-      "AzureEndpoint": "<Your AzureEndPoint>",
-      "AzureOpenAIApiVersion": "2022-12-01" 
-    },
-    "OpenAIKeys": {
-      "ApiKey": "<Your OpenAIKey>",
-      "OrganizationId": "<Your OpenAIOrgId>"
-    },
-    "HuggingFaceKeys": {
-      "Endpoint": "<Your EndPoint>"
+//Senparc.AI 设置
+"SenparcAiSetting": {
+  "IsDebug": true,
+  "AiPlatform": "NeuCharAI", //注意修改为自己平台对应的枚举值
+  "NeuCharAIKeys": {
+    "ApiKey": "<Your ApiKey>", //在 https://www.neuchar.com/Developer/AiApp 申请
+    "NeuCharEndpoint": "https://www.neuchar.com/<DeveloperId>", //查看 ApiKey 时可看到 DeveloperId
+    "ModelName": {
+      "Chat": "gpt-4o",
+      "Embedding": "text-embedding-ada-002",
+      "TextCompletion": "gpt-35-turbo-instruct"
     }
+  },
+  "AzureOpenAIKeys": {
+    "ApiKey": "<Your AzureApiKey>", //TODO：加密
+    "AzureEndpoint": "<Your AzureEndPoint>", //https://xxxx.openai.azure.com/
+    "AzureOpenAIApiVersion": "2022-12-01", //调用限制请参考：https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quotas-limits
+    "ModelName": {
+      "Chat": "gpt-35-turbo"
+    }
+  },
+  "OpenAIKeys": {
+    "ApiKey": "<Your OpenAIKey>", //TODO：加密
+    "OrganizationId": "<Your OpenAIOrgId>",
+    "OpenAIEndpoint": null,
+    "ModelName": {
+      "Chat": "gpt-35-turbo"
+    }
+  },
+  "HuggingFaceKeys": {
+    "Endpoint": "<Your EndPoint>", //HuggingFace 的 Endpoint
+    "ModelName": {
+      "TextCompletion": "chatglm2"
+    }
+  },
+  "Items": {
+    // 更多自定义配置
   }
-
+}
 ```
 
-其中：`AiPlatform` 目前可选值为 `OpenAI`、`NeuCharOpenAI` 或 `AzureOpenAI`，分别对应 openai.com 官方接口（OpenAI），以及 https://www.neuchar.com 由 Senparc 提供的中转接口，及基于微软 Azure 的 Azure OpenAI 接口（AOAI），系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
+其中：`AiPlatform` 是平台类型，目前可选值为 `OpenAI`、`NeuCharOpenAI`、`AzureOpenAI`、`HuggingFace` 和 `FastAPI`，分别对应 openai.com 官方接口（OpenAI）、https://www.neuchar.com 由 Senparc 提供的中转接口、基于微软 Azure 的 AzureOpenAI 接口（AOAI)、HuggingFace 接口和 FastAPI 接口，系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
 
 仅当 `AiPlatform` 设置为 `OpenAI` 时，才需要设置 `OpenAIKeys` 及以下参数。
 
@@ -50,6 +67,9 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 
 仅当 `AiPlatform` 设置为 `AzureOpenAI` 时，才需要设置 `AzureOpenAIKeys` 及以下参数。
 
+其他平台以此类推。
+
+每一个平台类型配置下，都有一个 `ModelName` 节点，用于设置该平台下需要被支持的模型类型，例如需要将 Chat 接口设置为 GPT-4 模型，则设置：`"Chat": "gpt-4"`。
 
 > 提示：AzureOpenAI 调用限制请参考：https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quotas-limits<br>
 > OpenAI 调用限制请参考 OpenAI 后台：https://platform.openai.com/docs/guides/rate-limits
