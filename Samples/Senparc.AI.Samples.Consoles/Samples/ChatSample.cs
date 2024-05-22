@@ -4,6 +4,7 @@ using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.CO2NET.Extensions;
+using Senparc.AI.Kernel.Handlers;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -48,6 +49,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 {
                     await Console.Out.WriteLineAsync("请输入正确的数字！");
                 }
+                else
+                {
+                    break;
+                }
             }
 
             await Console.Out.WriteLineAsync($"对话历史记录数将保留 {maxHistoryCount} 条");
@@ -60,6 +65,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 ---------------------------------
 输入 [ML] 开启单次对话的多行模式
 输入 [END] 完成所有多行输入
+输入 save 保存对话记录
 输入 exit 退出。
 ---------------------------------");
 
@@ -88,9 +94,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var multiLineContent = new StringBuilder();
             var useMultiLine = false;
             //开始对话
+            var talkingRounds = 0;
             while (true)
             {
-                await Console.Out.WriteLineAsync("人类：");
+                talkingRounds++;
+
+                await Console.Out.WriteLineAsync($"[{talkingRounds}] 人类：");
                 var input = Console.ReadLine() ?? "";
 
                 if (input.ToUpper() == "[ML]")
@@ -117,6 +126,69 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 if (input == "exit")
                 {
                     break;
+                }
+
+                if (input == "save")
+                {
+                    //保存到文件
+                    var request = iWantToRun.CreateRequest(true);
+
+                    //历史记录
+                    //初始化对话历史（可选）
+                    if (request.GetStoredArguments("history", out var historyObj) && historyObj is string historyStr)
+                    {
+                        var fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"ChatHistory-{SystemTime.NowTicks}[{talkingRounds}].txt");
+                        using (var file = File.CreateText(fileName))
+                        {
+                            await file.WriteLineAsync("模型信息：");
+                            await file.WriteLineAsync($"{SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform}");
+
+                            await file.WriteLineAsync($"ModelName：{SampleSetting.CurrentSetting.ModelName.Chat}");
+                            await file.WriteLineAsync($"DeploymentName：{SampleSetting.CurrentSetting.DeploymentName}");
+                            await file.WriteLineAsync();
+                            await file.WriteLineAsync($"保存时间：{SystemTime.Now.ToString("F")}");
+                            await file.WriteLineAsync($"保存对话数：{maxHistoryCount}");
+                            await file.WriteLineAsync();
+                            await file.WriteLineAsync("对话记录：");
+
+                            #region 逐行处理
+
+                            string[] lines = historyStr.Split(new[] { '\n' }, StringSplitOptions.None);
+                            StringBuilder newString = new StringBuilder();
+                            int humanCount = 0;
+
+                            foreach (string line in lines)
+                            {
+                                if (line.StartsWith("Human:"))
+                                {
+                                    humanCount++;
+                                    newString.AppendLine();
+                                    newString.AppendLine($"[{humanCount}] 人类：" + line.Substring("Human:".Length));
+                                }
+                                else if (line.StartsWith("ChatBot:"))
+                                {
+                                    newString.AppendLine($"[{humanCount}] 机器人：" + line.Substring("ChatBot:".Length));
+                                }
+                                else
+                                {
+                                    newString.AppendLine(line);
+                                }
+                            }
+                            await file.WriteLineAsync(newString.ToString());
+                            #endregion
+
+                            await file.WriteLineAsync();
+                            await file.FlushAsync();
+                        }
+                        await Console.Out.WriteLineAsync($"保存完毕： {fileName}");
+                    }
+                    else
+                    {
+                        await Console.Out.WriteLineAsync($"找不到有效的对话记录，保存失败！");
+                    }
+
+                    talkingRounds--;
+                    continue;
                 }
 
                 var dt = SystemTime.Now;
@@ -151,7 +223,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
                 else
                 {
-                    await Console.Out.WriteLineAsync("机器：");
+                    await Console.Out.WriteLineAsync($"[{talkingRounds}] 机器：");
 
                     var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
                     if (useStream)
@@ -172,6 +244,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                     await Console.Out.WriteLineAsync();
                 }
+
+                await Console.Out.WriteLineAsync();
             }
         }
     }
