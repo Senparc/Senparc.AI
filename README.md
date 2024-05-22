@@ -108,7 +108,7 @@ Samples/Senparc.AI.Samples.Agents | Agent（智能体）测试，已集成 AutoG
 
 打开解决方案 `Senparc.AI.sln`，设置 appsettings.json 中 ApiKey 等平台参数，启动项目 `Senparc.AI.Samples.Consoles`：
 
-<img width="826" alt="image" src="https://user-images.githubusercontent.com/2281927/233587658-d57e30de-dc97-42c7-901f-70327f4eee00.png">
+<img width="801" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/d38d15cd-6b88-488e-8b74-a26934dfb538">
 
 ### 2. 操作
 
@@ -116,28 +116,35 @@ Samples/Senparc.AI.Samples.Agents | Agent（智能体）测试，已集成 AutoG
 
 输入 `1`，进入对话操作：
 
-<img width="674" alt="image" src="https://user-images.githubusercontent.com/2281927/233588902-8786e582-7384-4a59-895f-1e8eaaa805b4.png">
+<img width="738" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/32933f21-c8db-4090-ad5a-a955039ee407">
 
-#### 2.2 Embedding
+#### 2.2 TextCompletion
 
-在上一步输入 `2` 即可进入 Embedding 操作，Embedding 分为常规信息和引用信息两类，将在下一步中做选择：
+在主界面输入 `2` 进入 TextCompletion 操作：
 
-<img width="598" alt="image" src="https://user-images.githubusercontent.com/2281927/233589177-b9ab0863-f397-4cba-9d0b-6039a5e2baeb.png">
+<img width="717" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/b28e67de-5334-4703-8b74-3da7f9c328fd">
 
-#### 2.2.1 常规 Embedding（Information）
+
+#### 2.3 Embedding
+
+在主界面输入 `3` 即可进入 Embedding 操作，Embedding 分为常规信息和引用信息两类，将在下一步中做选择：
+
+#### 2.3.1 常规 Embedding（Information）
 
 选择 `1`，进入到常规 Embedding 测试，输入信息由 3 个英文冒号分割，录入完成后输入 `n` 开始对话测试：
 
-<img width="1175" alt="image" src="https://user-images.githubusercontent.com/2281927/233590261-9bb70435-e513-49c9-bda2-a9c0e7f883c4.png">
+<img width="708" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/f22de4b1-1920-46fb-97fa-18265374d2ad">
 
-#### 2.2.2 引用 Embedding（Reference）
+
+#### 2.3.2 引用 Embedding（Reference）
 2.2.2 上一步选择 `2`，进入到引用 Embedding 测试，输入信息由 3 个英文冒号分割，录入完成后输入 `n` 开始对话测试：
 
-<img width="1176" alt="image" src="https://user-images.githubusercontent.com/2281927/233590721-c9414ffb-27db-4923-a9f9-0580dc10d275.png">
+<img width="957" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/effd6bab-ba23-40ec-a125-7270b4dbbd29">
 
-#### 2.3 DallE 绘图操作
 
-初始界面中输入 `3`，进入 DallE 接口的绘图操作：
+#### 2.4 DallE 绘图操作
+
+初始界面中输入 `4`，进入 DallE 接口的绘图操作：
 
 <img width="1175" alt="image" src="https://user-images.githubusercontent.com/2281927/233681813-ad49e8dc-c69e-4798-b023-903857cd4351.png">
 
@@ -148,7 +155,7 @@ Samples/Senparc.AI.Samples.Agents | Agent（智能体）测试，已集成 AutoG
 
 
 ## TODO:
-1. 实现更多模型和模式的匹配。
-2. 实现全自动的工厂模块自动配置。
-3. 集成到 [Senaprc.Weixin SDK](https://github.com/JeffreySu/WeiXinMPSDK)，0 逻辑代码实现 AI 能力接入（聊天场景为主）。
-4. 集成到 [NeuCharFramework](https://github.com/NeuCharFramework/NCF)，0 逻辑代码实现 AI 能力接入（开发和云运营场景为主）。
+1. [x] 实现更多模型和模式的匹配。
+2. [x]实现全自动的工厂模块自动配置。
+3. [x]集成到 [Senaprc.Weixin SDK](https://github.com/JeffreySu/WeiXinMPSDK)，0 逻辑代码实现 AI 能力接入（聊天场景为主）。
+4. [x] 集成到 [NeuCharFramework](https://github.com/NeuCharFramework/NCF)，0 逻辑代码实现 AI 能力接入（开发和云运营场景为主）。
