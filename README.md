@@ -18,31 +18,48 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 在 appsettings.json 中配置 OpenAI 或 Azure OpenAI 的接口信息，如：
 
 ``` json
-   //Senparc.AI 设置
-  "SenparcAiSetting": {
-    "IsDebug": true,
-    "AiPlatform": "AzureOpenAI", //注意修改为自己平台对应的枚举值
-    "NeuCharOpenAIKeys": {
-      "ApiKey": "<Your ApiKey>", //在 https://www.neuchar.com/Developer/AiApp 申请
-      "NeuCharEndpoint": "https://www.neuchar.com/<DeveloperId>/" //查看 ApiKey 时可看到 DeveloperId
-    },
-    "AzureOpenAIKeys": {
-      "ApiKey": "<Your AzureApiKey>", 
-      "AzureEndpoint": "<Your AzureEndPoint>",
-      "AzureOpenAIApiVersion": "2022-12-01" 
-    },
-    "OpenAIKeys": {
-      "ApiKey": "<Your OpenAIKey>",
-      "OrganizationId": "<Your OpenAIOrgId>"
-    },
-    "HuggingFaceKeys": {
-      "Endpoint": "<Your EndPoint>"
+//Senparc.AI 设置
+"SenparcAiSetting": {
+  "IsDebug": true,
+  "AiPlatform": "NeuCharAI", //注意修改为自己平台对应的枚举值
+  "NeuCharAIKeys": {
+    "ApiKey": "<Your ApiKey>", //在 https://www.neuchar.com/Developer/AiApp 申请
+    "NeuCharEndpoint": "https://www.neuchar.com/<DeveloperId>", //查看 ApiKey 时可看到 DeveloperId
+    "ModelName": {
+      "Chat": "gpt-4o",
+      "Embedding": "text-embedding-ada-002",
+      "TextCompletion": "gpt-35-turbo-instruct"
     }
+  },
+  "AzureOpenAIKeys": {
+    "ApiKey": "<Your AzureApiKey>", 
+    "AzureEndpoint": "<Your AzureEndPoint>", //https://xxxx.openai.azure.com/
+    "AzureOpenAIApiVersion": "2022-12-01", //调用限制请参考：https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quotas-limits
+    "ModelName": {
+      "Chat": "gpt-35-turbo"
+    }
+  },
+  "OpenAIKeys": {
+    "ApiKey": "<Your OpenAIKey>",
+    "OrganizationId": "<Your OpenAIOrgId>",
+    "OpenAIEndpoint": null,
+    "ModelName": {
+      "Chat": "gpt-35-turbo"
+    }
+  },
+  "HuggingFaceKeys": {
+    "Endpoint": "<Your EndPoint>", //HuggingFace 的 Endpoint
+    "ModelName": {
+      "TextCompletion": "chatglm2"
+    }
+  },
+  "Items": {
+    // 更多自定义配置
   }
-
+}
 ```
 
-其中：`AiPlatform` 目前可选值为 `OpenAI`、`NeuCharOpenAI` 或 `AzureOpenAI`，分别对应 openai.com 官方接口（OpenAI），以及 https://www.neuchar.com 由 Senparc 提供的中转接口，及基于微软 Azure 的 Azure OpenAI 接口（AOAI），系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
+其中：`AiPlatform` 是平台类型，目前可选值为 `OpenAI`、`NeuCharOpenAI`、`AzureOpenAI`、`HuggingFace` 和 `FastAPI`，分别对应 openai.com 官方接口（OpenAI）、https://www.neuchar.com 由 Senparc 提供的中转接口、基于微软 Azure 的 AzureOpenAI 接口（AOAI)、HuggingFace 接口和 FastAPI 接口，系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
 
 仅当 `AiPlatform` 设置为 `OpenAI` 时，才需要设置 `OpenAIKeys` 及以下参数。
 
@@ -50,6 +67,9 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 
 仅当 `AiPlatform` 设置为 `AzureOpenAI` 时，才需要设置 `AzureOpenAIKeys` 及以下参数。
 
+其他平台以此类推。
+
+每一个平台类型配置下，都有一个 `ModelName` 节点，用于设置该平台下需要被支持的模型类型，例如需要将 Chat 接口设置为 GPT-4 模型，则设置：`"Chat": "gpt-4"`。
 
 > 提示：AzureOpenAI 调用限制请参考：https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quotas-limits<br>
 > OpenAI 调用限制请参考 OpenAI 后台：https://platform.openai.com/docs/guides/rate-limits
@@ -63,8 +83,11 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 Senparc.AI 使用了创新的对话式编程体验，您无需了解过多不同平台、SDK 的详细用法，只需要按照自己的想法进行定义和编程，最后接收结果，以目前最火的聊天场景（Chat）为例：
 
 ```C#
+//获取 AI 模型配置（从 appsettings.json 自动读取）
+var aiSetting = Senparc.AI.Config.SenparcAiSetting;
+
 // 创建 AI Handler 处理器（也可以通过工厂依赖注入）
-var handler = new SemanticAiHandler();
+var handler = new SemanticAiHandler(aiSetting);
 
 // 定义 AI 接口调用参数和 Token 限制等
 var promptParameter = new PromptConfigParameter()
@@ -76,10 +99,9 @@ var promptParameter = new PromptConfigParameter()
 
 // 准备运行
 var userId = "JeffreySu";//区分用户
-var modelName = "text-davinci-003";//默认使用模型
 var iWantToRun = 
      handler.IWantTo()
-            .ConfigModel(ConfigModel.TextCompletion, userId, modelName)
+            .ConfigModel(aiSetting.ModelName.Chat, userId, modelName)
             .BuildKernel()
             .RegisterSemanticFunction("ChatBot", "Chat", promptParameter)
             .iWantToRun;
@@ -90,6 +112,7 @@ var aiRequest = iWantToRun.CreateRequest(prompt, true, true);
 var aiResult = await iWantToRun.RunAsync(aiRequest);
 //aiResult.Result 结果：中国的人口约为13.8亿。
 ```
+
 
 <img width="623" alt="image" src="https://user-images.githubusercontent.com/2281927/230152103-3486fbfc-2426-407c-bcb6-74d4485eaf91.png">
 
@@ -108,7 +131,7 @@ Samples/Senparc.AI.Samples.Agents | Agent（智能体）测试，已集成 AutoG
 
 打开解决方案 `Senparc.AI.sln`，设置 appsettings.json 中 ApiKey 等平台参数，启动项目 `Senparc.AI.Samples.Consoles`：
 
-<img width="826" alt="image" src="https://user-images.githubusercontent.com/2281927/233587658-d57e30de-dc97-42c7-901f-70327f4eee00.png">
+<img width="801" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/d38d15cd-6b88-488e-8b74-a26934dfb538">
 
 ### 2. 操作
 
@@ -116,39 +139,47 @@ Samples/Senparc.AI.Samples.Agents | Agent（智能体）测试，已集成 AutoG
 
 输入 `1`，进入对话操作：
 
-<img width="674" alt="image" src="https://user-images.githubusercontent.com/2281927/233588902-8786e582-7384-4a59-895f-1e8eaaa805b4.png">
+<img width="738" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/32933f21-c8db-4090-ad5a-a955039ee407">
 
-#### 2.2 Embedding
+#### 2.2 TextCompletion
 
-在上一步输入 `2` 即可进入 Embedding 操作，Embedding 分为常规信息和引用信息两类，将在下一步中做选择：
+在主界面输入 `2` 进入 TextCompletion 操作：
 
-<img width="598" alt="image" src="https://user-images.githubusercontent.com/2281927/233589177-b9ab0863-f397-4cba-9d0b-6039a5e2baeb.png">
+<img width="717" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/b28e67de-5334-4703-8b74-3da7f9c328fd">
 
-#### 2.2.1 常规 Embedding（Information）
+
+#### 2.3 Embedding
+
+在主界面输入 `3` 即可进入 Embedding 操作，Embedding 分为常规信息和引用信息两类，将在下一步中做选择：
+
+#### 2.3.1 常规 Embedding（Information）
 
 选择 `1`，进入到常规 Embedding 测试，输入信息由 3 个英文冒号分割，录入完成后输入 `n` 开始对话测试：
 
-<img width="1175" alt="image" src="https://user-images.githubusercontent.com/2281927/233590261-9bb70435-e513-49c9-bda2-a9c0e7f883c4.png">
+<img width="708" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/f22de4b1-1920-46fb-97fa-18265374d2ad">
 
-#### 2.2.2 引用 Embedding（Reference）
+
+#### 2.3.2 引用 Embedding（Reference）
 2.2.2 上一步选择 `2`，进入到引用 Embedding 测试，输入信息由 3 个英文冒号分割，录入完成后输入 `n` 开始对话测试：
 
-<img width="1176" alt="image" src="https://user-images.githubusercontent.com/2281927/233590721-c9414ffb-27db-4923-a9f9-0580dc10d275.png">
+<img width="957" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/effd6bab-ba23-40ec-a125-7270b4dbbd29">
 
-#### 2.3 DallE 绘图操作
 
-初始界面中输入 `3`，进入 DallE 接口的绘图操作：
+#### 2.4 DallE 绘图操作
 
-<img width="1175" alt="image" src="https://user-images.githubusercontent.com/2281927/233681813-ad49e8dc-c69e-4798-b023-903857cd4351.png">
+初始界面中输入 `4`，进入 DallE 接口的绘图操作：
+
+<img width="941" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/e353b059-3399-425a-80f3-ec0eed767b90">
 
 结果将以 URL 的形式返回，此时出入 `s` ，可保存图片到本地：
-<img width="503" alt="image" src="https://user-images.githubusercontent.com/2281927/233681967-61b7e4cc-8962-4c36-8593-13a45595330c.png">
+
+<img width="951" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/61daa2e3-a781-40ea-b47b-c360a3cc4464">
 
 > 注意：接口返回的 URL 是一个暂存地址，不可用于持久化的展示，需要及时保存，
 
 
 ## TODO:
-1. 实现更多模型和模式的匹配。
-2. 实现全自动的工厂模块自动配置。
-3. 集成到 [Senaprc.Weixin SDK](https://github.com/JeffreySu/WeiXinMPSDK)，0 逻辑代码实现 AI 能力接入（聊天场景为主）。
-4. 集成到 [NeuCharFramework](https://github.com/NeuCharFramework/NCF)，0 逻辑代码实现 AI 能力接入（开发和云运营场景为主）。
+1. [x] 实现更多模型和模式的匹配。
+2. [x] 实现全自动的工厂模块自动配置。
+3. [x] 集成到 [Senaprc.Weixin SDK](https://github.com/JeffreySu/WeiXinMPSDK)，0 逻辑代码实现 AI 能力接入（聊天场景为主）。
+4. [x] 集成到 [NeuCharFramework](https://github.com/NeuCharFramework/NCF)，0 逻辑代码实现 AI 能力接入（开发和云运营场景为主）。
