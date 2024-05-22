@@ -1,4 +1,4 @@
-# Senaprc.AI
+<img width="943" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/1a3a5c32-98dc-473e-be00-ed4fd0319f4b"># Senaprc.AI
 Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型）的交互。
 
 
@@ -146,16 +146,17 @@ Samples/Senparc.AI.Samples.Agents | Agent（智能体）测试，已集成 AutoG
 
 初始界面中输入 `4`，进入 DallE 接口的绘图操作：
 
-<img width="1175" alt="image" src="https://user-images.githubusercontent.com/2281927/233681813-ad49e8dc-c69e-4798-b023-903857cd4351.png">
+<img width="941" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/e353b059-3399-425a-80f3-ec0eed767b90">
 
 结果将以 URL 的形式返回，此时出入 `s` ，可保存图片到本地：
-<img width="503" alt="image" src="https://user-images.githubusercontent.com/2281927/233681967-61b7e4cc-8962-4c36-8593-13a45595330c.png">
+
+![Uploading image.png…]()
 
 > 注意：接口返回的 URL 是一个暂存地址，不可用于持久化的展示，需要及时保存，
 
 
 ## TODO:
 1. [x] 实现更多模型和模式的匹配。
-2. [x]实现全自动的工厂模块自动配置。
-3. [x]集成到 [Senaprc.Weixin SDK](https://github.com/JeffreySu/WeiXinMPSDK)，0 逻辑代码实现 AI 能力接入（聊天场景为主）。
+2. [x] 实现全自动的工厂模块自动配置。
+3. [x] 集成到 [Senaprc.Weixin SDK](https://github.com/JeffreySu/WeiXinMPSDK)，0 逻辑代码实现 AI 能力接入（聊天场景为主）。
 4. [x] 集成到 [NeuCharFramework](https://github.com/NeuCharFramework/NCF)，0 逻辑代码实现 AI 能力接入（开发和云运营场景为主）。
