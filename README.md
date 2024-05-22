@@ -32,7 +32,7 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
     }
   },
   "AzureOpenAIKeys": {
-    "ApiKey": "<Your AzureApiKey>", //TODO：加密
+    "ApiKey": "<Your AzureApiKey>", 
     "AzureEndpoint": "<Your AzureEndPoint>", //https://xxxx.openai.azure.com/
     "AzureOpenAIApiVersion": "2022-12-01", //调用限制请参考：https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quotas-limits
     "ModelName": {
@@ -40,7 +40,7 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
     }
   },
   "OpenAIKeys": {
-    "ApiKey": "<Your OpenAIKey>", //TODO：加密
+    "ApiKey": "<Your OpenAIKey>",
     "OrganizationId": "<Your OpenAIOrgId>",
     "OpenAIEndpoint": null,
     "ModelName": {
