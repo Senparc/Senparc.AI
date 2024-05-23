@@ -177,9 +177,14 @@ Samples/Senparc.AI.Samples.Agents | Agent（智能体）测试，已集成 AutoG
 
 > 注意：接口返回的 URL 是一个暂存地址，不可用于持久化的展示，需要及时保存，
 
+## 单元测试
+
+<img width="498" alt="image" src="https://github.com/Senparc/Senparc.AI/assets/2281927/6ec61a15-e1c7-423b-9886-0e401c070e35">
 
 ## TODO:
 1. [x] 实现更多模型和模式的匹配。
-2. [x] 实现全自动的工厂模块自动配置。
-3. [x] 集成到 [Senaprc.Weixin SDK](https://github.com/JeffreySu/WeiXinMPSDK)，0 逻辑代码实现 AI 能力接入（聊天场景为主）。
-4. [x] 集成到 [NeuCharFramework](https://github.com/NeuCharFramework/NCF)，0 逻辑代码实现 AI 能力接入（开发和云运营场景为主）。
+1. [x] 实现全自动的工厂模块自动配置。
+1. [x] 集成到 [Senaprc.Weixin SDK](https://github.com/JeffreySu/WeiXinMPSDK)，0 逻辑代码实现 AI 能力接入（聊天场景为主）。
+1. [x] 集成到 [NeuCharFramework](https://github.com/NeuCharFramework/NCF)，0 逻辑代码实现 AI 能力接入（开发和云运营场景为主）。
+1. [ ] 完成更多默认模型适配（目前已经提供自定义扩展能力）
+1. [ ] 完善独立文档
