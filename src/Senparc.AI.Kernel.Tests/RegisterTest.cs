@@ -33,7 +33,7 @@ namespace Senparc.AI.Kernel.Tests
         public void ItemsTest()
         {
             var settings = Senparc.AI.Config.SenparcAiSetting as SenparcAiSetting;
-            Assert.AreEqual(2, settings.Items.Count);
+            Assert.AreEqual(3, settings.Items.Count);
 
             var dalle3Setting = settings.Items["AzureDallE3"];
 
