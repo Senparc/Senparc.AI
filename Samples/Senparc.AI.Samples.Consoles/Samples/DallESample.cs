@@ -48,7 +48,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 .ConfigModel(ConfigModel.TextToImage, userId)
                                 .BuildKernel();
 
-#pragma warning disable SKEXP0002
             var dallE = iWantTo.GetRequiredService<ITextToImageService>();
 
             string request;

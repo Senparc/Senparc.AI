@@ -99,8 +99,8 @@ namespace Senparc.AI.Kernel
         /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
         /// <returns></returns>
         public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string input,
-            Action<StreamingKernelContent> inStreamItemProceessing = null,
-            string humanId = "Human", string robotId = "ChatBot", string historyArgName = "history", string humanInputArgName = "human_input")
+        Action<StreamingKernelContent> inStreamItemProceessing = null,
+        string humanId = "Human", string robotId = "ChatBot", string historyArgName = "history", string humanInputArgName = "human_input")
         {
             //var function = iWantToRun.Kernel.Plugins.GetSemanticFunction("Chat");
             //request.FunctionPipeline = new[] { function };
