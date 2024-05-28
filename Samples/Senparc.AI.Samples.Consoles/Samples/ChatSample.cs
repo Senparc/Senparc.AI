@@ -191,38 +191,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     continue;
                 }
 
-                var dt = SystemTime.Now;
-
-                // Arrange
-                if (false)
+                try
                 {
-                    /*
-                    var huggingFaceLocal = new HuggingFaceTextCompletion(Model, endpoint: Endpoint);
-                    var huggingFaceRemote = new HuggingFaceTextCompletion(Model);
 
-                    AIRequestSettings aiRequestSettings = new AIRequestSettings()
-                    {
-                        ExtensionData = new Dictionary<string, object>()
-                        {
-                            { "Temperature", 0.7 },
-                            { "TopP", 0.5 },
-                            { "MaxTokens", 3000 }
-                        }
-                    };
+                    var dt = SystemTime.Now;
 
-                    // Act
-                    var localResponse = await huggingFaceLocal.CompleteAsync(prompt, aiRequestSettings);
-
-                    await Console.Out.WriteLineAsync("机器：");
-                    await Console.Out.WriteLineAsync(localResponse.ToString());
-
-                    */
-
-                    //await Console.Out.WriteLineAsync("===1=====");
-                    //localResponse.ToList().ForEach(x => Console.Write(x));
-                }
-                else
-                {
                     await Console.Out.WriteLineAsync($"[{talkingRounds}] 机器：");
 
                     var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
@@ -243,8 +216,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     }
 
                     await Console.Out.WriteLineAsync();
-                }
 
+                }
+                catch (Exception ex)
+                {
+                    await Console.Out.WriteLineAsync("发生错误：" + ex.ToString());
+                }
                 await Console.Out.WriteLineAsync();
             }
         }
