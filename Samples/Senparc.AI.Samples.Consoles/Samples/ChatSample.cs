@@ -147,7 +147,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                             await file.WriteLineAsync($"DeploymentName：{SampleSetting.CurrentSetting.DeploymentName}");
                             await file.WriteLineAsync();
                             await file.WriteLineAsync($"保存时间：{SystemTime.Now.ToString("F")}");
-                            await file.WriteLineAsync($"保存对话数：{maxHistoryCount}");
+                            await file.WriteLineAsync($"保存对话数：{maxHistoryCount}"); 
+                            await file.WriteLineAsync($"System Message：{systemMessage}");
                             await file.WriteLineAsync();
                             await file.WriteLineAsync("对话记录：");
 
