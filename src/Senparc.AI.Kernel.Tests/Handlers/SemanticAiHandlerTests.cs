@@ -181,16 +181,18 @@ namespace Senparc.AI.Kernel.Tests.Handlers
             };
 
             var funtcionPrompt = @"请根据新文本要求处理文字：
-1. 将标点符号后的首字母改成大写；在句子中间的单词，首字母不需要改写，请保留原来的大小写。
-2. 忽略专有名词的大小写转换，请保留原文的大小写。
-3. 去掉文字首尾的空格。
-4. 去掉文字之间的空格。
-5. 直接输出结果，不需要输出任何其他文字。
+1. 去掉句子两头的空格或者换行。
+2. 先将标点符号后的首字母改成大写。
+3. 在句子中间的单词，首字母不需要改写，请保留原来的大小写。
+4. 忽略专有名词的大小写转换，请保留原文的大小写。
+5. 去掉文字首尾的空格。
+6. 去掉文字之间的空格。
+7. 直接输出结果，不需要输出任何其他文字。
 
 示例：
 +++++++
 #Input:
-My nam e Is Jef fre y, I'm a Chinese  . this is A test.HappY bIrthday  !  
+ My nam e Is Jef fre y, I'm a Chinese  . this is A test.HappY bIrthday  !  
 #Output:
 MynameIsJeffrey,I'maChinese.ThisisAtest.HappYbIrthday!
 +++++++
