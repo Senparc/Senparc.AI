@@ -47,15 +47,22 @@ namespace Senaprc.AI.Agents.AgentUtility
                 return recentUpdate ?? throw new InvalidOperationException("The message is not a valid message");
             }
 
-            IMessage obj = await agent.GenerateReplyAsync(context.Messages, context.Options, cancellationToken);
-
-            var outputMessage = obj.FormatMessage();
-
-            _sendMessageAction?.Invoke(agent, obj, outputMessage);
-
-            Console.WriteLine(obj.FormatMessage());
-
-            return obj;
+            IMessage res = null;
+            try
+            {
+                res = await agent.GenerateReplyAsync(context.Messages, context.Options, cancellationToken);
+                var outputMessage = res.FormatMessage();
+                _sendMessageAction?.Invoke(agent, res, outputMessage);
+                Console.WriteLine(res.FormatMessage());
+            }
+            catch (Exception e)
+            {
+                //throw new InvalidOperationException("The message cannot be an empty string." + e.Message + e.StackTrace);
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Chat and Application Exit!");
+                Environment.Exit(0);
+            }
+            return res;
         }
 
         public async IAsyncEnumerable<IStreamingMessage> InvokeAsync(MiddlewareContext context, IStreamingAgent agent, [EnumeratorCancellation] CancellationToken cancellationToken = default(CancellationToken))
