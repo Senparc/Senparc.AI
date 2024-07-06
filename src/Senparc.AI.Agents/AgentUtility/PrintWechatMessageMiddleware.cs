@@ -22,15 +22,6 @@ namespace Senaprc.AI.Agents.AgentUtility
 
         public async Task<IMessage> InvokeAsync(MiddlewareContext context, IAgent agent, CancellationToken cancellationToken = default(CancellationToken))
         {
-            // 检查 context 是否有消息，并且最新的消息是否是空字符串或仅包含空白字符
-            var lastMessage = context.Messages?.LastOrDefault()?.GetContent();
-            if (string.IsNullOrWhiteSpace(lastMessage))
-            {
-                // 如果是空的回车键或空白字符，继续程序的运行，不报异常错误
-                Console.WriteLine("Received an empty or whitespace message. Continuing execution.");
-                return null;
-            }
-
             if (agent is IStreamingAgent agent2)
             {
                 IMessage recentUpdate = null;
