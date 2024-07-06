@@ -179,8 +179,34 @@ var aiTeam = graphConnector.CreateAiTeam(admin);
 // generate a greeting message to hearing member from Administrator
 var greetingMessage = await administrator.SendAsync("你好，如果已经就绪，请告诉我们“已就位”，并和 BA 打个招呼");
 
-await administrator.SendMessageToGroupAsync(
-    groupChat: aiTeam,
-    chatHistory: [greetingMessage],
-    maxRound: 20);
 
+async Task SendMessageWithRetry(Func<Task> sendMessageFunc, int maxRetries = 3)
+{
+    int retryCount = 0;
+    while (retryCount < maxRetries)
+    {
+        try
+        {
+            await sendMessageFunc();
+            return;
+        }
+        catch (System.Exception ex)
+        {
+            Console.WriteLine($"Exception caught: {ex.Message}. Retrying {retryCount + 1}/{maxRetries}...");
+            retryCount++;
+            if (retryCount >= maxRetries)
+            {
+                Console.WriteLine("Max retries reached. Starting a new conversation.");
+                // 重新创建团队并生成新的问候消息
+                aiTeam = graphConnector.CreateAiTeam(admin);
+                greetingMessage = await administrator.SendAsync("你好，如果已经就绪，请告诉我们“已就位”，并和 BA 打个招呼");
+                retryCount = 0; // 重置重试计数器
+            }
+        }
+    }
+}
+
+await SendMessageWithRetry(() => administrator.SendMessageToGroupAsync(
+    groupChat: aiTeam,
+    chatHistory: new[] { greetingMessage },
+    maxRound: 20));
