@@ -18,6 +18,7 @@ using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Samples.Agents;
 using Senparc.CO2NET;
+using Senparc.CO2NET.Extensions;
 using Senparc.CO2NET.RegisterServices;
 
 
@@ -175,38 +176,33 @@ var graphConnector = GraphBuilder.Start()
 
 var aiTeam = graphConnector.CreateAiTeam(admin);
 
+Start:
+Console.WriteLine();
+Console.WriteLine("Senparc.AI Sample Agnet启动完毕");
+Console.WriteLine("开源地址：https://github.com/Senparc/Senparc.AI");
+Console.WriteLine("-----------------------");
+await Console.Out.WriteLineAsync("任意时间输入 exit 退出对话，并重新开始。");
+Console.WriteLine("-----------------------");
+Console.WriteLine("正在等待Agent响应...");
+Console.WriteLine("-----------------------");
+
 // start the chat
 // generate a greeting message to hearing member from Administrator
 var greetingMessage = await administrator.SendAsync("你好，如果已经就绪，请告诉我们“已就位”，并和 BA 打个招呼");
 
-
-async Task SendMessageWithRetry(Func<Task> sendMessageFunc, int maxRetries = 3)
+try
 {
-    int retryCount = 0;
-    while (retryCount < maxRetries)
-    {
-        try
-        {
-            await sendMessageFunc();
-            return;
-        }
-        catch (System.Exception ex)
-        {
-            Console.WriteLine($"Exception caught: {ex.Message}. Retrying {retryCount + 1}/{maxRetries}...");
-            retryCount++;
-            if (retryCount >= maxRetries)
-            {
-                Console.WriteLine("Max retries reached. Starting a new conversation.");
-                // 重新创建团队并生成新的问候消息
-                aiTeam = graphConnector.CreateAiTeam(admin);
-                greetingMessage = await administrator.SendAsync("你好，如果已经就绪，请告诉我们“已就位”，并和 BA 打个招呼");
-                retryCount = 0; // 重置重试计数器
-            }
-        }
-    }
+    await administrator.SendMessageToGroupAsync(
+        groupChat: aiTeam,
+        chatHistory: [greetingMessage],
+        maxRound: 20);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"抱歉发生了异常: {ex.Message}. ");
 }
 
-await SendMessageWithRetry(() => administrator.SendMessageToGroupAsync(
-    groupChat: aiTeam,
-    chatHistory: new[] { greetingMessage },
-    maxRound: 20));
+Console.WriteLine("好，让我们重新开始！");
+Console.WriteLine();
+
+goto Start;
