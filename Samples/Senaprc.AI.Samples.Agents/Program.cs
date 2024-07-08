@@ -18,6 +18,7 @@ using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Samples.Agents;
 using Senparc.CO2NET;
+using Senparc.CO2NET.Extensions;
 using Senparc.CO2NET.RegisterServices;
 
 
@@ -175,12 +176,33 @@ var graphConnector = GraphBuilder.Start()
 
 var aiTeam = graphConnector.CreateAiTeam(admin);
 
+Start:
+Console.WriteLine();
+Console.WriteLine("Senparc.AI Sample Agnet启动完毕");
+Console.WriteLine("开源地址：https://github.com/Senparc/Senparc.AI");
+Console.WriteLine("-----------------------");
+await Console.Out.WriteLineAsync("任意时间输入 exit 退出对话，并重新开始。");
+Console.WriteLine("-----------------------");
+Console.WriteLine("正在等待Agent响应...");
+Console.WriteLine("-----------------------");
+
 // start the chat
 // generate a greeting message to hearing member from Administrator
 var greetingMessage = await administrator.SendAsync("你好，如果已经就绪，请告诉我们“已就位”，并和 BA 打个招呼");
 
-await administrator.SendMessageToGroupAsync(
-    groupChat: aiTeam,
-    chatHistory: [greetingMessage],
-    maxRound: 20);
+try
+{
+    await administrator.SendMessageToGroupAsync(
+        groupChat: aiTeam,
+        chatHistory: [greetingMessage],
+        maxRound: 20);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"抱歉发生了异常: {ex.Message}. ");
+}
 
+Console.WriteLine("好，让我们重新开始！");
+Console.WriteLine();
+
+goto Start;

@@ -1,11 +1,10 @@
-﻿using System;
+﻿using AutoGen.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoGen.Core;
 
 namespace Senaprc.AI.Agents.AgentUtility
 {
@@ -48,13 +47,9 @@ namespace Senaprc.AI.Agents.AgentUtility
             }
 
             IMessage obj = await agent.GenerateReplyAsync(context.Messages, context.Options, cancellationToken);
-
             var outputMessage = obj.FormatMessage();
-
             _sendMessageAction?.Invoke(agent, obj, outputMessage);
-
             Console.WriteLine(obj.FormatMessage());
-
             return obj;
         }
 

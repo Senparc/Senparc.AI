@@ -59,11 +59,11 @@ Senparc 全家桶的 AI 扩展包，目前主要集中于 LLM（大语言模型�
 }
 ```
 
-其中：`AiPlatform` 是平台类型，目前可选值为 `OpenAI`、`NeuCharOpenAI`、`AzureOpenAI`、`HuggingFace` 和 `FastAPI`，分别对应 openai.com 官方接口（OpenAI）、https://www.neuchar.com 由 Senparc 提供的中转接口、基于微软 Azure 的 AzureOpenAI 接口（AOAI)、HuggingFace 接口和 FastAPI 接口，系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
+其中：`AiPlatform` 是平台类型，目前可选值为 `OpenAI`、`NeuCharAI`、`AzureOpenAI`、`HuggingFace` 和 `FastAPI`，分别对应 openai.com 官方接口（OpenAI）、https://www.neuchar.com 由 Senparc 提供的中转接口、基于微软 Azure 的 AzureOpenAI 接口（AOAI)、HuggingFace 接口和 FastAPI 接口，系统会根据配置自动实现切换，无需在逻辑代码中进行判断。
 
 仅当 `AiPlatform` 设置为 `OpenAI` 时，才需要设置 `OpenAIKeys` 及以下参数。
 
-仅当 `AiPlatform` 设置为 `NeuCharOpenAI` 时，才需要设置 `NeuCharOpenAIKeys` 及以下参数。
+仅当 `AiPlatform` 设置为 `NeuCharAI` 时，才需要设置 `NeuCharAIKeys` 及以下参数。
 
 仅当 `AiPlatform` 设置为 `AzureOpenAI` 时，才需要设置 `AzureOpenAIKeys` 及以下参数。
 
