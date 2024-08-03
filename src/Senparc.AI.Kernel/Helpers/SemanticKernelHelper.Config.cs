@@ -88,11 +88,9 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: senparcAiSetting.FastAPIEndpoint,
                         serviceId: null
                     ),
-                AiPlatform.Ollama => kernelBuilder.AddOpenAIChatCompletion(
+                AiPlatform.Ollama => kernelBuilder.AddFOllamaChatCompletion(
                         modelId: modelName,
-                        apiKey: senparcAiSetting.ApiKey,
-                        orgId: senparcAiSetting.OrganizationId,
-                        endpoint: senparcAiSetting.FastAPIEndpoint,
+                        endpoint: senparcAiSetting.OllamaEndpoint,
                         serviceId: null
                     ),
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
@@ -158,6 +156,11 @@ namespace Senparc.AI.Kernel.Helpers
                         apiKey: senparcAiSetting.ApiKey,
                         orgId: senparcAiSetting.OrganizationId,
                         endpoint: senparcAiSetting.FastAPIEndpoint,
+                        serviceId: null
+                    ),
+                AiPlatform.Ollama => kernelBuilder.AddFOllamaTextCompletion(
+                        modelId: modelName,
+                        endpoint: senparcAiSetting.OllamaEndpoint,
                         serviceId: null
                     ),
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")

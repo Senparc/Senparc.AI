@@ -16,7 +16,6 @@ namespace Senparc.AI.Kernel.Ollama
 
         Dictionary<string, object?> _attributes = new Dictionary<string, object?>();
 
-
         public IReadOnlyDictionary<string, object?> Attributes => _attributes;
 
         public OllamaChatCompletionService(string url, string modelId)
