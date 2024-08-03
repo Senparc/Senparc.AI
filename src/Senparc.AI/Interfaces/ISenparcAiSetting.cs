@@ -142,7 +142,7 @@ namespace Senparc.AI.Interfaces
         public bool IsOpenAiKeysSetted { get; }
 
 
-        ModelName ModelName => AiPlatform switch
+        public ModelName ModelName => AiPlatform switch
         {
             AiPlatform.OpenAI => OpenAIKeys.ModelName,
             AiPlatform.AzureOpenAI => AzureOpenAIKeys.ModelName,
@@ -154,7 +154,7 @@ namespace Senparc.AI.Interfaces
         };
 
 #pragma warning disable CS8603 // 可能返回 null 引用。
-        string DeploymentName => AiPlatform switch
+        public string DeploymentName => AiPlatform switch
         {
             AiPlatform.AzureOpenAI => AzureOpenAIKeys.DeploymentName,
             AiPlatform.OpenAI => null,

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.16.1.1-beta1</Version>
+		<Version>0.16.3-beta1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI</AssemblyName>
@@ -46,6 +46,9 @@
 			v0.16.0 
 			1、添加 SenparcKernelAiResult&lt;T$gt; 类型
 			2、重命名 IAiResult.Output 为 OutputString
+			v0.16.1 将 ISenparcAiSetting.ModelName、DeploymentName 从属性改为 public
+			v0.16.2 增加 Agents 项目输入为空时，异常捕获
+			v0.16.3 优化 SenparcAiSettingBase
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

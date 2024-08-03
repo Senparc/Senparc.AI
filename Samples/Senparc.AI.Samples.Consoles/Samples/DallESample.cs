@@ -48,7 +48,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 .ConfigModel(ConfigModel.TextToImage, userId)
                                 .BuildKernel();
 
-#pragma warning disable SKEXP0002
             var dallE = iWantTo.GetRequiredService<ITextToImageService>();
 
             string request;
@@ -75,6 +74,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
                 else
                 {
+                    await Console.Out.WriteLineAsync("生成中，请等待...");
+
                     //生成图片
                     var imageDescription = request;// "A car fly in the sky, with a panda driver.";
                     lastImageUrl = await dallE.GenerateImageAsync(imageDescription, 1024, 1024);
@@ -84,7 +85,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     //返回：
                     //Image URL:https://oaidalleapiprodscus.blob.core.windows.net/private/org-Bp9B5eGmPFtwDsnIwCV7UjKO/user-1v2aYDuCvJZl0m94gVtYOloH/img-NvtqM7hTcevNKhjpYjVA3Bwl.png?st=2023-04-09T06%3A36%3A55Z&se=2023-04-09T08%3A36%3A55Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-04-08T19%3A47%3A37Z&ske=2023-04-09T19%3A47%3A37Z&sks=b&skv=2021-08-06&sig=YPSGt9EvAACViGuoDPWoJ/8rnfVy9xu512/blVEYOl0%3D
                 }
-
 
                 await Console.Out.WriteLineAsync();
                 await Console.Out.WriteLineAsync("请继续输入：");

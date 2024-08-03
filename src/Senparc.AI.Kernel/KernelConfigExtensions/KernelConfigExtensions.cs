@@ -60,7 +60,7 @@ namespace Senparc.AI.Kernel.Handlers
             senparcAiSetting ??= iWantTo.SenparcAiSetting;
             modelName ??= senparcAiSetting.ModelName;
 
-            string modelNameStr = string.Empty;
+            string modelNameStr;
 
             Func<string, string> GetDeploymentName = (modelNameStr) =>
             {
@@ -75,7 +75,7 @@ namespace Senparc.AI.Kernel.Handlers
                 return modelNameStr;
             };
 
-            IKernelBuilder kernelBuilder = null;
+            IKernelBuilder kernelBuilder;
 
             switch (configModel)
             {
@@ -91,13 +91,13 @@ namespace Senparc.AI.Kernel.Handlers
                     break;
                 case AI.ConfigModel.TextEmbedding:
                     modelNameStr = modelName.Embedding;
-                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder);
+                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
                     break;
                 case AI.ConfigModel.TextToImage:
                     modelNameStr = modelName.TextToImage;
                     kernelBuilder = iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
-                    Console.WriteLine($"[调试]GetDeploymentName：{modelNameStr} / {GetDeploymentName(modelNameStr)}");
-                    Console.WriteLine($"[调试]{senparcAiSetting.AiPlatform}-{senparcAiSetting.AzureOpenAIKeys.DeploymentName}-{senparcAiSetting.AzureOpenAIKeys.AzureEndpoint}\r\n{senparcAiSetting.AzureOpenAIKeys.ModelName.ToJson(true)}");
+                    //Console.WriteLine($"[调试]GetDeploymentName：{modelNameStr} / {GetDeploymentName(modelNameStr)}");
+                    //Console.WriteLine($"[调试]{senparcAiSetting.AiPlatform}-{senparcAiSetting.AzureOpenAIKeys.DeploymentName}-{senparcAiSetting.AzureOpenAIKeys.AzureEndpoint}\r\n{senparcAiSetting.AzureOpenAIKeys.ModelName.ToJson(true)}");
                     break;
                 default:
                     throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel);

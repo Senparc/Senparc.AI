@@ -92,9 +92,9 @@ namespace Senparc.AI.Entities
         /// </summary>
         public virtual string ApiKey => AiPlatform switch
         {
-            AiPlatform.OpenAI => OpenAIKeys.ApiKey,
-            AiPlatform.NeuCharAI => NeuCharAIKeys.ApiKey,
-            AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey,
+            AiPlatform.OpenAI => OpenAIKeys?.ApiKey,
+            AiPlatform.NeuCharAI => NeuCharAIKeys?.ApiKey,
+            AiPlatform.AzureOpenAI => AzureOpenAIKeys?.ApiKey,
             AiPlatform.HuggingFace => "",
             AiPlatform.FastAPI => FastAPIKeys.ApiKey,
             AiPlatform.Ollama => "",

@@ -46,9 +46,9 @@ namespace Senparc.AI.Tests
 
             var configBuilder = new ConfigurationBuilder();
 
-            var testFile = Path.Combine(Senparc.CO2NET.Utilities.ServerUtility.AppDomainAppPath, "appsettings.test.json");
+            var testFile = Path.Combine(Senparc.CO2NET.Utilities.ServerUtility.AppDomainAppPath, "appsettings.Development.json");
             var appsettingFileName = _useTestAppSettings && File.Exists(testFile) 
-                ? "appsettings.test.json" 
+                ? "appsettings.Development.json" 
                 : "appsettings.json";
 
             Console.WriteLine("appsettingFileName: "+ appsettingFileName);
