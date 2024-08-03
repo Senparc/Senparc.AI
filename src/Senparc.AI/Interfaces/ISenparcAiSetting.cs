@@ -64,6 +64,7 @@ namespace Senparc.AI.Interfaces
         OpenAIKeys OpenAIKeys { get; set; }
         HuggingFaceKeys HuggingFaceKeys { get; set; }
         FastAPIKeys FastAPIKeys { get; set; }
+        OllamaKeys  OllamaKeys { get; set; }
 
         /// <summary>
         /// Neuchar OpenAI 或 Azure OpenAI 或 OpenAI API Key
@@ -122,10 +123,15 @@ namespace Senparc.AI.Interfaces
 
         #endregion
 
-
         #region FastAPI
 
         string FastAPIEndpoint { get; }
+
+        #endregion
+
+        #region Ollama
+
+        string OllamaEndpoint { get; }
 
         #endregion
 
@@ -142,6 +148,7 @@ namespace Senparc.AI.Interfaces
             AiPlatform.NeuCharAI => NeuCharAIKeys.ModelName,
             AiPlatform.HuggingFace => HuggingFaceKeys.ModelName,
             AiPlatform.FastAPI => FastAPIKeys.ModelName,
+            AiPlatform.Ollama => OllamaKeys.ModelName,
             _ => throw new SenparcAiException($"100-未配置 {AiPlatform} 的 Endpoint 输出")
         };
 
@@ -153,6 +160,7 @@ namespace Senparc.AI.Interfaces
             AiPlatform.NeuCharAI => null,
             AiPlatform.HuggingFace => null,
             AiPlatform.FastAPI => null,
+            AiPlatform.Ollama => null,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 DeploymentName 输出")
         };
 #pragma warning restore CS8603 // 可能返回 null 引用。

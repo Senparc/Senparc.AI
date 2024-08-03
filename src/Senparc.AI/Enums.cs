@@ -19,7 +19,8 @@ namespace Senparc.AI
         AzureOpenAI = 16,
         HuggingFace = 32,
         //Oobabooga = 64,//未实现
-        FastAPI = 128
+        FastAPI = 128,
+        Ollama = 256,
     }
 
     /// <summary>

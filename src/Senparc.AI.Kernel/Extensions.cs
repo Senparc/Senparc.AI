@@ -8,6 +8,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.TextGeneration;
 using Microsoft.SemanticKernel;
+using OllamaSharp;
 
 namespace Senparc.AI.Kernel
 {
@@ -32,6 +33,22 @@ namespace Senparc.AI.Kernel
             Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory = 
                 (IServiceProvider serviceProvider, object? _) => 
                 new OpenAIChatCompletionService(modelId, new OpenAIClient(new Uri(endpoint), new Azure.AzureKeyCredential(apiKey)), serviceProvider.GetService<ILoggerFactory>());
+            builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
+            builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
+            return builder;
+        }
+
+        public static IKernelBuilder AddFOllamaChatCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId=null)
+        {
+            string modelId2 = modelId;
+
+
+            Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory =
+                (IServiceProvider serviceProvider, object? _) =>
+                new OpenAIChatCompletionService(modelId, new OpenAIClient(new Uri(endpoint), new Azure.AzureKeyCredential(apiKey)), serviceProvider.GetService<ILoggerFactory>());
+
+            OllamaApiClientExtensions.
+
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
             return builder;

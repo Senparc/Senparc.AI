@@ -69,6 +69,7 @@
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.10.0-preview" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
 		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.10.0-alpha" />
+		<PackageReference Include="OllamaSharp" Version="2.0.13" />
 
 		<PackageReference Include="Senparc.CO2NET" Version="2.4.0.1" />
 	</ItemGroup>
