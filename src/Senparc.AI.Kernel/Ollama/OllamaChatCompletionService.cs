@@ -13,11 +13,17 @@ namespace Senparc.AI.Kernel.Ollama
     public class OllamaChatCompletionService : IChatCompletionService, IAIService, ITextGenerationService
     {
         private readonly OllamaSharp.OllamaApiClient _core;
-        public IReadOnlyDictionary<string, object?> Attributes => _core.
+
+        Dictionary<string, object?> _attributes = new Dictionary<string, object?>();
+
+
+        public IReadOnlyDictionary<string, object?> Attributes => _attributes;
 
         public OllamaChatCompletionService(string url, string modelId)
         {
             _core = new OllamaSharp.OllamaApiClient(url, modelId);
+
+            _attributes["model"] = modelId;
         }
 
 
