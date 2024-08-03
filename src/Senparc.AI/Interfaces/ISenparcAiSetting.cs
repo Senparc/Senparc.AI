@@ -42,6 +42,7 @@ namespace Senparc.AI.Interfaces
             AiPlatform.NeuCharAI => NeuCharEndpoint,
             AiPlatform.HuggingFace => HuggingFaceEndpoint,
             AiPlatform.FastAPI => FastAPIEndpoint,
+            AiPlatform.Ollama => OllamaEndpoint,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 Endpoint 输出")
         };
 

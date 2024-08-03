@@ -97,6 +97,7 @@ namespace Senparc.AI.Entities
             AiPlatform.AzureOpenAI => AzureOpenAIKeys.ApiKey,
             AiPlatform.HuggingFace => "",
             AiPlatform.FastAPI => FastAPIKeys.ApiKey,
+            AiPlatform.Ollama => "",
             _ => ""
         };
 
@@ -158,6 +159,11 @@ namespace Senparc.AI.Entities
 
         #region FastAPI
         public string FastAPIEndpoint => FastAPIKeys?.Endpoint;
+
+        #endregion
+
+        #region Ollama
+        public string OllamaEndpoint => OllamaKeys?.Endpoint;
 
         #endregion
 
