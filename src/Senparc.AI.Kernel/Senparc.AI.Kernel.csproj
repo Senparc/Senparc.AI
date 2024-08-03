@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.16.3-beta1</Version>
+		<Version>0.17.1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -46,6 +46,7 @@
 			v0.15.3 添加 IWantToRun.SetPromptConfigParameter() 方法
 			v0.15.4 升级到 SK 1.10.0，为 ImportPluginFromPromptDirectory() 方法添加已有对象的检测
 			v0.16.1 添加 RunAsync(kernelFunction) 方法
+			v0.17.0 支持 Ollama
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
@@ -68,6 +69,8 @@
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.10.0-preview" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
 		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.10.0-alpha" />
+		<!--<PackageReference Include="Ollama" Version="1.6.1" />-->
+		<PackageReference Include="OllamaSharp" Version="2.0.13" />
 
 		<PackageReference Include="Senparc.CO2NET" Version="2.4.0.1" />
 	</ItemGroup>

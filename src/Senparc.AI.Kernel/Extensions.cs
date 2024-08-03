@@ -8,6 +8,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.TextGeneration;
 using Microsoft.SemanticKernel;
+using OllamaSharp;
 
 namespace Senparc.AI.Kernel
 {
@@ -29,12 +30,41 @@ namespace Senparc.AI.Kernel
             string apiKey2 = apiKey;
             string orgId2 = orgId;
 
-            Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory = 
-                (IServiceProvider serviceProvider, object? _) => 
+            Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory =
+                (IServiceProvider serviceProvider, object? _) =>
                 new OpenAIChatCompletionService(modelId, new OpenAIClient(new Uri(endpoint), new Azure.AzureKeyCredential(apiKey)), serviceProvider.GetService<ILoggerFactory>());
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
             return builder;
         }
+
+        #region Ollama
+
+        public static IKernelBuilder AddFOllamaChatCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
+        {
+            string modelId2 = modelId;
+
+            Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory =
+    (IServiceProvider serviceProvider, object? _) =>
+            new OpenAIChatCompletionService(modelId: modelId, endpoint: new Uri(endpoint), apiKey: "none", loggerFactory: serviceProvider.GetService<ILoggerFactory>());
+            builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
+           
+            return builder;
+        }
+
+        public static IKernelBuilder AddFOllamaTextCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
+        {
+            string modelId2 = modelId;
+
+            Func<IServiceProvider, object, OpenAITextGenerationService> implementationFactory =
+    (IServiceProvider serviceProvider, object? _) =>
+                new OpenAITextGenerationService(modelId: modelId, new OpenAIClient(endpoint: new Uri(endpoint), new Azure.AzureKeyCredential("none")), loggerFactory: serviceProvider.GetService<ILoggerFactory>());
+
+            builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
+
+            return builder;
+        }
+
+        #endregion
     }
 }

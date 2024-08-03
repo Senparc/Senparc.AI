@@ -67,6 +67,10 @@ namespace Senparc.AI.Entities
         /// </summary>
         public virtual bool UseFastAPI => AiPlatform == AiPlatform.FastAPI;
 
+        /// <summary>
+        /// 是否使用 Ollama
+        /// </summary>
+        public virtual bool Ollama => AiPlatform == AiPlatform.Ollama;
 
         /// <summary>
         /// AI 平台类型
@@ -81,6 +85,7 @@ namespace Senparc.AI.Entities
         public virtual HuggingFaceKeys HuggingFaceKeys { get; set; }
 
         public virtual FastAPIKeys FastAPIKeys { get; set; }
+        public virtual OllamaKeys OllamaKeys { get; set; }
 
         /// <summary>
         /// Azure OpenAI 或 OpenAI API Key
@@ -91,7 +96,8 @@ namespace Senparc.AI.Entities
             AiPlatform.NeuCharAI => NeuCharAIKeys?.ApiKey,
             AiPlatform.AzureOpenAI => AzureOpenAIKeys?.ApiKey,
             AiPlatform.HuggingFace => "",
-            AiPlatform.FastAPI => FastAPIKeys?.ApiKey,
+            AiPlatform.FastAPI => FastAPIKeys.ApiKey,
+            AiPlatform.Ollama => "",
             _ => ""
         };
 
@@ -156,6 +162,11 @@ namespace Senparc.AI.Entities
 
         #endregion
 
+        #region Ollama
+        public string OllamaEndpoint => OllamaKeys?.Endpoint;
+
+        #endregion
+
         public virtual bool IsOpenAiKeysSetted => OpenAIKeys != null && !OpenAIKeys.ApiKey.IsNullOrEmpty();
 
 
@@ -216,6 +227,18 @@ namespace Senparc.AI.Entities
         {
             this.AiPlatform = AiPlatform.FastAPI;
             this.FastAPIKeys = fastAPIKeys;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置 Ollama
+        /// </summary>
+        /// <param name="ollamaAPIKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetOllama(OllamaKeys ollamaAPIKeys)
+        {
+            this.AiPlatform = AiPlatform.Ollama;
+            this.OllamaKeys = ollamaAPIKeys;
             return this;
         }
 

@@ -30,6 +30,7 @@ namespace Senparc.AI.Kernel.Tests.BaseSupport
         {
             services.AddScoped<IAiHandler, SemanticAiHandler>();
         };
+
         public KernelTestBase() : base(RegisterAction, getSenparcAiSettingFunc, serviceAction)
         {
            
