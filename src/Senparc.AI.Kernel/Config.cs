@@ -9,9 +9,10 @@
         /// 当前配置
         /// </summary>
         public static SenparcAiSetting SenparcAiSetting
-            => Senparc.AI.Config.SenparcAiSetting as SenparcAiSetting;
+            => (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;
 
-        static Config() {
+        static Config()
+        {
             Senparc.AI.Config.SenparcAiSetting ??= new SenparcAiSetting();
         }
 
