@@ -1,29 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.16.4</Version>
-		<Nullable>enable</Nullable>
-		<LangVersion>10.0</LangVersion>
-		<AssemblyName>Senparc.AI</AssemblyName>
-		<RootNamespace>Senparc.AI</RootNamespace>
-		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
-		<Description>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Version>0.16.5</Version>
+    <Nullable>enable</Nullable>
+    <LangVersion>10.0</LangVersion>
+    <AssemblyName>Senparc.AI</AssemblyName>
+    <RootNamespace>Senparc.AI</RootNamespace>
+    <GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
+    <Description>
 			Senparc.AI 核心模块，提供一系列 Senparc.AI 产品基础接口
 			https://github.com/Senparc/Senaprc.AI
 		</Description>
-		<Copyright>Senparc Copyright © 2004~2024</Copyright>
-		<PackageTags>
+    <Copyright>Senparc Copyright © 2004~2024</Copyright>
+    <PackageTags>
 			Senparc,AI,Kernel,C#,AIGC,GenAI,AGI,LLM,SemanticKernel
 		</PackageTags>
-		<Authors>Jeffrey Su</Authors>
-		<Owners>Senparc</Owners>
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<ProjectUrl>https://github.com/Senparc/Senparc.AI</ProjectUrl>
-		<Title>Senparc.AI.dll</Title>
-		<Summary>Senparc.AI 核心模块</Summary>
-		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI</PackageProjectUrl>
-		<PackageIcon>icon.jpg</PackageIcon>
-		<PackageReleaseNotes>
+    <Authors>Jeffrey Su</Authors>
+    <Owners>Senparc</Owners>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <ProjectUrl>https://github.com/Senparc/Senparc.AI</ProjectUrl>
+    <Title>Senparc.AI.dll</Title>
+    <Summary>Senparc.AI 核心模块</Summary>
+    <PackageProjectUrl>https://github.com/Senparc/Senparc.AI</PackageProjectUrl>
+    <PackageIcon>icon.jpg</PackageIcon>
+    <PackageReleaseNotes>
 			v0.1.0 创世
 			v0.2.0 添加 NeuChar OpenAI
 			v0.3.1 同步最新版本 Semantic Kernel，完善 Prompt 运行方法
@@ -50,26 +51,24 @@
 			v0.16.2 增加 Agents 项目输入为空时，异常捕获
 			v0.16.3 优化 SenparcAiSettingBase
 		</PackageReleaseNotes>
-		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
-		<Configurations>Debug;Release;Test</Configurations>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-		<OutputPath>..\..\BuildOutPut\</OutputPath>
-		<DocumentationFile>..\..\BuildOutPut\netstandard2.1\Senparc.AI.xml</DocumentationFile>
-	</PropertyGroup>
-	<ItemGroup>
-		<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
-	</ItemGroup>
-	<ItemGroup>
-		<Content Include="appsettings.schema.json">
-			<Pack>true</Pack>
-			<PackagePath>contentFiles/any/any</PackagePath>
-		</Content>
-	</ItemGroup>
-	<ItemGroup>
-
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-
-		<PackageReference Include="Senparc.CO2NET" Version="2.4.3" />
-	</ItemGroup>
+    <RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
+    <Configurations>Debug;Release;Test</Configurations>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+    <OutputPath>..\..\BuildOutPut\</OutputPath>
+    <DocumentationFile>..\..\BuildOutPut\netstandard2.1\Senparc.AI.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.schema.json">
+      <Pack>true</Pack>
+      <PackagePath>contentFiles/any/any</PackagePath>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Senparc.CO2NET" Version="2.4.3" />
+  </ItemGroup>
 </Project>
