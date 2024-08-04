@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.17.1</Version>
+		<Version>0.17.1.1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -70,7 +70,7 @@
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
 		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.10.0-alpha" />
 		<!--<PackageReference Include="Ollama" Version="1.6.1" />-->
-		<PackageReference Include="OllamaSharp" Version="2.0.13" />
+		<!--<PackageReference Include="OllamaSharp" Version="2.0.13" />-->
 
 		<PackageReference Include="Senparc.CO2NET" Version="2.4.0.1" />
 	</ItemGroup>

@@ -8,7 +8,6 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.TextGeneration;
 using Microsoft.SemanticKernel;
-using OllamaSharp;
 
 namespace Senparc.AI.Kernel
 {
