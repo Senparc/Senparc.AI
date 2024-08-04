@@ -70,6 +70,6 @@
 
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 
-		<PackageReference Include="Senparc.CO2NET" Version="2.4.0.1" />
+		<PackageReference Include="Senparc.CO2NET" Version="2.4.3" />
 	</ItemGroup>
 </Project>
