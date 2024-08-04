@@ -1,49 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Services;
-using Microsoft.SemanticKernel.TextGeneration;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Text;
+//using System.Threading;
+//using System.Threading.Tasks;
+//using Microsoft.SemanticKernel;
+//using Microsoft.SemanticKernel.ChatCompletion;
+//using Microsoft.SemanticKernel.Services;
+//using Microsoft.SemanticKernel.TextGeneration;
 
-namespace Senparc.AI.Kernel.Ollama
-{
-    public class OllamaChatCompletionService : IChatCompletionService, IAIService, ITextGenerationService
-    {
-        private readonly OllamaSharp.OllamaApiClient _core;
+//namespace Senparc.AI.Kernel.Ollama
+//{
+//    public class OllamaChatCompletionService : IChatCompletionService, IAIService, ITextGenerationService
+//    {
+//        private readonly OllamaSharp.OllamaApiClient _core;
 
-        Dictionary<string, object?> _attributes = new Dictionary<string, object?>();
+//        Dictionary<string, object?> _attributes = new Dictionary<string, object?>();
 
-        public IReadOnlyDictionary<string, object?> Attributes => _attributes;
+//        public IReadOnlyDictionary<string, object?> Attributes => _attributes;
 
-        public OllamaChatCompletionService(string url, string modelId)
-        {
-            _core = new OllamaSharp.OllamaApiClient(url, modelId);
+//        public OllamaChatCompletionService(string url, string modelId)
+//        {
+//            _core = new OllamaSharp.OllamaApiClient(url, modelId);
 
-            _attributes["model"] = modelId;
-        }
+//            _attributes["model"] = modelId;
+//        }
 
 
-        public Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Microsoft.SemanticKernel.Kernel? kernel = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+//        public Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Microsoft.SemanticKernel.Kernel? kernel = null, CancellationToken cancellationToken = default)
+//        {
+//            throw new NotImplementedException();
+//        }
 
-        public IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Microsoft.SemanticKernel.Kernel? kernel = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+//        public IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Microsoft.SemanticKernel.Kernel? kernel = null, CancellationToken cancellationToken = default)
+//        {
+//            throw new NotImplementedException();
+//        }
 
-        public IAsyncEnumerable<StreamingTextContent> GetStreamingTextContentsAsync(string prompt, PromptExecutionSettings? executionSettings = null, Microsoft.SemanticKernel.Kernel? kernel = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+//        public IAsyncEnumerable<StreamingTextContent> GetStreamingTextContentsAsync(string prompt, PromptExecutionSettings? executionSettings = null, Microsoft.SemanticKernel.Kernel? kernel = null, CancellationToken cancellationToken = default)
+//        {
+//            throw new NotImplementedException();
+//        }
 
-        public Task<IReadOnlyList<TextContent>> GetTextContentsAsync(string prompt, PromptExecutionSettings? executionSettings = null, Microsoft.SemanticKernel.Kernel? kernel = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-    }
-}
+//        public Task<IReadOnlyList<TextContent>> GetTextContentsAsync(string prompt, PromptExecutionSettings? executionSettings = null, Microsoft.SemanticKernel.Kernel? kernel = null, CancellationToken cancellationToken = default)
+//        {
+//            throw new NotImplementedException();
+//        }
+//    }
+//}

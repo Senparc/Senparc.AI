@@ -20,7 +20,7 @@ namespace Senaprc.AI.Agents.AgentUtility
             this._sendMessageAction = sendMessageAction;
         }
 
-        public async Task<IMessage> InvokeAsync(MiddlewareContext context, IAgent agent, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IMessage> InvokeAsync(MiddlewareContext context, IAgent agent, CancellationToken cancellationToken = default)
         {
             if (agent is IStreamingAgent agent2)
             {
@@ -53,62 +53,67 @@ namespace Senaprc.AI.Agents.AgentUtility
             return obj;
         }
 
-        public async IAsyncEnumerable<IStreamingMessage> InvokeAsync(MiddlewareContext context, IStreamingAgent agent, [EnumeratorCancellation] CancellationToken cancellationToken = default(CancellationToken))
+        public async IAsyncEnumerable<IMessage> InvokeAsync(MiddlewareContext context, IStreamingAgent agent, CancellationToken cancellationToken)
         {
-            IMessage recentUpdate = null;
-            await foreach (IStreamingMessage item in agent.GenerateStreamingReplyAsync(context.Messages, context.Options, cancellationToken))
+            IMessage? recentUpdate = null;
+            await foreach (var message in agent.GenerateStreamingReplyAsync(context.Messages, context.Options, cancellationToken))
             {
-                if (item is TextMessageUpdate textMessageUpdate)
+                if (message is TextMessageUpdate textMessageUpdate)
                 {
-                    if (recentUpdate == null)
+                    if (recentUpdate is null)
                     {
-                        Console.WriteLine("from: " + textMessageUpdate.From);
+                        // Print from: xxx
+                        Console.WriteLine($"from: {textMessageUpdate.From}");
                         recentUpdate = new TextMessage(textMessageUpdate);
                         Console.Write(textMessageUpdate.Content);
-                        yield return item;
-                        continue;
-                    }
 
-                    if (!(recentUpdate is TextMessage textMessage))
+                        yield return message;
+                    }
+                    else if (recentUpdate is TextMessage recentTextMessage)
+                    {
+                        // Print the content of the message
+                        Console.Write(textMessageUpdate.Content);
+                        recentTextMessage.Update(textMessageUpdate);
+
+                        yield return recentTextMessage;
+                    }
+                    else
                     {
                         throw new InvalidOperationException("The recent update is not a TextMessage");
                     }
-
-                    Console.Write(textMessageUpdate.Content);
-                    textMessage.Update(textMessageUpdate);
-                    yield return textMessage;
                 }
-                else if (item is ToolCallMessageUpdate update)
+                else if (message is ToolCallMessageUpdate toolCallUpdate)
                 {
-                    if (recentUpdate == null)
+                    if (recentUpdate is null)
                     {
-                        recentUpdate = new ToolCallMessage(update);
-                        yield return item;
-                        continue;
-                    }
+                        recentUpdate = new ToolCallMessage(toolCallUpdate);
 
-                    if (!(recentUpdate is ToolCallMessage toolCallMessage))
+                        yield return message;
+                    }
+                    else if (recentUpdate is ToolCallMessage recentToolCallMessage)
+                    {
+                        recentToolCallMessage.Update(toolCallUpdate);
+
+                        yield return message;
+                    }
+                    else
                     {
                         throw new InvalidOperationException("The recent update is not a ToolCallMessage");
                     }
+                }
+                else if (message is IMessage imessage)
+                {
+                    recentUpdate = imessage;
 
-                    toolCallMessage.Update(update);
-                    yield return item;
+                    yield return imessage;
                 }
                 else
                 {
-                    if (!(item is IMessage message))
-                    {
-                        throw new InvalidOperationException("The message is not a valid message");
-                    }
-
-                    recentUpdate = message;
-                    yield return message;
+                    throw new InvalidOperationException("The message is not a valid message");
                 }
             }
-
             Console.WriteLine();
-            if (recentUpdate != null && !(recentUpdate is TextMessage))
+            if (recentUpdate is not null && recentUpdate is not TextMessage)
             {
                 Console.WriteLine(recentUpdate.FormatMessage());
             }
