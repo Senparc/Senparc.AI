@@ -34,7 +34,7 @@ namespace Senparc.AI.Kernel.Helpers
 
         internal IKernelBuilder KernelBuilder { get; set; } = Microsoft.SemanticKernel.Kernel.CreateBuilder();
 
-        internal ISenparcAiSetting AiSetting { get; }
+        internal ISenparcAiSetting AiSetting { get; private set; }
 
         private List<Task> _memoryExecuteList = new List<Task>();
         private readonly ILoggerFactory? loggerFactory;
@@ -119,7 +119,14 @@ namespace Senparc.AI.Kernel.Helpers
             return _kernel;
         }
 
-
+        /// <summary>
+        /// 重新设置 SenparcAiSetting 参数
+        /// </summary>
+        /// <param name="aiSetting"></param>
+        public void ResetSenparcAiSetting(ISenparcAiSetting aiSetting)
+        {
+            this.AiSetting = aiSetting;
+        }
 
         #region RequestSettings
 
