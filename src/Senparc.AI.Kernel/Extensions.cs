@@ -8,6 +8,9 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.TextGeneration;
 using Microsoft.SemanticKernel;
+using Sdcb.SparkDesk;
+using Senparc.AI.Kernel.SparkAI;
+using System.Net;
 
 namespace Senparc.AI.Kernel
 {
@@ -36,7 +39,21 @@ namespace Senparc.AI.Kernel
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
             return builder;
         }
+        //public static IKernelBuilder AddFOllamaChatCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
+        //{
+        //    string modelId2 = modelId;
 
+
+        //    Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory =
+        //        (IServiceProvider serviceProvider, object? _) =>
+        //        new OpenAIChatCompletionService(modelId, new OpenAIClient(new Uri(endpoint), new Azure.AzureKeyCredential(apiKey)), serviceProvider.GetService<ILoggerFactory>());
+
+        //    OllamaApiClientExtensions.
+
+        //    builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
+        //    builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
+        //    return builder;
+        //}
         #region Ollama
 
         public static IKernelBuilder AddFOllamaChatCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
@@ -65,5 +82,27 @@ namespace Senparc.AI.Kernel
         }
 
         #endregion
+
+
+        /// <summary>
+        /// 添加 SparkAI 聊天服务
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="modelId"></param>
+        /// <param name="apiKey"></param>
+        /// <param name="endpoint"></param>
+        /// <param name="orgId"></param>
+        /// <param name="serviceId"></param>
+        /// <returns></returns>
+        public static IKernelBuilder AddSparkAIChatCompletion(this IKernelBuilder builder, string appId, string apiKey, string apiSecret)
+        {
+
+            string apiKey2 = apiKey;
+            string appId2 = appId;
+            string apiSecret2 = apiSecret;
+            // Register SparkAIService as a singleton in the dependency injection container
+            builder.Services.AddSingleton<ITextGenerationService>(new SparkAIChatService(appId, apiKey, apiSecret));
+            return builder;
+        }
     }
 }

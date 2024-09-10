@@ -43,6 +43,7 @@ namespace Senparc.AI.Interfaces
             AiPlatform.HuggingFace => HuggingFaceEndpoint,
             AiPlatform.FastAPI => FastAPIEndpoint,
             AiPlatform.Ollama => OllamaEndpoint,
+			AiPlatform.SparkAI=>SparkAIEndpoint,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 Endpoint 输出")
         };
 
@@ -55,6 +56,7 @@ namespace Senparc.AI.Interfaces
         /// 是否使用 NeuChar OpenAI
         /// </summary>
         bool UseNeuCharAI => AiPlatform == AiPlatform.NeuCharAI;
+ bool UseSparkAI => AiPlatform == AiPlatform.SparkAI;
         /// <summary>
         /// AI 平台类型
         /// </summary>
@@ -66,6 +68,8 @@ namespace Senparc.AI.Interfaces
         HuggingFaceKeys HuggingFaceKeys { get; set; }
         FastAPIKeys FastAPIKeys { get; set; }
         OllamaKeys  OllamaKeys { get; set; }
+		
+        SparkAIKeys SparkAIKeys { get; set; }
 
         /// <summary>
         /// Neuchar OpenAI 或 Azure OpenAI 或 OpenAI API Key
@@ -79,10 +83,7 @@ namespace Senparc.AI.Interfaces
 
         #region OpenAI
 
-        /// <summary>
-        /// OpenAI Endpoint
-        /// </summary>
-        string OpenAIEndpoint { get; }
+    
 
         #endregion
 
@@ -124,6 +125,14 @@ namespace Senparc.AI.Interfaces
 
         #endregion
 
+        #region OpenAI
+
+        /// <summary>
+        /// OpenAI Endpoint
+        /// </summary>
+        string OpenAIEndpoint { get; }
+
+        #endregion
         #region FastAPI
 
         string FastAPIEndpoint { get; }
@@ -135,7 +144,9 @@ namespace Senparc.AI.Interfaces
         string OllamaEndpoint { get; }
 
         #endregion
-
+ 		 #region SparkAI
+        string SparkAIEndpoint { get; }
+        #endregion
         /// <summary>
         /// OpenAIKeys 是否已经设置
         /// </summary>
@@ -150,6 +161,7 @@ namespace Senparc.AI.Interfaces
             AiPlatform.HuggingFace => HuggingFaceKeys.ModelName,
             AiPlatform.FastAPI => FastAPIKeys.ModelName,
             AiPlatform.Ollama => OllamaKeys.ModelName,
+			 AiPlatform.SparkAI=>SparkAIKeys.ModelName,
             _ => throw new SenparcAiException($"100-未配置 {AiPlatform} 的 Endpoint 输出")
         };
 
@@ -162,6 +174,7 @@ namespace Senparc.AI.Interfaces
             AiPlatform.HuggingFace => null,
             AiPlatform.FastAPI => null,
             AiPlatform.Ollama => null,
+			AiPlatform.SparkAI=>null,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 DeploymentName 输出")
         };
 #pragma warning restore CS8603 // 可能返回 null 引用。

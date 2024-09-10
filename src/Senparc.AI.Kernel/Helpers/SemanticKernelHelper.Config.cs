@@ -93,6 +93,11 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: senparcAiSetting.OllamaEndpoint,
                         serviceId: null
                     ),
+					     AiPlatform.SparkAI => kernelBuilder.AddSparkAIChatCompletion(
+                   apiKey: senparcAiSetting.ApiKey,
+                   appId: senparcAiSetting.SparkAIKeys.AppId,
+                   apiSecret: senparcAiSetting.SparkAIKeys.ApiSecret
+               ),
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
@@ -163,6 +168,18 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: senparcAiSetting.OllamaEndpoint,
                         serviceId: null
                     ),
+					AiPlatform.SparkAI => kernelBuilder.AddSparkAIChatCompletion(
+                      appId:senparcAiSetting.SparkAIKeys.AppId,
+                      apiKey:senparcAiSetting.SparkAIKeys.ApiKey,
+                      apiSecret:senparcAiSetting.SparkAIKeys.ApiSecret
+                    ),
+                //AiPlatform.Ollama => kernelBuilder.AddOpenAIChatCompletion(
+                //        modelId: modelName,
+                //        apiKey: senparcAiSetting.ApiKey,
+                //        orgId: senparcAiSetting.OrganizationId,
+                //        endpoint: senparcAiSetting.FastAPIEndpoint,
+                //        serviceId: null
+                //    ),
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 

@@ -21,6 +21,7 @@ namespace Senparc.AI
         //Oobabooga = 64,//未实现
         FastAPI = 128,
         Ollama = 256,
+		 SparkAI=512
     }
 
     /// <summary>
