@@ -85,7 +85,7 @@ namespace Senparc.AI.Kernel
 
 
         /// <summary>
-        /// 添加 SparkAI 聊天服务
+        /// 添加 SparkAI 聊天服务 现在只有简单聊天
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="modelId"></param>
@@ -94,14 +94,10 @@ namespace Senparc.AI.Kernel
         /// <param name="orgId"></param>
         /// <param name="serviceId"></param>
         /// <returns></returns>
-        public static IKernelBuilder AddSparkAIChatCompletion(this IKernelBuilder builder, string appId, string apiKey, string apiSecret)
-        {
-
-            string apiKey2 = apiKey;
-            string appId2 = appId;
-            string apiSecret2 = apiSecret;
+        public static IKernelBuilder AddSparkAIChatCompletion(this IKernelBuilder builder, string appId, string apiKey, string apiSecret,string modelVersion)
+        {         
             // Register SparkAIService as a singleton in the dependency injection container
-            builder.Services.AddSingleton<ITextGenerationService>(new SparkAIChatService(appId, apiKey, apiSecret));
+            builder.Services.AddSingleton<ITextGenerationService>(new SparkAIChatService(appId, apiKey, apiSecret,modelVersion));
             return builder;
         }
     }

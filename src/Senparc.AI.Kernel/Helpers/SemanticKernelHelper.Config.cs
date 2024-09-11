@@ -96,7 +96,9 @@ namespace Senparc.AI.Kernel.Helpers
 					     AiPlatform.SparkAI => kernelBuilder.AddSparkAIChatCompletion(
                    apiKey: senparcAiSetting.ApiKey,
                    appId: senparcAiSetting.SparkAIKeys.AppId,
-                   apiSecret: senparcAiSetting.SparkAIKeys.ApiSecret
+                   apiSecret: senparcAiSetting.SparkAIKeys.ApiSecret,
+                  modelVersion: senparcAiSetting.SparkAIKeys.ModelVersion
+                   
                ),
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
@@ -171,7 +173,8 @@ namespace Senparc.AI.Kernel.Helpers
 					AiPlatform.SparkAI => kernelBuilder.AddSparkAIChatCompletion(
                       appId:senparcAiSetting.SparkAIKeys.AppId,
                       apiKey:senparcAiSetting.SparkAIKeys.ApiKey,
-                      apiSecret:senparcAiSetting.SparkAIKeys.ApiSecret
+                      apiSecret:senparcAiSetting.SparkAIKeys.ApiSecret,
+                      modelVersion:senparcAiSetting.SparkAIKeys.ModelVersion
                     ),
                 //AiPlatform.Ollama => kernelBuilder.AddOpenAIChatCompletion(
                 //        modelId: modelName,

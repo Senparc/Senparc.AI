@@ -22,8 +22,10 @@ namespace Senparc.AI
         public string ApiKey { get; set; }
 
         public string SparkAIEndpoint { get; set; }
-
-
+        /// <summary>
+        /// 版本 
+        /// </summary>
+        public string ModelVersion { get; set; }
 
 
     }

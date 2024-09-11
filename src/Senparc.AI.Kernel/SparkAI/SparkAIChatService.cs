@@ -1,6 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.TextGeneration;
 using Sdcb.SparkDesk;
+using Senparc.AI.Entities.Keys;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,12 +21,31 @@ namespace Senparc.AI.Kernel.SparkAI
         private readonly string _appId;
         private readonly string _apiKey;
         private readonly string _apiSecret;
-
-        public SparkAIChatService(string appId, string apiKey, string apiSecret)
+        private readonly ModelVersion _modelVersion;
+        public SparkAIChatService(string appId, string apiKey, string apiSecret,string modelVersion= "4_0_ultra")
         {
+
             _appId = appId;
             _apiKey = apiKey;
             _apiSecret = apiSecret;
+            
+            switch (modelVersion?.ToLower()) {
+                case "lite":
+                    _modelVersion = ModelVersion.Lite;
+                    break;
+                case "pro":
+                    _modelVersion = ModelVersion.Pro;break;
+                case "max":
+                    _modelVersion = ModelVersion.Max;
+                    break;
+                case "4_0_ultra":
+                    _modelVersion = ModelVersion.V4_0_Ultra;
+                    break;
+                default:
+                    _modelVersion = ModelVersion.V4_0_Ultra; break;
+            
+            
+            }
             _client = new SparkDeskClient(appId, apiKey, apiSecret);
         }
 
@@ -42,7 +62,7 @@ namespace Senparc.AI.Kernel.SparkAI
             }
 
             // 假设这里的 ModelVersion.V2_0 是一个有效的版本指示。
-            TokensUsage usage = await _client.ChatAsStreamAsync(ModelVersion.Max, messages.ToArray(), s => sb.Append(s), uid: "zhoujie");
+            TokensUsage usage = await _client.ChatAsStreamAsync(_modelVersion, messages.ToArray(), s => sb.Append(s), uid: "zhoujie");
 
             return sb.ToString();
         }
@@ -67,7 +87,7 @@ namespace Senparc.AI.Kernel.SparkAI
             //// 假设每次调用返回全部文本，我们可以直接生成一个 StreamingTextContent 对象
             //yield return new StreamingTextContent(sb.ToString(), encoding: Encoding.UTF8);
             // Ensure ChatAsStreamAsync is an async streaming method
-            await foreach (var response in _client.ChatAsStreamAsync(ModelVersion.Max, messages.ToArray()))
+            await foreach (var response in _client.ChatAsStreamAsync(_modelVersion, messages.ToArray()))
             {
                 yield return new StreamingTextContent(response.Text, encoding: Encoding.UTF8);
             }
@@ -78,7 +98,7 @@ namespace Senparc.AI.Kernel.SparkAI
 
 
             // 调用 ChatAsync 方法并获取响应
-            ChatResponse response = await _client.ChatAsync(ModelVersion.Max, new ChatMessage[]
+            ChatResponse response = await _client.ChatAsync(_modelVersion, new ChatMessage[]
             {
         ChatMessage.FromUser(prompt)
             });
