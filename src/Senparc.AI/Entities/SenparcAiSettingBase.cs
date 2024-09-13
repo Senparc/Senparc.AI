@@ -71,6 +71,7 @@ namespace Senparc.AI.Entities
         /// 是否使用 Ollama
         /// </summary>
         public virtual bool Ollama => AiPlatform == AiPlatform.Ollama;
+		public virtual bool UseSparkAI => AiPlatform == AiPlatform.SparkAI;
 
         /// <summary>
         /// AI 平台类型
@@ -87,6 +88,10 @@ namespace Senparc.AI.Entities
         public virtual FastAPIKeys FastAPIKeys { get; set; }
         public virtual OllamaKeys OllamaKeys { get; set; }
 
+    /// <summary>
+        /// 科大讯飞api
+        /// </summary>
+        public virtual SparkAIKeys SparkAIKeys { get; set; }
         /// <summary>
         /// Azure OpenAI 或 OpenAI API Key
         /// </summary>
@@ -98,6 +103,7 @@ namespace Senparc.AI.Entities
             AiPlatform.HuggingFace => "",
             AiPlatform.FastAPI => FastAPIKeys.ApiKey,
             AiPlatform.Ollama => "",
+			AiPlatform.SparkAI => SparkAIKeys.ApiKey,
             _ => ""
         };
 
@@ -164,6 +170,12 @@ namespace Senparc.AI.Entities
 
         #region Ollama
         public string OllamaEndpoint => OllamaKeys?.Endpoint;
+
+        #endregion
+
+        #region SparkAI
+
+        public virtual string SparkAIEndpoint => SparkAIKeys?.SparkAIEndpoint; 
 
         #endregion
 
@@ -253,5 +265,19 @@ namespace Senparc.AI.Entities
         }
 
         #endregion
+
+        /// <summary>
+        /// 设置 SparkAI
+        /// </summary>
+        /// <param name="neuCharAIKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetSparkAI(SparkAIKeys sparkAIKeys)
+        {
+            this.AiPlatform = AiPlatform.SparkAI;
+            this.SparkAIKeys = sparkAIKeys;
+            return this;
+        }
+
+
     }
 }

@@ -93,6 +93,20 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: senparcAiSetting.OllamaEndpoint,
                         serviceId: null
                     ),
+                AiPlatform.SparkAI => kernelBuilder.AddSparkAPIChatCompletion(
+                        apiKey: senparcAiSetting.SparkAIKeys.ApiPassword,
+                        endpoint: senparcAiSetting.Endpoint,
+                        modelId: senparcAiSetting.SparkAIKeys.ModelName.Chat,
+                        serviceId: null
+
+                ),
+                //          AiPlatform.SparkAI => kernelBuilder.AddSparkAIChatCompletion(
+                //    apiKey: senparcAiSetting.ApiKey,
+                //    appId: senparcAiSetting.SparkAIKeys.AppId,
+                //    apiSecret: senparcAiSetting.SparkAIKeys.ApiSecret,
+                //   modelVersion: senparcAiSetting.SparkAIKeys.ModelVersion
+
+                //),
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
@@ -163,6 +177,25 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: senparcAiSetting.OllamaEndpoint,
                         serviceId: null
                     ),
+                AiPlatform.SparkAI => kernelBuilder.AddSparkAPIChatCompletion(
+                    apiKey: senparcAiSetting.SparkAIKeys.ApiPassword,
+                    endpoint: senparcAiSetting.Endpoint,
+                    modelId: senparcAiSetting.SparkAIKeys.ModelName.Chat,
+                    serviceId: null
+                ),
+                //AiPlatform.SparkAI => kernelBuilder.AddSparkAIChatCompletion(
+                //  appId: senparcAiSetting.SparkAIKeys.AppId,
+                //  apiKey: senparcAiSetting.SparkAIKeys.ApiKey,
+                //  apiSecret: senparcAiSetting.SparkAIKeys.ApiSecret,
+                //  modelVersion: senparcAiSetting.SparkAIKeys.ModelVersion
+                //),
+                //AiPlatform.Ollama => kernelBuilder.AddOpenAIChatCompletion(
+                //        modelId: modelName,
+                //        apiKey: senparcAiSetting.ApiKey,
+                //        orgId: senparcAiSetting.OrganizationId,
+                //        endpoint: senparcAiSetting.FastAPIEndpoint,
+                //        serviceId: null
+                //    ),
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
@@ -218,7 +251,12 @@ namespace Senparc.AI.Kernel.Helpers
                     apiKey: senparcAiSetting.ApiKey,
                     modelId: modelName,
                     httpClient: _httpClient),
-
+                //  AiPlatform.SparkAI => kernelBuilder.AddSparkAPItext(
+                //     deploymentName: deploymentName,
+                //     endpoint: senparcAiSetting.Endpoint,
+                //     apiKey: senparcAiSetting.ApiKey,
+                //     modelId: modelName,
+                //     httpClient: _httpClient),
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextEmbeddingGeneration(
                     model: modelName,
                     endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace 必须提供 Endpoint")),
