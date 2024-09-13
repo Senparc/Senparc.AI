@@ -11,3 +11,5 @@ appsettings.Development.json
 /src/.idea/.idea.Senparc.AI/.idea
 /Samples/Senparc.AI.Samples.Consoles/Properties/PublishProfiles
 /Samples/Senparc.AI.Samples.Consoles/Senparc.AI.Samples.Consoles.csproj.user
+/Samples/Senparc.AI.Samples.Consoles/appsettings.json
+/src/ConsoleApp1/ConsoleApp1.csproj
