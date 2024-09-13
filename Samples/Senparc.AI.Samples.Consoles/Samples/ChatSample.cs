@@ -95,31 +95,33 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var useMultiLine = false;
             //开始对话
             var talkingRounds = 0;
-            while (true)
-            {
-                talkingRounds++;
+            //bool useMultiLine = false;  // 确保变量被正确初始化
+            //StringBuilder multiLineContent = new StringBuilder(); // 初始化多行内容存储
 
+            while (true) {
+                talkingRounds++;
                 await Console.Out.WriteLineAsync($"[{talkingRounds}] 人类：");
                 var input = Console.ReadLine() ?? "";
 
-                if (input.ToUpper() == "[ML]")
-                {
+                // 修剪输入并转换为大写
+                if (input.Trim().ToUpper() == "[ML]") {
                     await Console.Out.WriteLineAsync("识别到多行模式，请继续输入");
+                    await Console.Out.FlushAsync();  // 强制刷新缓冲区，确保输出顺序一致
                     useMultiLine = true;
                 }
 
-                while (useMultiLine)
-                {
-                    if (input.ToUpper() == "[END]")
-                    {
+                while (useMultiLine) {
+                    input = Console.ReadLine();
+
+                    // 检查是否结束多行模式
+                    if (input.Trim().ToUpper() == "[END]") {
                         useMultiLine = false;
                         input = multiLineContent.ToString();
-                    }
-                    else
-                    {
+                        multiLineContent.Clear();  // 清空多行内容缓存
+                    } else {
                         await Console.Out.WriteLineAsync("请继续输入，直到输入 [END] 停止...");
-                        input = Console.ReadLine();
-                        multiLineContent.Append(input);
+                        await Console.Out.FlushAsync();  // 强制刷新缓冲区，确保输出顺序一致
+                        multiLineContent.AppendLine(input); // 添加多行内容到 StringBuilder 中
                     }
                 }
 

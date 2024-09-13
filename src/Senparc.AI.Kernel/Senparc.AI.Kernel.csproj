@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 		<PropertyGroup>
 				<TargetFramework>netstandard2.1</TargetFramework>
-				<Version>0.19.3</Version>
+				<Version>0.19.4</Version>
 				<Nullable>enable</Nullable>
 				<LangVersion>10.0</LangVersion>
 				<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -61,6 +61,8 @@
 		</PropertyGroup>
 		<ItemGroup>
 				<Compile Remove="Handlers\KernelConfigExtensions.Function.cs" />
+				<Compile Remove="SparkAI\OpenAIHttpClientHandler.cs" />
+				<Compile Remove="SparkAI\SparkAIChatCompletionService.cs" />
 		</ItemGroup>
 		<ItemGroup>
 				<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
@@ -72,14 +74,13 @@
 				<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.16.2-preview" />
 				<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
 				<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.16.2-alpha" />
-				<PackageReference Include="Sdcb.SparkDesk" Version="3.1.0" />
 
       <!--<PackageReference Include="Ollama" Version="1.6.1" />-->
       <!--<PackageReference Include="OllamaSharp" Version="2.0.13" />-->
       <PackageReference Include="Senparc.CO2NET" Version="2.4.3" />
     </ItemGroup>
  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-      <PackageReference Include="Senparc.AI" Version="0.16.7" />
+      <PackageReference Include="Senparc.AI" Version="0.16.8" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' != 'Release'">
     <ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />
