@@ -12,6 +12,8 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Senparc.CO2NET.Extensions;
 using Microsoft.Extensions.Http.Logging;
 using System.Net.Http;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
+using System.Net;
 
 // Memory functionality is experimental
 #pragma warning disable SKEXP0003, SKEXP0011, SKEXP0052, SKEXP0020, SKEXP0012, SKEXP0001
@@ -88,7 +90,7 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: senparcAiSetting.FastAPIEndpoint,
                         serviceId: null
                     ),
-                AiPlatform.Ollama => kernelBuilder.AddFOllamaChatCompletion(
+                AiPlatform.Ollama => kernelBuilder.AddOllamaChatCompletion(
                         modelId: modelName,
                         endpoint: senparcAiSetting.OllamaEndpoint,
                         serviceId: null
@@ -129,17 +131,17 @@ namespace Senparc.AI.Kernel.Helpers
 
             _ = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.AddOpenAITextGeneration(modelName,
+                AiPlatform.OpenAI => kernelBuilder.AddOpenAIChatCompletion(modelName,
                         apiKey: senparcAiSetting.ApiKey,
                         orgId: senparcAiSetting.OrganizationId,
                         httpClient: _httpClient),
-                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextGeneration(
+                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAIChatCompletion(
                         deploymentName: deploymentName,
                         modelId: modelName,
                         endpoint: senparcAiSetting.Endpoint,
                         apiKey: senparcAiSetting.ApiKey,
                         httpClient: _httpClient),
-                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextGeneration(
+                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAIChatCompletion(
                         deploymentName: deploymentName,
                         modelId: modelName,
                         endpoint: senparcAiSetting.Endpoint,
@@ -158,7 +160,7 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: senparcAiSetting.FastAPIEndpoint,
                         serviceId: null
                     ),
-                AiPlatform.Ollama => kernelBuilder.AddFOllamaTextCompletion(
+                AiPlatform.Ollama => kernelBuilder.AddOllamaTextCompletion(
                         modelId: modelName,
                         endpoint: senparcAiSetting.OllamaEndpoint,
                         serviceId: null
@@ -316,23 +318,38 @@ namespace Senparc.AI.Kernel.Helpers
 
                 _ = aiPlatForm switch
                 {
-                    AiPlatform.OpenAI => memoryBuilder.WithOpenAITextEmbeddingGeneration(
-                        modelId: modelName,
-                        apiKey: senparcAiSetting.ApiKey,
-                        orgId: senparcAiSetting.OrganizationId,
-                        httpClient: _httpClient),
-                    AiPlatform.AzureOpenAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(
-                        deploymentName: azureDeployName,
-                        endpoint: senparcAiSetting.Endpoint,
-                        apiKey: senparcAiSetting.ApiKey,
-                        modelId: modelName,
-                        httpClient: _httpClient),
-                    AiPlatform.NeuCharAI => memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(
-                        deploymentName: azureDeployName,
-                        endpoint: senparcAiSetting.Endpoint,
-                        apiKey: senparcAiSetting.ApiKey,
-                        modelId: modelName,
-                        httpClient: _httpClient),
+                    AiPlatform.OpenAI => memoryBuilder.WithTextEmbeddingGeneration(
+                           (loggerFactory, httpClient) =>
+                           {
+                               return new AzureOpenAITextEmbeddingGenerationService(
+                                    deploymentName: azureDeployName,
+                                    endpoint: senparcAiSetting.Endpoint,
+                                    apiKey: senparcAiSetting.ApiKey,
+                                    httpClient: _httpClient,
+                                    modelId: modelName,
+                                    loggerFactory: loggerFactory
+                               );
+                           }
+                     ),
+
+                    //memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(
+                    //    modelId: modelName,
+                    //    apiKey: senparcAiSetting.ApiKey,
+                    //    orgId: senparcAiSetting.OrganizationId,
+                    //    httpClient: _httpClient),
+                    AiPlatform.AzureOpenAI => memoryBuilder.WithTextEmbeddingGeneration(
+                           (loggerFactory, httpClient) =>
+                           {
+                               return new AzureOpenAITextEmbeddingGenerationService(
+                                    deploymentName: azureDeployName,
+                                    endpoint: senparcAiSetting.Endpoint,
+                                    apiKey: senparcAiSetting.ApiKey,
+                                    httpClient: _httpClient,
+                                    modelId:modelName,
+                                    loggerFactory: loggerFactory
+                               );
+                           }
+                    ),
                     AiPlatform.HuggingFace => memoryBuilder.WithTextEmbeddingGeneration(
                         textEmbeddingGeneration: textEmbeddingGeneration),
                     _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")

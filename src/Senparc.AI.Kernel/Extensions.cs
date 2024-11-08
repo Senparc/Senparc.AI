@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.TextGeneration;
 using Microsoft.SemanticKernel;
+using OpenAI;
+using System.ClientModel;
 
 namespace Senparc.AI.Kernel
 {
@@ -31,7 +33,7 @@ namespace Senparc.AI.Kernel
 
             Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory =
                 (IServiceProvider serviceProvider, object? _) =>
-                new OpenAIChatCompletionService(modelId, new OpenAIClient(new Uri(endpoint), new Azure.AzureKeyCredential(apiKey)), serviceProvider.GetService<ILoggerFactory>());
+                new OpenAIChatCompletionService(modelId, new OpenAIClient(new ApiKeyCredential(apiKey)), serviceProvider.GetService<ILoggerFactory>());
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
             return builder;
@@ -39,7 +41,14 @@ namespace Senparc.AI.Kernel
 
         #region Ollama
 
+        [Obsolete("请使用 AddOllamaChatCompletion", true)]
         public static IKernelBuilder AddFOllamaChatCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
+        {
+            return AddOllamaChatCompletion(builder, modelId, endpoint, serviceId);
+        }
+
+
+        public static IKernelBuilder AddOllamaChatCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
         {
             string modelId2 = modelId;
 
@@ -47,17 +56,23 @@ namespace Senparc.AI.Kernel
     (IServiceProvider serviceProvider, object? _) =>
             new OpenAIChatCompletionService(modelId: modelId, endpoint: new Uri(endpoint), apiKey: "none", loggerFactory: serviceProvider.GetService<ILoggerFactory>());
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
-           
+
             return builder;
         }
 
+        [Obsolete("请使用 AddOllamaTextCompletion", true)]
         public static IKernelBuilder AddFOllamaTextCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
+        {
+            return AddFOllamaTextCompletion(builder, modelId, endpoint, serviceId);
+        }
+
+        public static IKernelBuilder AddOllamaTextCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
         {
             string modelId2 = modelId;
 
-            Func<IServiceProvider, object, OpenAITextGenerationService> implementationFactory =
+            Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory =
     (IServiceProvider serviceProvider, object? _) =>
-                new OpenAITextGenerationService(modelId: modelId, new OpenAIClient(endpoint: new Uri(endpoint), new Azure.AzureKeyCredential("none")), loggerFactory: serviceProvider.GetService<ILoggerFactory>());
+            new OpenAIChatCompletionService(modelId: modelId, endpoint: new Uri(endpoint), apiKey: "none", loggerFactory: serviceProvider.GetService<ILoggerFactory>());
 
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
 
