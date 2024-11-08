@@ -183,12 +183,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <summary>
         /// 根据不同的 AiPlatform 类型生成不同的 ExecutionSettings 对象
         /// </summary>
-        /// <param name="temperature"></param>
-        /// <param name="topP"></param>
-        /// <param name="maxTokens"></param>
-        /// <param name="presencePenalty"></param>
-        /// <param name="frequencyPenalty"></param>
-        /// <param name="stopSequences"></param>
+        /// <param name="promptConfigParameter"></param>
         /// <param name="senparcAiSetting"></param>
         /// <returns></returns>
         public PromptExecutionSettings GetExecutionSetting(PromptConfigParameter promptConfigParameter, ISenparcAiSetting senparcAiSetting)

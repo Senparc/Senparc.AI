@@ -39,7 +39,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 TopP = 0.5,
             };
 
-            var functionPrompt = @"{{$input}}";
+            //var functionPrompt = @"{{$input}}";
 
             //准备运行
             var userId = "JeffreySu";//区分用户
@@ -47,7 +47,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                  _semanticAiHandler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId)
                         .BuildKernel()
-                        .CreateFunctionFromPrompt(functionPrompt, promptParameter).iWantToRun;
+                        ;
+                        //.CreateFunctionFromPrompt(functionPrompt, promptParameter).iWantToRun;
 
             var multiLineContent = new StringBuilder();
             var useMultiLine = false;
