@@ -4,6 +4,7 @@ using AutoGen;
 using AutoGen.Core;
 using AutoGen.Mistral;
 using AutoGen.SemanticKernel;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
@@ -79,19 +80,27 @@ AgentKeys.AgentKey3 = config.GetSection("AgentKey3").Value;
 
 #endregion
 
+var accessor = new SemanticKernelAgent(
+    kernel: kernel,
+    name: "Accessor",
+    systemMessage: """
+    你是整个对话的对接人，用于传递消息，并接收最终的返回结果。
+    """)
+    .RegisterTextMessageConnector();
+
 // Create the Administrtor
 var administrator = new SemanticKernelAgent(
     kernel: kernel,
-    name: "行政主管",
+    name: "CEO",
     systemMessage: """
-    你是行政主管，你拥有制定合同、确认项目在公司层面的风险等责任。你正在处理一个项目需求的梳理，并且需要答复客户可行性，以及最终可能的合同条款。
+    你是公司CEO，你拥有制定合同、确认项目在公司层面的风险等责任。你正在处理一个项目需求的梳理，并且需要答复客户可行性，以及最终可能的合同条款。
     你可以向你的下属提问，以获得你想要的答案，并按照要求总结后进行回复。
 
     请注意：每一项决策都必须至少通过产品经理、项目经理的反馈和确认，才能最终给出最终的回复。
 
     这些是你的下属:
-    - 产品经理：产品经理负责产品的功能设计和产品的功能规划。
-    - 项目经理: 项目经理负责所有项目的开发任务的安排和功能可行性的评估。
+    - Product Manager：产品经理负责产品的功能设计和产品的功能规划。
+    - Project Manager: 项目经理负责所有项目的开发任务的安排和功能可行性的评估。
     """)
     .RegisterTextMessageConnector()
     .RegisterCustomPrintMessage(new PrintWechatMessageMiddleware(AgentKeys.SendWechatMessage));
@@ -99,9 +108,9 @@ var administrator = new SemanticKernelAgent(
 // Create the Product Manager
 var productManager = new SemanticKernelAgent(
        kernel: kernel,
-       name: "产品经理",
+       name: "Product Manager",
        systemMessage: """
-       你是产品经理，你向行政主管负责，并且负责回答他的所有问题。
+       你是产品经理，你向 CEO 负责，并且负责回答他的所有问题。
 
        为了确保你有最新的信息，你可以使用网络搜索插件在回答问题之前在网上搜索信息，也可以根据你的经验，按照要求回答问题，并作出相对应的规划和决策。
        """)
@@ -111,9 +120,9 @@ var productManager = new SemanticKernelAgent(
 // Create the Project Manager
 var projectManager = new SemanticKernelAgent(
        kernel: kernel,
-       name: "项目经理",
+       name: "Project Manager",
        systemMessage: """
-       你是项目经理，你向行政主管负责，并且负责回答他的所有问题。
+       你是项目经理，你向 CEO 负责，并且负责回答他的所有问题。
        产品经理可能会告诉你项目的规划方案，此时你需要对其进行评估，并安排对应的开发任务。
 
        为了确保你有最新的信息，你可以使用网络搜索插件在回答问题之前在网上搜索信息，也可以根据你的经验，按照要求回答问题，并作出相对应的规划和决策。
@@ -130,9 +139,10 @@ var hearingMember = new UserProxyAgent(name: "BA");
 // Create the group admin
 var admin = new SemanticKernelAgent(
     kernel: kernel,
-    name: "admin",
-    systemMessage: "你是群管理员.")
-    .RegisterTextMessageConnector();
+    name: "群管理员",
+    systemMessage: "你是群管理员。")
+    .RegisterTextMessageConnector()
+    .RegisterMiddleware(new PrintMessageMiddleware());
 
 // Create the AI team
 // define the transition among group members
@@ -170,8 +180,8 @@ var admin = new SemanticKernelAgent(
 #endregion
 
 var graphConnector = GraphBuilder.Start()
-    .ConnectFrom(hearingMember).TwoWay(administrator)
-    .ConnectFrom(administrator).TwoWay(projectManager).AlsoTwoWay(productManager)
+    .ConnectFrom(hearingMember).TwoWay(administrator)//.AlsoTwoWay(accessor)
+    .ConnectFrom(administrator).TwoWay(projectManager).AlsoTwoWay(productManager)//.AlsoTwoWay(accessor)
     .Finish();
 
 var aiTeam = graphConnector.CreateAiTeam(admin);
@@ -192,10 +202,25 @@ var greetingMessage = await administrator.SendAsync("你好，如果已经就绪
 
 try
 {
-    await administrator.SendMessageToGroupAsync(
-        groupChat: aiTeam,
-        chatHistory: [greetingMessage],
-        maxRound: 20);
+    IAsyncEnumerable<IMessage>? teamReasult = aiTeam.SendAsync(chatHistory: [greetingMessage],
+          maxRound: 20);
+
+    await foreach (var message in teamReasult)
+    {
+        //Console.WriteLine("$$$$$$ " + message.GetContent());
+    }
+
+    //var sendResult = /*await*/ administrator.SendMessageToGroupAsync(
+    //    groupChat: aiTeam,
+    //    chatHistory: [greetingMessage],
+    //    maxRound: 20);
+
+    //await foreach (var message in sendResult)
+    //{
+    //    //Console.WriteLine("////" + message.GetContent() + "////");
+    //}
+
+
 }
 catch (Exception ex)
 {
