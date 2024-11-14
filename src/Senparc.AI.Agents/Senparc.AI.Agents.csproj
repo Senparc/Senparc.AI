@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 		<PropertyGroup>
 				<TargetFramework>netstandard2.1</TargetFramework>
-				<Version>0.3.0-beta1</Version>
+				<Version>0.3.0</Version>
 				<Nullable>enable</Nullable>
 				<LangVersion>10.0</LangVersion>
 				<AssemblyName>Senparc.AI.Agents</AssemblyName>
