@@ -4,6 +4,7 @@ using AutoGen;
 using AutoGen.Core;
 using AutoGen.Mistral;
 using AutoGen.SemanticKernel;
+using AutoGen.SemanticKernel.Extension;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,7 +54,7 @@ var _semanticAiHandler = new SemanticAiHandler(setting);
 var parameter = new PromptConfigParameter()
 {
     MaxTokens = 2000,
-    Temperature = 0.7,
+    Temperature = 0,
     TopP = 0.5,
 };
 
@@ -89,7 +90,7 @@ var accessor = new SemanticKernelAgent(
     .RegisterTextMessageConnector();
 
 // Create the Administrtor
-var administrator = new SemanticKernelAgent(
+var ceo = new SemanticKernelAgent(
     kernel: kernel,
     name: "CEO",
     systemMessage: """
@@ -98,9 +99,13 @@ var administrator = new SemanticKernelAgent(
 
     请注意：每一项决策都必须至少通过产品经理、项目经理的反馈和确认，才能最终给出最终的回复。
 
-    这些是你的下属:
-    - Product Manager：产品经理负责产品的功能设计和产品的功能规划。
-    - Project Manager: 项目经理负责所有项目的开发任务的安排和功能可行性的评估。
+    这些是你的下属, 你可以通过@来向他们提问：
+    - 产品经理：负责产品的功能设计和产品的功能规划。
+    - 项目经理: 负责所有项目的开发任务的安排和功能可行性的评估。
+
+    e.g: @产品经理 xxxx。
+
+    你的客户是张三。
     """)
     .RegisterTextMessageConnector()
     .RegisterCustomPrintMessage(new PrintWechatMessageMiddleware(AgentKeys.SendWechatMessage));
@@ -108,7 +113,7 @@ var administrator = new SemanticKernelAgent(
 // Create the Product Manager
 var productManager = new SemanticKernelAgent(
        kernel: kernel,
-       name: "Product Manager",
+       name: "产品经理",
        systemMessage: """
        你是产品经理，你向 CEO 负责，并且负责回答他的所有问题。
 
@@ -120,7 +125,7 @@ var productManager = new SemanticKernelAgent(
 // Create the Project Manager
 var projectManager = new SemanticKernelAgent(
        kernel: kernel,
-       name: "Project Manager",
+       name: "项目经理",
        systemMessage: """
        你是项目经理，你向 CEO 负责，并且负责回答他的所有问题。
        产品经理可能会告诉你项目的规划方案，此时你需要对其进行评估，并安排对应的开发任务。
@@ -134,15 +139,15 @@ var projectManager = new SemanticKernelAgent(
 
 
 // Create the hearing member
-var hearingMember = new UserProxyAgent(name: "BA");
+var user = new UserProxyAgent(name: "张三")
+    .RegisterPrintMessage();
 
 // Create the group admin
 var admin = new SemanticKernelAgent(
     kernel: kernel,
-    name: "群管理员",
-    systemMessage: "你是群管理员。")
-    .RegisterTextMessageConnector()
-    .RegisterMiddleware(new PrintMessageMiddleware());
+    name: "admin")
+    .RegisterMessageConnector()
+    .RegisterPrintMessage();
 
 // Create the AI team
 // define the transition among group members
@@ -179,9 +184,10 @@ var admin = new SemanticKernelAgent(
 
 #endregion
 
-var graphConnector = GraphBuilder.Start()
-    .ConnectFrom(hearingMember).TwoWay(administrator)//.AlsoTwoWay(accessor)
-    .ConnectFrom(administrator).TwoWay(projectManager).AlsoTwoWay(productManager)//.AlsoTwoWay(accessor)
+var graphConnector = GraphBuilder
+    .Start()
+    .ConnectFrom(user).TwoWay(ceo)//.AlsoTwoWay(accessor)
+    .ConnectFrom(ceo).TwoWay(projectManager).AlsoTwoWay(productManager)//.AlsoTwoWay(accessor)
     .Finish();
 
 var aiTeam = graphConnector.CreateAiTeam(admin);
@@ -198,36 +204,21 @@ Console.WriteLine("-----------------------");
 
 // start the chat
 // generate a greeting message to hearing member from Administrator
-var greetingMessage = await administrator.SendAsync("你好，如果已经就绪，请告诉我们“已就位”，并和 BA 打个招呼");
+var greetingMessage = await ceo.SendAsync("你好，如果已经就绪，请告诉我们“已就位”，并和张三打个招呼");
 
 try
 {
-    IAsyncEnumerable<IMessage>? teamReasult = aiTeam.SendAsync(chatHistory: [greetingMessage],
-          maxRound: 20);
-
-    await foreach (var message in teamReasult)
+    await foreach (var message in aiTeam.SendAsync(chatHistory: [greetingMessage],
+          maxRound: 20))
     {
-        //Console.WriteLine("$$$$$$ " + message.GetContent());
+        // process exit
+        if (message.GetContent()?.Contains("exit") is true)
+        {
+            return;
+        }
     }
-
-    //var sendResult = /*await*/ administrator.SendMessageToGroupAsync(
-    //    groupChat: aiTeam,
-    //    chatHistory: [greetingMessage],
-    //    maxRound: 20);
-
-    //await foreach (var message in sendResult)
-    //{
-    //    //Console.WriteLine("////" + message.GetContent() + "////");
-    //}
-
-
 }
 catch (Exception ex)
 {
     Console.WriteLine($"抱歉发生了异常: {ex.Message}. ");
 }
-
-Console.WriteLine("好，让我们重新开始！");
-Console.WriteLine();
-
-goto Start;
