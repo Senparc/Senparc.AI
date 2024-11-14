@@ -214,6 +214,7 @@ try
         // process exit
         if (message.GetContent()?.Contains("exit") is true)
         {
+            Console.WriteLine("您已推出对话");
             return;
         }
     }
@@ -222,3 +223,10 @@ catch (Exception ex)
 {
     Console.WriteLine($"抱歉发生了异常: {ex.Message}. ");
 }
+
+
+
+Console.WriteLine("本轮对话已结束，让我们重新开始！");
+Console.WriteLine();
+
+goto Start;
