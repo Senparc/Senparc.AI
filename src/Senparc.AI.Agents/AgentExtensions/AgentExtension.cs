@@ -77,7 +77,15 @@ public static class AgentExtension
 
     #region AI Team 构造
 
-    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, TFromAgent adminAgent) where TFromAgent : IAgent
+    /// <summary>
+    /// 创建 AITeam 对象（GroupChat）
+    /// </summary>
+    /// <typeparam name="TFromAgent"></typeparam>
+    /// <param name="graphConnector"></param>
+    /// <param name="adminAgent"></param>
+    /// <returns></returns>
+    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, TFromAgent adminAgent) 
+        where TFromAgent : IAgent
     {
         var aiTeam = new GroupChat(
             members: graphConnector.Agents.Values,
