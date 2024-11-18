@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.17.0-beta1</Version>
+		<Version>0.18.0-beta1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI</AssemblyName>
@@ -51,6 +51,7 @@
 			v0.16.2 增加 Agents 项目输入为空时，异常捕获
 			v0.16.3 优化 SenparcAiSettingBase
 			v0.17.0-beta1 升级 CO2NET
+			[2024-11-19] v0.18.0 Update CO2NET, reframe for Aspire
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
@@ -70,6 +71,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-		<PackageReference Include="Senparc.CO2NET" Version="2.5.2" />
+		<PackageReference Include="Senparc.CO2NET" Version="3.0.0-beta3" />
 	</ItemGroup>
 </Project>
