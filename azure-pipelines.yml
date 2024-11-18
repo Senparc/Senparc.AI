@@ -33,11 +33,11 @@ steps:
     custom: '--list-sdks '
 
 
-- task: NuGetToolInstaller@1
-  displayName: 'Use NuGet 6.3.0'
-  inputs:
-    versionSpec: '6.3.0'
-    checkLatest: true
+# - task: NuGetToolInstaller@1
+#   displayName: 'Use NuGet 6.3.0'
+#   inputs:
+#     versionSpec: '6.3.0'
+#     checkLatest: true
 
     
 - task: NuGetCommand@2
