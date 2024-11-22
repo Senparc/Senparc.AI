@@ -94,6 +94,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
 
                 var request = iWantToRun.CreateRequest(prompt, true);
+
                 await Console.Out.WriteLineAsync("回复：");
 
                 var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;

@@ -147,7 +147,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                             await file.WriteLineAsync($"DeploymentName：{SampleSetting.CurrentSetting.DeploymentName}");
                             await file.WriteLineAsync();
                             await file.WriteLineAsync($"保存时间：{SystemTime.Now.ToString("F")}");
-                            await file.WriteLineAsync($"保存对话数：{maxHistoryCount}"); 
+                            await file.WriteLineAsync($"保存对话数：{maxHistoryCount}");
                             await file.WriteLineAsync($"System Message：{systemMessage}");
                             await file.WriteLineAsync();
                             await file.WriteLineAsync("对话记录：");
@@ -203,11 +203,28 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     if (useStream)
                     {
                         //使用流式输出
+
+                        var originalColor = Console.ForegroundColor;//原始颜色
                         Action<StreamingKernelContent> streamItemProceessing = async item =>
                         {
                             await Console.Out.WriteAsync(item.ToString());
+
+                            //每个流式输出改变一次颜色
+                            if (Console.ForegroundColor == originalColor)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Green;
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = originalColor;
+                            }
                         };
+                        
+                        //输出结果
                         var result = await _semanticAiHandler.ChatAsync(iWantToRun, input, streamItemProceessing);
+                        
+                        //复原颜色
+                        Console.ForegroundColor = originalColor;
                     }
                     else
                     {
