@@ -119,27 +119,21 @@ namespace Senparc.AI.Kernel
 
             //历史记录
             //初始化对话历史（可选）
-            ChatHistory oldHistory;
+            ChatHistory chatHistory;
             if (!request.GetStoredArguments(historyArgName, out var hiistoryObj))
             {
                 //request.SetStoredContext(historyArgName, "");
                 request.SetStoredContext(historyArgName, new ChatHistory());
-                oldHistory = new ChatHistory();
+                chatHistory = new ChatHistory();
+                request.SetStoredContext(humanInputArgName, chatHistory);
             }
             else
             {
-                 oldHistory = hiistoryObj as ChatHistory;
-             
+                chatHistory = hiistoryObj as ChatHistory;
+
             }
 
-            oldHistory.Add(new ChatMessageContent(AuthorRole.User, input));
-            oldHistory.Add(new ChatMessageContent(AuthorRole.Assistant, ""));
-
-            //本次记录
-            request.SetStoredContext(humanInputArgName, oldHistory);
-
             var newRequest = request with { RequestContent = "" };
-
 
             //运行
 
@@ -147,7 +141,7 @@ namespace Senparc.AI.Kernel
             List<ContentItem> visionResult = await ChatHelper.TryGetImagesBase64FromContent(Senparc.CO2NET.SenparcDI.GetServiceProvider(), input);
             if (visionResult.Exists(z => z.Type == ContentType.Image))
             {
-                aiResult = await iWantToRun.RunVisionAsync(newRequest, visionResult, inStreamItemProceessing);
+                aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
             }
             else
             {
@@ -157,7 +151,6 @@ namespace Senparc.AI.Kernel
             //判断最大历史记录数
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
             //string newHistory = null;
-            ChatHistory newchatHistory = new ChatHistory();
 
             //if ((historyObj is string history) &&
             //    history != null &&
@@ -175,12 +168,11 @@ namespace Senparc.AI.Kernel
             //}
 
             //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
-            oldHistory.Remove(oldHistory.Last());
-            oldHistory.Add(new ChatMessageContent(AuthorRole.Assistant, aiResult.OutputString));
+            chatHistory.AddAssistantMessage(aiResult.OutputString);
 
             //记录对话历史（可选）
             //request.SetStoredContext(historyArgName, newHistory);
-            request.SetStoredContext(historyArgName, newchatHistory);
+            request.SetStoredContext(historyArgName, chatHistory);
 
             return aiResult;
         }

@@ -580,10 +580,10 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
         /// <returns></returns>
         public static Task<SenparcKernelAiResult<string>> RunVisionAsync(this IWantToRun iWanToRun,
-            SenparcAiRequest request, List<ContentItem> contentList,
+            SenparcAiRequest request, ChatHistory chatHistory, List<ContentItem> contentList,
             Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
-            return RunVisionAsync<string>(iWanToRun, request, contentList, inStreamItemProceessing);
+            return RunVisionAsync<string>(iWanToRun, request, chatHistory, contentList, inStreamItemProceessing);
         }
 
         /// <summary>
@@ -596,7 +596,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns></returns>
 
         public static async Task<SenparcKernelAiResult<T>> RunVisionAsync<T>(this IWantToRun iWanToRun,
-            SenparcAiRequest request, List<ContentItem> contentList,
+            SenparcAiRequest request, ChatHistory chatHistory, List<ContentItem> contentList,
             Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
@@ -621,16 +621,6 @@ namespace Senparc.AI.Kernel.Handlers
 
             var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 
-            ChatHistory chatHistory = null;
-            if (request.StoreAiArguments.KernelArguments.TryGetValue("history", out var history))
-            {
-                chatHistory = history as ChatHistory;
-            }
-            else
-            {
-                chatHistory = new ChatHistory();
-            }
-
             ChatMessageContentItemCollection contentItems = new ChatMessageContentItemCollection();
             foreach (var contentItem in contentList)
             {
@@ -643,8 +633,8 @@ namespace Senparc.AI.Kernel.Handlers
                     contentItems.Add(new ImageContent(contentItem.ImageData, "image/jpg"));
                 }
             }
-            chatHistory.AddUserMessage(contentItems);
 
+            chatHistory.AddUserMessage(contentItems);
 
             if (useStream)
             {
@@ -668,7 +658,6 @@ namespace Senparc.AI.Kernel.Handlers
                 var contentResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, kernel: iWanToRun.Kernel);
                 result.OutputString = contentResult.InnerContent?.ToString();
             }
-            //TODO:加入到历史
 
             return result;
         }
