@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Interfaces;
@@ -69,25 +73,31 @@ namespace Senparc.AI.Kernel
         /// <param name="promptTemplate">完整的 Prompt，一般会包含 System Message，设置后 <paramref name="chatSystemMessage"/> 参数会被忽略</param>
         /// <param name="senparcAiSetting"></param>
         /// <returns></returns>
-        public (IWantToRun iWantToRun, KernelFunction chatFunction) ChatConfig(PromptConfigParameter promptConfigParameter,
+        public IWantToRun ChatConfig(PromptConfigParameter promptConfigParameter,
             string userId,
             int maxHistoryStore,
             ModelName modelName = null,
             string chatSystemMessage = null,
             string promptTemplate = null,
             ISenparcAiSetting senparcAiSetting = null,
-            string humanId = "Human", string robotId = "ChatBot", string hisgoryArgName = "history", string humanInputArgName = "human_input")
+            string humanId = "User", string robotId = "Assistant", string hisgoryArgName = "history", string humanInputArgName = "human_input")
         {
-            promptTemplate ??= DefaultSetting.GetPromptForChat(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE, humanId, robotId, hisgoryArgName, humanInputArgName);
-            var result = this.IWantTo(senparcAiSetting)
+            //promptTemplate ??= DefaultSetting.GetPromptForChat(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE, humanId, robotId, hisgoryArgName, humanInputArgName);
+
+            var iWanToRun = this.IWantTo(senparcAiSetting)
                 .ConfigModel(ConfigModel.Chat, userId, modelName)
                 .BuildKernel()
-                .CreateFunctionFromPrompt(promptTemplate, promptConfigParameter);
+                .CreateFunctionFromPrompt(chatSystemMessage, promptConfigParameter)
+                .iWantToRun;
 
-            var iWantTo = result.iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
+            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             iWantTo.TempStore["MaxHistoryCount"] = maxHistoryStore;
 
-            return result;
+            var chatHistory = new ChatHistory();
+            chatHistory.Add(new ChatMessageContent(AuthorRole.System, chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE));
+            iWanToRun.StoredAiArguments.KernelArguments.Set(hisgoryArgName, chatHistory);
+
+            return iWanToRun;
         }
 
         /// <summary>
@@ -100,7 +110,7 @@ namespace Senparc.AI.Kernel
         /// <returns></returns>
         public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string input,
         Action<StreamingKernelContent> inStreamItemProceessing = null,
-        string humanId = "Human", string robotId = "ChatBot", string historyArgName = "history", string humanInputArgName = "human_input")
+        string humanId = "User", string robotId = "Assistant", string historyArgName = "history", string humanInputArgName = "human_input")
         {
             //var function = iWantToRun.Kernel.Plugins.GetSemanticFunction("Chat");
             //request.FunctionPipeline = new[] { function };
@@ -109,34 +119,68 @@ namespace Senparc.AI.Kernel
 
             //历史记录
             //初始化对话历史（可选）
-            if (!request.GetStoredArguments(historyArgName, out var historyObj))
+            ChatHistory oldHistory;
+            if (!request.GetStoredArguments(historyArgName, out var hiistoryObj))
             {
-                request.SetStoredContext(historyArgName, "");
+                //request.SetStoredContext(historyArgName, "");
+                request.SetStoredContext(historyArgName, new ChatHistory());
+                oldHistory = new ChatHistory();
+            }
+            else
+            {
+                 oldHistory = hiistoryObj as ChatHistory;
+             
             }
 
+            oldHistory.Add(new ChatMessageContent(AuthorRole.User, input));
+            oldHistory.Add(new ChatMessageContent(AuthorRole.Assistant, ""));
+
             //本次记录
-            request.SetStoredContext(humanInputArgName, input);
+            request.SetStoredContext(humanInputArgName, oldHistory);
 
             var newRequest = request with { RequestContent = "" };
 
+
             //运行
-            var aiResult = await iWantToRun.RunAsync(newRequest, inStreamItemProceessing);
+
+            SenparcKernelAiResult<string>? aiResult = null;
+            List<ContentItem> visionResult = await ChatHelper.TryGetImagesBase64FromContent(Senparc.CO2NET.SenparcDI.GetServiceProvider(), input);
+            if (visionResult.Exists(z => z.Type == ContentType.Image))
+            {
+                aiResult = await iWantToRun.RunVisionAsync(newRequest, visionResult, inStreamItemProceessing);
+            }
+            else
+            {
+                aiResult = await iWantToRun.RunAsync(newRequest, inStreamItemProceessing);
+            }
 
             //判断最大历史记录数
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
-            string newHistory = null;
-            if ((historyObj is string history) &&
-                history != null &&
-                iWantTo.TempStore.TryGetValue("MaxHistoryCount", out object maxHistoryCountObj) &&
-                (maxHistoryCountObj is int maxHistoryCount))
-            {
-                newHistory = this.RemoveHistory(history, maxHistoryCount - 1);
-            }
+            //string newHistory = null;
+            ChatHistory newchatHistory = new ChatHistory();
 
-            newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
+            //if ((historyObj is string history) &&
+            //    history != null &&
+            //    iWantTo.TempStore.TryGetValue("MaxHistoryCount", out object maxHistoryCountObj) &&
+            //    (maxHistoryCountObj is int maxHistoryCount))
+            //{
+            //    newHistory = this.RemoveHistory(history, maxHistoryCount - 1);
+            //}
+            //else
+            //if (historyObj is ChatHistory)
+            //{
+            //    //TODO: 删除记录
+            //    newchatHistory = historyObj as ChatHistory;
+            //    //chatHistory.Add(new ChatMessageContent(AuthorRole.))
+            //}
+
+            //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
+            oldHistory.Remove(oldHistory.Last());
+            oldHistory.Add(new ChatMessageContent(AuthorRole.Assistant, aiResult.OutputString));
 
             //记录对话历史（可选）
-            request.SetStoredContext(historyArgName, newHistory);
+            //request.SetStoredContext(historyArgName, newHistory);
+            request.SetStoredContext(historyArgName, newchatHistory);
 
             return aiResult;
         }

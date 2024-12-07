@@ -18,7 +18,7 @@ It can give explicit instructions or say 'I don't know' if it does not have an a
         /// <param name="hisgoryArgName"></param>
         /// <param name="humanInputArgName"></param>
         /// <returns></returns>
-        public static string GetPromptForChat(string systemMessage = DEFAULT_SYSTEM_MESSAGE, string humanId = "Human", string robotId = "ChatBot", string hisgoryArgName = "history", string humanInputArgName = "human_input")
+        public static string GetPromptForChat(string systemMessage = DEFAULT_SYSTEM_MESSAGE, string humanId = "User", string robotId = "Assistant", string hisgoryArgName = "history", string humanInputArgName = "human_input")
         {
             return $@"{systemMessage}
 

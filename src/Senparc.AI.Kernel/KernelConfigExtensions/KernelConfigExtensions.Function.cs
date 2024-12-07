@@ -35,6 +35,7 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 
 
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.TemplateEngine;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
@@ -82,7 +83,8 @@ namespace Senparc.AI.Kernel.Handlers
         /// </param>
         /// <param name="senparcAiSetting">如果为 null，则默认是用</param>
         /// <returns>(IWantToRun iWantToRun, KernelFunction newFunction)</returns>
-        public static (IWantToRun iWantToRun, KernelFunction newFunction) CreateFunctionFromPrompt(this IWantToRun iWantToRun, string promptTemplate,
+        public static (IWantToRun iWantToRun, KernelFunction newFunction) CreateFunctionFromPrompt(
+            this IWantToRun iWantToRun, string promptTemplate,
             PromptConfigParameter? promptConfigPara = null,
             string? functionName = null,
             string? description = null,
@@ -112,7 +114,6 @@ namespace Senparc.AI.Kernel.Handlers
 
             //var promptTemplateFactory = new KernelPromptTemplateFactory();
 
-
             var newFunction =
                 kernel.CreateFunctionFromPrompt(promptTemplate, executionSetting, functionName, description, templateFormat, promptTemplateFactory);
 
@@ -120,7 +121,9 @@ namespace Senparc.AI.Kernel.Handlers
 
             //TODO:独立 Context
             var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
-            var history = "";
+            //var history = "";
+            var history = new ChatHistory();
+            
             aiContext.KernelArguments.Set(serviceId, history);
 
             //iWantToRun.KernelFunction = chatFunction;

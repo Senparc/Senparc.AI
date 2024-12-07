@@ -5,19 +5,23 @@ using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.CO2NET.Extensions;
 using Senparc.AI.Kernel.Handlers;
+using Senparc.AI.Kernel.Helpers;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
     public class ChatSample
     {
+        private readonly IServiceProvider _serviceProvider;
         IAiHandler _aiHandler;
 
         SemanticAiHandler _semanticAiHandler => (SemanticAiHandler)_aiHandler;
 
-        public ChatSample(IAiHandler aiHandler)
+        public ChatSample(IServiceProvider serviceProvider, IAiHandler aiHandler)
         {
+            this._serviceProvider = serviceProvider;
             _aiHandler = aiHandler;
             _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
+
         }
 
         public async Task RunAsync()
@@ -84,12 +88,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var setting = (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;//也可以留空，将自动获取
 
-            var chatConfig = _semanticAiHandler.ChatConfig(parameter,
+            var iWantToRun = _semanticAiHandler.ChatConfig(parameter,
                                 userId: "Jeffrey",
                                 maxHistoryStore: maxHistoryCount,
                                 chatSystemMessage: systemMessage,
                                 senparcAiSetting: setting);
-            var iWantToRun = chatConfig.iWantToRun;
+            //var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();
             var useMultiLine = false;
@@ -219,10 +223,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 Console.ForegroundColor = originalColor;
                             }
                         };
-                        
+
                         //输出结果
-                        var result = await _semanticAiHandler.ChatAsync(iWantToRun, input, streamItemProceessing);
-                        
+                        SenparcAiResult result = await _semanticAiHandler.ChatAsync(iWantToRun, input, streamItemProceessing);
+
                         //复原颜色
                         Console.ForegroundColor = originalColor;
                     }
