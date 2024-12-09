@@ -638,12 +638,10 @@ namespace Senparc.AI.Kernel.Handlers
 
             var parameter = new PromptConfigParameter()
             {
-                MaxTokens = 2000,
+                MaxTokens = 8000,
                 Temperature = 0.7,
                 TopP = 0.5,
             };
-
-
             PromptExecutionSettings? executionSettings = helper.GetExecutionSetting(parameter, helper.AiSetting);
 
             if (useStream)

@@ -139,14 +139,15 @@ namespace Senparc.AI.Kernel
 
             SenparcKernelAiResult<string>? aiResult = null;
             List<ContentItem> visionResult = await ChatHelper.TryGetImagesBase64FromContent(Senparc.CO2NET.SenparcDI.GetServiceProvider(), input);
-            if (visionResult.Exists(z => z.Type == ContentType.Image))
-            {
-                aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
-            }
-            else
-            {
-                aiResult = await iWantToRun.RunAsync(newRequest, inStreamItemProceessing);
-            }
+            aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
+            //            if (visionResult.Exists(z => z.Type == ContentType.Image))
+            //            {
+            //                aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
+            //            }
+            //            else
+            //            {
+            //                aiResult = await iWantToRun.RunAsync(newRequest, inStreamItemProceessing);
+            //            }
 
             //判断最大历史记录数
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
@@ -157,7 +158,7 @@ namespace Senparc.AI.Kernel
                 (maxHistoryCountObj is int maxHistoryCount))
             {
 
-                 this.RemoveHistory(chatHistory, maxHistoryCount - 1);
+                this.RemoveHistory(chatHistory, maxHistoryCount - 1);
             }
 
             //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
@@ -214,10 +215,12 @@ namespace Senparc.AI.Kernel
                     var firstAssistant = chatHistory.FirstOrDefault(z => z.Role == AuthorRole.Assistant);
 
                     chatHistory.Remove(firstUser);
-                    if (firstAssistant!=null)
+                    if (firstAssistant != null)
                     {
                         chatHistory.Remove(firstAssistant);
                     }
+
+                    removeCount--;
                 }
             }
         }
