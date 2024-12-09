@@ -150,22 +150,15 @@ namespace Senparc.AI.Kernel
 
             //判断最大历史记录数
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
-            //string newHistory = null;
 
-            //if ((historyObj is string history) &&
-            //    history != null &&
-            //    iWantTo.TempStore.TryGetValue("MaxHistoryCount", out object maxHistoryCountObj) &&
-            //    (maxHistoryCountObj is int maxHistoryCount))
-            //{
-            //    newHistory = this.RemoveHistory(history, maxHistoryCount - 1);
-            //}
-            //else
-            //if (historyObj is ChatHistory)
-            //{
-            //    //TODO: 删除记录
-            //    newchatHistory = historyObj as ChatHistory;
-            //    //chatHistory.Add(new ChatMessageContent(AuthorRole.))
-            //}
+            //清理对话历史记录条数
+            if (chatHistory != null &&
+                iWantTo.TempStore.TryGetValue("MaxHistoryCount", out object maxHistoryCountObj) &&
+                (maxHistoryCountObj is int maxHistoryCount))
+            {
+
+                 this.RemoveHistory(chatHistory, maxHistoryCount - 1);
+            }
 
             //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
             chatHistory.AddAssistantMessage(aiResult.OutputString);
@@ -200,6 +193,33 @@ namespace Senparc.AI.Kernel
             }
 
             return history;
+        }
+
+
+        /// <summary>
+        /// 保留指定条数的历史记录
+        /// </summary>
+        /// <param name="chatHistory"></param>
+        /// <param name="maxHistoryCount"></param>
+        /// <returns></returns>
+        public void RemoveHistory(ChatHistory chatHistory, int maxHistoryCount)
+        {
+            if (maxHistoryCount > 0)
+            {
+                var currentUserCount = chatHistory.Count(z => z.Role == AuthorRole.User);
+                var removeCount = currentUserCount - maxHistoryCount;
+                while (removeCount > 0)
+                {
+                    var firstUser = chatHistory.First(z => z.Role == AuthorRole.User);
+                    var firstAssistant = chatHistory.FirstOrDefault(z => z.Role == AuthorRole.Assistant);
+
+                    chatHistory.Remove(firstUser);
+                    if (firstAssistant!=null)
+                    {
+                        chatHistory.Remove(firstAssistant);
+                    }
+                }
+            }
         }
     }
 }

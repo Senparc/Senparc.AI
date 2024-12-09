@@ -636,9 +636,19 @@ namespace Senparc.AI.Kernel.Handlers
 
             chatHistory.AddUserMessage(contentItems);
 
+            var parameter = new PromptConfigParameter()
+            {
+                MaxTokens = 2000,
+                Temperature = 0.7,
+                TopP = 0.5,
+            };
+
+
+            PromptExecutionSettings? executionSettings = helper.GetExecutionSetting(parameter, helper.AiSetting);
+
             if (useStream)
             {
-                result.StreamResult = chatCompletionService.GetStreamingChatMessageContentsAsync(chatHistory, kernel: iWanToRun.Kernel);
+                result.StreamResult = chatCompletionService.GetStreamingChatMessageContentsAsync(chatHistory, executionSettings: executionSettings, kernel: iWanToRun.Kernel);
 
                 var stringResult = new StringBuilder();
 
@@ -655,7 +665,7 @@ namespace Senparc.AI.Kernel.Handlers
             }
             else
             {
-                var contentResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, kernel: iWanToRun.Kernel);
+                var contentResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, executionSettings: executionSettings, kernel: iWanToRun.Kernel);
                 result.OutputString = contentResult.InnerContent?.ToString();
             }
 
