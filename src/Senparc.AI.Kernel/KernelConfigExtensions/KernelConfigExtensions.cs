@@ -638,7 +638,7 @@ namespace Senparc.AI.Kernel.Handlers
 
             var parameter = new PromptConfigParameter()
             {
-                MaxTokens = 8000,
+                MaxTokens = 3500,
                 Temperature = 0.7,
                 TopP = 0.5,
             };
@@ -669,8 +669,6 @@ namespace Senparc.AI.Kernel.Handlers
 
             return result;
         }
-
-
 
         #endregion
 
