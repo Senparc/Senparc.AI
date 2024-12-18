@@ -214,7 +214,7 @@ try
         // process exit
         if (message.GetContent()?.Contains("exit") is true)
         {
-            Console.WriteLine("您已推出对话");
+            Console.WriteLine("您已退出对话");
             return;
         }
     }
