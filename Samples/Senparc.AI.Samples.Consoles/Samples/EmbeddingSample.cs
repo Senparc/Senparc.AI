@@ -9,6 +9,7 @@ using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.CO2NET.Extensions;
+using Senparc.CO2NET.Trace;
 using System.Reflection.Metadata;
 using System.Text;
 
@@ -228,9 +229,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 TopP = 0.5,
             };
 
-            var systemMessage = @$"你是一位咨询机器人，你将根据我所提供的“提问”以及“备选信息”，生成一段给我的回复。你必须：
- - 将回答内容严格限制在我所提供给你的备选信息中，末尾括号中的数字为相关性，例如（0.4）表示0.4的相关性，其中越靠前的备选信息可信度越高，此数据不属于答案内容本身。
- - 当你没有获取到任何“备选信息”时，或所有备选信息的相关性都小于0.4时，请回答“不知道”。";
+            var systemMessage = @$"你是一位咨询机器人，你将根据我所提供的“提问”以及“备选信息”组织语言，生成一段给我的回复。
+“备选信息”可能有多条，使用 ////// 表示每一条信息的开头，******表示每一天哦信息的结尾。在 ******后会有一个数字，表示这条信息的相关性。
+你必须：
+ - 将回答内容严格限制在我所提供给你的备选信息中（开头和结尾标记中间的内容），其中越靠前的备选信息可信度越高，相关性不属于答案内容本身，因此在组织语言的过程中必须将其忽略。
+ - 请严格从“备选信息”中挑选和“提问”有关的信息，不要输出没有相关依据的信息。";
 
             var iWantToRunChat = _semanticAiHandler.ChatConfig(parameter,
                                  userId: "Jeffrey",
@@ -262,8 +265,14 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 await foreach (var item in embeddingResult.MemoryQueryResult)
                 {
-                    results.AppendLine($" - {item.Metadata.Text} （{item.Relevance}）");
+                    results.AppendLine($@"//////
+{item.Metadata.Text}
+******{item.Relevance}
+");
                 }
+
+                SenparcTrace.SendCustomLog("RAG日志", $@"提问：{question}，耗时：{(DateTime.Now - questionDt).TotalMilliseconds}ms
+结果：{results.ToString()}");
 
                 Console.WriteLine();
 
