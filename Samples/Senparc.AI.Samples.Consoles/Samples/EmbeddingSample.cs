@@ -227,10 +227,15 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 Temperature = 0.7,
                 TopP = 0.5,
             };
+
+            var systemMessage = @$"你是一位咨询机器人，你将根据我所提供的“提问”以及“备选信息”，生成一段给我的回复。你必须：
+ - 将回答内容严格限制在我所提供给你的备选信息中，末尾括号中的数字为相关性，例如（0.4）表示0.4的相关性，其中越靠前的备选信息可信度越高，此数据不属于答案内容本身。
+ - 当你没有获取到任何“备选信息”时，或所有备选信息的相关性都小于0.4时，请回答“不知道”。";
+
             var iWantToRunChat = _semanticAiHandler.ChatConfig(parameter,
                                  userId: "Jeffrey",
                                  maxHistoryStore: 10,
-                                 chatSystemMessage: $"你是一位咨询机器人，你将根据我的“提问”以及“备选信息”，生成一段给我的回复。你必须：严格将回答内容限制在我所提供给你的备选信息中，其中越靠前的备选信息可信度越高。",
+                                 chatSystemMessage: systemMessage,
                                  senparcAiSetting: null);
             while (true)
             {
@@ -257,7 +262,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 await foreach (var item in embeddingResult.MemoryQueryResult)
                 {
-                    results.AppendLine($" - {item.Metadata.Text}");
+                    results.AppendLine($" - {item.Metadata.Text} （{item.Relevance}）");
                 }
 
                 Console.WriteLine();
