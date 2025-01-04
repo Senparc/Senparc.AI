@@ -51,7 +51,7 @@ Console.WriteLine("请输入序号，开始对应功能测试：");
 Console.WriteLine("[0] 进入设置");
 Console.WriteLine("[1] Chat 对话机器人");
 Console.WriteLine("[2] Completion 任务机器人");
-Console.WriteLine("[3] 训练 Embedding 任务");
+Console.WriteLine("[3] 训练 Embedding 任务（RAG）");
 Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI 或 AzureOpenAI）");
 Console.WriteLine("[5] Planner 任务计划");
 Console.WriteLine("[6] PluginFromObject 测试");
@@ -82,9 +82,10 @@ switch (index)
     case "3":
         {
             //Embedding Sample
-            Console.WriteLine("请输入需要，进入对应 Embedding 测试：");
+            Console.WriteLine("请输入需要，进入对应 Embedding测试：");
             Console.WriteLine("[1] 普通信息（Information）");
             Console.WriteLine("[2] 引用信息（Reference）");
+            Console.WriteLine("[3] 检索增强生成（RAG）");
             index = Console.ReadLine();
             Console.WriteLine();
             try
@@ -102,6 +103,11 @@ switch (index)
                     case "2":
                         {
                             await embeddingSample.RunAsync(isReference: true);
+                        }
+                        break;
+                    case "3":
+                        {
+                            await embeddingSample.RunRagAsync();
                         }
                         break;
                     default:
