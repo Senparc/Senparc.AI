@@ -5,19 +5,23 @@ using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.CO2NET.Extensions;
 using Senparc.AI.Kernel.Handlers;
+using Senparc.AI.Kernel.Helpers;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
     public class ChatSample
     {
+        private readonly IServiceProvider _serviceProvider;
         IAiHandler _aiHandler;
 
         SemanticAiHandler _semanticAiHandler => (SemanticAiHandler)_aiHandler;
 
-        public ChatSample(IAiHandler aiHandler)
+        public ChatSample(IServiceProvider serviceProvider, IAiHandler aiHandler)
         {
+            this._serviceProvider = serviceProvider;
             _aiHandler = aiHandler;
             _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
+
         }
 
         public async Task RunAsync()
@@ -84,12 +88,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var setting = (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;//也可以留空，将自动获取
 
-            var chatConfig = _semanticAiHandler.ChatConfig(parameter,
+            var iWantToRun = _semanticAiHandler.ChatConfig(parameter,
                                 userId: "Jeffrey",
                                 maxHistoryStore: maxHistoryCount,
                                 chatSystemMessage: systemMessage,
                                 senparcAiSetting: setting);
-            var iWantToRun = chatConfig.iWantToRun;
+            //var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();
             var useMultiLine = false;
@@ -147,7 +151,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                             await file.WriteLineAsync($"DeploymentName：{SampleSetting.CurrentSetting.DeploymentName}");
                             await file.WriteLineAsync();
                             await file.WriteLineAsync($"保存时间：{SystemTime.Now.ToString("F")}");
-                            await file.WriteLineAsync($"保存对话数：{maxHistoryCount}"); 
+                            await file.WriteLineAsync($"保存对话数：{maxHistoryCount}");
                             await file.WriteLineAsync($"System Message：{systemMessage}");
                             await file.WriteLineAsync();
                             await file.WriteLineAsync("对话记录：");
@@ -203,11 +207,28 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     if (useStream)
                     {
                         //使用流式输出
+
+                        var originalColor = Console.ForegroundColor;//原始颜色
                         Action<StreamingKernelContent> streamItemProceessing = async item =>
                         {
                             await Console.Out.WriteAsync(item.ToString());
+
+                            //每个流式输出改变一次颜色
+                            if (Console.ForegroundColor == originalColor)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Green;
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = originalColor;
+                            }
                         };
-                        var result = await _semanticAiHandler.ChatAsync(iWantToRun, input, streamItemProceessing);
+
+                        //输出结果
+                        SenparcAiResult result = await _semanticAiHandler.ChatAsync(iWantToRun, input, streamItemProceessing);
+
+                        //复原颜色
+                        Console.ForegroundColor = originalColor;
                     }
                     else
                     {

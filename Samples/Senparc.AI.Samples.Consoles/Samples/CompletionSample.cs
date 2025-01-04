@@ -44,10 +44,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //准备运行
             var userId = "JeffreySu";//区分用户
             var iWantToRun =
-                 _semanticAiHandler.IWantTo()
+                        _semanticAiHandler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId)
-                        .BuildKernel()
-                        ;
+                        .BuildKernel();
+
+
                         //.CreateFunctionFromPrompt(functionPrompt, promptParameter).iWantToRun;
 
             var multiLineContent = new StringBuilder();
@@ -92,8 +93,9 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 var dt = SystemTime.Now;
 
-
+                //封装请求内容
                 var request = iWantToRun.CreateRequest(prompt, true);
+
                 await Console.Out.WriteLineAsync("回复：");
 
                 var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;

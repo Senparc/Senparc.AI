@@ -27,8 +27,8 @@ namespace Senparc.AI.Kernel.Tests.Handlers
                 TopP = 0.5,
             };
 
-            var chatConfig = handler.ChatConfig(parameter, userId: "Jeffrey", maxHistoryStore: 10);
-            var iWantToRun = chatConfig.iWantToRun;
+            var iWantToRun = handler.ChatConfig(parameter, userId: "Jeffrey", maxHistoryStore: 10);
+            //var iWantToRun = chatConfig.iWantToRun;
 
             //第一轮对话
             var dt = SystemTime.Now;
