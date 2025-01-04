@@ -18,13 +18,13 @@ variables:
 
 steps:
 
-- task: UseDotNet@2
-  displayName: 'Use .NET SDK 8'
-  inputs:
-    version: '8.x'
-    packageType: 'sdk'
-    performMultiLevelLookup: true
-    includePreviewVersions: true
+# - task: UseDotNet@2
+#   displayName: 'Use .NET SDK 8'
+#   inputs:
+#     version: '8.x'
+#     packageType: 'sdk'
+#     performMultiLevelLookup: true
+#     includePreviewVersions: true
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet --list-sdks '
@@ -33,11 +33,11 @@ steps:
     custom: '--list-sdks '
 
 
-- task: NuGetToolInstaller@1
-  displayName: 'Use NuGet 6.3.0'
-  inputs:
-    versionSpec: '6.3.0'
-    checkLatest: true
+# - task: NuGetToolInstaller@1
+#   displayName: 'Use NuGet 6.3.0'
+#   inputs:
+#     versionSpec: '6.3.0'
+#     checkLatest: true
 
     
 - task: NuGetCommand@2
@@ -95,7 +95,27 @@ steps:
   continueOnError: true
   condition: succeededOrFailed()
 
-# 系统模块 结束
+- task: NuGetCommand@2
+  displayName: Senparc.AI.Agents -V0
+  inputs:
+    command: push
+    packagesToPush: '**/Senparc.AI.Agents.*.nupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'nuget-jeffrey-full-key'
+  continueOnError: true
+  condition: succeededOrFailed()
+
+- task: NuGetCommand@2
+  displayName: 'Senparc.AI.Agents -V0 - Symbol'
+  inputs:
+    command: push
+    packagesToPush: '**/Senparc.AI.Agents.*.snupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'nuget-jeffrey-full-key'
+  continueOnError: true
+  condition: succeededOrFailed()
+  
+  # 系统模块 结束
 
 - task: DotNetCoreCLI@2
   displayName: Publish
