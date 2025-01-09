@@ -160,6 +160,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
         }
 
+        /// <summary>
+        /// 使用 RAG 问答
+        /// </summary>
+        /// <returns></returns>
         public async Task RunRagAsync()
         {
             Console.WriteLine("请输入文件路径（.txt，.md 等文本文件），或文件目录（自动扫描其下所有 .txt 或 .md 文件），或 URL（自动下载网页内容），输入 end 停止输入，进入下一步");
@@ -207,8 +211,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var iWantToRunEmbedding = _semanticAiHandler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, _userId)
-                 .ConfigModel(ConfigModel.TextCompletion, _userId)
-            .BuildKernel();
+                 .BuildKernel();
 
           
             contentMap.AsParallel().ForAll(async file =>
@@ -255,8 +258,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 TopP = 0.5,
             };
 
-            var systemMessage = @$"你是一位咨询机器人，你将根据我所提供的""提问""以及""备选信息""组织语言，生成一段给我的回复。
-""备选信息""可能有多条，使用 ////// 表示每一条信息的开头，******表示每一天哦信息的结尾。在 ******后会有一个数字，表示这条信息的相关性。
+            var systemMessage = @$"## SystemMessage
+你是一位咨询机器人，你将根据我所提供的""提问""以及""备选信息""组织语言，生成一段给我的回复。
+""备选信息""可能有多条，使用 ////// 表示每一条信息的开头， 表示每一条信息的结尾。在 ****** 后会有一个数字，表示这条信息的相关性。
+
+## Rule
 你必须：
  - 将回答内容严格限制在我所提供给你的备选信息中（开头和结尾标记中间的内容），其中越靠前的备选信息可信度越高，相关性不属于答案内容本身，因此在组织语言的过程中必须将其忽略。
  - 请严格从""备选信息""中挑选和""提问""有关的信息，不要输出没有相关依据的信息。";
