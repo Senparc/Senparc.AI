@@ -15,6 +15,12 @@ using System.Text;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
+    public enum ContentType
+    {
+        File,
+        HtmlContent
+    }
+
     public class EmbeddingSample
     {
         IAiHandler _aiHandler;
@@ -154,26 +160,50 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
         }
 
+        /// <summary>
+        /// 使用 RAG 问答
+        /// </summary>
+        /// <returns></returns>
         public async Task RunRagAsync()
         {
-            Console.WriteLine("请输入文件路径（.txt，.md 等文本文件），或文件目录（自动扫描其下所有 .txt 或 .md 文件），输入 end 停止输入，进入下一步");
+            Console.WriteLine("请输入文件路径（.txt，.md 等文本文件），或文件目录（自动扫描其下所有 .txt 或 .md 文件），或 URL（自动下载网页内容），输入 end 停止输入，进入下一步");
+          
             //RAG
-            List<string> files = new List<string>();
+            Dictionary<ContentType, string> contentMap = new Dictionary<ContentType, string>();
             //输入文件路径
             string filePath = "";
             while ((filePath = Console.ReadLine()) != "end")
             {
-                if (File.Exists(filePath)) { 
-                files.Add(filePath);
-                }else if(Directory.Exists(filePath))
+                if (Uri.TryCreate(filePath, UriKind.Absolute, out Uri? uriResult) 
+                    && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
                 {
-                    files.AddRange(Directory.GetFiles(filePath, "*.txt", SearchOption.AllDirectories));
-                    files.AddRange(Directory.GetFiles(filePath, "*.md", SearchOption.AllDirectories));
+                    Console.WriteLine("开始下载网页内容");
+                    // 如果是URL，下载网页内容
+
+                    var htmlContent = await Senparc.CO2NET.HttpUtility.RequestUtility.HttpGetAsync(Senparc.CO2NET.SenparcDI.GetServiceProvider(), filePath, Encoding.UTF8);
+                    contentMap[ContentType.HtmlContent] = htmlContent;
+
+                    // 去除 HTML 标签和不必要内容
+                    htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<script[^>]*>.*?</script>", "", System.Text.RegularExpressions.RegexOptions.Singleline);
+                    htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<style[^>]*>.*?</style>", "", System.Text.RegularExpressions.RegexOptions.Singleline);
+                    htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<!--.*?-->", "", System.Text.RegularExpressions.RegexOptions.Singleline);
+                    htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<[^>]+>", " ");
+                    
+                    // 清理多余空白字符
+                    htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, @"\s+", " ").Trim();
+                    
+                    // 更新字典中的内容
+                    contentMap[ContentType.HtmlContent] = htmlContent;
+                    System.Console.WriteLine(htmlContent);
+                    Console.WriteLine("下载网页内容成功");
+                
                 }
                 else
                 {
-                    Console.WriteLine("找不到文件或文件夹，请重新输入！");
+                    // 如果是普通文件路径
+                    contentMap[ContentType.File] = filePath;
                 }
+                Console.WriteLine("请继续输入，直到输入 end 停止...");
             }
 
 
@@ -181,16 +211,15 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var iWantToRunEmbedding = _semanticAiHandler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, _userId)
-                 .ConfigModel(ConfigModel.TextCompletion, _userId)
-            .BuildKernel();
+                 .BuildKernel();
 
           
-            files.AsParallel().ForAll(async file =>
+            contentMap.AsParallel().ForAll(async file =>
             {
-                var text = await File.ReadAllTextAsync(file);
+                var text = file.Key == ContentType.File ? await File.ReadAllTextAsync(file.Value) : file.Value;
                 List<string> paragraphs = new List<string>();
 
-                if (file.EndsWith(".md"))
+                if (file.Value.EndsWith(".md"))
                 {
                     paragraphs = TextChunker.SplitMarkdownParagraphs(
                         TextChunker.SplitMarkDownLines(text.Replace("\r\n", " "), 128),
@@ -229,11 +258,14 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 TopP = 0.5,
             };
 
-            var systemMessage = @$"你是一位咨询机器人，你将根据我所提供的“提问”以及“备选信息”组织语言，生成一段给我的回复。
-“备选信息”可能有多条，使用 ////// 表示每一条信息的开头，******表示每一天哦信息的结尾。在 ******后会有一个数字，表示这条信息的相关性。
+            var systemMessage = @$"## SystemMessage
+你是一位咨询机器人，你将根据我所提供的""提问""以及""备选信息""组织语言，生成一段给我的回复。
+""备选信息""可能有多条，使用 ////// 表示每一条信息的开头， 表示每一条信息的结尾。在 ****** 后会有一个数字，表示这条信息的相关性。
+
+## Rule
 你必须：
  - 将回答内容严格限制在我所提供给你的备选信息中（开头和结尾标记中间的内容），其中越靠前的备选信息可信度越高，相关性不属于答案内容本身，因此在组织语言的过程中必须将其忽略。
- - 请严格从“备选信息”中挑选和“提问”有关的信息，不要输出没有相关依据的信息。";
+ - 请严格从""备选信息""中挑选和""提问""有关的信息，不要输出没有相关依据的信息。";
 
             var iWantToRunChat = _semanticAiHandler.ChatConfig(parameter,
                                  userId: "Jeffrey",
