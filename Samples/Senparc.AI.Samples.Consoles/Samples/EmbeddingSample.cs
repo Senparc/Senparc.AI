@@ -201,12 +201,16 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 maxDeep: depth,
                                 maxPageCount: maxCount
                             );
-                    var senMapicResult = await engine.Build();
+                    var senMapicResult = engine.Build();
                     foreach (var item in senMapicResult)
                     {
                         contentMap[ContentType.HtmlContent] = item.Value.MarkDownHtmlContent;
-                        SenparcTrace.SendCustomLog("RAG日志", $@"下载网页内容成功。URL：{filePath}，字符数：{item.Value.MarkDownHtmlContent.Length}");
-                        Console.WriteLine("下载网页内容成功。字符数：" + item.Value.MarkDownHtmlContent.Length);
+
+                        var requestSuccess = item.Value.Result == 200;
+
+                        var logStr = $"下载网页内容{(requestSuccess ? "成功" : "失败")}。" + (requestSuccess ? $"字符数：{item.Value.MarkDownHtmlContent.Length}" : $"错误代码：{item.Value.Result}");
+                        SenparcTrace.SendCustomLog("RAG日志", logStr);
+                        Console.WriteLine(logStr);
                     }
 
 
