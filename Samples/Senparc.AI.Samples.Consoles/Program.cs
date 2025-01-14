@@ -107,7 +107,7 @@ switch (index)
                         break;
                     case "3":
                         {
-                            await embeddingSample.RunRagAsync();
+                            await embeddingSample.RunRagAsync(serviceProvider);
                         }
                         break;
                     default:

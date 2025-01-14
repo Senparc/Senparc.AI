@@ -12,6 +12,7 @@ using Senparc.CO2NET.Extensions;
 using Senparc.CO2NET.Trace;
 using System.Reflection.Metadata;
 using System.Text;
+using Senparc.Xncf.SenMapic.Domain.SiteMap;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -164,39 +165,67 @@ namespace Senparc.AI.Samples.Consoles.Samples
         /// 使用 RAG 问答
         /// </summary>
         /// <returns></returns>
-        public async Task RunRagAsync()
+        public async Task RunRagAsync(IServiceProvider serviceProvider)
         {
             Console.WriteLine("请输入文件路径（.txt，.md 等文本文件），或文件目录（自动扫描其下所有 .txt 或 .md 文件），或 URL（自动下载网页内容），输入 end 停止输入，进入下一步");
-          
+
             //RAG
             Dictionary<ContentType, string> contentMap = new Dictionary<ContentType, string>();
             //输入文件路径
             string filePath = "";
             while ((filePath = Console.ReadLine()) != "end")
             {
-                if (Uri.TryCreate(filePath, UriKind.Absolute, out Uri? uriResult) 
+                if (Uri.TryCreate(filePath, UriKind.Absolute, out Uri? uriResult)
                     && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
                 {
                     Console.WriteLine("开始下载网页内容");
                     // 如果是URL，下载网页内容
 
-                    var htmlContent = await Senparc.CO2NET.HttpUtility.RequestUtility.HttpGetAsync(Senparc.CO2NET.SenparcDI.GetServiceProvider(), filePath, Encoding.UTF8);
-                    contentMap[ContentType.HtmlContent] = htmlContent;
+                    // 检查URL是否有深度和数量限制
+                    int depth = 1;
+                    int maxCount = 1;
+                    var match = System.Text.RegularExpressions.Regex.Match(filePath, @">{2,}(\d+)$");
+                    if (match.Success)
+                    {
+                        depth = match.Value.Count(c => c == '>'); // 获取>的数量作为深度
+                        maxCount = int.Parse(match.Groups[1].Value); // 获取数字作为最大数量
+                        // 移除URL中的深度和数量标记
+                        filePath = filePath.Substring(0, filePath.Length - match.Value.Length);
+                    }
+                    Console.WriteLine($"设置抓取深度：{depth}，最大抓取数量：{maxCount}");
+                    var engine = new SenMapicEngine(
+                                serviceProvider: serviceProvider,
+                                urls: new[] { filePath },
+                                maxThread: 8,
+                                maxBuildMinutesForSingleSite: 5,
+                                maxDeep: depth,
+                                maxPageCount: maxCount
+                            );
+                    var senMapicResult = await engine.Build();
+                    foreach (var item in senMapicResult)
+                    {
+                        contentMap[ContentType.HtmlContent] = item.Value.MarkDownHtmlContent;
+                        SenparcTrace.SendCustomLog("RAG日志", $@"下载网页内容成功。URL：{filePath}，字符数：{item.Value.MarkDownHtmlContent.Length}");
+                        Console.WriteLine("下载网页内容成功。字符数：" + item.Value.MarkDownHtmlContent.Length);
+                    }
 
-                    // 去除 HTML 标签和不必要内容
-                    htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<script[^>]*>.*?</script>", "", System.Text.RegularExpressions.RegexOptions.Singleline);
-                    htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<style[^>]*>.*?</style>", "", System.Text.RegularExpressions.RegexOptions.Singleline);
-                    htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<!--.*?-->", "", System.Text.RegularExpressions.RegexOptions.Singleline);
-                    htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<[^>]+>", " ");
-                    
-                    // 清理多余空白字符
-                    htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, @"\s+", " ").Trim();
-                    
-                    // 更新字典中的内容
-                    contentMap[ContentType.HtmlContent] = htmlContent;
-                    System.Console.WriteLine(htmlContent);
-                    Console.WriteLine("下载网页内容成功");
-                
+
+                    // var htmlContent = await Senparc.CO2NET.HttpUtility.RequestUtility.HttpGetAsync(Senparc.CO2NET.SenparcDI.GetServiceProvider(), filePath, Encoding.UTF8);
+                    // contentMap[ContentType.HtmlContent] = htmlContent;
+
+                    // // 去除 HTML 标签和不必要内容
+                    // htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<script[^>]*>.*?</script>", "", System.Text.RegularExpressions.RegexOptions.Singleline);
+                    // htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<style[^>]*>.*?</style>", "", System.Text.RegularExpressions.RegexOptions.Singleline);
+                    // htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<!--.*?-->", "", System.Text.RegularExpressions.RegexOptions.Singleline);
+                    // htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<[^>]+>", " ");
+
+                    // // 清理多余空白字符
+                    // htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, @"\s+", " ").Trim();
+
+                    // // 更新字典中的内容
+                    // contentMap[ContentType.HtmlContent] = htmlContent;
+                    // SenparcTrace.SendCustomLog("RAG日志", $@"下载网页内容成功。URL：{filePath}，字符数：{htmlContent.Length}");
+                    // Console.WriteLine("下载网页内容成功。字符数：" + htmlContent.Length);
                 }
                 else
                 {
@@ -206,14 +235,13 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 Console.WriteLine("请继续输入，直到输入 end 停止...");
             }
 
-
             //测试 TextEmbedding
             var iWantToRunEmbedding = _semanticAiHandler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, _userId)
                  .BuildKernel();
 
-          
+
             contentMap.AsParallel().ForAll(async file =>
             {
                 var text = file.Key == ContentType.File ? await File.ReadAllTextAsync(file.Value) : file.Value;
@@ -281,11 +309,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 {
                     Console.WriteLine("请输入有效内容");
                     continue;
-                }else if(question== "exit")
+                }
+                else if (question == "exit")
                 {
                     break;
                 }
-                
+
                 var questionDt = DateTime.Now;
                 var limit = 3;
                 var embeddingResult = await iWantToRunEmbedding.MemorySearchAsync(
