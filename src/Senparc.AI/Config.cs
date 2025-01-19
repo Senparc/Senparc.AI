@@ -17,7 +17,7 @@ namespace Senparc.AI
 
         static Config()
         {
-            ////初始化 SenaprcAiSettings
+            ////初始化 SenparcAiSettings
             //SenparcAiSettings = new SenparcAiSetting();
         }
     }

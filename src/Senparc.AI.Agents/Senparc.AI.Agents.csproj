@@ -11,7 +11,7 @@
 				<Description>
 			Senparc.AI.Agents - AI Agents（智能体），支持 AutoGen，可配置 Agent 进行协作
 		</Description>
-				<Copyright>Senparc Copyright © 2004~2024</Copyright>
+				<Copyright>Senparc Copyright © 2004~2025</Copyright>
 				<PackageTags>
 			Senparc.AI.Agents,Agents,C#,AIGC,GenAI,AGI,LLM,SemanticKernel
 		</PackageTags>

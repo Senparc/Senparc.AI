@@ -52,23 +52,23 @@ namespace Senparc.AI.Kernel
         }
     }
 
-    public class SenaprcAiResult<T> : SenparcAiResult, IAiResult
+    public class SenparcAiResult<T> : SenparcAiResult, IAiResult
     {
         public T Result { get; set; }
         public IAsyncEnumerable<StreamingKernelContent>? /*SKContext*/ StreamResult { get; set; }
 
-        public SenaprcAiResult(IWantToRun iWwantToRun, string inputContent)
+        public SenparcAiResult(IWantToRun iWwantToRun, string inputContent)
             : base(iWwantToRun, inputContent)
         {
         }
 
-        public SenaprcAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+        public SenparcAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
            : base(iWwantToRun, inputContext)
         {
         }
     }
 
-    public class SenparcTextAiResult : SenaprcAiResult<string>, IAiResult
+    public class SenparcTextAiResult : SenparcAiResult<string>, IAiResult
     {
         public string Result { get; set; }
 
@@ -96,7 +96,7 @@ namespace Senparc.AI.Kernel
         }
     }
 
-    public class SenparcKernelAiResult<T> : SenaprcAiResult<FunctionResult>, IAiResult
+    public class SenparcKernelAiResult<T> : SenparcAiResult<FunctionResult>, IAiResult
     {
         public T? Output => Result.GetValue<T>();
 

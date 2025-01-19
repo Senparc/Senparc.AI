@@ -76,7 +76,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="cancel">Cancellation token</param>
         /// <returns>Memories found</returns>
         /// <returns></returns>
-        public static async Task<SenaprcAiResult_MemoryQuery> MemorySearchAsync(this IWantToRun iWantToRun,
+        public static async Task<SenparcAiResult_MemoryQuery> MemorySearchAsync(this IWantToRun iWantToRun,
             string modelName,
             string memoryCollectionName,
             string query,
@@ -94,7 +94,7 @@ namespace Senparc.AI.Kernel.Handlers
             var memory = helper.GetMemory(modelName, senparcAiSetting, null, azureDeployName, textEmbeddingGeneration);
             var queryResult = memory.SearchAsync(memoryCollectionName, query, limit, minRelevanceScore, withEmbeddings, kernel, cancel);
 
-            var aiResult = new SenaprcAiResult_MemoryQuery(iWantToRun, query)
+            var aiResult = new SenparcAiResult_MemoryQuery(iWantToRun, query)
             {
                 MemoryQueryResult = queryResult,
             };
