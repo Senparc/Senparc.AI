@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using AutoGen.Core;
 using Senparc.CO2NET.Trace;
 
-namespace Senaprc.AI.Agents
+namespace Senparc.AI.Agents
 {
     public static class AgentKeys
     {

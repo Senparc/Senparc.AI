@@ -532,14 +532,14 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="iWanToRun"></param>
         /// <param name="kernelFunction"></param>
         /// <returns></returns>
-        public static async Task<SenaprcAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, KernelFunction kernelFunction)
+        public static async Task<SenparcAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, KernelFunction kernelFunction)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
             var helper = iWanToRun.SemanticKernelHelper;
             var kernel = helper.GetKernel();
             //var function = iWanToRun.KernelFunction;
 
-            var result = new SenaprcAiResult<T>(iWanToRun, inputContent: null);
+            var result = new SenparcAiResult<T>(iWanToRun, inputContent: null);
 
             var kernelResult = await kernel.InvokeAsync(kernelFunction);
 

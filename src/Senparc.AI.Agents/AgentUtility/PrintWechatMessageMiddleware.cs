@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Senaprc.AI.Agents.AgentUtility
+namespace Senparc.AI.Agents.AgentUtility
 {
     public class PrintWechatMessageMiddleware : IStreamingMiddleware, IMiddleware
     {

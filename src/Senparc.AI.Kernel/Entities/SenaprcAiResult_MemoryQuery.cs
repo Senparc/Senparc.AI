@@ -12,7 +12,7 @@ namespace Senparc.AI.Kernel.Entities
     /// <summary>
     /// MemoryQueryResult
     /// </summary>
-    public class SenaprcAiResult_MemoryQuery : SenparcAiResult
+    public class SenparcAiResult_MemoryQuery : SenparcAiResult
     {
         public override string OutputString { get => throw new SenparcAiException("请从 MemoryQueryResult 获取"); set => throw new SenparcAiException("当前方法内无法设置"); }
         /// <summary>
@@ -25,7 +25,7 @@ namespace Senparc.AI.Kernel.Entities
         /// </summary>
         public double Relevance { get; set; }
 
-        public SenaprcAiResult_MemoryQuery(IWantToRun iwantToRun,string inputContent) 
+        public SenparcAiResult_MemoryQuery(IWantToRun iwantToRun,string inputContent) 
             : base(iwantToRun, inputContent)
         {
         }

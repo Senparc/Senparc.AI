@@ -3,7 +3,7 @@ using AutoGen.Core;
 using AutoGen.OpenAI;
 using AutoGen.SemanticKernel;
 
-namespace Senaprc.AI.Agents.AgentExtensions;
+namespace Senparc.AI.Agents.AgentExtensions;
 
 public static class AgentExtension
 {
