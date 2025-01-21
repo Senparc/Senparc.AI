@@ -22,7 +22,6 @@ namespace Senparc.AI
         /// <returns></returns>
         public static IRegisterService UseSenparcAICore(this IRegisterService registerService)
         {
-           
             return registerService;
         }
     }
