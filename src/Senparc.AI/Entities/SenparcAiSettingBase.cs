@@ -73,6 +73,11 @@ namespace Senparc.AI.Entities
         public virtual bool Ollama => AiPlatform == AiPlatform.Ollama;
 
         /// <summary>
+        /// 是否使用 DeepSeek
+        /// </summary>
+        public virtual bool UseDeepSeek => AiPlatform == AiPlatform.DeepSeek;
+
+        /// <summary>
         /// AI 平台类型
         /// </summary>
         public virtual AiPlatform AiPlatform { get; set; }
@@ -87,6 +92,8 @@ namespace Senparc.AI.Entities
         public virtual FastAPIKeys FastAPIKeys { get; set; }
         public virtual OllamaKeys OllamaKeys { get; set; }
 
+        public virtual DeepSeekKeys DeepSeekKeys { get; set; }
+
         /// <summary>
         /// Azure OpenAI 或 OpenAI API Key
         /// </summary>
@@ -98,6 +105,7 @@ namespace Senparc.AI.Entities
             AiPlatform.HuggingFace => "",
             AiPlatform.FastAPI => FastAPIKeys.ApiKey,
             AiPlatform.Ollama => "",
+            AiPlatform.DeepSeek => DeepSeekKeys?.ApiKey,
             _ => ""
         };
 
@@ -164,6 +172,11 @@ namespace Senparc.AI.Entities
 
         #region Ollama
         public string OllamaEndpoint => OllamaKeys?.Endpoint;
+
+        #endregion
+
+        #region DeepSeek
+        public string DeepSeekEndpoint => DeepSeekKeys?.Endpoint;
 
         #endregion
 
@@ -239,6 +252,18 @@ namespace Senparc.AI.Entities
         {
             this.AiPlatform = AiPlatform.Ollama;
             this.OllamaKeys = ollamaAPIKeys;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置 DeepSeek
+        /// </summary>
+        /// <param name="deepSeekKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetDeepSeek(DeepSeekKeys deepSeekKeys)
+        {
+            this.AiPlatform = AiPlatform.DeepSeek;
+            this.DeepSeekKeys = deepSeekKeys;
             return this;
         }
 

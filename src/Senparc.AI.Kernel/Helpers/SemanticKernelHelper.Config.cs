@@ -95,6 +95,13 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: senparcAiSetting.OllamaEndpoint,
                         serviceId: null
                     ),
+                //DeepSeek 使用和 OpenAI 一致的请求格式
+                AiPlatform.DeepSeek => kernelBuilder.AddOpenAIChatCompletion(modelName,
+                        endpoint: new Uri(senparcAiSetting.Endpoint),
+                        apiKey: senparcAiSetting.ApiKey,
+                        orgId: senparcAiSetting.OrganizationId,
+                        httpClient: _httpClient),
+
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
@@ -165,6 +172,11 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: senparcAiSetting.OllamaEndpoint,
                         serviceId: null
                     ),
+                AiPlatform.DeepSeek => kernelBuilder.AddOpenAIChatCompletion(modelName,
+                        endpoint:new Uri(senparcAiSetting.Endpoint),
+                        apiKey: senparcAiSetting.ApiKey,
+                        orgId: senparcAiSetting.OrganizationId,
+                        httpClient: _httpClient),
                 _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
