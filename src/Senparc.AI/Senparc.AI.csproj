@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.20.0-beta1</Version>
+		<Version>0.21.0-beta1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI</AssemblyName>
@@ -53,6 +53,7 @@
 			[2024-11-19] v0.18.0 Update CO2NET, reframe for Aspire
 					[2025-01-19] v0.19.0-beta1 Update Senparc.AI.Agents; Fixed some namespace spelling errors
 			[2025-01-19] v0.20.0-beta1 Update Senparc.AI.Agents; Fixed some namespace spelling errors
+			[2025-01-21] v0.21.0-beta1 Support for DeepSeek
 </PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

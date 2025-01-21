@@ -43,6 +43,7 @@ namespace Senparc.AI.Interfaces
             AiPlatform.HuggingFace => HuggingFaceEndpoint,
             AiPlatform.FastAPI => FastAPIEndpoint,
             AiPlatform.Ollama => OllamaEndpoint,
+            AiPlatform.DeepSeek => DeepSeekEndpoint,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 Endpoint 输出")
         };
 
@@ -66,6 +67,7 @@ namespace Senparc.AI.Interfaces
         HuggingFaceKeys HuggingFaceKeys { get; set; }
         FastAPIKeys FastAPIKeys { get; set; }
         OllamaKeys  OllamaKeys { get; set; }
+        DeepSeekKeys DeepSeekKeys { get; set; }
 
         /// <summary>
         /// Neuchar OpenAI 或 Azure OpenAI 或 OpenAI API Key
@@ -136,6 +138,12 @@ namespace Senparc.AI.Interfaces
 
         #endregion
 
+        #region DeepSeek
+
+        string DeepSeekEndpoint { get; }
+
+        #endregion
+
         /// <summary>
         /// OpenAIKeys 是否已经设置
         /// </summary>
@@ -150,7 +158,8 @@ namespace Senparc.AI.Interfaces
             AiPlatform.HuggingFace => HuggingFaceKeys.ModelName,
             AiPlatform.FastAPI => FastAPIKeys.ModelName,
             AiPlatform.Ollama => OllamaKeys.ModelName,
-            _ => throw new SenparcAiException($"100-未配置 {AiPlatform} 的 Endpoint 输出")
+            AiPlatform.DeepSeek => DeepSeekKeys.ModelName,
+            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 ModelName 输出")
         };
 
 #pragma warning disable CS8603 // 可能返回 null 引用。
@@ -162,6 +171,7 @@ namespace Senparc.AI.Interfaces
             AiPlatform.HuggingFace => null,
             AiPlatform.FastAPI => null,
             AiPlatform.Ollama => null,
+            AiPlatform.DeepSeek => null,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 DeploymentName 输出")
         };
 #pragma warning restore CS8603 // 可能返回 null 引用。
