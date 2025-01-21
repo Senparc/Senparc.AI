@@ -38,36 +38,40 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //RAG
             List<KeyValuePair<ContentType, string>> contentMap = new List<KeyValuePair<ContentType, string>>();
             //输入文件路径
-            string filePath = "";
+            string filePath = Console.ReadLine();
             while (filePath != "end")
             {
-                if (Uri.TryCreate(filePath, UriKind.Absolute, out Uri? uriResult)
-                    && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+                //            if (Uri.TryCreate(filePath, UriKind.Absolute, out Uri? uriResult)
+                //&& (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+                if (filePath.ToUpper().StartsWith("HTTP://") || filePath.ToUpper().StartsWith("HTTPS://"))
                 {
-                    Console.WriteLine("开始下载网页内容");
+                    Console.WriteLine("开始获取网页内容");
                     // 如果是URL，下载网页内容
 
                     // 检查URL是否有深度和数量限制
                     int depth = 1;
                     int maxCount = 1;
-                    var match = System.Text.RegularExpressions.Regex.Match(filePath, @">{1,}(\d+)$");
+                    var match = Regex.Match(filePath, @">{0,}(\d*)$");
                     if (match.Success)
                     {
-                        depth = match.Value.Count(c => c == '>'); // 获取>的数量作为深度
-                        maxCount = int.Parse(match.Groups[1].Value); // 获取数字作为最大数量
+                        depth = Math.Max(1,match.Value.Count(c => c == '>')); // 获取>的数量作为深度
+                        if (!int.TryParse(match.Groups[1].Value, out maxCount)) // 获取数字作为最大数量
+                        {
+                            maxCount = 1;
+                        }
                         // 移除URL中的深度和数量标记
                         filePath = filePath.Substring(0, filePath.Length - match.Value.Length);
                     }
                     Console.WriteLine($"设置抓取深度：{depth}，最大抓取数量：{maxCount}");
                     var engine = new SenMapicEngine(
-                                serviceProvider: serviceProvider,
-                                urls: new[] { filePath },
-                                maxThread: 20,
-                                maxBuildMinutesForSingleSite: 5,
-                                maxDeep: depth,
-                                maxPageCount: maxCount
-                            );
-                    
+                            serviceProvider: serviceProvider,
+                            urls: new[] { filePath },
+                            maxThread: 20,
+                            maxBuildMinutesForSingleSite: 5,
+                            maxDeep: depth,
+                            maxPageCount: maxCount
+                        );
+
                     var senMapicResult = engine.Build();
 
 
@@ -162,7 +166,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                        }
                        goto MemoryStore;
                    }
-                   
+
                });
 
             Console.WriteLine($"处理完成(文件数：{contentMap.Count}，段落数：{i})");
