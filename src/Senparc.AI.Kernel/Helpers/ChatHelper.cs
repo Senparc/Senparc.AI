@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
@@ -15,11 +16,35 @@ namespace Senparc.AI.Kernel.Helpers
         Image
     }
 
-    public class ContentItem
+    public interface IContentItem
+    {
+        ContentType Type { get; set; }
+    }
+
+    public abstract class ContentItem: IContentItem
     {
         public ContentType Type { get; set; }
+    }
+
+    public class ContentItem_Text: ContentItem
+    {
         public string TextContent { get; set; }
+    }
+
+    public class ContentItem_ImageBse64 : ContentItem
+    {
         public ReadOnlyMemory<byte> ImageData { get; set; }
+    }
+
+    public class ContentItem_ImageUrl : ContentItem
+    {
+        public ImageUrl image_url { get; set; }
+    }
+
+
+    public class ImageUrl
+    {
+        public string Url { get; set; }
     }
 
     public static class ChatHelper
@@ -28,7 +53,7 @@ namespace Senparc.AI.Kernel.Helpers
         {
             await using MemoryStream memoryStream = new MemoryStream();
             await Senparc.CO2NET.HttpUtility.Get.DownloadAsync(serviceProvider, url, memoryStream);
-            var base64  =Convert.ToBase64String(memoryStream.ToArray());
+            var base64 = Convert.ToBase64String(memoryStream.ToArray());
             return Convert.FromBase64String(base64);
         }
 
@@ -38,10 +63,10 @@ namespace Senparc.AI.Kernel.Helpers
         /// <param name="serviceProvider"></param>
         /// <param name="content">支持多行文本</param>
         /// <returns></returns>
-        public static async Task<List<ContentItem>> TryGetImagesBase64FromContent(this IServiceProvider serviceProvider, string content)
+        public static async Task<List<IContentItem>> TryGetImagesBase64FromContent(this IServiceProvider serviceProvider, string content)
         {
             // 定义返回的列表  
-            List<ContentItem> result = new List<ContentItem>();
+            List<IContentItem> result = new List<IContentItem>();
 
             // 定义正则表达式匹配模式  
             string pattern = @">>>[ ]*(?<url>http(s)?://([\w-]+\.)+[\w-]+(/[\w-./?%&=]*)?)";
@@ -62,13 +87,18 @@ namespace Senparc.AI.Kernel.Helpers
                 string beforeMatch = content.Substring(lastIndex, matchIndex - lastIndex);
                 if (!string.IsNullOrEmpty(beforeMatch))
                 {
-                    result.Add(new ContentItem { Type = ContentType.Text, TextContent = beforeMatch });
+                    result.Add(new ContentItem_Text { Type = ContentType.Text, TextContent = beforeMatch });
                 }
 
                 // 添加匹配的 URL 部分  
                 var imageUrl = match.Result("${url}");// 提取 URL  
                 var imageData = await serviceProvider.GetBase64Images(imageUrl);
-                result.Add(new ContentItem { Type = ContentType.Image,  ImageData = imageData });
+                //result.Add(new ContentItem_ImageBse64 { Type = ContentType.Image, ImageData = new ReadOnlyMemory<byte>() });
+                result.Add(new ContentItem_ImageUrl
+                {
+                    Type = ContentType.Image,
+                    image_url = new ImageUrl() { Url = Convert.ToBase64String(imageData.ToArray()) }
+                });
 
                 // 更新最后匹配位置  
                 lastIndex = matchIndex + match.Length;
@@ -78,7 +108,7 @@ namespace Senparc.AI.Kernel.Helpers
             if (lastIndex < content.Length)
             {
                 string remainingContent = content.Substring(lastIndex);
-                result.Add(new ContentItem { Type = ContentType.Text, TextContent = remainingContent });
+                result.Add(new ContentItem_Text { Type = ContentType.Text, TextContent = remainingContent });
             }
 
             // 返回结果列表  

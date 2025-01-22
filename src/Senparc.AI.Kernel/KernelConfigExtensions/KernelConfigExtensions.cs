@@ -570,7 +570,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
         /// <returns></returns>
         public static Task<SenparcKernelAiResult<string>> RunVisionAsync(this IWantToRun iWanToRun,
-            SenparcAiRequest request, ChatHistory chatHistory, List<ContentItem> contentList,
+            SenparcAiRequest request, ChatHistory chatHistory, List<IContentItem> contentList,
             Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             return RunVisionAsync<string>(iWanToRun, request, chatHistory, contentList, inStreamItemProceessing);
@@ -586,7 +586,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <returns></returns>
 
         public static async Task<SenparcKernelAiResult<T>> RunVisionAsync<T>(this IWantToRun iWanToRun,
-            SenparcAiRequest request, ChatHistory chatHistory, List<ContentItem> contentList,
+            SenparcAiRequest request, ChatHistory chatHistory, List<IContentItem> contentList,
             Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
@@ -614,13 +614,25 @@ namespace Senparc.AI.Kernel.Handlers
             ChatMessageContentItemCollection contentItems = new ChatMessageContentItemCollection();
             foreach (var contentItem in contentList)
             {
-                if (contentItem.Type == Helpers.ContentType.Text)
+                //if (contentItem.Type == Helpers.ContentType.Text)
+                //{
+                //    contentItems.Add(new TextContent(contentItem.TextContent));
+                //}
+                //else if (contentItem.Type == Helpers.ContentType.Image)
+                //{
+                //    contentItems.Add(new ImageContent_ImageBase64(contentItem.ImageData, "image/jpg"));
+                //}
+                if (contentItem is ContentItem_Text ciText)
                 {
-                    contentItems.Add(new TextContent(contentItem.TextContent));
+                    contentItems.Add(new TextContent(ciText.TextContent));
                 }
-                else if (contentItem.Type == Helpers.ContentType.Image)
+                else if (contentItem is ContentItem_ImageBse64 ciBae64)
                 {
-                    contentItems.Add(new ImageContent(contentItem.ImageData, "image/jpg"));
+                    contentItems.Add(new ImageContent(ciBae64.ImageData, "image/jpg"));
+                }
+                else if (contentItem is ContentItem_ImageUrl ciImageUrl)
+                {
+                    contentItems.Add(new ImageContent("data:image/jpeg;base64," + ciImageUrl.image_url.Url));
                 }
             }
 
