@@ -1,4 +1,5 @@
 ﻿using AutoGen.Core;
+using Senparc.CO2NET.Trace;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,35 +23,45 @@ namespace Senparc.AI.Agents.AgentUtility
 
         public async Task<IMessage> InvokeAsync(MiddlewareContext context, IAgent agent, CancellationToken cancellationToken = default)
         {
-            if (agent is IStreamingAgent agent2)
+            try
             {
-                IMessage recentUpdate = null;
-                await foreach (IStreamingMessage item in InvokeAsync(context, agent2, cancellationToken))
+
+                if (agent is IStreamingAgent agent2)
                 {
-                    if (item is IMessage message)
+                    IMessage recentUpdate = null;
+                    await foreach (IMessage item in InvokeAsync(context, agent2, cancellationToken))
                     {
-                        recentUpdate = message;
+                        if (item is IMessage message)
+                        {
+                            recentUpdate = message;
+                        }
                     }
+
+                    Console.WriteLine();
+                    if (recentUpdate != null && !(recentUpdate is TextMessage))
+                    {
+                        Console.WriteLine("STREAM: " + recentUpdate.FormatMessage());
+                    }
+
+                    await Console.Out.WriteLineAsync();
+                    await Console.Out.WriteLineAsync("====StreamAgent====");
+                    await Console.Out.WriteLineAsync();
+
+                    return recentUpdate ?? throw new InvalidOperationException("The message is not a valid message");
                 }
 
-                Console.WriteLine();
-                if (recentUpdate != null && !(recentUpdate is TextMessage))
-                {
-                    Console.WriteLine("STREAM: " + recentUpdate.FormatMessage());
-                }
-
-                await Console.Out.WriteLineAsync();
-                await Console.Out.WriteLineAsync("====StreamAgent====");
-                await Console.Out.WriteLineAsync();
-
-                return recentUpdate ?? throw new InvalidOperationException("The message is not a valid message");
+                IMessage obj = await agent.GenerateReplyAsync(context.Messages, context.Options, cancellationToken);
+                var outputMessage = obj.FormatMessage();
+                _sendMessageAction?.Invoke(agent, obj, outputMessage);
+                Console.WriteLine(obj.FormatMessage());
+                return obj;
             }
-
-            IMessage obj = await agent.GenerateReplyAsync(context.Messages, context.Options, cancellationToken);
-            var outputMessage = obj.FormatMessage();
-            _sendMessageAction?.Invoke(agent, obj, outputMessage);
-            Console.WriteLine(obj.FormatMessage());
-            return obj;
+            catch (Exception ex)
+            {
+                SenparcTrace.SendCustomLog("PrintWechatMessageMiddleware 异常", ex.ToString());
+                SenparcTrace.BaseExceptionLog(ex);
+                throw;
+            }
         }
 
         public async IAsyncEnumerable<IMessage> InvokeAsync(MiddlewareContext context, IStreamingAgent agent, CancellationToken cancellationToken)

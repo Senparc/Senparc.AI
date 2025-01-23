@@ -138,7 +138,7 @@ namespace Senparc.AI.Kernel
             //运行
 
             SenparcKernelAiResult<string>? aiResult = null;
-            List<ContentItem> visionResult = await ChatHelper.TryGetImagesBase64FromContent(Senparc.CO2NET.SenparcDI.GetServiceProvider(), input);
+            List<IContentItem> visionResult = await ChatHelper.TryGetImagesBase64FromContent(Senparc.CO2NET.SenparcDI.GetServiceProvider(), input);
             aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
             //            if (visionResult.Exists(z => z.Type == ContentType.Image))
             //            {
