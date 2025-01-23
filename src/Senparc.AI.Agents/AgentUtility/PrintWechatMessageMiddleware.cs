@@ -58,7 +58,7 @@ namespace Senparc.AI.Agents.AgentUtility
             }
             catch (Exception ex)
             {
-                
+                SenparcTrace.SendCustomLog("PrintWechatMessageMiddleware 异常", ex.ToString());
                 SenparcTrace.BaseExceptionLog(ex);
                 throw;
             }
