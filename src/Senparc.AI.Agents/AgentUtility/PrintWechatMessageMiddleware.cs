@@ -58,6 +58,7 @@ namespace Senparc.AI.Agents.AgentUtility
             }
             catch (Exception ex)
             {
+                
                 SenparcTrace.BaseExceptionLog(ex);
                 throw;
             }
