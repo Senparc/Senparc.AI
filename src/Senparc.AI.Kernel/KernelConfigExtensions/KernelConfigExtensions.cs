@@ -666,7 +666,8 @@ namespace Senparc.AI.Kernel.Handlers
             else
             {
                 var contentResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, executionSettings: executionSettings, kernel: iWanToRun.Kernel);
-                result.OutputString = contentResult.InnerContent?.ToString();
+                //result.Result = contentResult;
+                result.OutputString = contentResult.ToString();
             }
 
             return result;
