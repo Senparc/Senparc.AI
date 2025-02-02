@@ -14,6 +14,7 @@ using Microsoft.Extensions.Http.Logging;
 using System.Net.Http;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using System.Net;
+using Microsoft.SemanticKernel.Connectors.Ollama;
 
 // Memory functionality is experimental
 #pragma warning disable SKEXP0003, SKEXP0011, SKEXP0052, SKEXP0020, SKEXP0012, SKEXP0001
@@ -92,7 +93,7 @@ namespace Senparc.AI.Kernel.Helpers
                     ),
                 AiPlatform.Ollama => kernelBuilder.AddOllamaChatCompletion(
                         modelId: modelName,
-                        endpoint: senparcAiSetting.OllamaEndpoint,
+                        endpoint: new Uri(senparcAiSetting.OllamaEndpoint),
                         serviceId: null
                     ),
                 //DeepSeek 使用和 OpenAI 一致的请求格式
@@ -102,7 +103,7 @@ namespace Senparc.AI.Kernel.Helpers
                         orgId: senparcAiSetting.OrganizationId,
                         httpClient: _httpClient),
 
-                _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"ConfigChat 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
             return kernelBuilder;
@@ -167,17 +168,17 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: senparcAiSetting.FastAPIEndpoint,
                         serviceId: null
                     ),
-                AiPlatform.Ollama => kernelBuilder.AddOllamaTextCompletion(
+                AiPlatform.Ollama => kernelBuilder.AddOllamaTextGeneration(
                         modelId: modelName,
-                        endpoint: senparcAiSetting.OllamaEndpoint,
+                        endpoint: new Uri(senparcAiSetting.OllamaEndpoint),
                         serviceId: null
                     ),
                 AiPlatform.DeepSeek => kernelBuilder.AddOpenAIChatCompletion(modelName,
-                        endpoint:new Uri(senparcAiSetting.Endpoint),
+                        endpoint: new Uri(senparcAiSetting.Endpoint),
                         apiKey: senparcAiSetting.ApiKey,
                         orgId: senparcAiSetting.OrganizationId,
                         httpClient: _httpClient),
-                _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"ConfigTextCompletion 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
             return kernelBuilder;
@@ -238,7 +239,11 @@ namespace Senparc.AI.Kernel.Helpers
                     endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace 必须提供 Endpoint")),
                     httpClient: _httpClient),
 
-                _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                AiPlatform.Ollama => kernelBuilder.AddOllamaTextEmbeddingGeneration(
+                    modelId: modelName,
+                    endpoint: new Uri(senparcAiSetting.OllamaEndpoint)),
+
+                _ => throw new SenparcAiException($"ConfigTextEmbeddingGeneration 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
             //TODO:测试多次添加
@@ -288,7 +293,7 @@ namespace Senparc.AI.Kernel.Helpers
                     modelId: azureModeId,
                     httpClient: _httpClient),
 
-                _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"ConfigImageGeneration 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
             return kernelBuilder;
@@ -333,9 +338,7 @@ namespace Senparc.AI.Kernel.Helpers
                     AiPlatform.OpenAI => memoryBuilder.WithTextEmbeddingGeneration(
                            (loggerFactory, httpClient) =>
                            {
-                               return new AzureOpenAITextEmbeddingGenerationService(
-                                    deploymentName: azureDeployName,
-                                    endpoint: senparcAiSetting.Endpoint,
+                               return new OpenAITextEmbeddingGenerationService(
                                     apiKey: senparcAiSetting.ApiKey,
                                     httpClient: _httpClient,
                                     modelId: modelName,
@@ -357,14 +360,35 @@ namespace Senparc.AI.Kernel.Helpers
                                     endpoint: senparcAiSetting.Endpoint,
                                     apiKey: senparcAiSetting.ApiKey,
                                     httpClient: _httpClient,
-                                    modelId:modelName,
+                                    modelId: modelName,
                                     loggerFactory: loggerFactory
                                );
                            }
                     ),
+
                     AiPlatform.HuggingFace => memoryBuilder.WithTextEmbeddingGeneration(
-                        textEmbeddingGeneration: textEmbeddingGeneration),
-                    _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                        (loggerFactory, httpClient) =>
+                        {
+                            return new AzureOpenAITextEmbeddingGenerationService(
+                                 deploymentName: azureDeployName,
+                                 endpoint: senparcAiSetting.Endpoint,
+                                 apiKey: senparcAiSetting.ApiKey,
+                                 httpClient: _httpClient,
+                                 modelId: modelName,
+                                 loggerFactory: loggerFactory
+                            );
+                        }),
+
+                    AiPlatform.Ollama => memoryBuilder.WithTextEmbeddingGeneration((loggerFactory, httpClient) =>
+                    {
+                        return new OllamaTextEmbeddingGenerationService(
+                             endpoint: new Uri(senparcAiSetting.Endpoint),
+                             modelId: modelName,
+                             loggerFactory: loggerFactory
+                        );
+                    }),
+
+                    _ => throw new SenparcAiException($"GetMemory 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
                 };
 
 
