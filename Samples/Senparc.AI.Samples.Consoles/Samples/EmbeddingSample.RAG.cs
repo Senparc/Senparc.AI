@@ -54,7 +54,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     var match = Regex.Match(filePath, @">{0,}(\d*)$");
                     if (match.Success)
                     {
-                        depth = Math.Max(1,match.Value.Count(c => c == '>')); // 获取>的数量作为深度
+                        depth = Math.Max(1, match.Value.Count(c => c == '>')); // 获取>的数量作为深度
                         if (!int.TryParse(match.Groups[1].Value, out maxCount)) // 获取数字作为最大数量
                         {
                             maxCount = 1;
@@ -107,8 +107,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             Console.WriteLine("正在处理信息...");
 
+            //新建Handler
+            var embeddingAiSetting = ((SenparcAiSetting)SampleSetting.CurrentSetting) with { AiPlatform = AiPlatform.AzureOpenAI };
+            var embeddingAiHandler = new SemanticAiHandler(embeddingAiSetting);
+
             //测试 TextEmbedding
-            var iWantToRunEmbedding = _semanticAiHandler
+            var iWantToRunEmbedding = embeddingAiHandler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, _userId)
                  .BuildKernel();
@@ -117,7 +121,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var dt = SystemTime.Now;
             var mapTasks = new List<Task>();
 
-            var aiSetting = iWantToRunEmbedding.SemanticKernelHelper.AiSetting;
 
             contentMap.ForEach(file =>
                {
@@ -151,8 +154,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                            iWantToRunEmbedding
                              .MemorySaveInformation(
-                                 modelName: textEmbeddingGenerationName(aiSetting),
-                                 azureDeployName: textEmbeddingAzureDeployName(aiSetting),
+                                 modelName: textEmbeddingGenerationName(embeddingAiSetting),
+                                 azureDeployName: textEmbeddingAzureDeployName(embeddingAiSetting),
                                  collection: memoryCollectionName,
                                  id: $"paragraph-{Guid.NewGuid().ToString("n")}",
                                  text: paragraph);
@@ -217,8 +220,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 var questionDt = DateTime.Now;
                 var limit = 3;
                 var embeddingResult = await iWantToRunEmbedding.MemorySearchAsync(
-                        modelName: textEmbeddingGenerationName(aiSetting),
-                        azureDeployName: textEmbeddingAzureDeployName(aiSetting),
+                        modelName: textEmbeddingGenerationName(embeddingAiSetting),
+                        azureDeployName: textEmbeddingAzureDeployName(embeddingAiSetting),
                         memoryCollectionName: memoryCollectionName,
                         query: question,
                         limit: limit);

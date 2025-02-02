@@ -47,7 +47,7 @@ namespace Senparc.AI.Kernel.Handlers
         {
             SemanticAiHandler = handler;
             SemanticKernelHelper = handler.SemanticKernelHelper;
-            SenparcAiSetting = senparcAiSetting ?? Senparc.AI.Config.SenparcAiSetting;
+            SenparcAiSetting = senparcAiSetting ?? SemanticKernelHelper.AiSetting ?? Senparc.AI.Config.SenparcAiSetting;
         }
 
 

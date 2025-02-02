@@ -9,7 +9,7 @@ namespace Senparc.AI.Kernel
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public class SenparcAiSetting : SenparcAiSettingBase<SenparcAiSetting>, ISenparcAiSetting
+    public record class SenparcAiSetting : SenparcAiSettingBase<SenparcAiSetting>, ISenparcAiSetting
     {
         public SenparcAiSetting()
         {

@@ -12,7 +12,7 @@ namespace Senparc.AI.Entities
     /// SenparcAiSetting<T> 基类
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class SenparcAiSettingBase<T> : SenparcAiSettingBase, ISenparcAiSetting<T>
+    public abstract record class SenparcAiSettingBase<T> : SenparcAiSettingBase, ISenparcAiSetting<T>
         where T : ISenparcAiSetting
     {
         /// <summary>
@@ -35,7 +35,7 @@ namespace Senparc.AI.Entities
     /// <summary>
     /// SenparcAiSetting 基类
     /// </summary>
-    public class SenparcAiSettingBase : ISenparcAiSetting
+    public record class SenparcAiSettingBase : ISenparcAiSetting
     {
         /// <summary>
         /// 是否处于调试状态
