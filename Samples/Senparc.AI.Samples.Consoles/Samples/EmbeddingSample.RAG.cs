@@ -117,6 +117,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var dt = SystemTime.Now;
             var mapTasks = new List<Task>();
 
+            var aiSetting = iWantToRunEmbedding.SemanticKernelHelper.AiSetting;
+
             contentMap.ForEach(file =>
                {
                    if (file.Value.IsNullOrEmpty())
@@ -149,8 +151,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                            iWantToRunEmbedding
                              .MemorySaveInformation(
-                                 modelName: textEmbeddingGenerationName,
-                                 azureDeployName: textEmbeddingAzureDeployName,
+                                 modelName: textEmbeddingGenerationName(aiSetting),
+                                 azureDeployName: textEmbeddingAzureDeployName(aiSetting),
                                  collection: memoryCollectionName,
                                  id: $"paragraph-{Guid.NewGuid().ToString("n")}",
                                  text: paragraph);
@@ -185,12 +187,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var systemMessage = @$"## SystemMessage
 你是一位咨询机器人，你将根据我所提供的“提问”以及“备选信息”组织语言，生成一段给我的回复。
-""备选信息""可能有多条，使用 ////// 表示每一条信息的开头， 表示每一条信息的结尾。在 ****** 后会有一个数字，表示这条信息的相关性。
+请注意：“备选信息”来自于 Embedding 检索获得的一系列有和“提问”有关联的结果，因此也可能有多条，每一条备选信息使用 ////// 表示这一条信息的开头，****** 表示这一条信息的结尾。在 ****** 后会有一个数字，表示这条信息和“提问”内容的相关性。也就是说，////// 和 ****** 中间的内容才是对你推理有用的内容。
 
-## Rule
+## 准则
 你必须：
  - 将回答内容严格限制在我所提供给你的备选信息中（开头和结尾标记中间的内容），其中越靠前的备选信息可信度越高，相关性不属于答案内容本身，因此在组织语言的过程中必须将其忽略。
- - 请严格从“备选信息”中挑选和“提问”有关的信息，不要输出没有相关依据的信息。";
+ - 严格从“备选信息”中挑选和“提问”有关的信息，不要输出没有相关依据的信息，不允许生成不存在的信息。";
 
             var iWantToRunChat = _semanticAiHandler.ChatConfig(parameter,
                                  userId: "Jeffrey",
@@ -215,8 +217,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 var questionDt = DateTime.Now;
                 var limit = 3;
                 var embeddingResult = await iWantToRunEmbedding.MemorySearchAsync(
-                        modelName: textEmbeddingGenerationName,
-                        azureDeployName: textEmbeddingAzureDeployName,
+                        modelName: textEmbeddingGenerationName(aiSetting),
+                        azureDeployName: textEmbeddingAzureDeployName(aiSetting),
                         memoryCollectionName: memoryCollectionName,
                         query: question,
                         limit: limit);
@@ -237,8 +239,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 Console.Write("回答：");
 
-                var input = @$"提问：{question}
-备选答案：
+                var input = @$"### 提问：{question}
+### 备选答案：
 {results.ToString()}";
 
                 var useStream = iWantToRunChat.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
