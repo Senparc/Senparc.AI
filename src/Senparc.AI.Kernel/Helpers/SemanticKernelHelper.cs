@@ -34,7 +34,7 @@ namespace Senparc.AI.Kernel.Helpers
 
         internal IKernelBuilder KernelBuilder { get; set; } = Microsoft.SemanticKernel.Kernel.CreateBuilder();
 
-        internal ISenparcAiSetting AiSetting { get; private set; }
+        public ISenparcAiSetting AiSetting { get; private set; }
 
         private List<Task> _memoryExecuteList = new List<Task>();
         private readonly ILoggerFactory? loggerFactory;

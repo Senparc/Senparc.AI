@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 		<PropertyGroup>
 				<TargetFramework>netstandard2.1</TargetFramework>
-				<Version>0.5.1</Version>
+				<Version>0.5.2</Version>
 				<Nullable>enable</Nullable>
 				<LangVersion>10.0</LangVersion>
 				<AssemblyName>Senparc.AI.Agents</AssemblyName>
@@ -28,7 +28,8 @@
 
 					[2024-09-07] v0.2.0 SemanticKernelHelper 提供重新设置 SenparcAiSetting 参数方法
 					[2024-11-19] v0.4.0 Update CO2NET, reframe for Aspire
-					[2025-01-25] v0.22.1 fix output result for nonstreaming request
+					[2025-01-25] v0.5.1 fix output result for nonstreaming request
+					[2025-02-02] v0.5.2 Upgrade support for Ollama, finished test for DeepSeek-r1 and nomic-embed-text:v1.5
 				</PackageReleaseNotes>
 				<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Agents</RepositoryUrl>
 				<Configurations>Debug;Release;Test</Configurations>

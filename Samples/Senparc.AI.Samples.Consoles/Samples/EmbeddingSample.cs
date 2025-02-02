@@ -24,8 +24,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
         SemanticAiHandler _semanticAiHandler => (SemanticAiHandler)_aiHandler;
         string _userId = "Jeffrey";
         string memoryCollectionName = "EmbeddingTest";
-        string textEmbeddingGenerationName = "text-embedding-ada-002";
-        string textEmbeddingAzureDeployName = "text-embedding-ada-002";
+        Func<ISenparcAiSetting, string> textEmbeddingGenerationName => setting => setting.ModelName.Embedding ?? "text-embedding-ada-002";
+        Func<ISenparcAiSetting, string> textEmbeddingAzureDeployName => setting => setting.ModelName.Embedding ?? "text-embedding-ada-002";
 
         public EmbeddingSample(IAiHandler aiHandler)
         {
@@ -54,6 +54,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
 
             //.BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
+            var aiSetting = iWantToRun.SemanticKernelHelper.AiSetting;
+
 
             //开始对话
             var i = 0;
@@ -71,8 +73,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 if (isReference)
                 {
                     iWantToRun.MemorySaveReference(
-                         modelName: textEmbeddingGenerationName,
-                         azureDeployName: textEmbeddingAzureDeployName,
+                         modelName: textEmbeddingGenerationName(aiSetting),
+                         azureDeployName: textEmbeddingAzureDeployName(aiSetting),
                          collection: memoryCollectionName,
                          description: info[1],//只用于展示记录
                          text: info[1],//真正用于生成 embedding
@@ -85,8 +87,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 {
                     iWantToRun
                     .MemorySaveInformation(
-                        modelName: textEmbeddingGenerationName,
-                        azureDeployName: textEmbeddingAzureDeployName,
+                        modelName: textEmbeddingGenerationName(aiSetting),
+                        azureDeployName: textEmbeddingAzureDeployName(aiSetting),
                         collection: memoryCollectionName, id: info[0], text: info[1]);
                 }
                 i++;
@@ -106,11 +108,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 var questionDt = DateTime.Now;
                 var limit = isReference ? 3 : 1;
                 var result = await iWantToRun.MemorySearchAsync(
-                        modelName: textEmbeddingGenerationName,
-                        azureDeployName: textEmbeddingAzureDeployName,
+                        modelName: textEmbeddingGenerationName(aiSetting),
+                        azureDeployName: textEmbeddingAzureDeployName(aiSetting),
                         memoryCollectionName: memoryCollectionName,
                         query: question,
-                        limit: limit);
+                        limit: limit,
+                        minRelevanceScore: 0.6);
 
                 var j = 0;
                 if (isReference)
