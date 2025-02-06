@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Samples.Consoles;
 using Senparc.AI.Samples.Consoles.Samples;
@@ -31,6 +32,11 @@ services.AddTransient<EmbeddingSample>();
 services.AddTransient<DallESample>();
 services.AddTransient<PlanSample>();
 services.AddTransient<PluginFromObjectSample>();
+
+services.AddScoped<IAiHandler, SemanticAiHandler>(s =>
+{
+    return new SemanticAiHandler(SampleSetting.CurrentSetting);
+});
 
 var serviceProvider = services.BuildServiceProvider();
 
