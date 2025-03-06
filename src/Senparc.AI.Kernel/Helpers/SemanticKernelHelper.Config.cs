@@ -12,7 +12,7 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Senparc.CO2NET.Extensions;
 using Microsoft.Extensions.Http.Logging;
 using System.Net.Http;
-using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
+//using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using System.Net;
 using Microsoft.SemanticKernel.Connectors.Ollama;
 
