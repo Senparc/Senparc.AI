@@ -14,6 +14,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using Senparc.Xncf.SenMapic.Domain.SiteMap;
 using Senparc.CO2NET.Helpers;
+using Microsoft.KernelMemory;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -55,7 +56,21 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             //.BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
             var aiSetting = iWantToRun.SemanticKernelHelper.AiSetting;
+            IKernelMemory vectorMemory;
 
+            vectorMemory = new KernelMemoryBuilder()
+                .WithAzureOpenAITextEmbeddingGeneration(new AzureOpenAIConfig()
+                {
+                    APIKey = aiSetting.ApiKey,
+                    APIType = AzureOpenAIConfig.APITypes.EmbeddingGeneration,
+                    Deployment =aiSetting.ModelName.Embedding, //aiSetting.DeploymentName,
+                    Endpoint = aiSetting.Endpoint,
+                    Auth = AzureOpenAIConfig.AuthTypes.APIKey,
+
+                })
+                      .WithRedisMemoryDb(Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration)
+                      //.WithOpenAIDefaults(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
+                      .Build<MemoryServerless>();
 
             //开始对话
             var i = 0;
@@ -90,6 +105,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
                         modelName: textEmbeddingGenerationName(aiSetting),
                         azureDeployName: textEmbeddingAzureDeployName(aiSetting),
                         collection: memoryCollectionName, id: info[0], text: info[1]);
+
+
+                    var tags = new TagCollection();
+                    tags.Add($"Senparc-{info[0]}", $"Senparc-{info[1]}");
+
+                    await vectorMemory.ImportTextAsync(info[1], "Senparc.AI", tags, info[0]);
                 }
                 i++;
             }
@@ -106,7 +127,17 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
 
                 var questionDt = DateTime.Now;
-                var limit = isReference ? 3 : 1;
+                var limit = isReference ? 3 : 2;
+
+                //新方
+                var vectorResult = await vectorMemory.SearchAsync(question, null, null, null, 1, limit);
+                foreach (var restulItem in vectorResult.Results)
+                {
+                    Console.WriteLine("新结果：" + restulItem.ToJson(true));
+                }
+
+
+                //老方法
                 var result = await iWantToRun.MemorySearchAsync(
                         modelName: textEmbeddingGenerationName(aiSetting),
                         azureDeployName: textEmbeddingAzureDeployName(aiSetting),
@@ -146,6 +177,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                         await Console.Out.WriteLineAsync($"应答[{j + 1}]： " + response.Metadata.Text +
                             $"\r\n -- Relevance {response.Relevance} -- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
                     }
+
+
                 }
 
                 if (j == 0)
