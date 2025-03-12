@@ -28,7 +28,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
 		<PackageReference Include="Microsoft.KernelMemory.Core" Version="0.71.240820.1" />
 		<PackageReference Include="Microsoft.KernelMemory.MemoryDb.Redis" Version="0.71.240820.1" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.31.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.17.2" />
 		<PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.31.0-preview" />
 		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.31.0-alpha" />
 		<PackageReference Include="Senparc.Xncf.SenMapic" Version="0.1.0-alpha2" />
