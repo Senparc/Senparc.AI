@@ -70,7 +70,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 MaxRetries = 2,
                 MaxTokenTotal = 1000
             };
-            var openAIConfigText = new AzureOpenAIConfig()
+            var azureOpenAIConfigChat = new AzureOpenAIConfig()
             {
                 APIKey = aiSetting.ApiKey,
                 APIType = AzureOpenAIConfig.APITypes.ChatCompletion,
@@ -82,13 +82,32 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 MaxTokenTotal = 1000
             };
 
+            var openAIConfigText = new OpenAIConfig()
+            {
+                APIKey = aiSetting.ApiKey,
+                TextModel = aiSetting.ModelName.Chat,
+                EmbeddingModel = aiSetting.ModelName.Embedding,
+                EmbeddingModelMaxTokenTotal = 2048,
+                MaxEmbeddingBatchSize = 1,
+                MaxRetries = 3,
+                Endpoint = aiSetting.Endpoint,
+            };
+
+            var simpleVectorDbConfig = new SimpleVectorDbConfig()
+            {
+                StorageType = FileSystemTypes.Disk
+            };
+
+            vectorMemory = new KernelMemoryBuilder()
+                .WithAzureOpenAITextEmbeddingGeneration(openAIConfigEmbedding)
+                .WithOpenAITextGeneration(openAIConfigText)
+                .WithSimpleVectorDb(simpleVectorDbConfig)
+                //.WithRedisMemoryDb(Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration)
+                //.WithOpenAIDefaults(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
+                .Build<MemoryServerless>();
+
             var redisConfig = new RedisConfig("km-", new Dictionary<string, char?> { { "__part_n", ',' }, { "collection", ',' } });
             redisConfig.ConnectionString = Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration;
-
-                })
-                      .WithRedisMemoryDb(Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration)
-                      //.WithOpenAIDefaults(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
-                      .Build<MemoryServerless>();
 
             //开始对话
             var i = 0;
@@ -107,7 +126,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     case VectorDB.VectorDBType.HardDisk:
                         {
                             var tags = new TagCollection();
-                            tags.Add($"Senparc{info[0].ToString().Trim().Replace(":","")}", $"Senparc{info[1].ToString().Trim().Replace(":", "")}");
+                            tags.Add($"Senparc{info[0].ToString().Trim().Replace(":", "")}", $"Senparc{info[1].ToString().Trim().Replace(":", "")}");
 
                             await vectorMemory.ImportTextAsync(info[1], "SenparcAI", tags, info[0]);
                             break;
@@ -136,30 +155,13 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 collection: memoryCollectionName, id: info[0], text: info[1]);
 
 
-                    TagCollection tags = null;// new TagCollection();
-                    //tags.Add($"Senparc-{info[0]}", $"Senparc-{info[1]}");
+                            //TagCollection tags = new TagCollection();
+                            //tags.Add($"Senparc-{info[0]}", $"Senparc-{info[1]}");
 
-                    await vectorMemory.ImportTextAsync(info[1], null/*"Senparc.AI"*/, tags, null /*info[0]*/);
+                            //await vectorMemory.ImportTextAsync(info[1], "Senparc.AI", tags, info[0]);
+                            break;
+                        }
                 }
-
-
-                //if (isReference)
-                //{
-                //    iWantToRun.MemorySaveReference(
-                //         modelName: textEmbeddingGenerationName(aiSetting),
-                //         azureDeployName: textEmbeddingAzureDeployName(aiSetting),
-                //         collection: memoryCollectionName,
-                //         description: info[1],//只用于展示记录
-                //         text: info[1],//真正用于生成 embedding
-                //         externalId: info[0],
-                //         externalSourceName: memoryCollectionName
-                //        );
-                //    await Console.Out.WriteLineAsync($"  URL {i + 1} saved");
-                //}
-                //else
-                //{
-                    
-                //}
                 i++;
             }
 
