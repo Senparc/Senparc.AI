@@ -1,0 +1,2469 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人工智能知识树 - 3D力导向布局</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            overflow: hidden;
+        }
+        .container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        h1 {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #333;
+            z-index: 100;
+            margin: 0;
+            padding: 10px 0;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        .controls {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 0 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .info {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            z-index: 100;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 0;
+        }
+        #nodeInfo {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+            max-width: 200px;
+            display: none;
+        }
+        canvas {
+            display: block;
+            touch-action: none; /* 防止触摸设备上的默认行为 */
+        }
+        .legend-panel {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            font-size: 10px;
+            max-height: 30px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease;
+            cursor: pointer;
+            width: 150px;
+        }
+        
+        .legend-panel.expanded {
+            max-height: 400px; /* 足够容纳所有图例项的高度 */
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .legend-panel h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        #legendItems {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .legend-panel.expanded #legendItems {
+            display: block;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .color-sample {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+        .legend-label {
+            flex-grow: 1;
+        }
+        .legend-checkbox {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>人工智能知识树 (3D版)</h1>
+        <div class="controls">
+            <button id="zoomIn">放大</button>
+            <button id="zoomOut">缩小</button>
+            <button id="resetView">重置视图</button>
+            <button id="runSimulation">重新布局</button>
+            <button id="toggleRotation">切换自动旋转</button>
+        </div>
+        <div id="nodeInfo"></div>
+        <div id="legend" class="legend-panel">
+            <h3>层级图例</h3>
+            <div id="legendItems"></div>
+        </div>
+        <div class="info" style="display: none;">鼠标拖动可旋转视图，滚轮可缩放，点击并拖动节点可调整位置</div>
+    </div>
+
+    <!-- 引入Three.js库 -->
+
+
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/CSS2DRenderer.js"></script>
+
+    <!-- 添加jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // 定义树状结构数据
+        const treeData = {
+            name: "人工智能",
+            children: [
+                {
+                    name: "机器学习",
+                    children: [
+                        {
+                            name: "监督学习",
+                            children: [
+                                { name: "决策树" },
+                                { name: "支持向量机" },
+                                { name: "线性回归" },
+                                { name: "逻辑回归" }
+                            ]
+                        },
+                        {
+                            name: "无监督学习",
+                            children: [
+                                { 
+                                    name: "聚类",
+                                    children: [
+                                        { name: "K-means" },
+                                        { name: "层次聚类" },
+                                        { name: "DBSCAN" }
+                                    ]
+                                },
+                                {
+                                    name: "降维",
+                                    children: [
+                                        { name: "PCA" },
+                                        { name: "t-SNE" },
+                                        { name: "LDA" }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            name: "强化学习",
+                            children: [
+                                { name: "Q-learning" },
+                                { name: "SARSA" },
+                                { name: "DDPG" }
+                            ]
+                        },
+                        {
+                            name: "深度学习",
+                            children: [
+                                {
+                                    name: "神经网络",
+                                    children: [
+                                        { name: "前馈神经网络" },
+                                        { name: "卷积神经网络" },
+                                        { name: "循环神经网络" }
+                                    ]
+                                },
+                                {
+                                    name: "深度学习模型",
+                                    children: [
+                                        {
+                                            name: "预训练模型",
+                                            children: [
+                                                {
+                                                    name: "预训练大语言模型",
+                                                    children: [
+                                                        { name: "GPT-4" },
+                                                        { name: "BERT" },
+                                                        { name: "LLaMA" },
+                                                        { name: "ChatGLM" },
+                                                        { name: "Qwen" },
+                                                        { name: "DeepSeek" }
+                                                    ]
+                                                },
+                                                {
+                                                    name: "计算机视觉模型",
+                                                    children: [
+                                                        { name: "ResNet" },
+                                                        { name: "VGG" },
+                                                        { name: "Inception" }
+                                                    ]
+                                                },
+                                                {
+                                                    name: "自然语言处理模型",
+                                                    children: [
+                                                        { name: "Seq2Seq" },
+                                                        { name: "Transformer" }
+                                                    ]
+                                                },
+                                                {
+                                                    name: "强化学习模型",
+                                                    children: [
+                                                        { name: "DQN" },
+                                                        { name: "A3C" },
+                                                        { name: "PPO" }
+                                                    ]
+                                                },
+                                                {
+                                                    name: "生成对抗网络",
+                                                    children: [
+                                                        { name: "GAN" },
+                                                        { name: "DCGAN" },
+                                                        { name: "CycleGAN" }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "计算机视觉",
+                    children: [
+                        {
+                            name: "图像分类",
+                            children: [
+                                { name: "CNN" },
+                                { name: "ResNet" },
+                                { name: "AlexNet" }
+                            ]
+                        },
+                        {
+                            name: "目标检测",
+                            children: [
+                                { name: "YOLO" },
+                                { name: "Faster R-CNN" },
+                                { name: "SSD" }
+                            ]
+                        },
+                        {
+                            name: "图像分割",
+                            children: [
+                                { name: "U-Net" },
+                                { name: "Mask R-CNN" },
+                                { name: "FCN" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "自然语言处理",
+                    children: [
+                        {
+                            name: "词向量",
+                            children: [
+                                { name: "Word2Vec" },
+                                { name: "GloVe" },
+                                { name: "FastText" }
+                            ]
+                        },
+                        {
+                            name: "文本分类",
+                            children: [
+                                { name: "朴素贝叶斯" },
+                                { name: "SVM" },
+                                { name: "BERT" }
+                            ]
+                        },
+                        {
+                            name: "机器翻译",
+                            children: [
+                                { name: "RNN" },
+                                { name: "Transformer" },
+                                { name: "Seq2Seq" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "语音识别",
+                    children: [
+                        {
+                            name: "端到端模型",
+                            children: [
+                                { name: "DeepSpeech" },
+                                { name: "Wav2Letter" }
+                            ]
+                        },
+                        {
+                            name: "特征提取",
+                            children: [
+                                { name: "MFCC" },
+                                { name: "PLP" }
+                            ]
+                        },
+                        {
+                            name: "声学模型",
+                            children: [
+                                { name: "HMM" },
+                                { name: "DNN" }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Three.js 相关变量
+        let scene, camera, renderer, labelRenderer;
+        let controls;
+        let nodes = [];
+        let links = [];
+        let nodeObjects = {};
+        let linkObjects = [];
+        let raycaster, mouse;
+        let selectedNode = null;
+        let isDragging = false;
+        let autoRotate = false;
+        let animationFrameId = null;
+        let hoveredNode = null;
+        let originalOpacities = {}; // 存储原始不透明度以便恢复
+        let labelObjects = {}; // 添加一个全局对象来存储标签引用
+        let flatViewActive = false; // 标记平面视图是否激活
+        let flatViewGroup = null; // 平面视图的容器组
+        let focusedNode = null; // 当前聚焦的节点
+        let originalCameraPosition = null; // 保存原始摄像机位置
+        let flatViewLabels = []; // 存储平面视图中创建的所有标签
+        let backgroundPlane = null; // 存储背景遮罩平面
+
+        // 节点样式配置
+        const nodeConfig = {
+            baseRadius: 0.8,       // 从0.5增大到0.8
+            radiusDecrement: 0.07, // 稍微增大递减量，保持层级区分
+            minRadius: 0.3,        // 从0.2增大到0.3
+            maxRadius: 1.2,        // 从0.8增大到1.2
+            colors: [
+                0x4CAF50, // 根节点
+                0x2196F3, // 一级节点
+                0x9C27B0, // 二级节点
+                0xFF9800, // 三级节点
+                0xE91E63, // 四级节点
+                0x607D8B, // 五级节点
+                0x795548  // 六级节点及以上
+            ],
+            segments: 32,
+            linkColor: 0x999999,
+            linkOpacity: 0.6,
+            linkWidth: 2
+        };
+
+        // 力导向布局配置
+        const forceConfig = {
+            centerStrength: 0.05,    // 中心引力强度
+            manyBodyStrength: -30,   // 节点间斥力强度
+            linkDistance: 5,         // 链接理想长度
+            linkStrength: 0.7,       // 链接强度
+            collideRadius: 1.5,      // 碰撞半径
+            alphaDecay: 0.01,        // 模拟降温速率
+            velocityDecay: 0.4,      // 速度衰减率
+            iterations: 100          // 每帧迭代次数
+        };
+
+        // 初始化Three.js场景
+        function initThreeJS() {
+            // 创建场景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf5f5f5);
+
+            // 创建相机
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 40;
+
+            // 创建渲染器
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: true,
+                preserveDrawingBuffer: true  // 增加此选项
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+            
+            // 确保渲染器DOM元素可以正确接收事件
+            renderer.domElement.style.position = 'absolute';
+            renderer.domElement.style.top = '0';
+            renderer.domElement.style.left = '0';
+            renderer.domElement.style.zIndex = '1'; // 确保在合适的层级
+
+            // 创建标签渲染器
+            labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            document.body.appendChild(labelRenderer.domElement);
+
+            // 创建轨道控制器
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.25;
+            controls.screenSpacePanning = false;
+            controls.maxDistance = 100;
+            controls.minDistance = 5;
+            controls.rotateSpeed = 1.0;
+            controls.zoomSpeed = 1.2;
+            controls.panSpeed = 0.8;
+            controls.enableZoom = true;
+            controls.enableRotate = true;
+            controls.enablePan = true;
+
+            // 添加环境光
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            // 添加方向光
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1).normalize();
+            scene.add(directionalLight);
+
+            // 创建射线投射器和鼠标向量
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // 修正事件监听器绑定 - 使用正确的函数名
+            renderer.domElement.addEventListener('mousedown', handleMouseDown);
+            renderer.domElement.addEventListener('mousemove', handleMouseHover);
+            document.addEventListener('mouseup', handleMouseUp);
+            
+            // 仅保留窗口大小调整事件
+            window.addEventListener('resize', onWindowResize);
+
+            // 添加按钮事件监听器
+            document.getElementById('zoomIn').addEventListener('click', zoomIn);
+            document.getElementById('zoomOut').addEventListener('click', zoomOut);
+            document.getElementById('resetView').addEventListener('click', resetView);
+            document.getElementById('runSimulation').addEventListener('click', resetSimulation);
+            document.getElementById('toggleRotation').addEventListener('click', toggleRotation);
+
+            // 添加双击事件监听器 - 在添加其他事件监听器的地方附近添加这行
+            renderer.domElement.addEventListener('dblclick', handleDoubleClick);
+        }
+
+        // 创建力导向布局所需的节点和链接数据
+        function createGraphData(treeData, parent = null, depth = 0) {
+            // 创建当前节点
+            const node = {
+                id: nodes.length,
+                name: treeData.name,
+                depth: depth,
+                radius: Math.max(
+                    nodeConfig.minRadius,
+                    nodeConfig.baseRadius - (depth * nodeConfig.radiusDecrement)
+                ),
+                color: nodeConfig.colors[Math.min(depth, nodeConfig.colors.length - 1)],
+                parent: parent,
+                children: [],
+                // 3D位置和速度
+                x: (Math.random() - 0.5) * 10,
+                y: (Math.random() - 0.5) * 10,
+                z: (Math.random() - 0.5) * 10,
+                vx: 0,
+                vy: 0,
+                vz: 0,
+                fixed: false
+            };
+            
+            nodes.push(node);
+            
+            // 如果有父节点，创建链接
+            if (parent !== null) {
+                links.push({
+                    source: parent,
+                    target: node,
+                    distance: forceConfig.linkDistance * (1 - 0.1 * depth)
+                });
+            }
+            
+            // 递归处理子节点
+            if (treeData.children && treeData.children.length > 0) {
+                treeData.children.forEach(child => {
+                    const childNode = createGraphData(child, node, depth + 1);
+                    node.children.push(childNode);
+                });
+            }
+            
+            return node;
+        }
+
+        // 创建3D节点对象
+        function createNodeObjects() {
+            nodes.forEach(node => {
+                // 创建球体几何体
+                const geometry = new THREE.SphereGeometry(node.radius, nodeConfig.segments, nodeConfig.segments);
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: node.color,
+                    shininess: 100,
+                    specular: 0x111111,
+                    transparent: true,  // 确保透明度已启用
+                    opacity: 1.0        // 默认完全不透明
+                });
+                const sphere = new THREE.Mesh(geometry, material);
+                
+                // 设置位置
+                sphere.position.set(node.x, node.y, node.z);
+                
+                // 存储节点数据
+                sphere.userData = { node: node };
+                
+                // 添加到场景
+                scene.add(sphere);
+                
+                // 存储对象引用
+                nodeObjects[node.id] = sphere;
+                
+                // 创建标签
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'node-label';
+                labelDiv.textContent = node.name;
+                labelDiv.style.color = '#333';
+                labelDiv.style.fontSize = (16 - node.depth) + 'px';
+                labelDiv.style.fontWeight = node.depth === 0 ? 'bold' : 'normal';
+                labelDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+                labelDiv.style.padding = '2px 5px';
+                labelDiv.style.borderRadius = '3px';
+                labelDiv.style.pointerEvents = 'none';
+                labelDiv.style.transition = 'opacity 0.2s ease'; // 添加过渡效果
+                
+                const label = new THREE.CSS2DObject(labelDiv);
+                // 修改标签位置，将其放在球体上方更高的位置
+                label.position.set(0, node.radius * 2.5, 0); // 从1.5倍改为2.5倍
+                sphere.add(label);
+                
+                // 保存标签引用
+                labelObjects[node.id] = {
+                    element: labelDiv,
+                    object: label
+                };
+                
+                // 初始化为可见
+                sphere.visible = true;
+            });
+            
+            // 初始化所有节点可见状态
+            initNodeVisibility();
+        }
+
+        // 创建3D链接对象
+        function createLinkObjects() {
+            links.forEach(link => {
+                const source = link.source;
+                const target = link.target;
+                
+                // 创建线条材质
+                const material = new THREE.LineBasicMaterial({
+                    color: nodeConfig.linkColor,
+                    transparent: true,
+                    opacity: nodeConfig.linkOpacity,
+                    linewidth: nodeConfig.linkWidth
+                });
+                
+                // 创建线条几何体
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array([
+                    source.x, source.y, source.z,
+                    target.x, target.y, target.z
+                ]);
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                
+                // 创建线条对象
+                const line = new THREE.Line(geometry, material);
+                
+                // 添加到场景
+                scene.add(line);
+                
+                // 存储对象引用
+                linkObjects.push({
+                    line: line,
+                    source: source,
+                    target: target
+                });
+            });
+        }
+
+        // 更新链接位置
+        function updateLinks() {
+            linkObjects.forEach(linkObj => {
+                const source = linkObj.source;
+                const target = linkObj.target;
+                const line = linkObj.line;
+                
+                // 更新线条位置
+                const positions = line.geometry.attributes.position.array;
+                
+                positions[0] = source.x;
+                positions[1] = source.y;
+                positions[2] = source.z;
+                
+                positions[3] = target.x;
+                positions[4] = target.y;
+                positions[5] = target.z;
+                
+                line.geometry.attributes.position.needsUpdate = true;
+            });
+        }
+
+        // 更新节点位置
+        function updateNodes() {
+            nodes.forEach(node => {
+                const obj = nodeObjects[node.id];
+                if (obj) {
+                    obj.position.set(node.x, node.y, node.z);
+                }
+            });
+        }
+
+        // 初始化力导向布局
+        function initializeForceLayout() {
+            // 清空现有数据
+            nodes = [];
+            links = [];
+            
+            // 清除现有的3D对象
+            Object.values(nodeObjects).forEach(obj => {
+                scene.remove(obj);
+            });
+            
+            linkObjects.forEach(linkObj => {
+                scene.remove(linkObj.line);
+            });
+            
+            nodeObjects = {};
+            linkObjects = [];
+            labelObjects = {}; // 清空标签对象引用
+            
+            // 创建图数据
+            createGraphData(treeData);
+            
+            // 创建3D对象
+            createNodeObjects();
+            createLinkObjects();
+            
+            // 开始模拟
+            startSimulation();
+        }
+
+        // 开始力导向模拟
+        function startSimulation() {
+            // 停止任何现有的模拟
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            
+            // 初始化模拟参数
+            let alpha = 1;
+            const alphaDecay = forceConfig.alphaDecay;
+            const velocityDecay = forceConfig.velocityDecay;
+            
+            // 模拟函数
+            function simulate() {
+                // 如果模拟已经冷却到足够低的温度，停止模拟
+                if (alpha < 0.001) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                    return;
+                }
+                
+                // 执行多次迭代以加速收敛
+                for (let i = 0; i < forceConfig.iterations; i++) {
+                    // 应用中心力 - 将节点拉向中心
+                    applyCenterForce(alpha);
+                    
+                    // 应用节点间斥力
+                    applyManyBodyForce(alpha);
+                    
+                    // 应用链接力 - 保持连接的节点在适当距离
+                    applyLinkForce(alpha);
+                    
+                    // 应用碰撞力 - 防止节点重叠
+                    applyCollideForce(alpha);
+                    
+                    // 更新节点位置
+                    updatePositions(alpha);
+                }
+                
+                // 降低模拟温度
+                alpha *= 1 - alphaDecay;
+                
+                // 更新3D对象位置
+                updateNodes();
+                updateLinks();
+                
+                // 继续模拟
+                animationFrameId = requestAnimationFrame(simulate);
+            }
+            
+            // 开始模拟
+            animationFrameId = requestAnimationFrame(simulate);
+        }
+
+        // 应用中心力 - 将节点拉向中心
+        function applyCenterForce(alpha) {
+            nodes.forEach(node => {
+                // 根节点固定在中心
+                if (node.depth === 0) {
+                    node.x = 0;
+                    node.y = 0;
+                    node.z = 0;
+                    node.vx = 0;
+                    node.vy = 0;
+                    node.vz = 0;
+                    return;
+                }
+                
+                // 如果节点被标记为固定，则不应用力
+                if (node.fixed) {
+                    return;
+                }
+                
+                // 计算节点到中心的距离
+                const dx = node.x;
+                const dy = node.y;
+                const dz = node.z;
+                const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                
+                // 理想距离是基于深度的
+                const idealDistance = node.depth * forceConfig.linkDistance;
+                
+                // 如果距离过大或过小，施加力将其拉回理想距离
+                if (distance > 0) {
+                    const strength = forceConfig.centerStrength * alpha;
+                    const factor = (1 - idealDistance / distance) * strength;
+                    node.vx -= dx * factor;
+                    node.vy -= dy * factor;
+                    node.vz -= dz * factor;
+                }
+            });
+        }
+
+        // 应用节点间斥力
+        function applyManyBodyForce(alpha) {
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const nodeA = nodes[i];
+                    const nodeB = nodes[j];
+                    
+                    // 如果两个节点都是固定的，则跳过
+                    if (nodeA.fixed && nodeB.fixed) continue;
+                    
+                    const dx = nodeB.x - nodeA.x;
+                    const dy = nodeB.y - nodeA.y;
+                    const dz = nodeB.z - nodeA.z;
+                    const distanceSquared = dx * dx + dy * dy + dz * dz;
+                    
+                    // 避免除以零
+                    if (distanceSquared === 0) continue;
+                    
+                    // 计算斥力
+                    const distance = Math.sqrt(distanceSquared);
+                    const force = forceConfig.manyBodyStrength * alpha / distanceSquared;
+                    
+                    // 同级节点间的斥力更强
+                    const siblingFactor = nodeA.parent === nodeB.parent ? 2 : 1;
+                    
+                    // 应用力
+                    const fx = dx / distance * force * siblingFactor;
+                    const fy = dy / distance * force * siblingFactor;
+                    const fz = dz / distance * force * siblingFactor;
+                    
+                    // 只对非固定节点应用力
+                    if (!nodeA.fixed) {
+                        nodeA.vx += fx;
+                        nodeA.vy += fy;
+                        nodeA.vz += fz;
+                    }
+                    
+                    if (!nodeB.fixed) {
+                        nodeB.vx -= fx;
+                        nodeB.vy -= fy;
+                        nodeB.vz -= fz;
+                    }
+                }
+            }
+        }
+
+        // 应用链接力
+        function applyLinkForce(alpha) {
+            links.forEach(link => {
+                const source = link.source;
+                const target = link.target;
+                
+                // 如果两个节点都是固定的，则跳过
+                if (source.fixed && target.fixed) return;
+                
+                const dx = target.x - source.x;
+                const dy = target.y - source.y;
+                const dz = target.z - source.z;
+                const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                
+                // 避免除以零
+                if (distance === 0) return;
+                
+                // 计算力的大小
+                const idealDistance = link.distance;
+                const displacement = (distance - idealDistance) / distance;
+                const strength = forceConfig.linkStrength * alpha;
+                
+                // 应用力
+                const fx = dx * displacement * strength;
+                const fy = dy * displacement * strength;
+                const fz = dz * displacement * strength;
+                
+                // 只对非固定节点应用力
+                if (!source.fixed) {
+                    source.vx += fx * 0.2;
+                    source.vy += fy * 0.2;
+                    source.vz += fz * 0.2;
+                }
+                
+                if (!target.fixed) {
+                    target.vx -= fx * 0.8;
+                    target.vy -= fy * 0.8;
+                    target.vz -= fz * 0.8;
+                }
+            });
+        }
+
+        // 应用碰撞力
+        function applyCollideForce(alpha) {
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const nodeA = nodes[i];
+                    const nodeB = nodes[j];
+                    
+                    // 如果两个节点都是固定的，则跳过
+                    if (nodeA.fixed && nodeB.fixed) continue;
+                    
+                    const dx = nodeB.x - nodeA.x;
+                    const dy = nodeB.y - nodeA.y;
+                    const dz = nodeB.z - nodeA.z;
+                    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    
+                    // 计算最小允许距离（两节点半径之和加上额外空间）
+                    const minDistance = nodeA.radius + nodeB.radius + forceConfig.collideRadius;
+                    
+                    // 如果距离小于最小允许距离，施加斥力
+                    if (distance < minDistance && distance > 0) {
+                        const strength = alpha;
+                        const overlap = (minDistance - distance) / distance * strength;
+                        
+                        // 应用力
+                        const fx = dx * overlap;
+                        const fy = dy * overlap;
+                        const fz = dz * overlap;
+                        
+                        // 只对非固定节点应用力
+                        if (!nodeA.fixed) {
+                            nodeA.vx -= fx;
+                            nodeA.vy -= fy;
+                            nodeA.vz -= fz;
+                        }
+                        
+                        if (!nodeB.fixed) {
+                            nodeB.vx += fx;
+                            nodeB.vy += fy;
+                            nodeB.vz += fz;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 更新节点位置
+        function updatePositions(alpha) {
+            const velocityDecay = forceConfig.velocityDecay;
+            
+            nodes.forEach(node => {
+                // 根节点固定在中心
+                if (node.depth === 0) {
+                    node.x = 0;
+                    node.y = 0;
+                    node.z = 0;
+                    node.vx = 0;
+                    node.vy = 0;
+                    node.vz = 0;
+                    return;
+                }
+                
+                // 如果节点被标记为固定，则不更新其位置
+                if (node.fixed) {
+                    node.vx = 0;
+                    node.vy = 0;
+                    node.vz = 0;
+                    return;
+                }
+                
+                // 应用速度衰减
+                node.vx *= velocityDecay;
+                node.vy *= velocityDecay;
+                node.vz *= velocityDecay;
+                
+                // 更新位置
+                node.x += node.vx;
+                node.y += node.vy;
+                node.z += node.vz;
+            });
+        }
+
+        // 窗口大小调整处理函数
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // 完全替换旧的鼠标事件处理函数
+        // 删除以下三个函数（如果存在）:
+        // - onMouseDown
+        // - onMouseMove
+        // - onMouseUp
+        // - onPointerDown
+        // - onPointerMove
+        // - onPointerUp
+
+        // 添加新的事件处理函数
+        function handleMouseDown(event) {
+            console.log("DEBUG: Mouse Down", event.clientX, event.clientY);
+            
+            // 计算归一化设备坐标
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            
+            // 射线投射前更新相机和矩阵
+            camera.updateMatrixWorld();
+            raycaster.setFromCamera(mouse, camera);
+            
+            // 获取所有节点对象数组进行测试
+            const nodeObjectsArray = Object.values(nodeObjects);
+            const intersects = raycaster.intersectObjects(nodeObjectsArray);
+            
+            console.log("DEBUG: Intersects count:", intersects.length);
+            
+            if (intersects.length > 0) {
+                console.log("DEBUG: Hit node:", intersects[0].object.userData.node.name);
+                
+                const clickedNode = intersects[0].object.userData.node;
+                
+                // 检测是否双击 - 使用时间间隔检测双击
+                const now = new Date().getTime();
+                if (selectedNode === clickedNode && now - (clickedNode.lastClickTime || 0) < 300) {
+                    // 双击事件，创建平面视图
+                    console.log("DEBUG: Double click detected on node:", clickedNode.name);
+                    createFlatView(clickedNode);
+                    // 阻止事件冒泡，防止继续处理为单击
+                    event.stopPropagation();
+                    return;
+                }
+                
+                // 记录节点点击时间用于双击检测
+                clickedNode.lastClickTime = now;
+                
+                // 禁用轨道控制器
+                controls.enabled = false;
+                
+                // 选中节点
+                selectedNode = clickedNode;
+                isDragging = true;
+                
+                // 显示节点信息
+                showNodeInfo(selectedNode);
+                
+                // 阻止事件冒泡，防止OrbitControls处理
+                event.stopPropagation();
+            } else {
+                console.log("DEBUG: No node hit");
+                
+                // 如果平面视图处于活动状态，点击空白处返回原视图
+                if (flatViewActive) {
+                    removeFlatView();
+                }
+            }
+        }
+
+        // 修改handleMouseHover函数，在平面视图激活时禁用悬停效果
+        function handleMouseHover(event) {
+            // 如果正在拖动或平面视图激活，不要处理悬停效果
+            if (isDragging || flatViewActive) return;
+            
+            // 计算归一化设备坐标
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            
+            // 更新相机矩阵
+            camera.updateMatrixWorld();
+            raycaster.setFromCamera(mouse, camera);
+            
+            // 获取所有节点对象进行测试
+            const nodeObjectsArray = Object.values(nodeObjects);
+            const intersects = raycaster.intersectObjects(nodeObjectsArray);
+            
+            // 如果找到交叉点，处理悬停效果
+            if (intersects.length > 0) {
+                const node = intersects[0].object.userData.node;
+                
+                // 如果悬停的节点与之前不同，更新高亮效果
+                if (hoveredNode !== node) {
+                    // 重置之前的高亮效果
+                    resetNodeOpacity();
+                    
+                    // 设置新的高亮效果
+                    hoveredNode = node;
+                    highlightRelatedNodes(node);
+                }
+            } else if (hoveredNode) {
+                // 如果鼠标不在任何节点上，重置高亮效果
+                resetNodeOpacity();
+                hoveredNode = null;
+            }
+        }
+
+        function handleMouseUp(event) {
+            if (!isDragging || !selectedNode) return;
+            
+            console.log("DEBUG: Mouse Up - ending drag");
+            
+            // 启动智能平衡
+            startGentleBalancingSimulation();
+            
+            // 保存引用，因为selectedNode将被重置
+            const releasedNode = selectedNode;
+            
+            // 延迟释放固定状态
+            setTimeout(() => {
+                if (releasedNode) {
+                    releasedNode.fixed = false;
+                    markSubtreeFixed(releasedNode, false);
+                    startMicroAdjustment(releasedNode);
+                    console.log("DEBUG: Released node fixed state");
+                }
+            }, 1500);
+            
+            // 重新启用控制器
+            controls.enabled = true;
+            isDragging = false;
+            selectedNode = null;
+            
+            // 隐藏信息
+            hideNodeInfo();
+        }
+
+        // 鼠标滚轮事件处理
+        function onMouseWheel(event) {
+            // 轨道控制器已经处理了缩放
+            // 这里可以添加额外的处理逻辑
+        }
+
+        // 移动子树（节点及其所有后代）
+        function moveSubtree(node, deltaX, deltaY, deltaZ) {
+            if (!node || !node.children) return;
+            
+            // 移动所有子节点
+            node.children.forEach(child => {
+                // 移动子节点
+                child.x += deltaX;
+                child.y += deltaY;
+                child.z += deltaZ;
+                
+                // 递归移动子节点的子节点
+                moveSubtree(child, deltaX, deltaY, deltaZ);
+            });
+        }
+
+        // 标记子树中所有节点的固定状态
+        function markSubtreeFixed(node, fixed) {
+            if (!node || !node.children) return;
+            
+            // 标记所有子节点
+            node.children.forEach(child => {
+                // 设置子节点的固定状态
+                child.fixed = fixed;
+                
+                // 递归标记子节点的子节点
+                markSubtreeFixed(child, fixed);
+            });
+        }
+
+        // 优化温和平衡模拟函数，使其更智能地只调整受影响的节点
+        function startGentleBalancingSimulation() {
+            // 停止任何现有的模拟
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            
+            // 保存所有节点的当前位置作为初始位置
+            nodes.forEach(node => {
+                node.initialX = node.x;
+                node.initialY = node.y;
+                node.initialZ = node.z;
+                
+                // 添加一个标记，默认为不受影响
+                node.affected = false;
+            });
+            
+            // 标记受影响的节点 - 如果有选中节点（被拖动的节点）
+            if (selectedNode) {
+                // 找出所有与被拖动节点连接的节点（包括上游和下游）
+                markAffectedNodes(selectedNode);
+            }
+            
+            // 初始化模拟参数，使用非常小的alpha值以获得温和的调整
+            let alpha = 0.1; // 很小的初始alpha值
+            const alphaDecay = forceConfig.alphaDecay * 0.8; // 较慢的衰减
+            const velocityDecay = forceConfig.velocityDecay * 1.2; // 更快的速度衰减，减少振荡
+            
+            // 模拟函数
+            function simulateGentleBalance() {
+                // 如果模拟已经冷却到足够低的温度，停止模拟
+                if (alpha < 0.001) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                    return;
+                }
+                
+                // 执行较少次数的迭代，使移动更加缓慢
+                for (let i = 0; i < Math.ceil(forceConfig.iterations * 0.3); i++) {
+                    // 应用更温和的力，只对受影响的节点
+                    applyGentleForces(alpha);
+                    
+                    // 更新受影响的非固定节点的位置
+                    updatePositionsGently(alpha, velocityDecay);
+                }
+                
+                // 降低模拟温度
+                alpha *= 1 - alphaDecay;
+                
+                // 更新3D对象位置
+                updateNodes();
+                updateLinks();
+                
+                // 继续模拟
+                animationFrameId = requestAnimationFrame(simulateGentleBalance);
+            }
+            
+            // 开始模拟
+            animationFrameId = requestAnimationFrame(simulateGentleBalance);
+        }
+
+        // 新增函数：标记与指定节点相连的所有节点为受影响
+        function markAffectedNodes(node) {
+            // 如果节点已被标记，则停止递归以避免循环
+            if (node.affected) return;
+            
+            // 标记当前节点为受影响
+            node.affected = true;
+            
+            // 向上查找（父节点）- 只标记直接父节点，不标记整个上游
+            if (node.parent) {
+                node.parent.affected = true;
+            }
+            
+            // 向下查找（子节点）
+            if (node.children && node.children.length > 0) {
+                node.children.forEach(child => {
+                    markAffectedNodes(child);
+                });
+            }
+            
+            // 查找与此节点相关的链接，并标记连接的节点
+            links.forEach(link => {
+                if (link.source === node && !link.target.affected) {
+                    markAffectedNodes(link.target);
+                } else if (link.target === node && !link.source.affected) {
+                    markAffectedNodes(link.source);
+                }
+            });
+        }
+
+        // 修改应用温和力的函数，只对受影响的节点应用力
+        function applyGentleForces(alpha) {
+            // 应用链接力 - 只对标记为受影响且非固定的节点应用
+            links.forEach(link => {
+                const source = link.source;
+                const target = link.target;
+                
+                // 如果链接两端的节点都未被标记为受影响，则跳过
+                if ((!source.affected && !target.affected) || 
+                    (source.fixed && target.fixed)) {
+                    return;
+                }
+                
+                const dx = target.x - source.x;
+                const dy = target.y - source.y;
+                const dz = target.z - source.z;
+                const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                
+                // 避免除以零
+                if (distance === 0) return;
+                
+                // 计算温和的力
+                const idealDistance = link.distance;
+                const displacement = (distance - idealDistance) / distance;
+                const strength = forceConfig.linkStrength * alpha * 0.5; // 减半强度
+                
+                // 应用力
+                const fx = dx * displacement * strength;
+                const fy = dy * displacement * strength;
+                const fz = dz * displacement * strength;
+                
+                // 只对受影响且非固定的节点应用力
+                if (source.affected && !source.fixed) {
+                    source.vx += fx * 0.1; // 减少力的影响
+                    source.vy += fy * 0.1;
+                    source.vz += fz * 0.1;
+                }
+                
+                if (target.affected && !target.fixed) {
+                    target.vx -= fx * 0.1; // 减少力的影响
+                    target.vy -= fy * 0.1;
+                    target.vz -= fz * 0.1;
+                }
+            });
+            
+            // 应用极轻微的碰撞力 - 仅对受影响的节点应用
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const nodeA = nodes[i];
+                    const nodeB = nodes[j];
+                    
+                    // 如果两个节点都未被标记为受影响，则跳过
+                    if ((!nodeA.affected && !nodeB.affected) || 
+                        (nodeA.fixed && nodeB.fixed)) {
+                        continue;
+                    }
+                    
+                    const dx = nodeB.x - nodeA.x;
+                    const dy = nodeB.y - nodeA.y;
+                    const dz = nodeB.z - nodeA.z;
+                    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    
+                    // 计算最小允许距离
+                    const minDistance = nodeA.radius + nodeB.radius + forceConfig.collideRadius * 0.8;
+                    
+                    // 如果距离小于最小允许距离，施加非常轻微的斥力
+                    if (distance < minDistance && distance > 0) {
+                        const strength = alpha * 0.3; // 减少强度
+                        const overlap = (minDistance - distance) / distance * strength;
+                        
+                        // 应用力
+                        const fx = dx * overlap;
+                        const fy = dy * overlap;
+                        const fz = dz * overlap;
+                        
+                        // 只对受影响且非固定的节点应用力
+                        if (nodeA.affected && !nodeA.fixed) {
+                            nodeA.vx -= fx;
+                            nodeA.vy -= fy;
+                            nodeA.vz -= fz;
+                        }
+                        
+                        if (nodeB.affected && !nodeB.fixed) {
+                            nodeB.vx += fx;
+                            nodeB.vy += fy;
+                            nodeB.vz += fz;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 修改更新位置函数，只更新受影响的节点
+        function updatePositionsGently(alpha, velocityDecay) {
+            nodes.forEach(node => {
+                // 如果节点不受影响或被标记为固定，则不更新其位置
+                if (!node.affected || node.fixed || node.depth === 0) {
+                    node.vx = 0;
+                    node.vy = 0;
+                    node.vz = 0;
+                    return;
+                }
+                
+                // 应用速度衰减
+                node.vx *= velocityDecay;
+                node.vy *= velocityDecay;
+                node.vz *= velocityDecay;
+                
+                // 限制移动幅度 - 防止节点移动太远离初始位置
+                const maxMove = 0.2; // 每帧最大移动距离
+                node.vx = Math.sign(node.vx) * Math.min(Math.abs(node.vx), maxMove);
+                node.vy = Math.sign(node.vy) * Math.min(Math.abs(node.vy), maxMove);
+                node.vz = Math.sign(node.vz) * Math.min(Math.abs(node.vz), maxMove);
+                
+                // 更新位置
+                node.x += node.vx;
+                node.y += node.vy;
+                node.z += node.vz;
+                
+                // 添加对初始位置的约束，防止节点移动太远
+                const dx = node.x - node.initialX;
+                const dy = node.y - node.initialY;
+                const dz = node.z - node.initialZ;
+                const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                const maxAllowedDistance = 5.0; // 最大允许偏离初始位置的距离
+                
+                if (distance > maxAllowedDistance) {
+                    const scale = maxAllowedDistance / distance;
+                    node.x = node.initialX + dx * scale;
+                    node.y = node.initialY + dy * scale;
+                    node.z = node.initialZ + dz * scale;
+                }
+            });
+        }
+
+        // 新增函数：启动微调整，让释放固定状态的节点找到更合适的位置
+        function startMicroAdjustment(node) {
+            // 只有这个节点和它的子树被标记为受影响
+            nodes.forEach(n => {
+                n.affected = false;
+            });
+            
+            // 标记释放的节点和其子树
+            node.affected = true;
+            markSubtreeAffected(node, true);
+            
+            // 启动一个非常短暂、微小幅度的调整
+            let alpha = 0.05; // 更小的初始alpha值
+            const alphaDecay = forceConfig.alphaDecay * 2; // 更快的衰减
+            const velocityDecay = forceConfig.velocityDecay * 1.5; // 更快的速度衰减
+            
+            function simulateMicroAdjustment() {
+                if (alpha < 0.001) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                    return;
+                }
+                
+                // 仅执行少量迭代
+                for (let i = 0; i < Math.ceil(forceConfig.iterations * 0.1); i++) {
+                    applyGentleForces(alpha);
+                    updatePositionsGently(alpha, velocityDecay);
+                }
+                
+                alpha *= 1 - alphaDecay;
+                
+                updateNodes();
+                updateLinks();
+                
+                animationFrameId = requestAnimationFrame(simulateMicroAdjustment);
+            }
+            
+            // 如果有正在进行的模拟，先停止
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            
+            // 开始微调整
+            animationFrameId = requestAnimationFrame(simulateMicroAdjustment);
+        }
+
+        // 新增辅助函数：标记子树中所有节点为受影响
+        function markSubtreeAffected(node, affected) {
+            if (!node || !node.children) return;
+            
+            node.children.forEach(child => {
+                child.affected = affected;
+                markSubtreeAffected(child, affected);
+            });
+        }
+
+        // 显示节点信息
+        function showNodeInfo(node) {
+            const nodeInfo = document.getElementById('nodeInfo');
+            nodeInfo.innerHTML = `
+                <h3>${node.name}</h3>
+                <p>深度: ${node.depth}</p>
+                <p>子节点: ${node.children ? node.children.length : 0}</p>
+            `;
+            nodeInfo.style.display = 'block';
+        }
+
+        // 隐藏节点信息
+        function hideNodeInfo() {
+            const nodeInfo = document.getElementById('nodeInfo');
+            nodeInfo.style.display = 'none';
+        }
+
+        // 放大
+        function zoomIn() {
+            camera.position.multiplyScalar(0.9);
+            camera.updateProjectionMatrix();
+        }
+
+        // 缩小
+        function zoomOut() {
+            camera.position.multiplyScalar(1.1);
+            camera.updateProjectionMatrix();
+        }
+
+        // 重置视图
+        function resetView() {
+            camera.position.set(0, 0, 40);
+            camera.lookAt(0, 0, 0);
+            controls.reset();
+        }
+
+        // 重新布局
+        function resetSimulation() {
+            // 重置所有节点的固定状态
+            nodes.forEach(node => {
+                node.fixed = false;
+            });
+            
+            // 重新初始化力导向布局
+            initializeForceLayout();
+            
+            // 重新生成图例面板，因为节点可能已更改
+            generateLegendPanel();
+        }
+
+        // 切换自动旋转
+        function toggleRotation() {
+            autoRotate = !autoRotate;
+            controls.autoRotate = autoRotate;
+        }
+
+        // 完全替换渲染循环函数以确保流畅性
+        function animate() {
+            // 使用requestAnimationFrame循环
+            requestAnimationFrame(animate);
+            
+            // 更新控制器
+            if (controls) {
+                controls.update();
+            }
+            
+            // 处理自动旋转
+            if (controls && autoRotate) {
+                controls.autoRotate = true;
+                controls.autoRotateSpeed = 2.0;
+            } else if (controls) {
+                controls.autoRotate = false;
+            }
+            
+            // 渲染场景
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+            
+            // 渲染标签
+            if (labelRenderer && scene && camera) {
+                labelRenderer.render(scene, camera);
+            }
+        }
+
+        // 启动应用
+        function init() {
+            initThreeJS();
+            initializeForceLayout();
+            generateLegendPanel();
+            setupLegendPanel();
+            animate();
+        }
+
+        // 在初始化前添加检查
+        $(document).ready(function() {
+            console.log("DOM ready");
+            console.log("Renderer element:", $("#renderer")[0]);
+            init(); // 启动应用
+        });
+
+        // 高亮相关节点，淡化无关节点
+        function highlightRelatedNodes(node) {
+            // 存储所有相关节点的ID以便快速查找
+            const relatedNodeIds = new Set();
+            
+            // 将当前节点添加到相关节点集合
+            relatedNodeIds.add(node.id);
+            
+            // 向上寻找所有父节点并添加到相关节点集合
+            let currentParent = node.parent;
+            while (currentParent) {
+                relatedNodeIds.add(currentParent.id);
+                currentParent = currentParent.parent;
+            }
+            
+            // 向下寻找所有子节点（递归）并添加到相关节点集合
+            function addChildrenIds(parentNode) {
+                if (!parentNode || !parentNode.children) return;
+                
+                parentNode.children.forEach(child => {
+                    relatedNodeIds.add(child.id);
+                    addChildrenIds(child);
+                });
+            }
+            
+            // 添加所有子节点ID
+            addChildrenIds(node);
+            
+            // 处理所有节点的不透明度
+            nodes.forEach(nodeData => {
+                const nodeObj = nodeObjects[nodeData.id];
+                const labelInfo = labelObjects[nodeData.id];
+                
+                if (!nodeObj) return;
+                
+                // 存储原始不透明度（如果还没有存储）
+                if (!originalOpacities[nodeData.id]) {
+                    if (nodeObj.material && nodeObj.material.opacity !== undefined) {
+                        originalOpacities[nodeData.id] = nodeObj.material.opacity;
+                    } else {
+                        originalOpacities[nodeData.id] = 1.0;
+                    }
+                    
+                    // 同时存储标签的原始透明度
+                    if (labelInfo && labelInfo.element) {
+                        originalOpacities[`label-${nodeData.id}`] = 
+                            window.getComputedStyle(labelInfo.element).opacity || 1.0;
+                    }
+                }
+                
+                // 设置不透明度：相关节点保持完全不透明，其他节点更加透明
+                if (relatedNodeIds.has(nodeData.id)) {
+                    // 相关节点保持原始不透明度
+                    nodeObj.material.opacity = originalOpacities[nodeData.id];
+                    
+                    // 相关节点的标签也保持原始不透明度
+                    if (labelInfo && labelInfo.element) {
+                        labelInfo.element.style.opacity = 
+                            originalOpacities[`label-${nodeData.id}`] || 1.0;
+                    }
+                } else {
+                    // 非相关节点变为更加透明 - 从0.2改为0.05
+                    nodeObj.material.opacity = 0.05;
+                    
+                    // 非相关节点的标签也变为更加透明
+                    if (labelInfo && labelInfo.element) {
+                        labelInfo.element.style.opacity = 0.05;
+                    }
+                }
+                
+                // 确保开启透明度
+                nodeObj.material.transparent = true;
+            });
+            
+            // 处理所有连线的不透明度
+            linkObjects.forEach(linkObj => {
+                const sourceId = linkObj.source.id;
+                const targetId = linkObj.target.id;
+                
+                // 存储原始不透明度
+                if (!originalOpacities[`link-${sourceId}-${targetId}`]) {
+                    originalOpacities[`link-${sourceId}-${targetId}`] = linkObj.line.material.opacity;
+                }
+                
+                // 如果连线的两端都是相关节点，保持完全不透明，否则几乎完全透明
+                if (relatedNodeIds.has(sourceId) && relatedNodeIds.has(targetId)) {
+                    linkObj.line.material.opacity = originalOpacities[`link-${sourceId}-${targetId}`];
+                } else {
+                    // 从0.1改为0.02，几乎完全透明
+                    linkObj.line.material.opacity = 0.02;
+                }
+                
+                // 确保开启透明度
+                linkObj.line.material.transparent = true;
+            });
+        }
+
+        // 重置所有节点和连线的不透明度
+        function resetNodeOpacity() {
+            // 恢复所有节点的原始不透明度
+            nodes.forEach(nodeData => {
+                const nodeObj = nodeObjects[nodeData.id];
+                const labelInfo = labelObjects[nodeData.id];
+                
+                if (!nodeObj) return;
+                
+                // 恢复节点不透明度
+                if (originalOpacities[nodeData.id]) {
+                    nodeObj.material.opacity = originalOpacities[nodeData.id];
+                } else {
+                    nodeObj.material.opacity = 1.0;
+                }
+                
+                // 恢复标签不透明度
+                if (labelInfo && labelInfo.element) {
+                    const labelKey = `label-${nodeData.id}`;
+                    if (originalOpacities[labelKey]) {
+                        labelInfo.element.style.opacity = originalOpacities[labelKey];
+                    } else {
+                        labelInfo.element.style.opacity = 1.0;
+                    }
+                }
+            });
+            
+            // 恢复所有连线的原始不透明度
+            linkObjects.forEach(linkObj => {
+                const sourceId = linkObj.source.id;
+                const targetId = linkObj.target.id;
+                const key = `link-${sourceId}-${targetId}`;
+                
+                if (originalOpacities[key]) {
+                    linkObj.line.material.opacity = originalOpacities[key];
+                } else {
+                    linkObj.line.material.opacity = nodeConfig.linkOpacity;
+                }
+            });
+        }
+
+        // 生成图例面板内容
+        function generateLegendPanel() {
+            const legendItems = document.getElementById('legendItems');
+            legendItems.innerHTML = ''; // 清空现有内容
+            
+            // 创建图例项
+            const depthLabels = [
+                "根节点", "一级节点", "二级节点", "三级节点", 
+                "四级节点", "五级节点", "六级及更深节点"
+            ];
+            
+            // 找出树中最大深度
+            let maxDepth = 0;
+            nodes.forEach(node => {
+                maxDepth = Math.max(maxDepth, node.depth);
+            });
+            
+            // 创建每个深度级别的图例项
+            for (let depth = 0; depth <= Math.min(maxDepth, nodeConfig.colors.length - 1); depth++) {
+                const color = nodeConfig.colors[depth];
+                const colorHex = '#' + color.toString(16).padStart(6, '0');
+                const label = depthLabels[depth] || `深度 ${depth} 节点`;
+                
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const colorSample = document.createElement('div');
+                colorSample.className = 'color-sample';
+                colorSample.style.backgroundColor = colorHex;
+                
+                const legendLabel = document.createElement('div');
+                legendLabel.className = 'legend-label';
+                legendLabel.textContent = label;
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'legend-checkbox';
+                checkbox.checked = true;
+                checkbox.dataset.depth = depth;
+                checkbox.addEventListener('change', function() {
+                    toggleDepthVisibility(depth, this.checked);
+                });
+                
+                legendItem.appendChild(colorSample);
+                legendItem.appendChild(legendLabel);
+                legendItem.appendChild(checkbox);
+                
+                legendItems.appendChild(legendItem);
+            }
+        }
+
+        // 控制特定深度节点的可见性
+        function toggleDepthVisibility(depth, isVisible) {
+            console.log(`切换深度 ${depth} 的可见性为 ${isVisible}`);
+            
+            // 处理节点可见性
+            nodes.forEach(nodeData => {
+                if (nodeData.depth === depth) {
+                    const nodeObj = nodeObjects[nodeData.id];
+                    const labelInfo = labelObjects[nodeData.id];
+                    
+                    if (nodeObj) {
+                        nodeObj.visible = isVisible;
+                        
+                        // 处理标签可见性
+                        if (labelInfo && labelInfo.object) {
+                            labelInfo.object.visible = isVisible;
+                        }
+                    }
+                }
+            });
+            
+            // 处理连线可见性 - 如果连线的任一端是被隐藏的节点，则隐藏连线
+            linkObjects.forEach(linkObj => {
+                const sourceDepth = linkObj.source.depth;
+                const targetDepth = linkObj.target.depth;
+                
+                // 检查连线两端的节点是否有深度与当前切换的深度相同
+                if (sourceDepth === depth || targetDepth === depth) {
+                    // 获取两端节点的可见状态
+                    const sourceVisible = nodeObjects[linkObj.source.id].visible;
+                    const targetVisible = nodeObjects[linkObj.target.id].visible;
+                    
+                    // 只有两端节点都可见时，连线才可见
+                    linkObj.line.visible = sourceVisible && targetVisible;
+                }
+            });
+        }
+
+        // 初始化所有节点的可见状态
+        function initNodeVisibility() {
+            // 确保所有节点默认可见
+            nodes.forEach(nodeData => {
+                const nodeObj = nodeObjects[nodeData.id];
+                if (nodeObj) {
+                    nodeObj.visible = true;
+                }
+            });
+            
+            // 确保所有连线默认可见
+            linkObjects.forEach(linkObj => {
+                linkObj.line.visible = true;
+            });
+        }
+
+        // 在init函数后添加以下函数
+        function setupLegendPanel() {
+            const legendPanel = document.getElementById('legend');
+            
+            // 鼠标悬停时展开面板
+            legendPanel.addEventListener('mouseenter', function() {
+                this.classList.add('expanded');
+            });
+            
+            // 鼠标移开时折叠面板
+            legendPanel.addEventListener('mouseleave', function() {
+                this.classList.remove('expanded');
+            });
+            
+            // 点击也可以切换状态（可选功能）
+            legendPanel.addEventListener('click', function(e) {
+                // 防止点击图例内容项时触发折叠
+                if (e.target.tagName !== 'INPUT') {
+                    this.classList.toggle('expanded');
+                }
+            });
+        }
+
+        // 创建平面视图
+        function createFlatView(centerNode) {
+            console.log("DEBUG: Creating flat view for node:", centerNode.name);
+            
+            focusedNode = centerNode;
+            flatViewActive = true;
+            
+            // 先重置任何当前的高亮效果
+            if (hoveredNode) {
+                resetNodeOpacity();
+                hoveredNode = null;
+            }
+            
+            // 创建平面视图容器
+            flatViewGroup = new THREE.Group();
+            scene.add(flatViewGroup);
+            
+            // 创建美观的背景遮罩层
+            createBackgroundMask();
+            
+            // 收集相关节点（当前节点、父节点和所有子节点）
+            const relatedNodeIds = collectRelatedNodeIds(centerNode);
+            console.log("DEBUG: Related nodes count:", relatedNodeIds.size);
+            
+            // 创建平面视图节点
+            createFlatViewNodes(centerNode, relatedNodeIds);
+            
+            // 添加返回按钮
+            addReturnButton();
+            
+            // 使原始节点变半透明 - 锁定状态
+            setLockOriginalNodesVisibility();
+        }
+
+        // 新增函数：设置并锁定原始节点的可见性状态
+        function setLockOriginalNodesVisibility() {
+            // 设置一个统一的透明度值
+            const nodeOpacity = 0.1;
+            const linkOpacity = 0.05;
+            
+            // 应用到所有节点
+            nodes.forEach(node => {
+                const nodeObj = nodeObjects[node.id];
+                if (nodeObj && nodeObj.material) {
+                    // 确保透明度已启用
+                    nodeObj.material.transparent = true;
+                    nodeObj.material.opacity = nodeOpacity;
+                    
+                    // 同样处理节点标签
+                    const labelInfo = labelObjects[node.id];
+                    if (labelInfo && labelInfo.element) {
+                        labelInfo.element.style.opacity = nodeOpacity;
+                    }
+                }
+            });
+            
+            // 应用到所有连线
+            linkObjects.forEach(linkObj => {
+                linkObj.line.material.opacity = linkOpacity;
+            });
+            
+            console.log("DEBUG: Original nodes visibility locked");
+        }
+
+        // 创建美观的背景遮罩层
+        function createBackgroundMask() {
+            // 增大圆盘半径以容纳边缘渐变
+            const circleRadius = 60; // 进一步增大半径以包含透明过渡区域
+            
+            // 创建渐变纹理
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024; // 增大分辨率以获得更细腻的渐变
+            canvas.height = 1024;
+            const context = canvas.getContext('2d');
+            
+            // 清除画布
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 创建径向渐变 - 从中心扩展到边缘，添加更多的颜色停止点以创建平滑过渡
+            const gradient = context.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 0,
+                canvas.width / 2, canvas.height / 2, canvas.width / 2
+            );
+            
+            // 添加更多渐变颜色停止点，使边缘更加平滑地过渡到透明
+            gradient.addColorStop(0, 'rgba(30, 144, 255, 0.2)');    // 中心区域，亮蓝色，半透明
+            gradient.addColorStop(0.4, 'rgba(25, 25, 112, 0.4)');   // 中间区域，深蓝色
+            gradient.addColorStop(0.6, 'rgba(10, 10, 70, 0.5)');    // 过渡区域开始
+            gradient.addColorStop(0.75, 'rgba(5, 5, 50, 0.3)');     // 逐渐减少不透明度
+            gradient.addColorStop(0.85, 'rgba(0, 0, 30, 0.15)');    // 接近边缘，更加透明
+            gradient.addColorStop(0.92, 'rgba(0, 0, 20, 0.07)');    // 边缘附近，几乎透明
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');           // 完全透明
+            
+            // 绘制径向渐变圆
+            context.beginPath();
+            context.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
+            context.fillStyle = gradient;
+            context.fill();
+            
+            // 添加同心圆图案
+            for (let i = 0; i < 8; i++) { // 增加圆的数量
+                // 计算圆的半径，使其分布在内部70%的区域
+                const radius = (i + 1) * (canvas.width * 0.35) / 8;
+                
+                // 线宽随着半径增加而减小，使外部的线更加微妙
+                context.lineWidth = Math.max(1, 3 - i * 0.3);
+                
+                // 线条透明度也随半径增加而减小
+                const alpha = Math.max(0.05, 0.3 - i * 0.03);
+                context.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                
+                context.beginPath();
+                context.arc(
+                    canvas.width / 2, 
+                    canvas.height / 2, 
+                    radius, 
+                    0, 
+                    Math.PI * 2
+                );
+                context.stroke();
+            }
+            
+            // 添加一些轻微的辐射线，增强深度感
+            context.save();
+            context.translate(canvas.width / 2, canvas.height / 2);
+            for (let i = 0; i < 16; i++) {
+                context.beginPath();
+                context.moveTo(0, 0);
+                const angle = (i / 16) * Math.PI * 2;
+                const endX = Math.cos(angle) * canvas.width * 0.4;
+                const endY = Math.sin(angle) * canvas.width * 0.4;
+                context.lineTo(endX, endY);
+                
+                // 线条透明度随机变化，使图案更加自然
+                const alpha = 0.05 + Math.random() * 0.1;
+                context.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                context.lineWidth = 1;
+                context.stroke();
+            }
+            context.restore();
+            
+            // 转换为纹理
+            const texture = new THREE.CanvasTexture(canvas);
+            
+            // 创建材质，确保透明度处理正确
+            const material = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                opacity: 1.0,
+                side: THREE.DoubleSide,
+                depthWrite: false,
+                blending: THREE.NormalBlending
+            });
+            
+            // 使用圆盘几何体
+            const geometry = new THREE.CircleGeometry(circleRadius, 96); // 增加分段数以获得更平滑的边缘
+            
+            // 创建圆盘网格
+            backgroundPlane = new THREE.Mesh(geometry, material);
+            
+            // 将圆盘添加到平面视图组
+            flatViewGroup.add(backgroundPlane);
+        }
+
+        // 收集相关节点ID
+        function collectRelatedNodeIds(node) {
+            const relatedNodeIds = new Set();
+            
+            // 添加当前节点
+            relatedNodeIds.add(node.id);
+            
+            // 向上添加所有父节点
+            let parent = node.parent;
+            while (parent) {
+                relatedNodeIds.add(parent.id);
+                parent = parent.parent;
+            }
+            
+            // 递归添加所有子节点
+            function addChildrenIds(parentNode) {
+                if (!parentNode || !parentNode.children) return;
+                
+                parentNode.children.forEach(child => {
+                    relatedNodeIds.add(child.id);
+                    addChildrenIds(child);
+                });
+            }
+            
+            addChildrenIds(node);
+            
+            return relatedNodeIds;
+        }
+
+        // 创建平面视图节点
+        function createFlatViewNodes(centerNode, relatedNodeIds) {
+            // 简化版的树状布局算法
+            const nodeMap = new Map(); // 节点ID到布局位置的映射
+            const horizontalSpacing = 3;
+            const verticalSpacing = 3;
+            
+            // 从根节点开始找到最顶层的相关节点
+            let rootNode = centerNode;
+            while (rootNode.parent && relatedNodeIds.has(rootNode.parent.id)) {
+                rootNode = rootNode.parent;
+            }
+            
+            // 递归计算每个节点的位置
+            function calculatePosition(node, x, y, level) {
+                if (!node || !relatedNodeIds.has(node.id)) return 0;
+                
+                nodeMap.set(node.id, { x, y, z: 0, level });
+                
+                if (!node.children || node.children.length === 0) return 1;
+                
+                // 过滤出相关的子节点
+                const relevantChildren = node.children.filter(child => 
+                    relatedNodeIds.has(child.id));
+                
+                let width = 0;
+                let childX = x - (relevantChildren.length - 1) * horizontalSpacing / 2;
+                
+                // 为每个子节点计算位置
+                relevantChildren.forEach(child => {
+                    const childWidth = calculatePosition(
+                        child, 
+                        childX, 
+                        y + verticalSpacing, 
+                        level + 1
+                    );
+                    childX += childWidth * horizontalSpacing;
+                    width += childWidth;
+                });
+                
+                return Math.max(1, width);
+            }
+            
+            // 计算布局
+            calculatePosition(rootNode, 0, 0, 0);
+            
+            // 清空之前存储的标签数组
+            flatViewLabels = [];
+            
+            // 创建实际的3D对象
+            nodes.forEach(node => {
+                if (relatedNodeIds.has(node.id)) {
+                    const position = nodeMap.get(node.id);
+                    if (!position) return;
+                    
+                    // 创建节点副本
+                    const originalNode = nodeObjects[node.id];
+                    if (!originalNode) return;
+                    
+                    // 将球体半径缩小到原始尺寸的65%
+                    const scaledRadius = node.radius * 0.65;
+                    const geometry = new THREE.SphereGeometry(
+                        node.radius, 
+                        nodeConfig.segments, 
+                        nodeConfig.segments
+                    );
+                    
+                    let material;
+                    if (node.id === centerNode.id) {
+                        // 高亮焦点节点
+                        material = new THREE.MeshPhongMaterial({
+                            color: 0xFFFF00, // 黄色
+                            shininess: 100,
+                            specular: 0x111111,
+                            emissive: 0x555500, // 添加发光效果
+                            transparent: false
+                        });
+                    } else {
+                        material = new THREE.MeshPhongMaterial({
+                            color: node.color,
+                            shininess: 100,
+                            specular: 0x111111,
+                            transparent: false
+                        });
+                    }
+                    
+                    const sphere = new THREE.Mesh(geometry, material);
+                    sphere.position.set(position.x, position.y, position.z);
+                    sphere.userData = { node, isFlatView: true };
+                    
+                    flatViewGroup.add(sphere);
+                    
+                    // 创建标签
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'node-label flat-view-label'; // 添加特定类方便识别
+                    labelDiv.textContent = node.name;
+                    labelDiv.style.color = '#fff'; // 改为白色以在深色背景上更清晰
+                    labelDiv.style.fontSize = (16 - node.depth) + 'px';
+                    labelDiv.style.fontWeight = node.depth === 0 ? 'bold' : 'normal';
+                    labelDiv.style.backgroundColor = 'rgba(0, 0, 20, 0.7)'; // 更改背景色
+                    labelDiv.style.padding = '2px 5px';
+                    labelDiv.style.borderRadius = '3px';
+                    labelDiv.style.boxShadow = '0 0 5px rgba(100, 180, 255, 0.8)'; // 添加蓝色发光效果
+                    
+                    const label = new THREE.CSS2DObject(labelDiv);
+                    // 调整平面视图中的标签位置
+                    label.position.set(0, node.radius * 2.5, 0); // 从1.5倍改为2.5倍
+                    sphere.add(label);
+                    
+                    // 保存创建的标签引用
+                    flatViewLabels.push(label);
+                    
+                    // 创建到父节点的连线
+                    if (node.parent && relatedNodeIds.has(node.parent.id)) {
+                        const parentPosition = nodeMap.get(node.parent.id);
+                        if (!parentPosition) return;
+                        
+                        const lineMaterial = new THREE.LineBasicMaterial({
+                            color: 0x3399FF, // 更鲜明的蓝色
+                            opacity: 1.0
+                        });
+                        
+                        const lineGeometry = new THREE.BufferGeometry();
+                        const positions = new Float32Array([
+                            parentPosition.x, parentPosition.y, parentPosition.z,
+                            position.x, position.y, position.z
+                        ]);
+                        lineGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                        
+                        const line = new THREE.Line(lineGeometry, lineMaterial);
+                        flatViewGroup.add(line);
+                    }
+                }
+            });
+            
+            // 定位平面视图到摄像机前方
+            positionFlatViewInFrontOfCamera();
+            
+            // 添加动画效果
+            animateFlatViewAppearance();
+        }
+
+        // 平面视图出现的动画效果
+        function animateFlatViewAppearance() {
+            if (!flatViewGroup) return;
+            
+            // 初始状态 - 缩小并稍微透明
+            flatViewGroup.scale.set(0.1, 0.1, 0.1);
+            flatViewGroup.traverse(child => {
+                if (child.material && child.material.opacity !== undefined) {
+                    child.material._originalOpacity = child.material.opacity;
+                    child.material.opacity = 0;
+                }
+            });
+            
+            // 动画持续时间
+            const duration = 1000; // 毫秒
+            const startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用缓动函数使动画更加平滑
+                const easedProgress = easeOutBack(progress);
+                
+                // 应用缩放动画
+                flatViewGroup.scale.set(easedProgress, easedProgress, easedProgress);
+                
+                // 应用透明度动画
+                flatViewGroup.traverse(child => {
+                    if (child.material && child.material.opacity !== undefined && child.material._originalOpacity !== undefined) {
+                        child.material.opacity = child.material._originalOpacity * easedProgress;
+                    }
+                });
+                
+                // 如果动画未完成，继续
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            // 开始动画
+            animate();
+        }
+
+        // 缓动函数 - 弹性效果
+        function easeOutBack(x) {
+            const c1 = 1.70158;
+            const c3 = c1 + 1;
+            return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+        }
+
+        // 放置平面视图到摄像机前方
+        function positionFlatViewInFrontOfCamera() {
+            if (!flatViewGroup) return;
+            
+            // 计算平面视图大小和中心（排除背景平面）
+            // 临时隐藏背景平面，以便正确计算节点包围盒
+            if (backgroundPlane) {
+                backgroundPlane.visible = false;
+            }
+            
+            const box = new THREE.Box3().setFromObject(flatViewGroup);
+            const size = box.getSize(new THREE.Vector3());
+            const center = box.getCenter(new THREE.Vector3());
+            
+            // 重新显示背景平面
+            if (backgroundPlane) {
+                backgroundPlane.visible = true;
+            }
+            
+            // 确保视图足够大可见
+            const scaleFactor = Math.max(1, 15 / Math.max(size.x, size.y));
+            flatViewGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
+            
+            // 计算适当的放置距离
+            const distance = camera.position.length() * 0.5;
+            
+            // 获取相机方向
+            const direction = new THREE.Vector3(0, 0, -1);
+            direction.applyQuaternion(camera.quaternion);
+            direction.normalize();
+            
+            // 放置平面视图
+            flatViewGroup.position.copy(camera.position).add(direction.multiplyScalar(distance));
+            
+            // 让平面视图朝向相机
+            const lookAtPos = camera.position.clone();
+            flatViewGroup.lookAt(lookAtPos);
+            
+            // 调整位置使中心对准相机
+            const offsetVector = new THREE.Vector3();
+            offsetVector.subVectors(center, new THREE.Vector3(0, 0, 0));
+            flatViewGroup.position.sub(offsetVector);
+            
+            // 调整背景平面位置，使其位于所有节点后面
+            if (backgroundPlane) {
+                // 将背景平面稍微往后移动，避免与节点重叠
+                backgroundPlane.position.z = -1; 
+                
+                // 确保背景平面足够大
+                const maxSize = Math.max(size.x, size.y) * 2.5;
+                backgroundPlane.scale.set(maxSize / 50, maxSize / 50, 1);
+            }
+            
+            console.log("DEBUG: Positioned flat view in front of camera");
+        }
+
+        // 切换原始节点的可见性
+        function toggleOriginalNodesVisibility(visible) {
+            nodes.forEach(node => {
+                const nodeObj = nodeObjects[node.id];
+                if (nodeObj && nodeObj.material) {
+                    if (visible) {
+                        // 恢复原始不透明度
+                        nodeObj.material.opacity = originalOpacities[node.id] || 1.0;
+                    } else {
+                        // 降低不透明度
+                        nodeObj.material.opacity = 0.1;
+                    }
+                }
+            });
+            
+            // 同样处理连线
+            linkObjects.forEach(linkObj => {
+                if (visible) {
+                    const key = `link-${linkObj.source.id}-${linkObj.target.id}`;
+                    linkObj.line.material.opacity = originalOpacities[key] || nodeConfig.linkOpacity;
+                } else {
+                    linkObj.line.material.opacity = 0.05;
+                }
+            });
+        }
+
+        // 添加返回按钮
+        function addReturnButton() {
+            // 移除任何现有的返回按钮
+            const existingButton = document.getElementById('returnButton');
+            if (existingButton) {
+                existingButton.remove();
+            }
+            
+            const returnButton = document.createElement('button');
+            returnButton.id = 'returnButton';
+            returnButton.textContent = '返回原视图';
+            returnButton.style.position = 'absolute';
+            returnButton.style.zIndex = '1000';
+            returnButton.style.bottom = '50px';
+            returnButton.style.left = '50%';
+            returnButton.style.transform = 'translateX(-50%)';
+            returnButton.style.padding = '10px 20px';
+            returnButton.style.backgroundColor = '#4CAF50';
+            returnButton.style.color = 'white';
+            returnButton.style.border = 'none';
+            returnButton.style.borderRadius = '30px'; // 圆角按钮
+            returnButton.style.cursor = 'pointer';
+            returnButton.style.fontSize = '16px';
+            returnButton.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+            returnButton.style.transition = 'all 0.3s ease';
+            
+            // 添加鼠标悬停效果
+            returnButton.onmouseover = function() {
+                this.style.backgroundColor = '#45a049';
+                this.style.boxShadow = '0 6px 12px rgba(0,0,0,0.3)';
+            };
+            returnButton.onmouseout = function() {
+                this.style.backgroundColor = '#4CAF50';
+                this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+            };
+            
+            returnButton.addEventListener('click', removeFlatView);
+            document.body.appendChild(returnButton);
+            
+            console.log("DEBUG: Added return button");
+        }
+
+        // 移除平面视图
+        function removeFlatView() {
+            console.log("DEBUG: Removing flat view");
+            
+            if (!flatViewActive) return;
+            
+            // 先执行消失动画
+            animateFlatViewDisappearance(() => {
+                // 动画完成后执行清理工作
+                
+                // 移除平面视图组
+                if (flatViewGroup) {
+                    scene.remove(flatViewGroup);
+                    flatViewGroup = null;
+                }
+                
+                // 清理所有标签
+                // 由于标签是CSS2DObject，需要特别移除
+                flatViewLabels.forEach(label => {
+                    if (label.element && label.element.parentNode) {
+                        label.element.parentNode.removeChild(label.element);
+                    }
+                    if (label.parent) {
+                        label.parent.remove(label);
+                    }
+                });
+                flatViewLabels = [];
+                
+                // 恢复所有原始节点和连线的透明度到原始状态
+                restoreOriginalNodesVisibility();
+                
+                // 移除返回按钮
+                const returnButton = document.getElementById('returnButton');
+                if (returnButton) {
+                    returnButton.remove();
+                }
+                
+                flatViewActive = false;
+                backgroundPlane = null;
+                focusedNode = null;
+                
+                console.log("DEBUG: Flat view removed completely");
+            });
+        }
+
+        // 新增函数：恢复所有原始节点的可见度
+        function restoreOriginalNodesVisibility() {
+            // 恢复节点透明度
+            nodes.forEach(node => {
+                const nodeObj = nodeObjects[node.id];
+                if (nodeObj && nodeObj.material) {
+                    nodeObj.material.opacity = originalOpacities[node.id] || 1.0;
+                }
+                
+                // 恢复标签透明度
+                const labelInfo = labelObjects[node.id];
+                if (labelInfo && labelInfo.element) {
+                    const labelKey = `label-${node.id}`;
+                    labelInfo.element.style.opacity = originalOpacities[labelKey] || 1.0;
+                }
+            });
+            
+            // 恢复连线透明度
+            linkObjects.forEach(linkObj => {
+                const sourceId = linkObj.source.id;
+                const targetId = linkObj.target.id;
+                const key = `link-${sourceId}-${targetId}`;
+                
+                linkObj.line.material.opacity = originalOpacities[key] || nodeConfig.linkOpacity;
+            });
+            
+            console.log("DEBUG: Original nodes visibility restored");
+        }
+
+        // 平面视图消失的动画效果
+        function animateFlatViewDisappearance(callback) {
+            if (!flatViewGroup) {
+                if (callback) callback();
+                return;
+            }
+            
+            // 动画持续时间
+            const duration = 500; // 毫秒
+            const startTime = Date.now();
+            
+            // 存储原始缩放和不透明度
+            const originalScale = flatViewGroup.scale.clone();
+            const originalOpacities = {};
+            
+            flatViewGroup.traverse(child => {
+                if (child.material && child.material.opacity !== undefined) {
+                    originalOpacities[child.uuid] = child.material.opacity;
+                }
+            });
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用线性函数用于平滑消失
+                const easedProgress = 1 - progress;
+                
+                // 应用缩放动画 - 逐渐缩小
+                flatViewGroup.scale.set(
+                    originalScale.x * easedProgress,
+                    originalScale.y * easedProgress, 
+                    originalScale.z * easedProgress
+                );
+                
+                // 应用透明度动画 - 逐渐变透明
+                flatViewGroup.traverse(child => {
+                    if (child.material && child.material.opacity !== undefined && 
+                        originalOpacities[child.uuid] !== undefined) {
+                        child.material.opacity = originalOpacities[child.uuid] * easedProgress;
+                    }
+                });
+                
+                // 如果动画未完成，继续
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // 动画完成，执行回调
+                    if (callback) callback();
+                }
+            }
+            
+            // 开始动画
+            animate();
+        }
+
+        // 添加双击事件处理函数
+        function handleDoubleClick(event) {
+            console.log("DEBUG: Double click detected");
+            
+            // 如果当前处于平面视图模式，忽略双击
+            if (flatViewActive) return;
+            
+            // 计算归一化设备坐标
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            
+            // 射线投射前更新相机和矩阵
+            camera.updateMatrixWorld();
+            raycaster.setFromCamera(mouse, camera);
+            
+            // 获取所有节点对象数组进行测试
+            const nodeObjectsArray = Object.values(nodeObjects);
+            const intersects = raycaster.intersectObjects(nodeObjectsArray);
+            
+            if (intersects.length > 0) {
+                const clickedNode = intersects[0].object.userData.node;
+                console.log("DEBUG: Double-clicked on node:", clickedNode.name);
+                
+                // 创建平面视图
+                createFlatView(clickedNode);
+                
+                // 阻止事件冒泡
+                event.stopPropagation();
+            }
+        }
+    </script>
+</body>
+</html>
