@@ -133,6 +133,23 @@
         .legend-checkbox {
             margin-left: 5px;
         }
+        
+        /* 添加版权信息样式 */
+        #copyright {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        #copyright a {
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body>
@@ -142,7 +159,7 @@
             <button id="zoomIn">放大</button>
             <button id="zoomOut">缩小</button>
             <button id="resetView">重置视图</button>
-            <button id="runSimulation">重新布局</button>
+            <button id="runSimulation">重新布局（词云）</button>
             <button id="toggleRotation">切换自动旋转</button>
         </div>
         <div id="nodeInfo"></div>
@@ -151,6 +168,12 @@
             <div id="legendItems"></div>
         </div>
         <div class="info" style="display: none;">鼠标拖动可旋转视图，滚轮可缩放，点击并拖动节点可调整位置</div>
+
+        <!-- 添加版权信息，与AI-Generation.html一致 -->
+        <div id="copyright">
+            <span>© Senparc</span>
+            <span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documemts/AI-Knowledge/Transformer" target="_blank" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">GitHub</a></span>
+        </div>
     </div>
 
     <!-- 引入Three.js库 -->
