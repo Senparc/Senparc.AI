@@ -33,11 +33,11 @@ namespace Senparc.AI.Kernel
             string apiKey2 = apiKey;
             string orgId2 = orgId;
 
-            //Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory =
-            //    (IServiceProvider serviceProvider, object? _) =>
-            //    new OpenAIChatCompletionService(modelId, new OpenAIClient(new ApiKeyCredential(apiKey)), serviceProvider.GetService<ILoggerFactory>());
-            //builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
-            //builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
+            Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory =
+                (IServiceProvider serviceProvider, object? _) =>
+                new OpenAIChatCompletionService(modelId, new OpenAIClient(apiKey), serviceProvider.GetService<ILoggerFactory>());
+            builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
+            builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
             return builder;
         }
 

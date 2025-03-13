@@ -59,31 +59,34 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //.BuildKernel(b => b.WithMemoryStorage(new VolatileMemoryStore()));
             var aiSetting = iWantToRun.SemanticKernelHelper.AiSetting;
             IKernelMemory vectorMemory;
+            var openAIConfigEmbedding = new AzureOpenAIConfig()
+            {
+                APIKey = aiSetting.ApiKey,
+                APIType = AzureOpenAIConfig.APITypes.EmbeddingGeneration,
+                Deployment = aiSetting.ModelName.Embedding, //aiSetting.DeploymentName,
+                Endpoint = aiSetting.Endpoint,
+                Auth = AzureOpenAIConfig.AuthTypes.APIKey,
+                MaxEmbeddingBatchSize = 1,
+                MaxRetries = 2,
+                MaxTokenTotal = 1000
+            };
+            var openAIConfigText = new AzureOpenAIConfig()
+            {
+                APIKey = aiSetting.ApiKey,
+                APIType = AzureOpenAIConfig.APITypes.ChatCompletion,
+                Deployment = aiSetting.ModelName.Chat, //aiSetting.DeploymentName,
+                Endpoint = aiSetting.Endpoint,
+                Auth = AzureOpenAIConfig.AuthTypes.APIKey,
+                MaxEmbeddingBatchSize = 1,
+                MaxRetries = 2,
+                MaxTokenTotal = 1000
+            };
 
-            vectorMemory = new KernelMemoryBuilder()
-                .WithAzureOpenAITextEmbeddingGeneration(new AzureOpenAIConfig()
-                {
-                    APIKey = aiSetting.ApiKey,
-                    APIType = AzureOpenAIConfig.APITypes.EmbeddingGeneration,
-                    Deployment =aiSetting.ModelName.Embedding, //aiSetting.DeploymentName,
-                    Endpoint = aiSetting.Endpoint,
-                    Auth = AzureOpenAIConfig.AuthTypes.APIKey,
+            var redisConfig = new RedisConfig("km-", new Dictionary<string, char?> { { "__part_n", ',' }, { "collection", ',' } });
+            redisConfig.ConnectionString = Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration;
 
-                }).WithOpenAITextGeneration(new OpenAIConfig()
-                {
-                    APIKey = aiSetting.ApiKey,
-                    TextModel = aiSetting.ModelName.Chat,
-                    EmbeddingModel = aiSetting.ModelName.Embedding,
-                    EmbeddingModelMaxTokenTotal = 2048,
-                    MaxEmbeddingBatchSize = 1,
-                    MaxRetries = 3,
-                    Endpoint = aiSetting.Endpoint,
                 })
-                .WithSimpleVectorDb(new SimpleVectorDbConfig()
-                {
-                    StorageType = FileSystemTypes.Disk
-                })
-                      //.WithRedisMemoryDb(Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration)
+                      .WithRedisMemoryDb(Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration)
                       //.WithOpenAIDefaults(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
                       .Build<MemoryServerless>();
 
@@ -133,9 +136,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 collection: memoryCollectionName, id: info[0], text: info[1]);
 
 
-                            
-                            break;
-                        }
+                    TagCollection tags = null;// new TagCollection();
+                    //tags.Add($"Senparc-{info[0]}", $"Senparc-{info[1]}");
+
+                    await vectorMemory.ImportTextAsync(info[1], null/*"Senparc.AI"*/, tags, null /*info[0]*/);
                 }
 
 
@@ -174,7 +178,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 var limit = isReference ? 3 : 2;
 
                 //新方
-                var vectorResult = await vectorMemory.SearchAsync(question, null, null, null, 1, limit);
+                var vectorResult = await vectorMemory.SearchAsync(question, null, null, null, 0.1, limit);
                 foreach (var restulItem in vectorResult.Results)
                 {
                     Console.WriteLine("新结果：" + restulItem.ToJson(true));
