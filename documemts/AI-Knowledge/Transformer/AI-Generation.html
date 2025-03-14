@@ -1085,16 +1085,24 @@
         function startDemo() {
             currentStep = 0;
             
-            // 先执行相机旋转动画
-            animateCameraRotation(25); // 向右旋转25度
+            // 禁用按钮，防止多次点击
+            document.getElementById('start-btn').disabled = true;
+
+            // 立即初始化场景，避免黑屏
+            // 这样相机旋转时就已经有内容可见了
+            steps[currentStep]();
             
-            // 延迟执行第一步，等待相机旋转完成
+            // 首次执行时只禁用前进和后退按钮
+            document.getElementById('prev-btn').disabled = true;
+            document.getElementById('next-btn').disabled = true;
+            
+            // 再执行相机旋转动画，使用较短的持续时间
+            animateCameraRotation(25, 1000); // 向右旋转25度，持续1秒
+            
+            // 在动画完成后启用下一步按钮
             setTimeout(() => {
-                steps[currentStep]();
-                document.getElementById('start-btn').disabled = true;
-                document.getElementById('prev-btn').disabled = true;
                 document.getElementById('next-btn').disabled = false;
-            }, 800); // 等待0.8秒，让旋转动画先开始
+            }, 1100); // 稍微长于动画时间，确保动画完成
         }
         
         // 上一步
