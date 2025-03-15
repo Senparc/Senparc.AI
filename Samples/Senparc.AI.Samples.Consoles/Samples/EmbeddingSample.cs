@@ -106,8 +106,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 //.WithOpenAIDefaults(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
                 .Build<MemoryServerless>();
 
-            var redisConfig = new RedisConfig("km-", new Dictionary<string, char?> { { "__part_n", ',' }, { "collection", ',' } });
-            redisConfig.ConnectionString = Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration;
+            
 
             //开始对话
             var i = 0;
@@ -129,6 +128,24 @@ namespace Senparc.AI.Samples.Consoles.Samples
                             tags.Add($"Senparc{info[0].ToString().Trim().Replace(":", "")}", $"Senparc{info[1].ToString().Trim().Replace(":", "")}");
 
                             await vectorMemory.ImportTextAsync(info[1], "SenparcAI", tags, info[0]);
+                            break;
+                        }
+                    case VectorDB.VectorDBType.Redis:
+                        {
+                            string strKey = $"Senparc{info[0].ToString().Trim().Replace(":", "")}";
+                            string strValue = $"Senparc{info[1].ToString().Trim().Replace(":", "")}";
+
+                            List<Dictionary<string, char?>> lstValues = new List<Dictionary<string, char?>>();
+                            Dictionary<string, char?> keyValuePairs = new Dictionary<string, char?>();
+                            keyValuePairs.Add(strKey, 'a');
+                            lstValues.Add(keyValuePairs);
+                            var tags = new Dictionary<string, char?> { { "__part_n", ',' }, { "collection", ',' } };
+                            var redisConfig = new RedisConfig("km-", tags);
+                            redisConfig.ConnectionString = Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration;
+
+                            redisConfig.VectorAlgorithm = new NRedisStack.Search.Schema.VectorField.VectorAlgo();
+
+                            //await vectorMemory.ImportTextAsync(info[1], "SenparcAI", tags, info[0]);
                             break;
                         }
                     case VectorDB.VectorDBType.Default:
