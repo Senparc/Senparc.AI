@@ -17,6 +17,8 @@ using Senparc.CO2NET.Helpers;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.FileSystem.DevTools;
 using Microsoft.KernelMemory.MemoryStorage.DevTools;
+using Amazon.Runtime.Internal.Transform;
+using Microsoft.KernelMemory.MemoryDb.SQLServer;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -93,21 +95,20 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 Endpoint = aiSetting.Endpoint,
             };
 
-            var simpleVectorDbConfig = new SimpleVectorDbConfig()
-            {
-                StorageType = FileSystemTypes.Disk
-            };
+            //var simpleVectorDbConfig = new SimpleVectorDbConfig()
+            //{
+            //    StorageType = FileSystemTypes.Disk
+            //};
 
             vectorMemory = new KernelMemoryBuilder()
                 .WithAzureOpenAITextEmbeddingGeneration(openAIConfigEmbedding)
                 .WithOpenAITextGeneration(openAIConfigText)
-                .WithSimpleVectorDb(simpleVectorDbConfig)
+                //.WithSimpleVectorDb(simpleVectorDbConfig)
                 //.WithRedisMemoryDb(Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration)
                 //.WithOpenAIDefaults(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
                 .Build<MemoryServerless>();
 
-            var redisConfig = new RedisConfig("km-", new Dictionary<string, char?> { { "__part_n", ',' }, { "collection", ',' } });
-            redisConfig.ConnectionString = Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration;
+
 
             //开始对话
             var i = 0;
@@ -127,6 +128,75 @@ namespace Senparc.AI.Samples.Consoles.Samples
                         {
                             var tags = new TagCollection();
                             tags.Add($"Senparc{info[0].ToString().Trim().Replace(":", "")}", $"Senparc{info[1].ToString().Trim().Replace(":", "")}");
+
+                            var simpleVectorDbConfig = new SimpleVectorDbConfig()
+                            {
+                                StorageType = FileSystemTypes.Disk
+                            };
+
+                            vectorMemory = new KernelMemoryBuilder()
+                                .WithAzureOpenAITextEmbeddingGeneration(openAIConfigEmbedding)
+                                .WithOpenAITextGeneration(openAIConfigText)
+                                .WithSimpleVectorDb(simpleVectorDbConfig)
+                                //.WithRedisMemoryDb(Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration)
+                                //.WithOpenAIDefaults(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
+                                .Build<MemoryServerless>();
+
+                            await vectorMemory.ImportTextAsync(info[1], "SenparcAI", tags, info[0]);
+                            break;
+                        }
+                    case VectorDB.VectorDBType.SqlServer:
+                        {
+                            var tags = new TagCollection();
+                            tags.Add($"Senparc{info[0].ToString().Trim().Replace(":", "")}", $"Senparc{info[1].ToString().Trim().Replace(":", "")}");
+
+                            var sqlServerVectorDbConfig = new SqlServerConfig()
+                            {
+                                ConnectionString = aiSetting.VectorDB.ConnectionString
+                            };
+
+                            vectorMemory = new KernelMemoryBuilder()
+                                .WithAzureOpenAITextEmbeddingGeneration(openAIConfigEmbedding)
+                                .WithOpenAITextGeneration(openAIConfigText)
+                                .WithSqlServerMemoryDb(sqlServerVectorDbConfig)
+                                .Build<MemoryServerless>();
+
+                            await vectorMemory.ImportTextAsync(info[1], "SenparcAI", tags, info[0]);
+                            break;
+                        }
+                    case VectorDB.VectorDBType.Redis:
+                        {
+                            string strKey = $"Senparc{info[0].ToString().Trim().Replace(":", "")}";
+                            string strValue = $"Senparc{info[1].ToString().Trim().Replace(":", "")}";
+
+                            //List<Dictionary<string, char?>> lstValues = new List<Dictionary<string, char?>>();
+                            //Dictionary<string, char?> keyValuePairs = new Dictionary<string, char?>();
+                            //keyValuePairs.Add(strKey, 'a');
+                            //lstValues.Add(keyValuePairs);
+                            var redisTags = new Dictionary<string, char?> { { "__part_n", ',' }, { "collection", ',' } };
+                            //var redisConfig = new RedisConfig("km-", redisTags);
+                            //redisConfig.ConnectionString = Senparc.CO2NET.Config.SenparcSetting.Cache_Redis_Configuration;
+
+
+                            var redisConfig = new RedisConfig()
+                            {
+                                ConnectionString = "localhost:6379",
+                                //KeyPrefix = "km:", // 自定义键前缀
+                                //AbortOnConnectFail = false,
+                                //ConnectTimeout = 5000 // 连接超时时间（毫秒）
+                            };
+
+                            //redisConfig.VectorAlgorithm = new NRedisStack.Search.Schema.VectorField.VectorAlgo();
+
+                            var tags = new TagCollection();
+                            tags.Add($"Senparc{strKey}", $"Senparc{strValue}");
+
+                            vectorMemory = new KernelMemoryBuilder()
+                                .WithAzureOpenAITextEmbeddingGeneration(openAIConfigEmbedding)
+                                .WithOpenAITextGeneration(openAIConfigText)
+                                .WithRedisMemoryDb(redisConfig)
+                                //.WithOpenAIDefaults(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
+                                .Build<MemoryServerless>();
 
                             await vectorMemory.ImportTextAsync(info[1], "SenparcAI", tags, info[0]);
                             break;
