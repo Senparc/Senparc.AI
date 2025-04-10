@@ -142,7 +142,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 //.WithOpenAIDefaults(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
                                 .Build<MemoryServerless>();
 
-                            await vectorMemory.ImportTextAsync(info[1], "SenparcAI", tags, info[0]);
+                            await vectorMemory.ImportTextAsync(info[1], "SenparcAIHardDisk", tags, info[0]);
                             break;
                         }
                     case VectorDB.VectorDBType.SqlServer:
@@ -161,7 +161,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 .WithSqlServerMemoryDb(sqlServerVectorDbConfig)
                                 .Build<MemoryServerless>();
 
-                            await vectorMemory.ImportTextAsync(info[1], "SenparcAI", tags, info[0]);
+                            await vectorMemory.ImportTextAsync(info[1], "SenparcAI:SqlServer:", tags, info[0]);
                             break;
                         }
                     case VectorDB.VectorDBType.Redis:

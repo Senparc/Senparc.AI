@@ -43,4 +43,17 @@ namespace Senparc.AI
         SpeechToText = 7,
         SpeechRecognition = 8
     }
+
+    public enum VectorDBType
+    {
+        Memory,
+        HardDisk,
+        Redis,
+        Mulivs,
+        Chroma,
+        PostgreSQL,
+        Sqlite,
+        SqlServer,
+        Default = Memory,
+    }
 }
