@@ -43,7 +43,7 @@
 				<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
 		</ItemGroup>
 		<ItemGroup>
-				<PackageReference Include="AutoGen" Version="0.2.1" />
+				<PackageReference Include="AutoGen" Version="0.2.3" />
 				<ProjectReference Include="..\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
 		</ItemGroup>
 </Project>
