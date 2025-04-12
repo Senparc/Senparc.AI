@@ -675,6 +675,14 @@
                 // 添加专家标签
                 addExpertLabel(expertObj, expert, 1.5);
             }
+            
+            // 连接路由器和专家
+            const router = scene.children.find(obj => obj.userData.type === 'router');
+            if (router) {
+                for (let expert of expertObjects) {
+                    createConnection(router, expert, 0.05);
+                }
+            }
         }
         
         // 计算专家权重
@@ -708,6 +716,9 @@
                 expert.weight = weights[index];
                 expert.obj.userData.weight = weights[index];
                 
+                // 设置专家透明度基于权重
+                expert.obj.material.opacity = 0.3 + 0.7 * weights[index];
+                
                 // 清除之前的发光效果
                 // 找到所有子物体并移除glow球体
                 for (let i = expert.obj.children.length - 1; i >= 0; i--) {
@@ -719,15 +730,11 @@
                 }
                 
                 // 根据Top-K决定是否选择
-                const wasSelected = expert.selected;
                 expert.selected = weights[index] >= threshold;
                 expert.obj.userData.selected = expert.selected;
                 
-                // 处理专家对象的可见性
+                // 设置视觉效果
                 if (expert.selected) {
-                    // 选中的专家：显示并添加发光效果
-                    expert.obj.visible = true;
-                    expert.obj.material.opacity = 0.8;
                     expert.obj.material.emissive = new THREE.Color(0x333333);
                     expert.obj.material.emissiveIntensity = 0.5;
                     
@@ -740,21 +747,9 @@
                     });
                     const glow = new THREE.Mesh(glowGeometry, glowMaterial);
                     expert.obj.add(glow);
-                    
-                    // 如果状态发生变化，为连线添加动画
-                    if (!wasSelected) {
-                        // 找到或创建到该专家的连线
-                        createConnectionWithAnimation(findRouterObject(), expert.obj, 0.05, colors.connection, 1000);
-                    }
                 } else {
-                    // 未选中的专家：隐藏
-                    expert.obj.visible = false;
-                    
-                    // 如果状态发生变化，为连线添加动画
-                    if (wasSelected) {
-                        // 找到并移除到该专家的连线
-                        removeConnectionWithAnimation(findRouterObject(), expert.obj, 500);
-                    }
+                    expert.obj.material.emissive = new THREE.Color(0x000000);
+                    expert.obj.material.emissiveIntensity = 0;
                 }
             });
         }
@@ -991,9 +986,11 @@
             
             // 创建从专家输出到最终输出的连接
             expertOutputs.forEach(output => {
-                createConnectionWithAnimation(output, finalOutput);
+                createAnimatedConnection(output, finalOutput);
             });
             
+            // 运行动画
+            animateFinalOutputComplex(finalOutput, ring);
             
             // 调整相机位置，确保能看到整个垂直流程
             // 计算整个场景的垂直范围
@@ -1008,16 +1005,14 @@
             }, 1500);
         }
         
-        // 创建带动画的连接线 - 增强版
-        function createConnectionWithAnimation(obj1, obj2, width = 0.05, color = colors.connection, duration = 800) {
+        // 创建动画连接线
+        function createAnimatedConnection(source, target) {
             // 创建曲线路径
-            const sourcePos = obj1.position.clone();
-            const targetPos = obj2.position.clone();
-            
-            // 创建控制点，使线条有弧度
+            const sourcePos = source.position.clone();
+            const targetPos = target.position.clone();
             const midPoint = new THREE.Vector3(
                 (sourcePos.x + targetPos.x) / 2,
-                (sourcePos.y + targetPos.y) / 2 + 1,
+                (sourcePos.y + targetPos.y) / 2 + 2, // 增加高度使曲线更明显
                 (sourcePos.z + targetPos.z) / 2
             );
             
@@ -1029,255 +1024,103 @@
                 targetPos
             );
             
-            // 分段生长动画
-            const totalPoints = 50;
-            const initialPoints = 2; // 开始只有两个点
-            const geometry = new THREE.BufferGeometry();
+            // 创建曲线路径的几何体
+            const points = curve.getPoints(50);
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
             
-            // 使用颜色渐变
-            const expertColor = obj2.material.color.clone();
-            const mixedColor = expertColor.clone().lerp(new THREE.Color(0xffffff), 0.5);
+            // 根据专家颜色选择连接线颜色
+            const color = source.material.color.clone();
             
-            const material = new THREE.LineBasicMaterial({ 
-                color: mixedColor,
-                linewidth: 3,
+            // 创建渐变材质
+            const material = new THREE.LineBasicMaterial({
+                color: color,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.7,
+                linewidth: 2
             });
             
             const line = new THREE.Line(geometry, material);
-            line.userData.source = obj1;
-            line.userData.target = obj2;
-            line.userData.curve = curve;
             scene.add(line);
             connections.push(line);
             
-            // 生长动画
-            let progress = 0;
-            const growDuration = duration * 0.7; // 70%的时间用于生长
-            const glowDuration = duration * 0.3; // 30%的时间用于发光
-            let startTime = Date.now();
-            
-            function growLine() {
-                const elapsed = Date.now() - startTime;
-                progress = Math.min(elapsed / growDuration, 1);
-                
-                // 使用缓动函数让动画更平滑
-                const easedProgress = easeOutCubic(progress);
-                
-                // 计算当前应该显示多少点
-                const currentPoints = initialPoints + Math.floor((totalPoints - initialPoints) * easedProgress);
-                const points = curve.getPoints(currentPoints);
-                
-                // 更新几何体
-                geometry.setFromPoints(points.slice(0, currentPoints));
-                
-                if (progress < 1) {
-                    requestAnimationFrame(growLine);
-                } else {
-                    // 生长完成后，添加发光效果
-                    startGlowEffect();
-                }
-            }
-            
-            function startGlowEffect() {
-                startTime = Date.now();
-                
-                function glowAnimation() {
-                    const elapsed = Date.now() - startTime;
-                    const glowProgress = Math.min(elapsed / glowDuration, 1);
-                    
-                    // 脉冲效果
-                    const pulse = Math.sin(glowProgress * Math.PI) * 0.5 + 0.5;
-                    
-                    // 调整发光和宽度
-                    material.color.copy(expertColor.clone().lerp(new THREE.Color(0xffffff), pulse * 0.7));
-                    material.opacity = 0.5 + pulse * 0.5;
-                    
-                    if (glowProgress < 1) {
-                        requestAnimationFrame(glowAnimation);
-                    } else {
-                        // 最终颜色
-                        material.color.copy(expertColor);
-                        material.opacity = 0.7;
-                        
-                        // 开始添加粒子效果
-                        addFlowingParticles(line);
-                    }
-                }
-                
-                requestAnimationFrame(glowAnimation);
-            }
-            
-            // 立即开始生长动画
-            growLine();
+            // 添加沿着连接线移动的粒子
+            animateParticlesAlongLine(curve, color);
             
             return line;
         }
         
-        // 通过动画移除连接线 - 增强版
-        function removeConnectionWithAnimation(obj1, obj2, duration = 700) {
-            // 查找匹配的连线
-            const linesToRemove = connections.filter(line => 
-                (line.userData.source === obj1 && line.userData.target === obj2) || 
-                (line.userData.source === obj2 && line.userData.target === obj1)
-            );
-            
-            linesToRemove.forEach(line => {
-                const startTime = Date.now();
-                
-                // 获取线条几何形状中的点
-                const originalPoints = line.geometry.attributes.position.array;
-                const numPoints = originalPoints.length / 3;
-                
-                // 爆炸效果粒子
-                const burstParticles = [];
-                const burstCount = 10;
-                const curve = line.userData.curve;
-                
-                // 创建爆炸粒子
-                for (let i = 0; i < burstCount; i++) {
-                    const t = i / burstCount;
-                    const pos = curve ? curve.getPointAt(t) : new THREE.Vector3(
-                        originalPoints[i * 3],
-                        originalPoints[i * 3 + 1],
-                        originalPoints[i * 3 + 2]
-                    );
-                    
-                    const particleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-                    const particleMaterial = new THREE.MeshBasicMaterial({ 
-                        color: line.material.color,
-                        transparent: true,
-                        opacity: 0.9
-                    });
-                    
-                    const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-                    particle.position.copy(pos);
-                    particle.userData.velocity = new THREE.Vector3(
-                        (Math.random() - 0.5) * 0.1,
-                        (Math.random() - 0.5) * 0.1,
-                        (Math.random() - 0.5) * 0.1
-                    );
-                    
-                    scene.add(particle);
-                    burstParticles.push(particle);
-                }
-                
-                // 收缩+爆炸动画
-                function animateRemoval() {
-                    const elapsed = Date.now() - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-                    
-                    // 改变线条颜色和透明度
-                    line.material.color.setHSL((progress * 0.5) % 1, 1, 0.5); // 颜色变化
-                    line.material.opacity = 1 - easeInQuad(progress);
-                    
-                    // 让线条收缩
-                    if (curve) {
-                        const shrinkPoints = curve.getPoints(Math.max(2, Math.floor((1 - progress) * 50)));
-                        line.geometry.setFromPoints(shrinkPoints);
-                    }
-                    
-                    // 更新爆炸粒子
-                    burstParticles.forEach((particle, index) => {
-                        // 更新位置
-                        particle.position.add(particle.userData.velocity);
-                        
-                        // 增加速度（加速远离）
-                        particle.userData.velocity.multiplyScalar(1.05);
-                        
-                        // 缩小粒子
-                        const scale = 1 - easeInQuad(progress);
-                        particle.scale.set(scale, scale, scale);
-                        
-                        // 更新透明度
-                        particle.material.opacity = 1 - easeInQuad(progress);
-                    });
-                    
-                    if (progress < 1) {
-                        requestAnimationFrame(animateRemoval);
-                    } else {
-                        // 移除粒子
-                        burstParticles.forEach(particle => {
-                            scene.remove(particle);
-                        });
-                        
-                        // 移除线条
-                        scene.remove(line);
-                        const index = connections.indexOf(line);
-                        if (index > -1) {
-                            connections.splice(index, 1);
-                        }
-                    }
-                }
-                
-                // 开始动画
-                animateRemoval();
-            });
-        }
-        
-        // 添加沿线流动的粒子
-        function addFlowingParticles(line) {
-            if (!line.userData.curve) return;
-            
-            const curve = line.userData.curve;
-            const color = line.material.color.clone();
-            const particleCount = 5;
-            const particles = [];
-            
-            for (let i = 0; i < particleCount; i++) {
-                // 创建粒子
-                const particleGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+        // 沿曲线移动粒子动画
+        function animateParticlesAlongLine(curve, color) {
+            // 为每条线创建5个粒子
+            for (let i = 0; i < 5; i++) {
+                // 创建小球体作为粒子
+                const particleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
                 const particleMaterial = new THREE.MeshBasicMaterial({
                     color: color,
                     transparent: true,
-                    opacity: 0.9
+                    opacity: 0.8
                 });
-                
                 const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+                
+                // 随机起始位置
+                const startOffset = Math.random();
                 
                 // 添加到场景
                 scene.add(particle);
-                particles.push({
-                    mesh: particle,
-                    offset: i / particleCount,
-                    speed: 0.0003 + Math.random() * 0.0002
-                });
-            }
-            
-            // 粒子动画
-            function animateParticles() {
-                if (!scene.getObjectById(line.id)) {
-                    // 线条已被移除，清理粒子
-                    particles.forEach(p => scene.remove(p.mesh));
-                    return;
-                }
                 
-                particles.forEach(p => {
-                    // 更新位置
-                    p.offset = (p.offset + p.speed) % 1;
-                    const position = curve.getPointAt(p.offset);
-                    p.mesh.position.copy(position);
+                // 动画函数
+                function moveParticle() {
+                    // 计算当前位置 (循环移动)
+                    const time = (Date.now() * 0.0005 + startOffset) % 1;
+                    const position = curve.getPointAt(time);
+                    particle.position.copy(position);
                     
                     // 脉冲效果
-                    const pulse = Math.sin(Date.now() * 0.01 + p.offset * 10) * 0.5 + 0.5;
-                    p.mesh.scale.setScalar(0.7 + pulse * 0.5);
-                    p.mesh.material.opacity = 0.6 + pulse * 0.4;
-                });
+                    const pulse = Math.sin(Date.now() * 0.01 + startOffset * 10) * 0.5 + 0.5;
+                    particle.scale.setScalar(0.8 + pulse * 0.4);
+                    particleMaterial.opacity = 0.4 + pulse * 0.6;
+                    
+                    // 如果仍在步骤5，继续动画
+                    if (currentStep === 4) {
+                        requestAnimationFrame(moveParticle);
+                    } else {
+                        // 如果不在步骤5，移除粒子
+                        scene.remove(particle);
+                    }
+                }
                 
-                requestAnimationFrame(animateParticles);
+                moveParticle();
+            }
+        }
+        
+        // 复合动画效果
+        function animateFinalOutputComplex(finalOutput, ring) {
+            let startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                
+                // 让最终输出沿Y轴缓慢旋转
+                finalOutput.rotation.y = elapsed * 0.0005;
+                
+                // 让环沿X轴旋转
+                ring.rotation.z = elapsed * 0.001;
+                
+                // 脉冲效果
+                const pulse = Math.sin(elapsed * 0.002) * 0.5 + 0.5;
+                finalOutput.material.emissiveIntensity = 0.2 + pulse * 0.3;
+                ring.scale.setScalar(0.9 + pulse * 0.2);
+                
+                // 小幅度浮动
+                finalOutput.position.y = finalOutput.userData.initialY + Math.sin(elapsed * 0.001) * 0.3;
+                
+                // 只在步骤5中继续动画
+                if (currentStep === 4) {
+                    requestAnimationFrame(animate);
+                }
             }
             
-            animateParticles();
-        }
-        
-        // 缓动函数
-        function easeOutCubic(t) {
-            return 1 - Math.pow(1 - t, 3);
-        }
-        
-        function easeInQuad(t) {
-            return t * t;
+            animate();
         }
         
         // 其他辅助函数
@@ -1788,16 +1631,6 @@
             // 重置描述
             document.getElementById('step-description').textContent = 
                 'Welcome to MoE model visualization! Click "Start" button to begin the demonstration.';
-        }
-        
-        // 查找路由器对象
-        function findRouterObject() {
-            return scene.children.find(obj => obj.userData.type === 'router');
-        }
-        
-        // 添加一个别名函数，保持代码一致性
-        function createAnimatedConnection(source, target, width = 0.05, color = colors.connection, duration = 800) {
-            return createConnectionWithAnimation(source, target, width, color, duration);
         }
         
         // 页面加载完成后初始化
