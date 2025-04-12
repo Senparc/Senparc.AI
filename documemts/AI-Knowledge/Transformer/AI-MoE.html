@@ -203,67 +203,67 @@
     <div id="canvas"></div>
     <div id="info">
         <h2>MoE (Mixture of Experts) 模型原理</h2>
-        <p id="step-description">欢迎来到 MoE 模型可视化！点击"开始"按钮开始演示。</p>
+        <p id="step-description">Welcome to MoE model visualization! Click "Start" button to begin the demonstration.</p>
     </div>
     <div id="controls">
-        <button class="step-btn" id="start-btn">开始</button>
-        <button class="step-btn" id="prev-btn" disabled>上一步</button>
-        <button class="step-btn" id="next-btn" disabled>下一步</button>
-        <button class="step-btn" id="reset-btn">重置</button>
+        <button class="step-btn" id="start-btn">Start</button>
+        <button class="step-btn" id="prev-btn" disabled>Previous</button>
+        <button class="step-btn" id="next-btn" disabled>Next</button>
+        <button class="step-btn" id="reset-btn">Reset</button>
     </div>
     <div id="parameters-control">
-        <h3>路由器参数控制</h3>
+        <h3>Router Parameter Control</h3>
         
-        <!-- Router Temperature 控制 -->
+        <!-- Router Temperature control -->
         <div class="parameter-section">
-            <h4>路由器温度 (Temperature)</h4>
+            <h4>Router Temperature (Temperature)</h4>
             <div class="slider-container">
                 <span>0</span>
                 <input type="range" min="0" max="2" step="0.1" value="1.0" class="slider" id="router-temp-slider">
                 <span>2</span>
             </div>
-            <div id="router-temp-value">当前值: 1.0</div>
-            <p class="param-description">调整路由器的随机性：低温更确定性，高温增加多样性</p>
+            <div id="router-temp-value">Current Value: 1.0</div>
+            <p class="param-description">Adjust the randomness of the router: low temperature for more deterministic, high temperature for more diverse</p>
         </div>
         
-        <!-- Top-k 控制 -->
+        <!-- Top-k control -->
         <div class="parameter-section">
-            <h4>选取专家数量 (Top-k)</h4>
+            <h4>Select Expert Number (Top-k)</h4>
             <div class="slider-container">
                 <span>1</span>
                 <input type="range" min="1" max="8" step="1" value="2" class="slider" id="topk-slider">
                 <span>8</span>
             </div>
-            <div id="topk-value">当前值: 2</div>
-            <p class="param-description">选择激活的专家数量（MoE的稀疏性）</p>
+            <div id="topk-value">Current Value: 2</div>
+            <p class="param-description">Select the number of activated experts (MoE's sparsity)</p>
         </div>
     </div>
     
     <div id="expert-selection">
-        <h3>专家选择</h3>
-        <p class="param-description">选择要查看的专家详细信息</p>
+        <h3>Expert Selection</h3>
+        <p class="param-description">Select to view expert details</p>
         <div id="expert-checkboxes">
-            <!-- 将由JavaScript动态添加 -->
+            <!-- Will be dynamically added by JavaScript -->
         </div>
     </div>
     
     <div id="expert-weights-chart">
-        <h3 class="chart-title">专家权重分布</h3>
+        <h3 class="chart-title">Expert Weight Distribution</h3>
         <canvas id="weights-canvas"></canvas>
     </div>
     
     <div class="tooltip" id="tooltip"></div>
 
-    <!-- 在body最后添加版权信息 -->
+    <!-- Add copyright information at the end of the body -->
     <div id="copyright">
         <span>© Senparc</span>
         <span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documemts/AI-Knowledge/Transformer" target="_blank" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">GitHub</a></span>
     </div>
 
-    <!-- 引入本地 Three.js 文件 -->
-    <script src="js/three.min.js"></script>
-    <script src="js/OrbitControls.js"></script>
-    <script src="js/CSS2DRenderer.js"></script>
+    <!-- 改为CDN引用 -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/renderers/CSS2DRenderer.js"></script>
     <script>
         // 在脚本顶部添加错误处理
         window.addEventListener('error', function(e) {
@@ -312,11 +312,11 @@
         
         // 步骤描述
         const stepDescriptions = [
-            "步骤 1: 输入文本被分割成 token 序列，传入模型。",
-            "步骤 2: 路由器(Router)分析输入，为每个专家计算相关性得分。",
-            "步骤 3: 路由器根据得分和稀疏性参数(Top-k)选择最相关的专家。",
-            "步骤 4: 被选中的专家处理输入 token，生成各自的输出。",
-            "步骤 5: 系统根据专家权重合并所有激活专家的输出，生成最终结果。"
+            "Step 1: Input text is split into token sequence, passed into the model.",
+            "Step 2: Router analyzes input, calculates relevance score for each expert.",
+            "Step 3: Router selects experts based on score and sparse parameter (Top-k).",
+            "Step 4: Selected experts process input tokens, generate outputs.",
+            "Step 5: System merges outputs of all activated experts, generates final result."
         ];
         
         // 交互控制变量
@@ -352,10 +352,10 @@
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color(0x121212);
                 
-                // 创建相机
-                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                camera.position.z = 15;
-                camera.position.y = 2;
+                // 创建相机 - 调整以适应垂直布局
+                camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 20;
+                camera.position.y = 0; // 居中垂直视角
                 
                 // 创建渲染器
                 renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -498,9 +498,9 @@
             });
         }
         
-        // 创建输入 tokens
+        // 创建输入 tokens - 垂直布局
         function createInputTokens(text) {
-            // 简单拆分文本到tokens (在实际中会更复杂)
+            // 简单拆分文本到tokens
             const words = text.split(/(?=[，。！？\s])|(?<=[，。！？\s])/g).filter(w => w.trim());
             tokens.length = 0;
             
@@ -511,15 +511,17 @@
                 const tokenMaterial = new THREE.MeshPhongMaterial({ color: colors.input });
                 const token = new THREE.Mesh(tokenGeometry, tokenMaterial);
                 
+                // 放在最上方，水平排列
                 token.position.x = (i - (words.length - 1) / 2) * 2;
-                token.position.y = 5;
+                token.position.y = 10; // 放在顶部
+                token.position.z = 0;
+                
                 token.userData.type = 'input';
                 token.userData.text = words[i];
                 
                 scene.add(token);
                 tokens.push(token);
                 
-                // 添加 token 文本标签
                 addTextLabel(token, words[i], 1.2);
             }
         }
@@ -557,14 +559,17 @@
             return label;
         }
         
-        // 展示路由器
+        // 展示路由器 - 垂直布局
         function showRouter() {
             // 创建路由器
             const routerGeometry = new THREE.CylinderGeometry(1.5, 1.5, 1, 16);
             const routerMaterial = new THREE.MeshPhongMaterial({ color: colors.router });
             const router = new THREE.Mesh(routerGeometry, routerMaterial);
             
-            router.position.y = 0;
+            // 路由器位于 tokens 下方
+            router.position.y = 5;
+            router.position.x = 0;
+            router.position.z = 0;
             router.userData.type = 'router';
             router.userData.name = 'Router';
             scene.add(router);
@@ -572,15 +577,15 @@
             // 添加路由器标签
             addTextLabel(router, "路由器", 1.8);
             
-            // 创建从输入到路由器的连接
-            for (let token of tokens) {
-                createConnection(token, router, 0.08);
-            }
-            
             // 缓慢移动输入tokens到更高位置
-            const targetY = 8;
+            const targetY = 12;
+            
+            // 先移动方块，在移动完成后创建连线
             for (let token of tokens) {
-                animateObjectPosition(token, { y: targetY }, 1000);
+                animateObjectPosition(token, { y: targetY }, 1000, () => {
+                    // 在回调中创建连线，确保使用最新位置
+                    createConnection(token, router, 0.08);
+                });
             }
             
             // 缓慢旋转路由器
@@ -622,7 +627,7 @@
             document.getElementById('topk-slider').addEventListener('input', handleRouterParameterChange);
         }
         
-        // 创建专家
+        // 创建专家 - 垂直布局
         function createExperts() {
             experts.length = 0;
             expertObjects.length = 0;
@@ -643,9 +648,9 @@
                 });
                 const expertObj = new THREE.Mesh(expertGeometry, expertMaterial);
                 
-                // 计算位置
+                // 计算位置 - 在路由器下方成环形
                 expertObj.position.x = radius * Math.sin(angle);
-                expertObj.position.y = -5; // 专家在底部
+                expertObj.position.y = 0; // 路由器下方的中间层
                 expertObj.position.z = radius * Math.cos(angle);
                 
                 // 添加用户数据
@@ -669,14 +674,6 @@
                 
                 // 添加专家标签
                 addExpertLabel(expertObj, expert, 1.5);
-            }
-            
-            // 连接路由器和专家
-            const router = scene.children.find(obj => obj.userData.type === 'router');
-            if (router) {
-                for (let expert of expertObjects) {
-                    createConnection(router, expert, 0.05);
-                }
             }
         }
         
@@ -703,21 +700,34 @@
             // 存储权重
             expertWeights = [...weights];
             
+            // 获取Top-K阈值 - 提前计算以便统一使用
+            const threshold = getTopKThreshold(weights, topKExperts);
+            
             // 更新专家权重
             experts.forEach((expert, index) => {
                 expert.weight = weights[index];
                 expert.obj.userData.weight = weights[index];
                 
-                // 设置专家透明度基于权重
-                expert.obj.material.opacity = 0.3 + 0.7 * weights[index];
+                // 清除之前的发光效果
+                // 找到所有子物体并移除glow球体
+                for (let i = expert.obj.children.length - 1; i >= 0; i--) {
+                    const child = expert.obj.children[i];
+                    // 只移除非标签的子物体（发光球体）
+                    if (!(child instanceof THREE.CSS2DObject)) {
+                        expert.obj.remove(child);
+                    }
+                }
                 
                 // 根据Top-K决定是否选择
-                const threshold = getTopKThreshold(weights, topKExperts);
+                const wasSelected = expert.selected;
                 expert.selected = weights[index] >= threshold;
                 expert.obj.userData.selected = expert.selected;
                 
-                // 设置视觉效果
+                // 处理专家对象的可见性
                 if (expert.selected) {
+                    // 选中的专家：显示并添加发光效果
+                    expert.obj.visible = true;
+                    expert.obj.material.opacity = 0.8;
                     expert.obj.material.emissive = new THREE.Color(0x333333);
                     expert.obj.material.emissiveIntensity = 0.5;
                     
@@ -730,9 +740,21 @@
                     });
                     const glow = new THREE.Mesh(glowGeometry, glowMaterial);
                     expert.obj.add(glow);
+                    
+                    // 如果状态发生变化，为连线添加动画
+                    if (!wasSelected) {
+                        // 找到或创建到该专家的连线
+                        createConnectionWithAnimation(findRouterObject(), expert.obj, 0.05, colors.connection, 1000);
+                    }
                 } else {
-                    expert.obj.material.emissive = new THREE.Color(0x000000);
-                    expert.obj.material.emissiveIntensity = 0;
+                    // 未选中的专家：隐藏
+                    expert.obj.visible = false;
+                    
+                    // 如果状态发生变化，为连线添加动画
+                    if (wasSelected) {
+                        // 找到并移除到该专家的连线
+                        removeConnectionWithAnimation(findRouterObject(), expert.obj, 500);
+                    }
                 }
             });
         }
@@ -766,7 +788,7 @@
             return expLogits.map(e => e / sumExpLogits);
         }
         
-        // 专家处理输入
+        // 专家处理输入 - 垂直布局
         function expertsProcessInput() {
             // 移除图表
             document.getElementById('expert-weights-chart').style.display = 'none';
@@ -788,26 +810,27 @@
                 });
                 
                 const outputToken = new THREE.Mesh(outputTokenGeometry, outputTokenMaterial);
+                
+                // 放在专家正下方
                 outputToken.position.copy(expert.position);
-                outputToken.position.x += 3; // 向右偏移
-                outputToken.position.y += 1; // 向上偏移
+                outputToken.position.y = -5; // 垂直向下
                 
                 outputToken.userData.type = 'expertOutput';
                 outputToken.userData.expertId = expertId;
                 outputToken.userData.weight = expert.userData.weight;
+                outputToken.userData.text = getExpertOutput(expertId);
                 
                 scene.add(outputToken);
                 
-                // 添加专家生成的输出标签 (基于每个专家的领域特点)
-                const expertOutputText = getExpertOutput(expert.userData.id);
-                addTextLabel(outputToken, expertOutputText, 0, expert.userData.weight);
+                // 添加专家生成的输出标签
+                addTextLabel(outputToken, outputToken.userData.text, 0, expert.userData.weight);
                 
                 // 添加连接线
                 createConnection(expert, outputToken, 0.1, expert.userData.color);
             }
             
             // 移动相机以更好地查看专家处理过程
-            animateCameraMove({ x: 4, y: -2, z: 16 }, 1000);
+            animateCameraMove({ x: 0, y: -2, z: 16 }, 1000);
         }
         
         // 获取专家输出
@@ -866,39 +889,395 @@
                 }
             };
             
-            return expertOutputs[currentInput]?.[expertId] || `专家${expertId}输出`;
+            return expertOutputs[currentInput]?.[expertId] || `Expert ${expertId} Output`;
         }
         
-        // 合并专家输出
+        // 合并专家输出 - 修正垂直位置
         function mergeExpertOutputs() {
             // 获取所有专家输出
             const expertOutputs = scene.children.filter(obj => obj.userData.type === 'expertOutput');
             
-            // 合并输出
+            if (expertOutputs.length === 0) {
+                console.error('没有找到专家输出对象');
+                return;
+            }
+            
+            // 计算所有专家输出的平均位置
+            let avgX = 0, avgZ = 0;
+            let lowestY = Infinity; // 找到最低的Y值
+            
+            expertOutputs.forEach(output => {
+                avgX += output.position.x;
+                avgZ += output.position.z;
+                // 记录最低的Y位置
+                if (output.position.y < lowestY) {
+                    lowestY = output.position.y;
+                }
+            });
+            
+            avgX /= expertOutputs.length;
+            avgZ /= expertOutputs.length;
+            
+            // 合并输出文本
             let mergedOutput = '';
             expertOutputs.forEach(output => {
                 mergedOutput += output.userData.text + ' ';
             });
             
-            // 创建最终输出token
-            const finalOutputGeometry = new THREE.BoxGeometry(1, 1, 1);
-            const finalOutputMaterial = new THREE.MeshPhongMaterial({ color: colors.output });
+            // 创建最终输出
+            const finalOutputGeometry = new THREE.IcosahedronGeometry(1.5, 1);
+            const finalOutputMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.output,
+                emissive: new THREE.Color(0xffff00),
+                emissiveIntensity: 0.3,
+                shininess: 50,
+                transparent: true,
+                opacity: 0.9
+            });
             const finalOutput = new THREE.Mesh(finalOutputGeometry, finalOutputMaterial);
             
-            finalOutput.position.x = 0;
-            finalOutput.position.y = 0;
-            finalOutput.position.z = 0;
+            // 明确设置最终输出位置
+            // 将最终输出设置为更靠近专家输出的位置（从-10或-15调整到-8）
+            finalOutput.position.x = avgX;
+            finalOutput.position.y = -10; // 调整为更靠近专家输出的位置
+            finalOutput.position.z = avgZ;
+            
+            // 保存初始Y坐标用于动画
+            finalOutput.userData.initialY = finalOutput.position.y;
+            
+            console.log(`专家输出位置: y=${lowestY}, 最终输出位置: y=${finalOutput.position.y}`);
             
             finalOutput.userData.type = 'finalOutput';
             finalOutput.userData.text = mergedOutput;
             
             scene.add(finalOutput);
             
-            // 添加最终输出标签
-            addTextLabel(finalOutput, mergedOutput, 0);
+            // 添加外发光效果
+            const glowGeometry = new THREE.SphereGeometry(2, 32, 32);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffff99,
+                transparent: true,
+                opacity: 0.15,
+                side: THREE.BackSide
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            finalOutput.add(glow);
             
-            // 移动相机以更好地查看最终输出
-            animateCameraMove({ x: 0, y: 0, z: 10 }, 1000);
+            // 添加内核效果
+            const coreGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+            const coreMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9
+            });
+            const core = new THREE.Mesh(coreGeometry, coreMaterial);
+            finalOutput.add(core);
+            
+            // 添加动态光环
+            const ringGeometry = new THREE.RingGeometry(2.2, 2.5, 32);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.4,
+                side: THREE.DoubleSide
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2;
+            finalOutput.add(ring);
+            
+            // 添加标签
+            addTextLabel(finalOutput, "最终合成结果", 2.2);
+            addTextLabel(finalOutput, mergedOutput, -2.2);
+            
+            // 创建从专家输出到最终输出的连接
+            expertOutputs.forEach(output => {
+                createConnectionWithAnimation(output, finalOutput);
+            });
+            
+            
+            // 调整相机位置，确保能看到整个垂直流程
+            // 计算整个场景的垂直范围
+            const topY = 12; // 输入tokens的顶部
+            const bottomY = -10; // 最终输出的底部
+            const centerY = (topY + bottomY) / 2; // 垂直中心
+            
+            animateCameraMove({ 
+                x: 0, 
+                y: centerY, // 相机Y位置对准场景垂直中心
+                z: 25 // 足够远以看到整个场景
+            }, 1500);
+        }
+        
+        // 创建带动画的连接线 - 增强版
+        function createConnectionWithAnimation(obj1, obj2, width = 0.05, color = colors.connection, duration = 800) {
+            // 创建曲线路径
+            const sourcePos = obj1.position.clone();
+            const targetPos = obj2.position.clone();
+            
+            // 创建控制点，使线条有弧度
+            const midPoint = new THREE.Vector3(
+                (sourcePos.x + targetPos.x) / 2,
+                (sourcePos.y + targetPos.y) / 2 + 1,
+                (sourcePos.z + targetPos.z) / 2
+            );
+            
+            // 创建三次贝塞尔曲线
+            const curve = new THREE.CubicBezierCurve3(
+                sourcePos,
+                new THREE.Vector3(sourcePos.x, midPoint.y, midPoint.z),
+                new THREE.Vector3(targetPos.x, midPoint.y, midPoint.z),
+                targetPos
+            );
+            
+            // 分段生长动画
+            const totalPoints = 50;
+            const initialPoints = 2; // 开始只有两个点
+            const geometry = new THREE.BufferGeometry();
+            
+            // 使用颜色渐变
+            const expertColor = obj2.material.color.clone();
+            const mixedColor = expertColor.clone().lerp(new THREE.Color(0xffffff), 0.5);
+            
+            const material = new THREE.LineBasicMaterial({ 
+                color: mixedColor,
+                linewidth: 3,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const line = new THREE.Line(geometry, material);
+            line.userData.source = obj1;
+            line.userData.target = obj2;
+            line.userData.curve = curve;
+            scene.add(line);
+            connections.push(line);
+            
+            // 生长动画
+            let progress = 0;
+            const growDuration = duration * 0.7; // 70%的时间用于生长
+            const glowDuration = duration * 0.3; // 30%的时间用于发光
+            let startTime = Date.now();
+            
+            function growLine() {
+                const elapsed = Date.now() - startTime;
+                progress = Math.min(elapsed / growDuration, 1);
+                
+                // 使用缓动函数让动画更平滑
+                const easedProgress = easeOutCubic(progress);
+                
+                // 计算当前应该显示多少点
+                const currentPoints = initialPoints + Math.floor((totalPoints - initialPoints) * easedProgress);
+                const points = curve.getPoints(currentPoints);
+                
+                // 更新几何体
+                geometry.setFromPoints(points.slice(0, currentPoints));
+                
+                if (progress < 1) {
+                    requestAnimationFrame(growLine);
+                } else {
+                    // 生长完成后，添加发光效果
+                    startGlowEffect();
+                }
+            }
+            
+            function startGlowEffect() {
+                startTime = Date.now();
+                
+                function glowAnimation() {
+                    const elapsed = Date.now() - startTime;
+                    const glowProgress = Math.min(elapsed / glowDuration, 1);
+                    
+                    // 脉冲效果
+                    const pulse = Math.sin(glowProgress * Math.PI) * 0.5 + 0.5;
+                    
+                    // 调整发光和宽度
+                    material.color.copy(expertColor.clone().lerp(new THREE.Color(0xffffff), pulse * 0.7));
+                    material.opacity = 0.5 + pulse * 0.5;
+                    
+                    if (glowProgress < 1) {
+                        requestAnimationFrame(glowAnimation);
+                    } else {
+                        // 最终颜色
+                        material.color.copy(expertColor);
+                        material.opacity = 0.7;
+                        
+                        // 开始添加粒子效果
+                        addFlowingParticles(line);
+                    }
+                }
+                
+                requestAnimationFrame(glowAnimation);
+            }
+            
+            // 立即开始生长动画
+            growLine();
+            
+            return line;
+        }
+        
+        // 通过动画移除连接线 - 增强版
+        function removeConnectionWithAnimation(obj1, obj2, duration = 700) {
+            // 查找匹配的连线
+            const linesToRemove = connections.filter(line => 
+                (line.userData.source === obj1 && line.userData.target === obj2) || 
+                (line.userData.source === obj2 && line.userData.target === obj1)
+            );
+            
+            linesToRemove.forEach(line => {
+                const startTime = Date.now();
+                
+                // 获取线条几何形状中的点
+                const originalPoints = line.geometry.attributes.position.array;
+                const numPoints = originalPoints.length / 3;
+                
+                // 爆炸效果粒子
+                const burstParticles = [];
+                const burstCount = 10;
+                const curve = line.userData.curve;
+                
+                // 创建爆炸粒子
+                for (let i = 0; i < burstCount; i++) {
+                    const t = i / burstCount;
+                    const pos = curve ? curve.getPointAt(t) : new THREE.Vector3(
+                        originalPoints[i * 3],
+                        originalPoints[i * 3 + 1],
+                        originalPoints[i * 3 + 2]
+                    );
+                    
+                    const particleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+                    const particleMaterial = new THREE.MeshBasicMaterial({ 
+                        color: line.material.color,
+                        transparent: true,
+                        opacity: 0.9
+                    });
+                    
+                    const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+                    particle.position.copy(pos);
+                    particle.userData.velocity = new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.1,
+                        (Math.random() - 0.5) * 0.1,
+                        (Math.random() - 0.5) * 0.1
+                    );
+                    
+                    scene.add(particle);
+                    burstParticles.push(particle);
+                }
+                
+                // 收缩+爆炸动画
+                function animateRemoval() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // 改变线条颜色和透明度
+                    line.material.color.setHSL((progress * 0.5) % 1, 1, 0.5); // 颜色变化
+                    line.material.opacity = 1 - easeInQuad(progress);
+                    
+                    // 让线条收缩
+                    if (curve) {
+                        const shrinkPoints = curve.getPoints(Math.max(2, Math.floor((1 - progress) * 50)));
+                        line.geometry.setFromPoints(shrinkPoints);
+                    }
+                    
+                    // 更新爆炸粒子
+                    burstParticles.forEach((particle, index) => {
+                        // 更新位置
+                        particle.position.add(particle.userData.velocity);
+                        
+                        // 增加速度（加速远离）
+                        particle.userData.velocity.multiplyScalar(1.05);
+                        
+                        // 缩小粒子
+                        const scale = 1 - easeInQuad(progress);
+                        particle.scale.set(scale, scale, scale);
+                        
+                        // 更新透明度
+                        particle.material.opacity = 1 - easeInQuad(progress);
+                    });
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animateRemoval);
+                    } else {
+                        // 移除粒子
+                        burstParticles.forEach(particle => {
+                            scene.remove(particle);
+                        });
+                        
+                        // 移除线条
+                        scene.remove(line);
+                        const index = connections.indexOf(line);
+                        if (index > -1) {
+                            connections.splice(index, 1);
+                        }
+                    }
+                }
+                
+                // 开始动画
+                animateRemoval();
+            });
+        }
+        
+        // 添加沿线流动的粒子
+        function addFlowingParticles(line) {
+            if (!line.userData.curve) return;
+            
+            const curve = line.userData.curve;
+            const color = line.material.color.clone();
+            const particleCount = 5;
+            const particles = [];
+            
+            for (let i = 0; i < particleCount; i++) {
+                // 创建粒子
+                const particleGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+                const particleMaterial = new THREE.MeshBasicMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                
+                const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+                
+                // 添加到场景
+                scene.add(particle);
+                particles.push({
+                    mesh: particle,
+                    offset: i / particleCount,
+                    speed: 0.0003 + Math.random() * 0.0002
+                });
+            }
+            
+            // 粒子动画
+            function animateParticles() {
+                if (!scene.getObjectById(line.id)) {
+                    // 线条已被移除，清理粒子
+                    particles.forEach(p => scene.remove(p.mesh));
+                    return;
+                }
+                
+                particles.forEach(p => {
+                    // 更新位置
+                    p.offset = (p.offset + p.speed) % 1;
+                    const position = curve.getPointAt(p.offset);
+                    p.mesh.position.copy(position);
+                    
+                    // 脉冲效果
+                    const pulse = Math.sin(Date.now() * 0.01 + p.offset * 10) * 0.5 + 0.5;
+                    p.mesh.scale.setScalar(0.7 + pulse * 0.5);
+                    p.mesh.material.opacity = 0.6 + pulse * 0.4;
+                });
+                
+                requestAnimationFrame(animateParticles);
+            }
+            
+            animateParticles();
+        }
+        
+        // 缓动函数
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
+        
+        function easeInQuad(t) {
+            return t * t;
         }
         
         // 其他辅助函数
@@ -908,8 +1287,8 @@
         
         function updateRouterControls() {
             // 更新控制器显示数值
-            document.getElementById('router-temp-value').textContent = `当前值: ${routerTemperature.toFixed(1)}`;
-            document.getElementById('topk-value').textContent = `当前值: ${topKExperts}`;
+            document.getElementById('router-temp-value').textContent = `Current Value: ${routerTemperature.toFixed(1)}`;
+            document.getElementById('topk-value').textContent = `Current Value: ${topKExperts}`;
             
             // 更新滑块位置
             document.getElementById('router-temp-slider').value = routerTemperature;
@@ -1090,7 +1469,7 @@
         }
         
         // 对象位置动画
-        function animateObjectPosition(obj, targetPos, duration) {
+        function animateObjectPosition(obj, targetPos, duration, callback) {
             const startPos = {
                 x: obj.position.x,
                 y: obj.position.y,
@@ -1120,6 +1499,9 @@
                 
                 if (progress < 1) {
                     requestAnimationFrame(update);
+                } else if (callback) {
+                    // 动画完成时执行回调
+                    callback();
                 }
             }
             
@@ -1296,7 +1678,7 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
             ctx.font = 'bold 14px Arial';
-            ctx.fillText('专家权重分布', canvas.width / 2, 10);
+            ctx.fillText('Expert Weight Distribution', canvas.width / 2, 10);
         }
         
         // 开始演示
@@ -1405,7 +1787,17 @@
             
             // 重置描述
             document.getElementById('step-description').textContent = 
-                "欢迎来到 MoE 模型可视化！点击"开始"按钮开始演示。";
+                'Welcome to MoE model visualization! Click "Start" button to begin the demonstration.';
+        }
+        
+        // 查找路由器对象
+        function findRouterObject() {
+            return scene.children.find(obj => obj.userData.type === 'router');
+        }
+        
+        // 添加一个别名函数，保持代码一致性
+        function createAnimatedConnection(source, target, width = 0.05, color = colors.connection, duration = 800) {
+            return createConnectionWithAnimation(source, target, width, color, duration);
         }
         
         // 页面加载完成后初始化

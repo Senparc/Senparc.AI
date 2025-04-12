@@ -11,4 +11,4 @@ appsettings.Development.json
 /src/.idea/.idea.Senparc.AI/.idea
 /Samples/Senparc.AI.Samples.Consoles/Properties/PublishProfiles
 /Samples/Senparc.AI.Samples.Consoles/Senparc.AI.Samples.Consoles.csproj.user
-/documemts/AI-Knowledge/Transformer/AI-MoE copy*.html
+/documemts/AI-Knowledge/Transformer/*copy*.html
