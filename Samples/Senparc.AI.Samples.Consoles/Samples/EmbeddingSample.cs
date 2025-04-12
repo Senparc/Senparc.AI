@@ -201,7 +201,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                             await vectorMemory.ImportTextAsync(info[1], "SenparcAI", tags, info[0]);
                             break;
                         }
-                    case VectorDB.VectorDBType.Default:
+                    case VectorDB.VectorDBType.Memory:
                         {
                             //内存
                             iWantToRun.MemorySaveReference(
@@ -235,7 +235,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 i++;
             }
 
-            iWantToRun.MemoryStoreExexute();
+            //iWantToRun.MemoryStoreExexute();
 
             while (true)
             {
