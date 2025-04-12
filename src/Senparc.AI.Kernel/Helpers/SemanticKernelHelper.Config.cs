@@ -15,6 +15,7 @@ using System.Net.Http;
 //using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using System.Net;
 using Microsoft.SemanticKernel.Connectors.Ollama;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 
 // Memory functionality is experimental
 #pragma warning disable SKEXP0003, SKEXP0011, SKEXP0052, SKEXP0020, SKEXP0012, SKEXP0001
@@ -355,7 +356,7 @@ namespace Senparc.AI.Kernel.Helpers
                     AiPlatform.AzureOpenAI => memoryBuilder.WithTextEmbeddingGeneration(
                            (loggerFactory, httpClient) =>
                            {
-                               return new AzureOpenAITextEmbeddingGenerationService(
+                               return new  AzureOpenAITextEmbeddingGenerationService(
                                     deploymentName: azureDeployName,
                                     endpoint: senparcAiSetting.Endpoint,
                                     apiKey: senparcAiSetting.ApiKey,
