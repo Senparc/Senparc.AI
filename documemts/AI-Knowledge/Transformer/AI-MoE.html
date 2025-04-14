@@ -561,21 +561,59 @@
         
         // 展示路由器 - 垂直布局
         function showRouter() {
-            // 创建路由器
-            const routerGeometry = new THREE.CylinderGeometry(1.5, 1.5, 1, 16);
-            const routerMaterial = new THREE.MeshPhongMaterial({ color: colors.router });
-            const router = new THREE.Mesh(routerGeometry, routerMaterial);
+            // 创建门控网络 - 使用更复杂的形状来表示门控机制
+            const routerGroup = new THREE.Group();
+            
+            // 创建中心球体
+            const centerGeometry = new THREE.SphereGeometry(1, 16, 16);
+            const centerMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.router,
+                emissive: new THREE.Color(0xff0000),
+                emissiveIntensity: 0.3
+            });
+            const centerSphere = new THREE.Mesh(centerGeometry, centerMaterial);
+            routerGroup.add(centerSphere);
+            
+            // 创建环绕的环
+            const ringGeometry = new THREE.TorusGeometry(1.5, 0.2, 16, 32);
+            const ringMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.router,
+                emissive: new THREE.Color(0xff0000),
+                emissiveIntensity: 0.2
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2;
+            routerGroup.add(ring);
+            
+            // 创建门控箭头
+            const arrowGeometry = new THREE.ConeGeometry(0.3, 1, 8);
+            const arrowMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.router,
+                emissive: new THREE.Color(0xff0000),
+                emissiveIntensity: 0.2
+            });
+            
+            // 创建8个箭头，均匀分布
+            for (let i = 0; i < 8; i++) {
+                const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+                const angle = (i / 8) * Math.PI * 2;
+                arrow.position.x = Math.cos(angle) * 1.5;
+                arrow.position.z = Math.sin(angle) * 1.5;
+                arrow.lookAt(0, 0, 0);
+                arrow.rotation.y += Math.PI;
+                routerGroup.add(arrow);
+            }
             
             // 路由器位于 tokens 下方
-            router.position.y = 5;
-            router.position.x = 0;
-            router.position.z = 0;
-            router.userData.type = 'router';
-            router.userData.name = 'Router';
-            scene.add(router);
+            routerGroup.position.y = 5;
+            routerGroup.position.x = 0;
+            routerGroup.position.z = 0;
+            routerGroup.userData.type = 'router';
+            routerGroup.userData.name = 'Gating Network';
+            scene.add(routerGroup);
             
             // 添加路由器标签
-            addTextLabel(router, "路由器", 1.8);
+            addTextLabel(routerGroup, "门控网络", 2.2);
             
             // 缓慢移动输入tokens到更高位置
             const targetY = 12;
@@ -584,12 +622,12 @@
             for (let token of tokens) {
                 animateObjectPosition(token, { y: targetY }, 1000, () => {
                     // 在回调中创建连线，确保使用最新位置
-                    createConnection(token, router, 0.08);
+                    createConnection(token, routerGroup, 0.08);
                 });
             }
             
             // 缓慢旋转路由器
-            animateRouterRotation(router);
+            animateRouterRotation(routerGroup);
         }
         
         // 路由器旋转动画
@@ -1150,10 +1188,11 @@
                     // 恢复未选中专家的状态
                     if (expert.userData.selected) {
                         expert.material.emissive = new THREE.Color(0x333333);
+                        expert.material.emissiveIntensity = 0.5;
                     } else {
                         expert.material.emissive = new THREE.Color(0x000000);
+                        expert.material.emissiveIntensity = 0;
                     }
-                    expert.material.emissiveIntensity = expert.userData.selected ? 0.5 : 0;
                 }
             });
         }
