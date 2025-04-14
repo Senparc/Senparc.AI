@@ -1285,9 +1285,17 @@
         
         // 清理场景
         function clearScene() {
-            // 移除所有3D对象
+            // 移除所有3D对象和标签
             while(scene.children.length > 0) { 
                 const obj = scene.children[0];
+                // 递归移除所有子对象，包括CSS2D标签
+                function removeAllChildren(object) {
+                    while(object.children.length > 0) {
+                        removeAllChildren(object.children[0]);
+                        object.remove(object.children[0]);
+                    }
+                }
+                removeAllChildren(obj);
                 scene.remove(obj); 
             }
             
@@ -1296,6 +1304,7 @@
             experts.length = 0;
             expertObjects.length = 0;
             connections.length = 0;
+            labels.length = 0; // 确保清空标签数组
             
             // 重新添加光源
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
