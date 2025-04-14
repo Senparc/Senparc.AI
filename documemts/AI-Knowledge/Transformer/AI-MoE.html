@@ -471,11 +471,6 @@
             steps.push(() => {
                 selectExperts();
                 updateDescription(2);
-                
-                // 显示参数控制
-                document.getElementById('parameters-control').style.display = 'block';
-                document.getElementById('expert-weights-chart').style.display = 'block';
-                updateRouterControls();
             });
             
             // 步骤4: 专家处理输入
@@ -657,12 +652,38 @@
             // 计算专家权重
             calculateExpertWeights();
             
-            // 更新权重图表
+            // 显示参数控制面板
+            document.getElementById('parameters-control').style.display = 'block';
+            document.getElementById('expert-weights-chart').style.display = 'block';
+            
+            // 立即更新权重图表
             updateExpertWeightsChart();
             
+            // 确保图表尺寸正确
+            const canvas = document.getElementById('weights-canvas');
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            
             // 设置路由器参数控制事件
-            document.getElementById('router-temp-slider').addEventListener('input', handleRouterParameterChange);
-            document.getElementById('topk-slider').addEventListener('input', handleRouterParameterChange);
+            const routerTempSlider = document.getElementById('router-temp-slider');
+            const topkSlider = document.getElementById('topk-slider');
+            
+            // 设置初始值
+            routerTempSlider.value = routerTemperature;
+            topkSlider.value = topKExperts;
+            
+            // 更新显示的当前值
+            document.getElementById('router-temp-value').textContent = `Current Value: ${routerTemperature.toFixed(1)}`;
+            document.getElementById('topk-value').textContent = `Current Value: ${topKExperts}`;
+            
+            // 添加事件监听器
+            routerTempSlider.addEventListener('input', handleRouterParameterChange);
+            topkSlider.addEventListener('input', handleRouterParameterChange);
+            
+            // 强制触发一次重绘
+            setTimeout(() => {
+                updateExpertWeightsChart();
+            }, 100);
         }
         
         // 创建专家 - 垂直布局
