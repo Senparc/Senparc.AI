@@ -261,9 +261,9 @@
     </div>
 
     <!-- 改为CDN引用 -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/renderers/CSS2DRenderer.js"></script>
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/CSS2DRenderer.js"></script>
     <script>
         // 在脚本顶部添加错误处理
         window.addEventListener('error', function(e) {
@@ -1598,6 +1598,10 @@
             try {
                 console.log('Starting demo...');
                 currentStep = 0;
+                
+                // 随机选择一个输入示例
+                currentInput = inputExamples[Math.floor(Math.random() * inputExamples.length)];
+                console.log('Selected input:', currentInput);
                 
                 // 禁用开始按钮
                 document.getElementById('start-btn').disabled = true;
