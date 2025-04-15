@@ -43,6 +43,11 @@ namespace Senparc.AI.Entities
         public virtual bool IsDebug { get; set; }
 
         /// <summary>
+        /// 向量数据库配置
+        /// </summary>
+        public VectorDB VectorDB { get; set; }
+
+        /// <summary>
         /// 是否使用 OpenAI
         /// </summary>
         public virtual bool UseOpenAI => AiPlatform == AiPlatform.OpenAI;
@@ -182,6 +187,12 @@ namespace Senparc.AI.Entities
 
         public virtual bool IsOpenAiKeysSetted => OpenAIKeys != null && !OpenAIKeys.ApiKey.IsNullOrEmpty();
 
+
+
+        public SenparcAiSettingBase()
+        {
+            VectorDB = new VectorDB() { Type = VectorDB.VectorDBType.Default };
+        }
 
         #region 快速配置方法
 

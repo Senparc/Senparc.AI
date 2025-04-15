@@ -35,6 +35,8 @@ namespace Senparc.AI.Interfaces
         /// </summary>
         bool IsDebug { get; set; }
 
+        VectorDB VectorDB { get; set; }
+
         string Endpoint => AiPlatform switch
         {
             AiPlatform.OpenAI => OpenAIEndpoint,
@@ -66,7 +68,7 @@ namespace Senparc.AI.Interfaces
         OpenAIKeys OpenAIKeys { get; set; }
         HuggingFaceKeys HuggingFaceKeys { get; set; }
         FastAPIKeys FastAPIKeys { get; set; }
-        OllamaKeys  OllamaKeys { get; set; }
+        OllamaKeys OllamaKeys { get; set; }
         DeepSeekKeys DeepSeekKeys { get; set; }
 
         /// <summary>
@@ -176,5 +178,24 @@ namespace Senparc.AI.Interfaces
         };
 #pragma warning restore CS8603 // 可能返回 null 引用。
 
+    }
+
+    public class VectorDB
+    {
+        public VectorDBType Type { get; set; }
+        public string ConnectionString { get; set; }
+
+        public enum VectorDBType
+        {
+            Memory,
+            HardDisk,
+            Redis,
+            Mulivs,
+            Chroma,
+            PostgreSQL,
+            Sqlite,
+            SqlServer,
+            Default = Memory,
+        }
     }
 }
