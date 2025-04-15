@@ -1599,6 +1599,10 @@
                 console.log('Starting demo...');
                 currentStep = 0;
                 
+                // 随机选择一个输入示例
+                currentInput = inputExamples[Math.floor(Math.random() * inputExamples.length)];
+                console.log('Selected input:', currentInput);
+                
                 // 禁用开始按钮
                 document.getElementById('start-btn').disabled = true;
                 
