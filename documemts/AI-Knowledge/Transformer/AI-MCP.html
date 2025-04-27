@@ -49,7 +49,7 @@
             padding: 5px;
             background: rgba(0,0,0,0.6);
             border-radius: 3px;
-            font-size: 20px;
+            font-size: 16px;
             pointer-events: none;
         }
         #copyright {
@@ -239,7 +239,7 @@
         }
         
         // 创建特定实体的统一形状
-        function createEntity(type, name, x, y, z, scale = 1) {
+        function createEntity(type, name, x, y, z, scale = 0.8) {
             let mesh;
             const yOffset = 1.2 * scale; // 标签偏移量按比例调整
             
@@ -485,7 +485,7 @@
         function showCompleteWorkflow() {
             // 标记当前是否处于动画状态
             let isAnimating = true;
-            let animationPaused = false;
+            let animationPaused = false;  // 确保动画默认不是暂停状态
             let currentAnimationStep = 0;
             let animationTimeouts = [];
             
@@ -493,11 +493,11 @@
             addFloatingLabel("完整 MCP 工作流", 0, 6, 0);
             
             // 创建所有实体，但初始时透明度设为0
-            const llm = createEntity(SHAPE_TYPES.LLM, "LLM", 0, 4, 0, 1.4);
-            const host = createEntity(SHAPE_TYPES.HOST, "Host 应用", -6, 2, 0);
-            const client = createEntity(SHAPE_TYPES.CLIENT, "MCP Client", -3, 0, 0);
-            const server = createEntity(SHAPE_TYPES.SERVER, "MCP Server", 0, -2, 0);
-            const data = createEntity(SHAPE_TYPES.DATA, "数据源", 3, -4, 0);
+            const llm = createEntity(SHAPE_TYPES.LLM, "LLM", 0, 4, 0, 1.2);
+            const host = createEntity(SHAPE_TYPES.HOST, "Host 应用", -6, 2, 0, 1.0);
+            const client = createEntity(SHAPE_TYPES.CLIENT, "MCP Client", -3, 0, 0, 1.0);
+            const server = createEntity(SHAPE_TYPES.SERVER, "MCP Server", 0, -2, 0, 1.0);
+            const data = createEntity(SHAPE_TYPES.DATA, "数据源", 3, -4, 0, 1.0);
             
             // 使所有实体初始透明
             [llm, host, client, server, data].forEach(entity => {
@@ -724,7 +724,7 @@
                 // 播放/暂停按钮
                 const playPauseBtn = document.createElement('button');
                 playPauseBtn.className = 'step-btn';
-                playPauseBtn.textContent = '暂停';
+                playPauseBtn.textContent = animationPaused ? '继续' : '暂停'; // 确保按钮文本与实际状态匹配
                 playPauseBtn.style.marginRight = '5px';
                 playPauseBtn.addEventListener('click', () => {
                     animationPaused = !animationPaused;
