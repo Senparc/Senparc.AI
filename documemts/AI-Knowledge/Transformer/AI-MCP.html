@@ -142,7 +142,7 @@
             
             // 创建相机
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 15;
+            camera.position.z = 20;
             
             // 创建渲染器
             renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -493,11 +493,19 @@
             addFloatingLabel("完整 MCP 工作流", 0, 6, 0);
             
             // 创建所有实体，但初始时透明度设为0
-            const llm = createEntity(SHAPE_TYPES.LLM, "LLM", 0, 4, 0, 1.2);
-            const host = createEntity(SHAPE_TYPES.HOST, "Host 应用", -6, 2, 0, 1.0);
-            const client = createEntity(SHAPE_TYPES.CLIENT, "MCP Client", -3, 0, 0, 1.0);
-            const server = createEntity(SHAPE_TYPES.SERVER, "MCP Server", 0, -2, 0, 1.0);
-            const data = createEntity(SHAPE_TYPES.DATA, "数据源", 3, -4, 0, 1.0);
+            const llm = createEntity(SHAPE_TYPES.LLM, "LLM", 0, 6, 0, 1.2);
+            const host = createEntity(SHAPE_TYPES.HOST, "Host 应用", -8, 3, 0, 1.0);
+            const client = createEntity(SHAPE_TYPES.CLIENT, "MCP Client", -4, 0, 0, 1.0);
+            const server = createEntity(SHAPE_TYPES.SERVER, "MCP Server", 0, -3, 0, 1.0);
+            const data = createEntity(SHAPE_TYPES.DATA, "数据源", 5, -5, 0, 1.0);
+            
+            // 创建工具函数实体
+            const functionEntity = createEntity(SHAPE_TYPES.REMOTE, "工具函数", -4, -5, 0, 0.8);
+            functionEntity.material.transparent = true;
+            functionEntity.material.opacity = 0;
+            if (functionEntity.children.length > 0) {
+                functionEntity.children[0].visible = false;
+            }
             
             // 使所有实体初始透明
             [llm, host, client, server, data].forEach(entity => {
@@ -523,37 +531,53 @@
                     });
                 },
                 
-                // 步骤2: 显示LLM
-                () => {
-                    fadeInObject(llm, 500, () => {
-                        // 创建Host和LLM之间的连接
-                        const hostToLlm = createConnection(host, llm);
-                        localConnections.push(hostToLlm);
-                        
-                        // 添加"用户请求"标签
-                        const userRequestLabel = addFloatingLabel("用户请求", -3, 3, 0);
-                        flowTexts.push(userRequestLabel);
-                        
-                        if (!animationPaused) nextAnimationStep();
-                    });
-                },
-                
-                // 步骤3: 显示Client
+                // 步骤2: 显示MCP Client
                 () => {
                     fadeInObject(client, 500, () => {
                         if (!animationPaused) nextAnimationStep();
                     });
                 },
                 
-                // 步骤4: Host向Client请求数据
+                // 步骤3: 显示MCP Server
                 () => {
-                    const hostToClient = createAnimatedConnection(host, client, "请求数据");
+                    fadeInObject(server, 500, () => {
+                        if (!animationPaused) nextAnimationStep();
+                    });
+                },
+                
+                // 步骤4: 显示数据源
+                () => {
+                    fadeInObject(data, 500, () => {
+                        if (!animationPaused) nextAnimationStep();
+                    });
+                },
+                
+                // 步骤5: 显示工具函数
+                () => {
+                    fadeInObject(functionEntity, 500, () => {
+                        if (!animationPaused) nextAnimationStep();
+                    });
+                },
+                
+                // 步骤6: 显示LLM
+                () => {
+                    fadeInObject(llm, 500, () => {
+                        if (!animationPaused) nextAnimationStep();
+                    });
+                },
+                
+                // 步骤7: Host向Client发送查询请求
+                () => {
+                    const hostToClient = createAnimatedConnection(host, client, "发送查询");
                     localConnections.push(hostToClient.line);
                     flowTexts.push(hostToClient.label);
                     
-                    // 添加数据流动画效果 (Host -> Client)
+                    // 添加数据流动画效果
                     const dataBall1 = createDataBall(host.position, client.position, 0x3498db);
                     dataBalls.push(dataBall1);
+                    
+                    // 添加说明
+                    addFloatingLabel("用户输入查询", -6.5, 1.5, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -561,20 +585,13 @@
                     }
                 },
                 
-                // 步骤5: 显示Server
+                // 步骤8: Client连接到Server
                 () => {
-                    fadeInObject(server, 500, () => {
-                        if (!animationPaused) nextAnimationStep();
-                    });
-                },
-                
-                // 步骤6: Client向Server转发请求
-                () => {
-                    const clientToServer = createAnimatedConnection(client, server, "转发请求");
+                    const clientToServer = createAnimatedConnection(client, server, "连接服务器");
                     localConnections.push(clientToServer.line);
                     flowTexts.push(clientToServer.label);
                     
-                    // 添加数据流动画效果 (Client -> Server)
+                    // 添加数据流动画效果
                     const dataBall2 = createDataBall(client.position, server.position, 0xe74c3c);
                     dataBalls.push(dataBall2);
                     
@@ -584,22 +601,18 @@
                     }
                 },
                 
-                // 步骤7: 显示数据源
+                // 步骤9: Server检索工具列表
                 () => {
-                    fadeInObject(data, 500, () => {
-                        if (!animationPaused) nextAnimationStep();
-                    });
-                },
-                
-                // 步骤8: Server访问数据源
-                () => {
-                    const serverToData = createAnimatedConnection(server, data, "访问数据");
-                    localConnections.push(serverToData.line);
-                    flowTexts.push(serverToData.label);
+                    const serverToFunction = createAnimatedConnection(server, functionEntity, "检索工具列表");
+                    localConnections.push(serverToFunction.line);
+                    flowTexts.push(serverToFunction.label);
                     
-                    // 添加数据流动画效果 (Server -> Data)
-                    const dataBall3 = createDataBall(server.position, data.position, 0xf39c12);
+                    // 添加数据流动画效果
+                    const dataBall3 = createDataBall(server.position, functionEntity.position, 0xf39c12);
                     dataBalls.push(dataBall3);
+                    
+                    // 添加说明
+                    addFloatingLabel("MCP Server列出可用工具", -1, -4, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -607,14 +620,14 @@
                     }
                 },
                 
-                // 步骤9: 数据源返回数据
+                // 步骤10: Server返回工具列表给Client
                 () => {
-                    const dataToServer = createAnimatedConnection(data, server, "返回数据");
-                    localConnections.push(dataToServer.line);
-                    flowTexts.push(dataToServer.label);
+                    const serverToClient = createAnimatedConnection(server, client, "返回工具列表");
+                    localConnections.push(serverToClient.line);
+                    flowTexts.push(serverToClient.label);
                     
-                    // 添加数据流动画效果 (Data -> Server)
-                    const dataBall4 = createDataBall(data.position, server.position, 0x2ecc71);
+                    // 添加数据流动画效果
+                    const dataBall4 = createDataBall(server.position, client.position, 0x2ecc71);
                     dataBalls.push(dataBall4);
                     
                     if (!animationPaused) {
@@ -623,39 +636,195 @@
                     }
                 },
                 
-                // 步骤10: Server向LLM提供上下文
+                // 步骤11: Client向LLM提供工具信息和查询内容
                 () => {
-                    const serverToLlm = createAnimatedConnection(server, llm, "提供上下文", true);
-                    localConnections.push(serverToLlm.line);
-                    flowTexts.push(serverToLlm.label);
+                    const clientToLlm = createAnimatedConnection(client, llm, "提供工具和查询");
+                    localConnections.push(clientToLlm.line);
+                    flowTexts.push(clientToLlm.label);
                     
-                    // 添加数据流动画效果 (Server -> LLM)
-                    const dataBall5 = createDataBall(server.position, llm.position, 0xf39c12);
+                    // 添加数据流动画效果
+                    const dataBall5 = createDataBall(client.position, llm.position, 0xe74c3c);
                     dataBalls.push(dataBall5);
                     
+                    // 添加说明
+                    addFloatingLabel("Client将工具列表和用户问题提供给LLM", -2, 3, 0);
+                    
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
                         animationTimeouts.push(timeout);
                     }
                 },
                 
-                // 步骤11: LLM生成回复发送给Host
+                // 步骤12: LLM选择合适的工具
                 () => {
-                    const llmToHost = createAnimatedConnection(llm, host, "生成回复");
-                    localConnections.push(llmToHost.line);
-                    flowTexts.push(llmToHost.label);
+                    const llmToClient = createAnimatedConnection(llm, client, "选择工具调用");
+                    localConnections.push(llmToClient.line);
+                    flowTexts.push(llmToClient.label);
                     
-                    // 添加数据流动画效果 (LLM -> Host)
-                    const dataBall6 = createDataBall(llm.position, host.position, 0x1abc9c);
+                    // 添加数据流动画效果
+                    const dataBall6 = createDataBall(llm.position, client.position, 0x1abc9c);
                     dataBalls.push(dataBall6);
                     
+                    // 添加说明
+                    addFloatingLabel("LLM决定使用哪个工具", 0, 3, 0);
+                    
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
                         animationTimeouts.push(timeout);
                     }
                 },
                 
-                // 步骤12: 完成工作流
+                // 步骤13: Client向Server发送工具调用请求
+                () => {
+                    const clientToServer = createAnimatedConnection(client, server, "发送工具调用请求", false, true);
+                    localConnections.push(clientToServer.line);
+                    flowTexts.push(clientToServer.label);
+                    
+                    // 添加数据流动画效果
+                    const dataBall7 = createDataBall(client.position, server.position, 0xe74c3c);
+                    dataBalls.push(dataBall7);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤14: Server可能访问数据源
+                () => {
+                    const serverToData = createAnimatedConnection(server, data, "访问数据");
+                    localConnections.push(serverToData.line);
+                    flowTexts.push(serverToData.label);
+                    
+                    // 添加数据流动画效果
+                    const dataBall8 = createDataBall(server.position, data.position, 0xf39c12);
+                    dataBalls.push(dataBall8);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤15: 数据源返回数据给Server
+                () => {
+                    const dataToServer = createAnimatedConnection(data, server, "返回数据");
+                    localConnections.push(dataToServer.line);
+                    flowTexts.push(dataToServer.label);
+                    
+                    // 添加数据流动画效果
+                    const dataBall9 = createDataBall(data.position, server.position, 0x2ecc71);
+                    dataBalls.push(dataBall9);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤16: Server执行工具函数
+                () => {
+                    const serverToFunction = createAnimatedConnection(server, functionEntity, "执行工具函数", false, true);
+                    localConnections.push(serverToFunction.line);
+                    flowTexts.push(serverToFunction.label);
+                    
+                    // 添加数据流动画效果
+                    const dataBall10 = createDataBall(server.position, functionEntity.position, 0xf39c12);
+                    dataBalls.push(dataBall10);
+                    
+                    // 添加说明
+                    addFloatingLabel("Server执行function-calling", -1, -6, 0);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤17: 函数执行结果返回给Server
+                () => {
+                    const functionToServer = createAnimatedConnection(functionEntity, server, "返回执行结果");
+                    localConnections.push(functionToServer.line);
+                    flowTexts.push(functionToServer.label);
+                    
+                    // 添加数据流动画效果
+                    const dataBall11 = createDataBall(functionEntity.position, server.position, 0x9b59b6);
+                    dataBalls.push(dataBall11);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤18: Server将结果返回给Client
+                () => {
+                    const serverToClient = createAnimatedConnection(server, client, "返回工具执行结果", false, true);
+                    localConnections.push(serverToClient.line);
+                    flowTexts.push(serverToClient.label);
+                    
+                    // 添加数据流动画效果
+                    const dataBall12 = createDataBall(server.position, client.position, 0xf39c12);
+                    dataBalls.push(dataBall12);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤19: Client将工具结果提供给LLM
+                () => {
+                    const clientToLlm = createAnimatedConnection(client, llm, "提供工具结果", false, true);
+                    localConnections.push(clientToLlm.line);
+                    flowTexts.push(clientToLlm.label);
+                    
+                    // 添加数据流动画效果
+                    const dataBall13 = createDataBall(client.position, llm.position, 0xe74c3c);
+                    dataBalls.push(dataBall13);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤20: LLM生成回复
+                () => {
+                    const llmToClient = createAnimatedConnection(llm, client, "生成回复", false, true);
+                    localConnections.push(llmToClient.line);
+                    flowTexts.push(llmToClient.label);
+                    
+                    // 添加数据流动画效果
+                    const dataBall14 = createDataBall(llm.position, client.position, 0x1abc9c);
+                    dataBalls.push(dataBall14);
+                    
+                    // 添加说明
+                    addFloatingLabel("LLM结合工具结果生成回复", 2, 3, 0);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤21: Client将最终回复传递给Host
+                () => {
+                    const clientToHost = createAnimatedConnection(client, host, "传递最终回复");
+                    localConnections.push(clientToHost.line);
+                    flowTexts.push(clientToHost.label);
+                    
+                    // 添加数据流动画效果
+                    const dataBall15 = createDataBall(client.position, host.position, 0xe74c3c);
+                    dataBalls.push(dataBall15);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤22: 完成工作流
                 () => {
                     addFloatingLabel("MCP完成数据传递", 0, -6, 0);
                     document.getElementById('next-btn').disabled = false;
@@ -838,7 +1007,7 @@
         }
         
         // 创建带动画效果的连接线和标签
-        function createAnimatedConnection(obj1, obj2, text, dashed = false) {
+        function createAnimatedConnection(obj1, obj2, text, dashed = false, isSecondLabel = false) {
             const points = [];
             points.push(obj1.position.clone());
             points.push(obj2.position.clone());
@@ -876,15 +1045,31 @@
                 obj2.position
             ).multiplyScalar(0.5);
             
+            // 为避免标签重叠，计算标签位置的偏移量
+            let labelOffset = new THREE.Vector3(0, 0, 0);
+            const direction = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
+            // 计算垂直于连接线方向的向量
+            const perpendicular = new THREE.Vector3(-direction.y, direction.x, 0).normalize();
+            
+            // 如果是第二个标签，放在线的下方
+            if (isSecondLabel) {
+                labelOffset.addScaledVector(perpendicular, -0.8); // 向下偏移
+            } else {
+                labelOffset.addScaledVector(perpendicular, 0.8); // 向上偏移
+            }
+            
             // 添加标签，但最初是隐藏的
-            const label = createTextLabel(text, midPoint.x, midPoint.y, midPoint.z);
+            const label = createTextLabel(text, 
+                midPoint.x + labelOffset.x, 
+                midPoint.y + labelOffset.y, 
+                midPoint.z + labelOffset.z);
+            
             if (label.element) {
                 label.element.style.opacity = 0;
             }
             
             // 添加箭头
             const arrowLength = 0.4;
-            const direction = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
             const angle = Math.atan2(direction.y, direction.x);
             
             // 箭头位置 - 距离终点前一点
@@ -1221,7 +1406,7 @@
             currentStep = -1;
             
             // 重置相机到默认位置
-            camera.position.set(0, 0, 15);
+            camera.position.set(0, 0, 20);
             controls.target.set(0, 0, 0);
             controls.update();
             
