@@ -100,13 +100,27 @@
         const objects = [];
         const labels = [];
         const connections = [];
+        
+        // 实体颜色和形状定义
         const entityColors = {
-            host: 0x3498db,      // 蓝色
-            client: 0xe74c3c,    // 红色
-            server: 0xf39c12,    // 橙色
-            localData: 0x2ecc71, // 绿色
-            remote: 0x9b59b6,    // 紫色
-            llm: 0x1abc9c        // 青色
+            host: 0x3498db,      // 蓝色 - 主机应用
+            client: 0xe74c3c,    // 红色 - 客户端
+            server: 0xf39c12,    // 橙色 - 服务端
+            localData: 0x2ecc71, // 绿色 - 本地数据
+            remote: 0x9b59b6,    // 紫色 - 远程服务
+            llm: 0x1abc9c,       // 青色 - LLM模型
+            mcp: 0xffffff        // 白色 - MCP核心
+        };
+        
+        // 形状类型常量
+        const SHAPE_TYPES = {
+            HOST: 'host',
+            CLIENT: 'client',
+            SERVER: 'server',
+            DATA: 'data',
+            REMOTE: 'remote',
+            LLM: 'llm',
+            MCP: 'mcp'
         };
         
         // 步骤描述
@@ -224,43 +238,138 @@
             });
         }
         
+        // 创建特定实体的统一形状
+        function createEntity(type, name, x, y, z, scale = 1) {
+            let mesh;
+            const yOffset = 1.2 * scale; // 标签偏移量按比例调整
+            
+            switch(type) {
+                case SHAPE_TYPES.MCP:
+                    // MCP 核心 - 使用八面体
+                    const mcpGeometry = new THREE.OctahedronGeometry(1 * scale, 0);
+                    const mcpMaterial = new THREE.MeshPhongMaterial({ 
+                        color: entityColors.mcp,
+                        shininess: 100
+                    });
+                    mesh = new THREE.Mesh(mcpGeometry, mcpMaterial);
+                    break;
+                    
+                case SHAPE_TYPES.HOST:
+                    // Host 应用 - 使用稍微圆角的立方体
+                    const hostGeometry = new THREE.BoxGeometry(1.5 * scale, 1.5 * scale, 1.5 * scale);
+                    const hostMaterial = new THREE.MeshPhongMaterial({ 
+                        color: entityColors.host
+                    });
+                    mesh = new THREE.Mesh(hostGeometry, hostMaterial);
+                    break;
+                    
+                case SHAPE_TYPES.CLIENT:
+                    // Client - 使用圆柱体
+                    const clientGeometry = new THREE.CylinderGeometry(
+                        0.9 * scale, 0.9 * scale, 1.5 * scale, 8
+                    );
+                    const clientMaterial = new THREE.MeshPhongMaterial({ 
+                        color: entityColors.client
+                    });
+                    mesh = new THREE.Mesh(clientGeometry, clientMaterial);
+                    break;
+                    
+                case SHAPE_TYPES.SERVER:
+                    // Server - 使用六棱柱
+                    const serverGeometry = new THREE.CylinderGeometry(
+                        1 * scale, 1 * scale, 1.5 * scale, 6
+                    );
+                    const serverMaterial = new THREE.MeshPhongMaterial({ 
+                        color: entityColors.server
+                    });
+                    mesh = new THREE.Mesh(serverGeometry, serverMaterial);
+                    break;
+                    
+                case SHAPE_TYPES.DATA:
+                    // 数据 - 使用四面体
+                    const dataGeometry = new THREE.TetrahedronGeometry(1 * scale);
+                    const dataMaterial = new THREE.MeshPhongMaterial({ 
+                        color: entityColors.localData
+                    });
+                    mesh = new THREE.Mesh(dataGeometry, dataMaterial);
+                    break;
+                    
+                case SHAPE_TYPES.REMOTE:
+                    // 远程服务 - 使用球体
+                    const remoteGeometry = new THREE.SphereGeometry(1 * scale, 16, 16);
+                    const remoteMaterial = new THREE.MeshPhongMaterial({ 
+                        color: entityColors.remote
+                    });
+                    mesh = new THREE.Mesh(remoteGeometry, remoteMaterial);
+                    break;
+                    
+                case SHAPE_TYPES.LLM:
+                    // LLM 模型 - 使用十二面体
+                    const llmGeometry = new THREE.DodecahedronGeometry(1.2 * scale);
+                    const llmMaterial = new THREE.MeshPhongMaterial({ 
+                        color: entityColors.llm,
+                        shininess: 80
+                    });
+                    mesh = new THREE.Mesh(llmGeometry, llmMaterial);
+                    break;
+                    
+                default:
+                    // 默认为方块
+                    const defaultGeometry = new THREE.BoxGeometry(1 * scale, 1 * scale, 1 * scale);
+                    const defaultMaterial = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+                    mesh = new THREE.Mesh(defaultGeometry, defaultMaterial);
+            }
+            
+            mesh.position.set(x, y, z);
+            scene.add(mesh);
+            objects.push(mesh);
+            
+            // 添加标签
+            addTextLabel(mesh, name, yOffset);
+            
+            return mesh;
+        }
+        
         // MCP 介绍
         function showMCPIntroduction() {
-            // 创建中心 MCP 立方体
-            const mcpGeometry = new THREE.BoxGeometry(2, 2, 2);
-            const mcpMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
-            const mcp = new THREE.Mesh(mcpGeometry, mcpMaterial);
-            scene.add(mcp);
-            objects.push(mcp);
-            
-            // 添加 MCP 标签
-            addTextLabel(mcp, "MCP", 1.5);
+            // 创建中心 MCP 实体
+            const mcp = createEntity(SHAPE_TYPES.MCP, "MCP", 0, 0, 0, 1.5);
             
             // 创建周围的组件
-            createComponentSphere("AI 模型", 0, 5, 0, entityColors.llm);
-            createComponentSphere("数据源", 5, 0, 0, entityColors.localData);
-            createComponentSphere("外部工具", -5, -2, 0, entityColors.remote);
-            createComponentSphere("应用程序", -3, 3, 0, entityColors.host);
-            createComponentSphere("API服务", 3, -4, 0, entityColors.server);
+            const llm = createEntity(SHAPE_TYPES.LLM, "AI 模型", 0, 5, 0);
+            const data = createEntity(SHAPE_TYPES.DATA, "数据源", 5, 0, 0);
+            const remote = createEntity(SHAPE_TYPES.REMOTE, "外部工具", -5, -2, 0);
+            const host = createEntity(SHAPE_TYPES.HOST, "应用程序", -3, 3, 0);
+            const server = createEntity(SHAPE_TYPES.SERVER, "API服务", 3, -4, 0);
             
             // 添加连接线
-            addConnections(mcp);
+            createConnection(mcp, llm);
+            createConnection(mcp, data);
+            createConnection(mcp, remote);
+            createConnection(mcp, host);
+            createConnection(mcp, server);
         }
         
         // MCP 架构
         function showMCPArchitecture() {
             // 创建架构示意图
-            const hostObj = createComponentBox("Host", -6, 2, 0, entityColors.host);
-            const clientObj = createComponentBox("Client", -3, 0, 0, entityColors.client);
-            const serverObj = createComponentBox("Server", 0, -2, 0, entityColors.server);
-            const dataObj = createComponentBox("本地数据", 3, -3, 0, entityColors.localData);
-            const remoteObj = createComponentBox("远程服务", 6, -1, 0, entityColors.remote);
+            const host = createEntity(SHAPE_TYPES.HOST, "Host", -6, 2, 0);
+            const client = createEntity(SHAPE_TYPES.CLIENT, "Client", -3, 0, 0);
+            const server = createEntity(SHAPE_TYPES.SERVER, "Server", 0, -2, 0);
+            const data = createEntity(SHAPE_TYPES.DATA, "本地数据", 3, -3, 0);
+            const remote = createEntity(SHAPE_TYPES.REMOTE, "远程服务", 6, -1, 0);
             
             // 添加连接线
-            createConnection(hostObj, clientObj);
-            createConnection(clientObj, serverObj);
-            createConnection(serverObj, dataObj);
-            createConnection(serverObj, remoteObj);
+            createConnection(host, client);
+            createConnection(client, server);
+            createConnection(server, data);
+            createConnection(server, remote);
+            
+            // 添加 MCP 标签
+            const mcpLabel = createTextLabel("Model Context Protocol", 0, 3, 0);
+            // 添加描述性标签
+            addFloatingLabel("标准化连接", -4.5, 1, 0);
+            addFloatingLabel("数据访问", 1.5, -2.5, 0);
         }
         
         // Host 应用
@@ -268,41 +377,41 @@
             const centerY = 0;
             
             // 创建中心 Host 组件
-            const hostObj = createComponentBox("Host", 0, centerY, 0, entityColors.host, 2, 2, 2);
+            const host = createEntity(SHAPE_TYPES.HOST, "Host", 0, centerY, 0, 1.6);
             
             // 创建各种 Host 类型
-            const claudeObj = createComponentBox("Claude Desktop", -5, centerY + 3, 0, entityColors.host, 1.5, 1.5, 1.5);
-            const ideObj = createComponentBox("IDE", -5, centerY, 0, entityColors.host, 1.5, 1.5, 1.5);
-            const aiToolObj = createComponentBox("AI 工具", -5, centerY - 3, 0, entityColors.host, 1.5, 1.5, 1.5);
+            const claude = createEntity(SHAPE_TYPES.HOST, "Claude Desktop", -5, centerY + 3, 0, 1.2);
+            const ide = createEntity(SHAPE_TYPES.HOST, "IDE", -5, centerY, 0, 1.2);
+            const aiTool = createEntity(SHAPE_TYPES.HOST, "AI 工具", -5, centerY - 3, 0, 1.2);
             
             // 连接到中心 Host
-            createConnection(claudeObj, hostObj);
-            createConnection(ideObj, hostObj);
-            createConnection(aiToolObj, hostObj);
+            createConnection(claude, host);
+            createConnection(ide, host);
+            createConnection(aiTool, host);
             
             // 添加 MCP Client 连接
-            const clientObj = createComponentBox("MCP Client", 5, centerY, 0, entityColors.client);
-            createConnection(hostObj, clientObj, 0x3498db);
+            const client = createEntity(SHAPE_TYPES.CLIENT, "MCP Client", 5, centerY, 0);
+            createConnection(host, client, entityColors.host);
         }
         
         // Client 组件
         function showClientComponents() {
             // 创建 Client 组件
-            const clientObj = createComponentBox("MCP Client", 0, 0, 0, entityColors.client, 2, 2, 2);
+            const client = createEntity(SHAPE_TYPES.CLIENT, "MCP Client", 0, 0, 0, 1.6);
             
             // 创建多个 Server 连接
-            const fileServerObj = createComponentBox("文件服务器", 5, 3, 0, entityColors.server);
-            const dbServerObj = createComponentBox("数据库服务器", 5, 0, 0, entityColors.server);
-            const apiServerObj = createComponentBox("API服务器", 5, -3, 0, entityColors.server);
+            const fileServer = createEntity(SHAPE_TYPES.SERVER, "文件服务器", 5, 3, 0);
+            const dbServer = createEntity(SHAPE_TYPES.SERVER, "数据库服务器", 5, 0, 0);
+            const apiServer = createEntity(SHAPE_TYPES.SERVER, "API服务器", 5, -3, 0);
             
             // 创建 Host
-            const hostObj = createComponentBox("Host 应用", -5, 0, 0, entityColors.host);
+            const host = createEntity(SHAPE_TYPES.HOST, "Host 应用", -5, 0, 0);
             
             // 添加连接线
-            createConnection(hostObj, clientObj);
-            createConnection(clientObj, fileServerObj);
-            createConnection(clientObj, dbServerObj);
-            createConnection(clientObj, apiServerObj);
+            createConnection(host, client);
+            createConnection(client, fileServer);
+            createConnection(client, dbServer);
+            createConnection(client, apiServer);
             
             // 添加标签，解释 1:1 连接
             addFloatingLabel("Client 与每个 Server 维持 1:1 连接", 0, 4, 0);
@@ -311,21 +420,21 @@
         // Server 组件
         function showServerComponents() {
             // 创建 Server 组件
-            const serverObj = createComponentBox("MCP Server", 0, 0, 0, entityColors.server, 2, 2, 2);
+            const server = createEntity(SHAPE_TYPES.SERVER, "MCP Server", 0, 0, 0, 1.6);
             
             // 创建数据源
-            const fileObj = createComponentSphere("文件系统", 4, 2, 0, entityColors.localData);
-            const dbObj = createComponentSphere("本地数据库", 4, -2, 0, entityColors.localData);
+            const file = createEntity(SHAPE_TYPES.DATA, "文件系统", 4, 2, 0);
+            const db = createEntity(SHAPE_TYPES.DATA, "本地数据库", 4, -2, 0);
             
             // 创建远程服务
-            const apiObj = createComponentSphere("外部 API", -4, 2, 0, entityColors.remote);
-            const serviceObj = createComponentSphere("云服务", -4, -2, 0, entityColors.remote);
+            const api = createEntity(SHAPE_TYPES.REMOTE, "外部 API", -4, 2, 0);
+            const service = createEntity(SHAPE_TYPES.REMOTE, "云服务", -4, -2, 0);
             
             // 添加连接线
-            createConnection(serverObj, fileObj);
-            createConnection(serverObj, dbObj);
-            createConnection(serverObj, apiObj);
-            createConnection(serverObj, serviceObj);
+            createConnection(server, file);
+            createConnection(server, db);
+            createConnection(server, api);
+            createConnection(server, service);
             
             // 添加服务功能标签
             addFloatingLabel("暴露标准化能力", 0, 3, 0);
@@ -335,37 +444,37 @@
         // 数据连接
         function showDataConnections() {
             // 创建本地数据
-            const localDataObj = createComponentBox("本地数据源", -4, 2, 0, entityColors.localData);
+            const localData = createEntity(SHAPE_TYPES.DATA, "本地数据源", -4, 2, 0, 1.3);
             
             // 创建子项
-            const filesObj = createComponentSphere("文件", -6, 4, 0, entityColors.localData, 0.8);
-            const dbObj = createComponentSphere("数据库", -8, 2, 0, entityColors.localData, 0.8);
-            const serviceObj = createComponentSphere("本地服务", -6, 0, 0, entityColors.localData, 0.8);
+            const files = createEntity(SHAPE_TYPES.DATA, "文件", -6, 4, 0, 0.7);
+            const db = createEntity(SHAPE_TYPES.DATA, "数据库", -8, 2, 0, 0.7);
+            const service = createEntity(SHAPE_TYPES.DATA, "本地服务", -6, 0, 0, 0.7);
             
             // 连接到本地数据
-            createConnection(localDataObj, filesObj);
-            createConnection(localDataObj, dbObj);
-            createConnection(localDataObj, serviceObj);
+            createConnection(localData, files);
+            createConnection(localData, db);
+            createConnection(localData, service);
             
             // 创建远程服务
-            const remoteObj = createComponentBox("远程服务", 4, 2, 0, entityColors.remote);
+            const remote = createEntity(SHAPE_TYPES.REMOTE, "远程服务", 4, 2, 0, 1.3);
             
             // 创建子项
-            const apiObj = createComponentSphere("API", 6, 4, 0, entityColors.remote, 0.8);
-            const cloudObj = createComponentSphere("云服务", 8, 2, 0, entityColors.remote, 0.8);
-            const saasObj = createComponentSphere("SaaS", 6, 0, 0, entityColors.remote, 0.8);
+            const api = createEntity(SHAPE_TYPES.REMOTE, "API", 6, 4, 0, 0.7);
+            const cloud = createEntity(SHAPE_TYPES.REMOTE, "云服务", 8, 2, 0, 0.7);
+            const saas = createEntity(SHAPE_TYPES.REMOTE, "SaaS", 6, 0, 0, 0.7);
             
             // 连接到远程服务
-            createConnection(remoteObj, apiObj);
-            createConnection(remoteObj, cloudObj);
-            createConnection(remoteObj, saasObj);
+            createConnection(remote, api);
+            createConnection(remote, cloud);
+            createConnection(remote, saas);
             
             // 创建 MCP Server
-            const serverObj = createComponentBox("MCP Server", 0, -2, 0, entityColors.server);
+            const server = createEntity(SHAPE_TYPES.SERVER, "MCP Server", 0, -2, 0);
             
             // 连接 Server 到数据源
-            createConnection(serverObj, localDataObj);
-            createConnection(serverObj, remoteObj);
+            createConnection(server, localData);
+            createConnection(server, remote);
             
             // 添加安全标签
             addFloatingLabel("安全访问", -2, 0, 0);
@@ -375,26 +484,26 @@
         // 完整工作流
         function showCompleteWorkflow() {
             // 创建 LLM 模型
-            const llmObj = createComponentBox("LLM", 0, 4, 0, entityColors.llm, 2, 2, 2);
+            const llm = createEntity(SHAPE_TYPES.LLM, "LLM", 0, 4, 0, 1.4);
             
             // 创建 Host 应用
-            const hostObj = createComponentBox("Host 应用", -6, 2, 0, entityColors.host);
+            const host = createEntity(SHAPE_TYPES.HOST, "Host 应用", -6, 2, 0);
             
             // 创建 Client
-            const clientObj = createComponentBox("MCP Client", -3, 0, 0, entityColors.client);
+            const client = createEntity(SHAPE_TYPES.CLIENT, "MCP Client", -3, 0, 0);
             
             // 创建 Server
-            const serverObj = createComponentBox("MCP Server", 0, -2, 0, entityColors.server);
+            const server = createEntity(SHAPE_TYPES.SERVER, "MCP Server", 0, -2, 0);
             
             // 创建数据源
-            const dataObj = createComponentBox("数据源", 3, -4, 0, entityColors.localData);
+            const data = createEntity(SHAPE_TYPES.DATA, "数据源", 3, -4, 0);
             
             // 创建连接线
-            createConnection(hostObj, clientObj);
-            createConnection(clientObj, serverObj);
-            createConnection(serverObj, dataObj);
-            createConnection(hostObj, llmObj);
-            createConnection(llmObj, serverObj, 0xffffff, true); // 虚线表示数据流
+            createConnection(host, client);
+            createConnection(client, server);
+            createConnection(server, data);
+            createConnection(host, llm);
+            createConnection(llm, server, 0xffffff, true); // 虚线表示数据流
             
             // 添加数据流向标签
             addDataFlowArrow(-6, 2, -3, 0, "请求数据");
@@ -408,34 +517,17 @@
             addFloatingLabel("完整 MCP 工作流", 0, 6, 0);
         }
         
-        // 创建组件立方体
-        function createComponentBox(name, x, y, z, color, width = 1.5, height = 1.5, depth = 1.5) {
-            const geometry = new THREE.BoxGeometry(width, height, depth);
-            const material = new THREE.MeshPhongMaterial({ color: color });
-            const box = new THREE.Mesh(geometry, material);
-            box.position.set(x, y, z);
-            scene.add(box);
-            objects.push(box);
+        // 创建浮动文本标签（不附加到对象）
+        function createTextLabel(text, x, y, z) {
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'label';
+            labelDiv.textContent = text;
             
-            // 添加标签
-            addTextLabel(box, name, height/2 + 0.5);
-            
-            return box;
-        }
-        
-        // 创建组件球体
-        function createComponentSphere(name, x, y, z, color, radius = 1) {
-            const geometry = new THREE.SphereGeometry(radius, 32, 32);
-            const material = new THREE.MeshPhongMaterial({ color: color });
-            const sphere = new THREE.Mesh(geometry, material);
-            sphere.position.set(x, y, z);
-            scene.add(sphere);
-            objects.push(sphere);
-            
-            // 添加标签
-            addTextLabel(sphere, name, radius + 0.5);
-            
-            return sphere;
+            const label = new THREE.CSS2DObject(labelDiv);
+            label.position.set(x, y, z);
+            scene.add(label);
+            labels.push(label);
+            return label;
         }
         
         // 添加文本标签
@@ -453,15 +545,7 @@
         
         // 添加浮动标签（不附加到任何对象）
         function addFloatingLabel(text, x, y, z) {
-            const labelDiv = document.createElement('div');
-            labelDiv.className = 'label';
-            labelDiv.textContent = text;
-            
-            const label = new THREE.CSS2DObject(labelDiv);
-            label.position.set(x, y, z);
-            scene.add(label);
-            labels.push(label);
-            return label;
+            return createTextLabel(text, x, y, z);
         }
         
         // 创建连接线
@@ -535,14 +619,6 @@
             return line;
         }
         
-        // 添加连接线
-        function addConnections(centerObj) {
-            for (let i = 1; i < objects.length; i++) {
-                const connection = createConnection(centerObj, objects[i]);
-                connections.push(connection);
-            }
-        }
-        
         // 清除场景
         function clearScene() {
             // 清除对象
@@ -553,7 +629,14 @@
             connections.forEach(line => scene.remove(line));
             connections.length = 0;
             
-            // 清除标签
+            // 清除标签 - 确保从场景中移除
+            labels.forEach(label => {
+                if(label.parent) {
+                    label.parent.remove(label);
+                } else {
+                    scene.remove(label);
+                }
+            });
             labels.length = 0;
         }
         
