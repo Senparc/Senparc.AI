@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Context Protocol 原理可视化</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #canvas { 
+            width: 100%; 
+            height: 100%;
+            position: fixed;
+        }
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            max-width: 400px;
+            font-size: 16px;
+        }
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .step-btn {
+            margin: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .step-btn#prev-btn{
+            display: inline-block;
+        }
+        .label {
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 5px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 3px;
+            font-size: 20px;
+            pointer-events: none;
+        }
+        #copyright {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        #copyright a {
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="info">
+        <h2>Model Context Protocol 工作原理</h2>
+        <p id="step-description">欢迎来到 MCP 模型可视化！点击"开始"按钮开始演示。</p>
+    </div>
+    <div id="controls">
+        <button class="step-btn" id="start-btn">开始</button>
+        <button class="step-btn" id="prev-btn" disabled>上一步</button>
+        <button class="step-btn" id="next-btn" disabled>下一步</button>
+        <button class="step-btn" id="reset-btn">重置</button>
+    </div>
+
+    <!-- 版权信息 -->
+    <div id="copyright">
+        <span>© Senparc</span>
+        <span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documemts/AI-Knowledge/Transformer" target="_blank" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">GitHub</a></span>
+    </div>
+
+    <!-- 引入本地 Three.js 文件 -->
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/CSS2DRenderer.js"></script>
+    <script>
+        // Three.js 初始化和场景设置
+        let scene, camera, renderer, labelRenderer, controls;
+        let currentStep = 0;
+        const steps = [];
+        const objects = [];
+        const labels = [];
+        const connections = [];
+        const entityColors = {
+            host: 0x3498db,      // 蓝色
+            client: 0xe74c3c,    // 红色
+            server: 0xf39c12,    // 橙色
+            localData: 0x2ecc71, // 绿色
+            remote: 0x9b59b6,    // 紫色
+            llm: 0x1abc9c        // 青色
+        };
+        
+        // 步骤描述
+        const stepDescriptions = [
+            "步骤 1: 初识 MCP - Model Context Protocol 是连接 AI 模型与数据、工具的标准协议。",
+            "步骤 2: MCP 架构 - MCP 包含 Host、Client 和 Server 三个主要组件。",
+            "步骤 3: Host 应用 - 如 Claude Desktop、IDE 等需要访问 MCP 数据的程序。",
+            "步骤 4: Client 组件 - 协议客户端，与 Server 保持一对一连接。",
+            "步骤 5: Server 组件 - 轻量级程序，通过 MCP 标准协议暴露特定功能。",
+            "步骤 6: 数据连接 - MCP Server 可以安全访问本地数据源和远程服务。",
+            "步骤 7: 实际工作流 - Host 发送请求，通过 Client 连接 Server，获取数据给 LLM 使用。"
+        ];
+        
+        // 初始化 Three.js 场景
+        function init() {
+            // 创建场景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x121212);
+            
+            // 创建相机
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 15;
+            
+            // 创建渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('canvas').appendChild(renderer.domElement);
+            
+            // 创建CSS2D渲染器用于标签
+            labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            document.getElementById('canvas').appendChild(labelRenderer.domElement);
+            
+            // 添加控制
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.1;
+            
+            // 添加光源
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // 窗口大小调整
+            window.addEventListener('resize', onWindowResize, false);
+            
+            // 设置按钮事件
+            document.getElementById('start-btn').addEventListener('click', startDemo);
+            document.getElementById('prev-btn').addEventListener('click', prevStep);
+            document.getElementById('next-btn').addEventListener('click', nextStep);
+            document.getElementById('reset-btn').addEventListener('click', resetDemo);
+            
+            // 创建动画步骤
+            createSteps();
+            
+            // 开始渲染循环
+            animate();
+        }
+        
+        // 创建所有动画步骤
+        function createSteps() {
+            // 步骤1: MCP 介绍
+            steps.push(() => {
+                clearScene();
+                showMCPIntroduction();
+                updateDescription(0);
+            });
+            
+            // 步骤2: MCP 架构
+            steps.push(() => {
+                clearScene();
+                showMCPArchitecture();
+                updateDescription(1);
+            });
+            
+            // 步骤3: Host 应用
+            steps.push(() => {
+                clearScene();
+                showHostApplications();
+                updateDescription(2);
+            });
+            
+            // 步骤4: Client 组件
+            steps.push(() => {
+                clearScene();
+                showClientComponents();
+                updateDescription(3);
+            });
+            
+            // 步骤5: Server 组件
+            steps.push(() => {
+                clearScene();
+                showServerComponents();
+                updateDescription(4);
+            });
+            
+            // 步骤6: 数据连接
+            steps.push(() => {
+                clearScene();
+                showDataConnections();
+                updateDescription(5);
+            });
+            
+            // 步骤7: 完整工作流
+            steps.push(() => {
+                clearScene();
+                showCompleteWorkflow();
+                updateDescription(6);
+            });
+        }
+        
+        // MCP 介绍
+        function showMCPIntroduction() {
+            // 创建中心 MCP 立方体
+            const mcpGeometry = new THREE.BoxGeometry(2, 2, 2);
+            const mcpMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            const mcp = new THREE.Mesh(mcpGeometry, mcpMaterial);
+            scene.add(mcp);
+            objects.push(mcp);
+            
+            // 添加 MCP 标签
+            addTextLabel(mcp, "MCP", 1.5);
+            
+            // 创建周围的组件
+            createComponentSphere("AI 模型", 0, 5, 0, entityColors.llm);
+            createComponentSphere("数据源", 5, 0, 0, entityColors.localData);
+            createComponentSphere("外部工具", -5, -2, 0, entityColors.remote);
+            createComponentSphere("应用程序", -3, 3, 0, entityColors.host);
+            createComponentSphere("API服务", 3, -4, 0, entityColors.server);
+            
+            // 添加连接线
+            addConnections(mcp);
+        }
+        
+        // MCP 架构
+        function showMCPArchitecture() {
+            // 创建架构示意图
+            const hostObj = createComponentBox("Host", -6, 2, 0, entityColors.host);
+            const clientObj = createComponentBox("Client", -3, 0, 0, entityColors.client);
+            const serverObj = createComponentBox("Server", 0, -2, 0, entityColors.server);
+            const dataObj = createComponentBox("本地数据", 3, -3, 0, entityColors.localData);
+            const remoteObj = createComponentBox("远程服务", 6, -1, 0, entityColors.remote);
+            
+            // 添加连接线
+            createConnection(hostObj, clientObj);
+            createConnection(clientObj, serverObj);
+            createConnection(serverObj, dataObj);
+            createConnection(serverObj, remoteObj);
+        }
+        
+        // Host 应用
+        function showHostApplications() {
+            const centerY = 0;
+            
+            // 创建中心 Host 组件
+            const hostObj = createComponentBox("Host", 0, centerY, 0, entityColors.host, 2, 2, 2);
+            
+            // 创建各种 Host 类型
+            const claudeObj = createComponentBox("Claude Desktop", -5, centerY + 3, 0, entityColors.host, 1.5, 1.5, 1.5);
+            const ideObj = createComponentBox("IDE", -5, centerY, 0, entityColors.host, 1.5, 1.5, 1.5);
+            const aiToolObj = createComponentBox("AI 工具", -5, centerY - 3, 0, entityColors.host, 1.5, 1.5, 1.5);
+            
+            // 连接到中心 Host
+            createConnection(claudeObj, hostObj);
+            createConnection(ideObj, hostObj);
+            createConnection(aiToolObj, hostObj);
+            
+            // 添加 MCP Client 连接
+            const clientObj = createComponentBox("MCP Client", 5, centerY, 0, entityColors.client);
+            createConnection(hostObj, clientObj, 0x3498db);
+        }
+        
+        // Client 组件
+        function showClientComponents() {
+            // 创建 Client 组件
+            const clientObj = createComponentBox("MCP Client", 0, 0, 0, entityColors.client, 2, 2, 2);
+            
+            // 创建多个 Server 连接
+            const fileServerObj = createComponentBox("文件服务器", 5, 3, 0, entityColors.server);
+            const dbServerObj = createComponentBox("数据库服务器", 5, 0, 0, entityColors.server);
+            const apiServerObj = createComponentBox("API服务器", 5, -3, 0, entityColors.server);
+            
+            // 创建 Host
+            const hostObj = createComponentBox("Host 应用", -5, 0, 0, entityColors.host);
+            
+            // 添加连接线
+            createConnection(hostObj, clientObj);
+            createConnection(clientObj, fileServerObj);
+            createConnection(clientObj, dbServerObj);
+            createConnection(clientObj, apiServerObj);
+            
+            // 添加标签，解释 1:1 连接
+            addFloatingLabel("Client 与每个 Server 维持 1:1 连接", 0, 4, 0);
+        }
+        
+        // Server 组件
+        function showServerComponents() {
+            // 创建 Server 组件
+            const serverObj = createComponentBox("MCP Server", 0, 0, 0, entityColors.server, 2, 2, 2);
+            
+            // 创建数据源
+            const fileObj = createComponentSphere("文件系统", 4, 2, 0, entityColors.localData);
+            const dbObj = createComponentSphere("本地数据库", 4, -2, 0, entityColors.localData);
+            
+            // 创建远程服务
+            const apiObj = createComponentSphere("外部 API", -4, 2, 0, entityColors.remote);
+            const serviceObj = createComponentSphere("云服务", -4, -2, 0, entityColors.remote);
+            
+            // 添加连接线
+            createConnection(serverObj, fileObj);
+            createConnection(serverObj, dbObj);
+            createConnection(serverObj, apiObj);
+            createConnection(serverObj, serviceObj);
+            
+            // 添加服务功能标签
+            addFloatingLabel("暴露标准化能力", 0, 3, 0);
+            addFloatingLabel("处理数据安全与权限", 0, -3, 0);
+        }
+        
+        // 数据连接
+        function showDataConnections() {
+            // 创建本地数据
+            const localDataObj = createComponentBox("本地数据源", -4, 2, 0, entityColors.localData);
+            
+            // 创建子项
+            const filesObj = createComponentSphere("文件", -6, 4, 0, entityColors.localData, 0.8);
+            const dbObj = createComponentSphere("数据库", -8, 2, 0, entityColors.localData, 0.8);
+            const serviceObj = createComponentSphere("本地服务", -6, 0, 0, entityColors.localData, 0.8);
+            
+            // 连接到本地数据
+            createConnection(localDataObj, filesObj);
+            createConnection(localDataObj, dbObj);
+            createConnection(localDataObj, serviceObj);
+            
+            // 创建远程服务
+            const remoteObj = createComponentBox("远程服务", 4, 2, 0, entityColors.remote);
+            
+            // 创建子项
+            const apiObj = createComponentSphere("API", 6, 4, 0, entityColors.remote, 0.8);
+            const cloudObj = createComponentSphere("云服务", 8, 2, 0, entityColors.remote, 0.8);
+            const saasObj = createComponentSphere("SaaS", 6, 0, 0, entityColors.remote, 0.8);
+            
+            // 连接到远程服务
+            createConnection(remoteObj, apiObj);
+            createConnection(remoteObj, cloudObj);
+            createConnection(remoteObj, saasObj);
+            
+            // 创建 MCP Server
+            const serverObj = createComponentBox("MCP Server", 0, -2, 0, entityColors.server);
+            
+            // 连接 Server 到数据源
+            createConnection(serverObj, localDataObj);
+            createConnection(serverObj, remoteObj);
+            
+            // 添加安全标签
+            addFloatingLabel("安全访问", -2, 0, 0);
+            addFloatingLabel("通过API连接", 2, 0, 0);
+        }
+        
+        // 完整工作流
+        function showCompleteWorkflow() {
+            // 创建 LLM 模型
+            const llmObj = createComponentBox("LLM", 0, 4, 0, entityColors.llm, 2, 2, 2);
+            
+            // 创建 Host 应用
+            const hostObj = createComponentBox("Host 应用", -6, 2, 0, entityColors.host);
+            
+            // 创建 Client
+            const clientObj = createComponentBox("MCP Client", -3, 0, 0, entityColors.client);
+            
+            // 创建 Server
+            const serverObj = createComponentBox("MCP Server", 0, -2, 0, entityColors.server);
+            
+            // 创建数据源
+            const dataObj = createComponentBox("数据源", 3, -4, 0, entityColors.localData);
+            
+            // 创建连接线
+            createConnection(hostObj, clientObj);
+            createConnection(clientObj, serverObj);
+            createConnection(serverObj, dataObj);
+            createConnection(hostObj, llmObj);
+            createConnection(llmObj, serverObj, 0xffffff, true); // 虚线表示数据流
+            
+            // 添加数据流向标签
+            addDataFlowArrow(-6, 2, -3, 0, "请求数据");
+            addDataFlowArrow(-3, 0, 0, -2, "转发请求");
+            addDataFlowArrow(0, -2, 3, -4, "访问数据");
+            addDataFlowArrow(3, -4, 0, -2, "返回数据");
+            addDataFlowArrow(0, -2, 0, 4, "提供上下文");
+            addDataFlowArrow(0, 4, -6, 2, "生成回复");
+            
+            // 添加工作流标签
+            addFloatingLabel("完整 MCP 工作流", 0, 6, 0);
+        }
+        
+        // 创建组件立方体
+        function createComponentBox(name, x, y, z, color, width = 1.5, height = 1.5, depth = 1.5) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshPhongMaterial({ color: color });
+            const box = new THREE.Mesh(geometry, material);
+            box.position.set(x, y, z);
+            scene.add(box);
+            objects.push(box);
+            
+            // 添加标签
+            addTextLabel(box, name, height/2 + 0.5);
+            
+            return box;
+        }
+        
+        // 创建组件球体
+        function createComponentSphere(name, x, y, z, color, radius = 1) {
+            const geometry = new THREE.SphereGeometry(radius, 32, 32);
+            const material = new THREE.MeshPhongMaterial({ color: color });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.set(x, y, z);
+            scene.add(sphere);
+            objects.push(sphere);
+            
+            // 添加标签
+            addTextLabel(sphere, name, radius + 0.5);
+            
+            return sphere;
+        }
+        
+        // 添加文本标签
+        function addTextLabel(parent, text, yOffset = 1.2) {
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'label';
+            labelDiv.textContent = text;
+            
+            const label = new THREE.CSS2DObject(labelDiv);
+            label.position.set(0, yOffset, 0);
+            parent.add(label);
+            labels.push(label);
+            return label;
+        }
+        
+        // 添加浮动标签（不附加到任何对象）
+        function addFloatingLabel(text, x, y, z) {
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'label';
+            labelDiv.textContent = text;
+            
+            const label = new THREE.CSS2DObject(labelDiv);
+            label.position.set(x, y, z);
+            scene.add(label);
+            labels.push(label);
+            return label;
+        }
+        
+        // 创建连接线
+        function createConnection(obj1, obj2, color = 0xaaaaaa, dashed = false) {
+            const points = [];
+            points.push(obj1.position.clone());
+            points.push(obj2.position.clone());
+            
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            let lineMaterial;
+            
+            if (dashed) {
+                lineMaterial = new THREE.LineDashedMaterial({
+                    color: color,
+                    dashSize: 0.3,
+                    gapSize: 0.1,
+                });
+            } else {
+                lineMaterial = new THREE.LineBasicMaterial({ color: color });
+            }
+            
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            
+            if (dashed) {
+                line.computeLineDistances();
+            }
+            
+            scene.add(line);
+            connections.push(line);
+            return line;
+        }
+        
+        // 添加数据流箭头
+        function addDataFlowArrow(x1, y1, x2, y2, text) {
+            // 创建连接线
+            const points = [];
+            points.push(new THREE.Vector3(x1, y1, 0));
+            points.push(new THREE.Vector3(x2, y2, 0));
+            
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            scene.add(line);
+            connections.push(line);
+            
+            // 计算中点并添加标签
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+            
+            // 添加标签
+            addFloatingLabel(text, midX, midY, 0);
+            
+            // 创建箭头
+            const arrowLength = 0.4;
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            
+            // 箭头位置
+            const arrowX = x2 - arrowLength * Math.cos(angle);
+            const arrowY = y2 - arrowLength * Math.sin(angle);
+            
+            // 创建箭头
+            const arrowGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
+            const arrowMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+            
+            arrow.position.set(arrowX, arrowY, 0);
+            arrow.rotation.z = angle - Math.PI / 2;
+            scene.add(arrow);
+            objects.push(arrow);
+            
+            return line;
+        }
+        
+        // 添加连接线
+        function addConnections(centerObj) {
+            for (let i = 1; i < objects.length; i++) {
+                const connection = createConnection(centerObj, objects[i]);
+                connections.push(connection);
+            }
+        }
+        
+        // 清除场景
+        function clearScene() {
+            // 清除对象
+            objects.forEach(obj => scene.remove(obj));
+            objects.length = 0;
+            
+            // 清除连接线
+            connections.forEach(line => scene.remove(line));
+            connections.length = 0;
+            
+            // 清除标签
+            labels.length = 0;
+        }
+        
+        // 更新步骤描述
+        function updateDescription(stepIndex) {
+            document.getElementById('step-description').textContent = stepDescriptions[stepIndex];
+        }
+        
+        // 窗口大小调整
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        
+        // 开始演示
+        function startDemo() {
+            currentStep = 0;
+            steps[currentStep]();
+            
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('prev-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+            
+            // 添加相机旋转动画
+            animateCameraRotation(25, 1000);
+        }
+        
+        // 相机旋转动画
+        function animateCameraRotation(angleInDegrees = 30, duration = 1500) {
+            // 保存初始状态
+            const startPosition = camera.position.clone();
+            const startTarget = controls.target.clone();
+            
+            // 计算旋转角度（弧度）
+            const angleInRadians = angleInDegrees * (Math.PI / 180);
+            
+            // 计算目标位置
+            const radius = startPosition.distanceTo(startTarget);
+            const startAngle = Math.atan2(startPosition.x - startTarget.x, startPosition.z - startTarget.z);
+            const endAngle = startAngle + angleInRadians;
+            
+            // 设置动画参数
+            let startTime = null;
+            
+            function animateRotation(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用缓动函数
+                const easeProgress = easeInOutCubic(progress);
+                
+                // 计算当前角度
+                const currentAngle = startAngle + (endAngle - startAngle) * easeProgress;
+                
+                // 更新相机位置
+                const newX = startTarget.x + radius * Math.sin(currentAngle);
+                const newZ = startTarget.z + radius * Math.cos(currentAngle);
+                
+                camera.position.set(newX, startPosition.y, newZ);
+                
+                // 确保相机始终看向目标点
+                camera.lookAt(startTarget);
+                controls.update();
+                
+                // 继续动画直到完成
+                if (progress < 1) {
+                    requestAnimationFrame(animateRotation);
+                }
+            }
+            
+            // 启动动画
+            requestAnimationFrame(animateRotation);
+        }
+        
+        // 缓动函数
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        
+        // 上一步
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                steps[currentStep]();
+                
+                document.getElementById('next-btn').disabled = false;
+                if (currentStep === 0) {
+                    document.getElementById('prev-btn').disabled = true;
+                }
+            }
+        }
+        
+        // 下一步
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                steps[currentStep]();
+                
+                document.getElementById('prev-btn').disabled = false;
+                if (currentStep === steps.length - 1) {
+                    document.getElementById('next-btn').disabled = true;
+                }
+            }
+        }
+        
+        // 重置演示
+        function resetDemo() {
+            clearScene();
+            currentStep = -1;
+            
+            // 重置相机到默认位置
+            camera.position.set(0, 0, 15);
+            controls.target.set(0, 0, 0);
+            controls.update();
+            
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('prev-btn').disabled = true;
+            document.getElementById('next-btn').disabled = true;
+            document.getElementById('step-description').textContent = 
+                '欢迎来到 MCP 模型可视化！点击"开始"按钮开始演示。';
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html> 
