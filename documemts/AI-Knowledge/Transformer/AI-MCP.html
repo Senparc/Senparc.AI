@@ -70,9 +70,10 @@
         #step-title {
             position: fixed;
             top: 20px;
-            left: 0;
-            width: 100%;
-            text-align: center;
+            left: 20px;
+            width: auto;
+            max-width: 60%;
+            text-align: left;
             color: #ffffff;
             font-size: 24px;
             font-weight: bold;
@@ -81,6 +82,7 @@
             pointer-events: none;
             padding: 10px;
             background: rgba(0,0,0,0.5);
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -871,6 +873,18 @@
                 // 步骤22: 完成工作流
                 () => {
                     document.getElementById('step-title').textContent = "22. 完成MCP工作流";
+                    
+                    // 增加模型之间的距离
+                    llm.position.set(0, 8, 0); // 原来是 y:6
+                    host.position.set(-10, 3, 0); // 原来是 x:-8
+                    client.position.set(-5, 0, 0); // 原来是 x:-4
+                    server.position.set(0, -4, 0); // 原来是 y:-3
+                    data.position.set(6, -6, 0); // 原来是 x:5, y:-5
+                    functionEntity.position.set(-5, -6, 0); // 原来是 x:-4, y:-5
+                    
+                    // 更新所有连接线以适应新位置
+                    updateConnectionsForFinalStep(localConnections);
+                    
                     addFloatingLabel("MCP完成数据传递", 0, -10, 0);
                     document.getElementById('next-btn').disabled = false;
                     isAnimating = false;
@@ -889,6 +903,17 @@
                     document.getElementById('animation-controls').style.display = 'none';
                 }
             ];
+            
+            // 更新最终步骤中的连接线
+            function updateConnectionsForFinalStep(connectionLines) {
+                // 移除旧的连接线
+                connectionLines.forEach(line => {
+                    scene.remove(line);
+                });
+                connectionLines.length = 0;
+                
+                // 由于模型位置改变，我们不重新创建连接线，因为这会在动画结束时创建新连接，而不是我们想要的效果
+            }
             
             // 前进到下一个动画步骤
             function nextAnimationStep() {
@@ -1460,6 +1485,7 @@
             document.getElementById('next-btn').disabled = true;
             document.getElementById('step-description').textContent = 
                 '欢迎来到 MCP 模型可视化！点击"开始"按钮开始演示。';
+            document.getElementById('step-title').textContent = "";
         }
         
         // 页面加载完成后初始化
