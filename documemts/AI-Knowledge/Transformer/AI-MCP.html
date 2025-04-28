@@ -904,7 +904,7 @@
                     // 添加总结说明
                     addFloatingLabel("17. MCP完成数据传递", 0, -10, 0);
                     
-                    // 更新所有连接线以确保它们与对象位置一致
+                    // 更新最终步骤中的连接线
                     updateConnectionsForFinalStep(localConnections);
                     
                     document.getElementById('next-btn').disabled = false;
@@ -927,14 +927,13 @@
             
             // 更新最终步骤中的连接线
             function updateConnectionsForFinalStep(connectionLines) {
-                // 移除旧的连接线
-                connectionLines.forEach(line => {
-                    scene.remove(line);
-                });
-                connectionLines.length = 0;
+                // 不再删除现有的连接线，而是保留它们
+                // connectionLines.forEach(line => {
+                //     scene.remove(line);
+                // });
+                // connectionLines.length = 0;
                 
-                // 重新创建最终状态的所有重要连接线
-                // 这确保所有连接线与物体位置一致
+                // 检查现有连接线，确保所有关键连接都存在
                 const host = objects.find(obj => obj.userData.type === 'host');
                 const client = objects.find(obj => obj.userData.type === 'client');
                 const server = objects.find(obj => obj.userData.type === 'server');
@@ -944,18 +943,52 @@
                 
                 // 只有在找到所有必要对象的情况下才创建连接
                 if (host && client && server && llm && data && functionEntity) {
-                    // 创建主要连接
-                    const hostToClient = createConnection(host, client, 0x3498db);
-                    const clientToServer = createConnection(client, server, 0xe74c3c);
-                    const clientToLlm = createConnection(client, llm, 0xe74c3c);
-                    const serverToFunction = createConnection(server, functionEntity, 0xf39c12);
-                    const functionToData = createConnection(functionEntity, data, 0x9b59b6);
+                    // 检查是否已存在必要的连接线，如果不存在则创建
+                    const existingConnectionPairs = connectionLines.map(line => {
+                        // 检查这条线连接的对象，通过位置判断
+                        const linePoints = line.geometry.attributes.position.array;
+                        const startPoint = new THREE.Vector3(linePoints[0], linePoints[1], linePoints[2]);
+                        const endPoint = new THREE.Vector3(linePoints[3], linePoints[4], linePoints[5]);
+                        
+                        // 返回连接的对象对
+                        return {
+                            line: line,
+                            start: findObjectByPosition(startPoint),
+                            end: findObjectByPosition(endPoint)
+                        };
+                    });
                     
-                    // 添加到连接数组
-                    [hostToClient, clientToServer, clientToLlm, serverToFunction, functionToData].forEach(conn => {
-                        connectionLines.push(conn);
+                    // 检查和创建必要的连接
+                    const requiredConnections = [
+                        { start: host, end: client, color: 0x3498db },
+                        { start: client, end: server, color: 0xe74c3c },
+                        { start: client, end: llm, color: 0xe74c3c },
+                        { start: server, end: functionEntity, color: 0xf39c12 },
+                        { start: functionEntity, end: data, color: 0x9b59b6 }
+                    ];
+                    
+                    // 针对每个必要的连接，检查是否存在，如果不存在则创建
+                    requiredConnections.forEach(conn => {
+                        // 确认这个连接是否已经存在
+                        const exists = existingConnectionPairs.some(pair => 
+                            (pair.start === conn.start && pair.end === conn.end) || 
+                            (pair.start === conn.end && pair.end === conn.start)
+                        );
+                        
+                        // 如果不存在，创建新连接
+                        if (!exists) {
+                            const newConn = createConnection(conn.start, conn.end, conn.color);
+                            connectionLines.push(newConn);
+                        }
                     });
                 }
+            }
+            
+            // 辅助函数：通过位置找到对象
+            function findObjectByPosition(position) {
+                return objects.find(obj => 
+                    obj.position.distanceTo(position) < 0.1
+                );
             }
             
             // 前进到下一个动画步骤
