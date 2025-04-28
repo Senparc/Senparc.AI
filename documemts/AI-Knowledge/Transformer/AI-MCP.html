@@ -728,15 +728,15 @@
                     }
                 },
                 
-                // 步骤14: Server可能访问数据源
+                // 步骤14: Server可能访问数据源 - 修改为调用工具函数
                 () => {
-                    document.getElementById('step-title').textContent = "14. Server可能访问数据源";
-                    const serverToData = createAnimatedConnection(server, data, "访问数据");
-                    localConnections.push(serverToData.line);
-                    flowTexts.push(serverToData.label);
+                    document.getElementById('step-title').textContent = "14. Server调用工具函数";
+                    const serverToFunction = createAnimatedConnection(server, functionEntity, "调用工具函数");
+                    localConnections.push(serverToFunction.line);
+                    flowTexts.push(serverToFunction.label);
                     
                     // 添加数据流动画效果
-                    const dataBall8 = createDataBall(server.position, data.position, 0xf39c12);
+                    const dataBall8 = createDataBall(server.position, functionEntity.position, 0xf39c12);
                     dataBalls.push(dataBall8);
                     
                     if (!animationPaused) {
@@ -745,15 +745,15 @@
                     }
                 },
                 
-                // 步骤15: 数据源返回数据给Server
+                // 步骤15: 工具函数访问数据源
                 () => {
-                    document.getElementById('step-title').textContent = "15. 数据源返回数据给Server";
-                    const dataToServer = createAnimatedConnection(data, server, "返回数据");
-                    localConnections.push(dataToServer.line);
-                    flowTexts.push(dataToServer.label);
+                    document.getElementById('step-title').textContent = "15. 工具函数访问数据源";
+                    const functionToData = createAnimatedConnection(functionEntity, data, "访问数据");
+                    localConnections.push(functionToData.line);
+                    flowTexts.push(functionToData.label);
                     
                     // 添加数据流动画效果
-                    const dataBall9 = createDataBall(data.position, server.position, 0x2ecc71);
+                    const dataBall9 = createDataBall(functionEntity.position, data.position, 0x9b59b6);
                     dataBalls.push(dataBall9);
                     
                     if (!animationPaused) {
@@ -762,19 +762,16 @@
                     }
                 },
                 
-                // 步骤16: Server执行工具函数
+                // 步骤16: 数据源返回数据给工具函数
                 () => {
-                    document.getElementById('step-title').textContent = "16. Server执行工具函数";
-                    const serverToFunction = createAnimatedConnection(server, functionEntity, "执行工具函数", false, true);
-                    localConnections.push(serverToFunction.line);
-                    flowTexts.push(serverToFunction.label);
+                    document.getElementById('step-title').textContent = "16. 数据源返回数据给工具函数";
+                    const dataToFunction = createAnimatedConnection(data, functionEntity, "返回数据");
+                    localConnections.push(dataToFunction.line);
+                    flowTexts.push(dataToFunction.label);
                     
                     // 添加数据流动画效果
-                    const dataBall10 = createDataBall(server.position, functionEntity.position, 0xf39c12);
+                    const dataBall10 = createDataBall(data.position, functionEntity.position, 0x2ecc71);
                     dataBalls.push(dataBall10);
-                    
-                    // 添加说明
-                    addFloatingLabel("Server执行function-calling", -1, -8, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -785,13 +782,16 @@
                 // 步骤17: 函数执行结果返回给Server
                 () => {
                     document.getElementById('step-title').textContent = "17. 函数执行结果返回给Server";
-                    const functionToServer = createAnimatedConnection(functionEntity, server, "返回执行结果");
+                    const functionToServer = createAnimatedConnection(functionEntity, server, "返回处理结果");
                     localConnections.push(functionToServer.line);
                     flowTexts.push(functionToServer.label);
                     
                     // 添加数据流动画效果
                     const dataBall11 = createDataBall(functionEntity.position, server.position, 0x9b59b6);
                     dataBalls.push(dataBall11);
+                    
+                    // 添加说明
+                    addFloatingLabel("Server执行function-calling并获取结果", -1, -8, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -874,18 +874,12 @@
                 () => {
                     document.getElementById('step-title').textContent = "22. 完成MCP工作流";
                     
-                    // 增加模型之间的距离
-                    llm.position.set(0, 8, 0); // 原来是 y:6
-                    host.position.set(-10, 3, 0); // 原来是 x:-8
-                    client.position.set(-5, 0, 0); // 原来是 x:-4
-                    server.position.set(0, -4, 0); // 原来是 y:-3
-                    data.position.set(6, -6, 0); // 原来是 x:5, y:-5
-                    functionEntity.position.set(-5, -6, 0); // 原来是 x:-4, y:-5
+                    // 添加总结说明
+                    addFloatingLabel("MCP完成数据传递", 0, -10, 0);
                     
-                    // 更新所有连接线以适应新位置
+                    // 更新所有连接线以确保它们与对象位置一致
                     updateConnectionsForFinalStep(localConnections);
                     
-                    addFloatingLabel("MCP完成数据传递", 0, -10, 0);
                     document.getElementById('next-btn').disabled = false;
                     isAnimating = false;
                     
@@ -912,7 +906,29 @@
                 });
                 connectionLines.length = 0;
                 
-                // 由于模型位置改变，我们不重新创建连接线，因为这会在动画结束时创建新连接，而不是我们想要的效果
+                // 重新创建最终状态的所有重要连接线
+                // 这确保所有连接线与物体位置一致
+                const host = objects.find(obj => obj.userData.type === 'host');
+                const client = objects.find(obj => obj.userData.type === 'client');
+                const server = objects.find(obj => obj.userData.type === 'server');
+                const llm = objects.find(obj => obj.userData.type === 'llm');
+                const data = objects.find(obj => obj.userData.type === 'data');
+                const functionEntity = objects.find(obj => obj.userData.type === 'remote');
+                
+                // 只有在找到所有必要对象的情况下才创建连接
+                if (host && client && server && llm && data && functionEntity) {
+                    // 创建主要连接
+                    const hostToClient = createConnection(host, client, 0x3498db);
+                    const clientToServer = createConnection(client, server, 0xe74c3c);
+                    const clientToLlm = createConnection(client, llm, 0xe74c3c);
+                    const serverToFunction = createConnection(server, functionEntity, 0xf39c12);
+                    const functionToData = createConnection(functionEntity, data, 0x9b59b6);
+                    
+                    // 添加到连接数组
+                    [hostToClient, clientToServer, clientToLlm, serverToFunction, functionToData].forEach(conn => {
+                        connectionLines.push(conn);
+                    });
+                }
             }
             
             // 前进到下一个动画步骤
