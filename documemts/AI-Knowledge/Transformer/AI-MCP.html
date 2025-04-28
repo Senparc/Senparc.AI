@@ -609,7 +609,7 @@
                     dataBalls.push(dataBall1);
                     
                     // 添加说明
-                    addFloatingLabel("用户输入查询", -6.5, 1.5, 0);
+                    addFloatingLabel("1. 用户输入查询", -6.5, 1.5, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -627,6 +627,9 @@
                     // 添加数据流动画效果
                     const dataBall2 = createDataBall(client.position, server.position, 0xe74c3c);
                     dataBalls.push(dataBall2);
+                    
+                    // 添加说明
+                    addFloatingLabel("2. Client连接Server", -2, 0, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -646,7 +649,7 @@
                     dataBalls.push(dataBall3);
                     
                     // 添加说明
-                    addFloatingLabel("MCP Server列出可用工具", -1, -4, 0);
+                    addFloatingLabel("3. MCP Server列出可用工具", -1, -4, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -664,6 +667,9 @@
                     // 添加数据流动画效果
                     const dataBall4 = createDataBall(server.position, client.position, 0x2ecc71);
                     dataBalls.push(dataBall4);
+                    
+                    // 添加说明
+                    addFloatingLabel("4. Server返回工具列表", 2, -1, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -683,7 +689,7 @@
                     dataBalls.push(dataBall5);
                     
                     // 添加说明
-                    addFloatingLabel("Client将工具列表和用户问题提供给LLM", -2, 4.5, 0);
+                    addFloatingLabel("5. Client将工具列表和用户问题提供给LLM", -2, 4.5, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -703,7 +709,7 @@
                     dataBalls.push(dataBall6);
                     
                     // 添加说明
-                    addFloatingLabel("LLM决定使用哪个工具", 3, 5, 0);
+                    addFloatingLabel("6. LLM决定使用哪个工具", 3, 5, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -722,6 +728,9 @@
                     const dataBall7 = createDataBall(client.position, server.position, 0xe74c3c);
                     dataBalls.push(dataBall7);
                     
+                    // 添加说明
+                    addFloatingLabel("7. Client向Server请求调用工具", -5, -2, 0);
+                    
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
                         animationTimeouts.push(timeout);
@@ -738,6 +747,9 @@
                     // 添加数据流动画效果
                     const dataBall8 = createDataBall(server.position, functionEntity.position, 0xf39c12);
                     dataBalls.push(dataBall8);
+                    
+                    // 添加说明
+                    addFloatingLabel("8. Server调用本地工具", -2, -3, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -756,6 +768,9 @@
                     const dataBall9 = createDataBall(functionEntity.position, data.position, 0x9b59b6);
                     dataBalls.push(dataBall9);
                     
+                    // 添加说明
+                    addFloatingLabel("9. 工具访问外部数据", 0, -6, 0);
+                    
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
                         animationTimeouts.push(timeout);
@@ -772,6 +787,9 @@
                     // 添加数据流动画效果
                     const dataBall10 = createDataBall(data.position, functionEntity.position, 0x2ecc71);
                     dataBalls.push(dataBall10);
+                    
+                    // 添加说明
+                    addFloatingLabel("10. 数据源返回数据", 3, -6, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -791,7 +809,7 @@
                     dataBalls.push(dataBall11);
                     
                     // 添加说明
-                    addFloatingLabel("Server执行function-calling并获取结果", -1, -8, 0);
+                    addFloatingLabel("11. Server执行function-calling并获取结果", -1, -8, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -810,6 +828,9 @@
                     const dataBall12 = createDataBall(server.position, client.position, 0xf39c12);
                     dataBalls.push(dataBall12);
                     
+                    // 添加说明
+                    addFloatingLabel("12. Server返回工具执行结果", 0, -1, 0);
+                    
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
                         animationTimeouts.push(timeout);
@@ -826,6 +847,9 @@
                     // 添加数据流动画效果
                     const dataBall13 = createDataBall(client.position, llm.position, 0xe74c3c);
                     dataBalls.push(dataBall13);
+                    
+                    // 添加说明
+                    addFloatingLabel("13. Client将工具结果传递给LLM", -3, 3, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -845,7 +869,7 @@
                     dataBalls.push(dataBall14);
                     
                     // 添加说明
-                    addFloatingLabel("LLM结合工具结果生成回复", 4, 3, 0);
+                    addFloatingLabel("14. LLM结合工具结果生成回复", 4, 3, 0);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -864,6 +888,9 @@
                     const dataBall15 = createDataBall(client.position, host.position, 0xe74c3c);
                     dataBalls.push(dataBall15);
                     
+                    // 添加说明
+                    addFloatingLabel("16. 最终回复传递给用户", -6, 0, 0);
+                    
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
                         animationTimeouts.push(timeout);
@@ -875,7 +902,7 @@
                     document.getElementById('step-title').textContent = "22. 完成MCP工作流";
                     
                     // 添加总结说明
-                    addFloatingLabel("MCP完成数据传递", 0, -10, 0);
+                    addFloatingLabel("17. MCP完成数据传递", 0, -10, 0);
                     
                     // 更新所有连接线以确保它们与对象位置一致
                     updateConnectionsForFinalStep(localConnections);
