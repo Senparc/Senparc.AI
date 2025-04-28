@@ -84,6 +84,87 @@
             background: rgba(0,0,0,0.5);
             border-radius: 5px;
         }
+        
+        /* 进度条容器样式 */
+        #progress-container {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            display: none; /* 默认隐藏 */
+            z-index: 1000;
+        }
+        
+        /* 进度条样式 */
+        #progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(50, 50, 50, 0.8);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 进度条填充 */
+        #progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        
+        /* 进度条滑块 */
+        #progress-handle {
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            background: #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+        
+        /* 步骤标记样式 */
+        .step-marker {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+        }
+        
+        /* 播放控制按钮 */
+        #playback-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        #playback-controls button {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background: rgba(50, 50, 50, 0.8);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        #playback-controls button:hover {
+            background: rgba(70, 70, 70, 0.8);
+        }
     </style>
 </head>
 <body>
@@ -104,6 +185,18 @@
     <div id="copyright">
         <span>© Senparc</span>
         <span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documemts/AI-Knowledge/Transformer" target="_blank" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">GitHub</a></span>
+    </div>
+
+    <!-- 进度条容器 -->
+    <div id="progress-container">
+        <div id="progress-bar">
+            <div id="progress-fill"></div>
+            <div id="progress-handle"></div>
+        </div>
+        <div id="playback-controls">
+            <button id="play-btn">播放</button>
+            <button id="pause-btn">暂停</button>
+        </div>
     </div>
 
     <!-- 引入本地 Three.js 文件 -->
@@ -202,6 +295,12 @@
             
             // 开始渲染循环
             animate();
+            
+            // 初始化进度条拖动功能
+            setupProgressDrag();
+            
+            // 初始化播放控制功能
+            setupPlaybackControls();
         }
         
         // 创建所有动画步骤
@@ -209,6 +308,8 @@
             // 步骤1: MCP 介绍
             steps.push(() => {
                 clearScene();
+                // 隐藏进度条
+                document.getElementById('progress-container').style.display = 'none';
                 showMCPIntroduction();
                 updateDescription(0);
                 document.getElementById('step-title').textContent = "MCP 介绍";
@@ -217,6 +318,8 @@
             // 步骤2: MCP 架构
             steps.push(() => {
                 clearScene();
+                // 隐藏进度条
+                document.getElementById('progress-container').style.display = 'none';
                 showMCPArchitecture();
                 updateDescription(1);
                 document.getElementById('step-title').textContent = "MCP 架构";
@@ -225,6 +328,8 @@
             // 步骤3: Host 应用
             steps.push(() => {
                 clearScene();
+                // 隐藏进度条
+                document.getElementById('progress-container').style.display = 'none';
                 showHostApplications();
                 updateDescription(2);
                 document.getElementById('step-title').textContent = "Host 应用";
@@ -233,6 +338,8 @@
             // 步骤4: Client 组件
             steps.push(() => {
                 clearScene();
+                // 隐藏进度条
+                document.getElementById('progress-container').style.display = 'none';
                 showClientComponents();
                 updateDescription(3);
                 document.getElementById('step-title').textContent = "Client 组件";
@@ -241,6 +348,8 @@
             // 步骤5: Server 组件
             steps.push(() => {
                 clearScene();
+                // 隐藏进度条
+                document.getElementById('progress-container').style.display = 'none';
                 showServerComponents();
                 updateDescription(4);
                 document.getElementById('step-title').textContent = "Server 组件";
@@ -249,6 +358,8 @@
             // 步骤6: 数据连接
             steps.push(() => {
                 clearScene();
+                // 隐藏进度条
+                document.getElementById('progress-container').style.display = 'none';
                 showDataConnections();
                 updateDescription(5);
                 document.getElementById('step-title').textContent = "数据连接";
@@ -257,6 +368,8 @@
             // 步骤7: 完整工作流
             steps.push(() => {
                 clearScene();
+                // 显示进度条 - 只在步骤7显示
+                document.getElementById('progress-container').style.display = 'block';
                 showCompleteWorkflow();
                 updateDescription(6);
                 document.getElementById('step-title').textContent = "完整 MCP 工作流";
@@ -925,6 +1038,272 @@
                 }
             ];
             
+            // 初始化进度条设置
+            setupProgressBar(animationSteps.length);
+            
+            // 前进到下一个动画步骤
+            function nextAnimationStep() {
+                if (currentAnimationStep < animationSteps.length) {
+                    animationSteps[currentAnimationStep]();
+                    currentAnimationStep++;
+                    
+                    // 更新进度条
+                    updateProgressBar(currentAnimationStep);
+                }
+            }
+            
+            // 清除所有超时
+            function clearAllTimeouts() {
+                animationTimeouts.forEach(timeout => clearTimeout(timeout));
+                animationTimeouts = [];
+            }
+            
+            // 跳转到特定步骤
+            function jumpToStep(stepIndex) {
+                // 先清理当前状态
+                clearAllTimeouts();
+                
+                // 重置场景到初始状态
+                resetSceneState();
+                
+                // 从头开始执行到指定步骤
+                currentAnimationStep = 0;
+                for (let i = 0; i < stepIndex; i++) {
+                    animationSteps[i]();
+                    currentAnimationStep++;
+                }
+                
+                // 更新进度条
+                updateProgressBar(currentAnimationStep);
+            }
+            
+            // 重置场景状态
+            function resetSceneState() {
+                // 重置所有可见性和透明度
+                [llm, host, client, server, data, functionEntity].forEach(entity => {
+                    if (entity) {
+                        entity.material.opacity = 0;
+                        if (entity.children.length > 0) {
+                            entity.children[0].visible = false;
+                        }
+                    }
+                });
+                
+                // 清除之前的连接线和标签
+                localConnections.forEach(conn => {
+                    if (conn && scene.children.includes(conn)) {
+                        scene.remove(conn);
+                    }
+                });
+                localConnections.length = 0;
+                
+                // 清除数据球
+                dataBalls.forEach(ball => {
+                    if (ball && scene.children.includes(ball)) {
+                        scene.remove(ball);
+                    }
+                });
+                dataBalls.length = 0;
+                
+                // 清除加载的浮动标签
+                const floatingLabels = scene.children.filter(obj => 
+                    obj instanceof THREE.CSS2DObject && 
+                    !obj.parent // 只选择没有父对象的CSS2DObject（浮动标签）
+                );
+                floatingLabels.forEach(label => {
+                    if (label.element && label.element.textContent.match(/^\d+\./)) {
+                        scene.remove(label);
+                    }
+                });
+            }
+            
+            // 设置进度条和交互
+            function setupProgressBar(totalSteps) {
+                const progressContainer = document.getElementById('progress-container');
+                const progressBar = document.getElementById('progress-bar');
+                const progressFill = document.getElementById('progress-fill');
+                const progressHandle = document.getElementById('progress-handle');
+                const playBtn = document.getElementById('play-btn');
+                const pauseBtn = document.getElementById('pause-btn');
+                
+                // 显示进度条
+                progressContainer.style.display = 'block';
+                
+                // 为每个步骤添加标记
+                for (let i = 0; i < totalSteps; i++) {
+                    const marker = document.createElement('div');
+                    marker.className = 'step-marker';
+                    marker.style.left = `${(i / (totalSteps - 1)) * 100}%`;
+                    progressBar.appendChild(marker);
+                    
+                    // 点击标记跳转到对应步骤
+                    marker.addEventListener('click', () => {
+                        animationPaused = true;
+                        pauseBtn.disabled = false;
+                        playBtn.disabled = false;
+                        jumpToStep(i);
+                    });
+                }
+                
+                // 更新进度条状态
+                function updateProgressBar(step) {
+                    const progress = (step / (totalSteps - 1)) * 100;
+                    progressFill.style.width = `${progress}%`;
+                    progressHandle.style.left = `${progress}%`;
+                }
+                
+                // 添加拖动功能
+                let isDragging = false;
+                
+                progressHandle.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    animationPaused = true;
+                    pauseBtn.disabled = true;
+                    playBtn.disabled = false;
+                    clearAllTimeouts();
+                    e.preventDefault(); // 防止选择文本
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    
+                    // 计算位置百分比
+                    const rect = progressBar.getBoundingClientRect();
+                    let pos = (e.clientX - rect.left) / rect.width;
+                    pos = Math.max(0, Math.min(1, pos)); // 限制在0-1范围内
+                    
+                    // 更新进度条显示
+                    progressFill.style.width = `${pos * 100}%`;
+                    progressHandle.style.left = `${pos * 100}%`;
+                    
+                    // 计算对应的步骤
+                    const stepIndex = Math.round(pos * (totalSteps - 1));
+                    
+                    // 显示当前步骤名称
+                    document.getElementById('step-title').textContent = 
+                        `${stepIndex + 1}. ${getStepName(stepIndex)}`;
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    
+                    // 计算当前位置对应的步骤
+                    const progress = parseFloat(progressFill.style.width) / 100;
+                    const stepIndex = Math.round(progress * (totalSteps - 1));
+                    
+                    // 跳转到该步骤
+                    jumpToStep(stepIndex);
+                });
+                
+                // 添加触摸支持
+                progressHandle.addEventListener('touchstart', (e) => {
+                    isDragging = true;
+                    animationPaused = true;
+                    pauseBtn.disabled = true;
+                    playBtn.disabled = false;
+                    clearAllTimeouts();
+                    e.preventDefault(); // 防止滚动
+                });
+                
+                document.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    
+                    // 获取触摸位置
+                    const touch = e.touches[0];
+                    const rect = progressBar.getBoundingClientRect();
+                    let pos = (touch.clientX - rect.left) / rect.width;
+                    pos = Math.max(0, Math.min(1, pos)); // 限制在0-1范围内
+                    
+                    // 更新进度条显示
+                    progressFill.style.width = `${pos * 100}%`;
+                    progressHandle.style.left = `${pos * 100}%`;
+                    
+                    // 计算对应的步骤
+                    const stepIndex = Math.round(pos * (totalSteps - 1));
+                    
+                    // 显示当前步骤名称
+                    document.getElementById('step-title').textContent = 
+                        `${stepIndex + 1}. ${getStepName(stepIndex)}`;
+                    
+                    e.preventDefault(); // 防止页面滚动
+                });
+                
+                document.addEventListener('touchend', () => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    
+                    // 计算当前位置对应的步骤
+                    const progress = parseFloat(progressFill.style.width) / 100;
+                    const stepIndex = Math.round(progress * (totalSteps - 1));
+                    
+                    // 跳转到该步骤
+                    jumpToStep(stepIndex);
+                });
+                
+                // 播放/暂停按钮
+                playBtn.addEventListener('click', () => {
+                    animationPaused = false;
+                    if (currentAnimationStep < totalSteps) {
+                        nextAnimationStep();
+                    }
+                    playBtn.disabled = true;
+                    pauseBtn.disabled = false;
+                });
+                
+                pauseBtn.addEventListener('click', () => {
+                    animationPaused = true;
+                    clearAllTimeouts();
+                    playBtn.disabled = false;
+                    pauseBtn.disabled = true;
+                });
+                
+                // 初始化进度条
+                updateProgressBar(0);
+            }
+            
+            // 获取步骤名称
+            function getStepName(index) {
+                const stepNames = [
+                    "显示Host应用",
+                    "显示MCP Client",
+                    "显示MCP Server",
+                    "显示数据源",
+                    "显示工具函数",
+                    "显示LLM",
+                    "Host向Client发送查询请求",
+                    "Client连接到Server",
+                    "Server检索工具列表",
+                    "Server返回工具列表给Client",
+                    "Client向LLM提供工具信息和查询内容",
+                    "LLM选择合适的工具",
+                    "Client向Server发送工具调用请求",
+                    "Server调用工具函数",
+                    "工具函数访问数据源",
+                    "数据源返回数据给工具函数",
+                    "函数执行结果返回给Server",
+                    "Server将结果返回给Client",
+                    "Client将工具结果提供给LLM",
+                    "LLM生成回复",
+                    "Client将最终回复传递给Host",
+                    "完成MCP工作流"
+                ];
+                return stepNames[index] || `步骤 ${index + 1}`;
+            }
+            
+            // 更新进度条的辅助函数
+            function updateProgressBar(step) {
+                const progressFill = document.getElementById('progress-fill');
+                const progressHandle = document.getElementById('progress-handle');
+                const totalSteps = animationSteps.length;
+                
+                if (progressFill && progressHandle) {
+                    const progress = (step / (totalSteps - 1)) * 100;
+                    progressFill.style.width = `${progress}%`;
+                    progressHandle.style.left = `${progress}%`;
+                }
+            }
+            
             // 更新最终步骤中的连接线
             function updateConnectionsForFinalStep(connectionLines) {
                 // 不再删除现有的连接线，而是保留它们
@@ -989,21 +1368,6 @@
                 return objects.find(obj => 
                     obj.position.distanceTo(position) < 0.1
                 );
-            }
-            
-            // 前进到下一个动画步骤
-            function nextAnimationStep() {
-                if (currentAnimationStep < animationSteps.length) {
-                    // 执行当前步骤
-                    animationSteps[currentAnimationStep]();
-                    // 更新步骤计数
-                    currentAnimationStep++;
-                    // 更新步骤显示
-                    if (document.getElementById('step-counter')) {
-                        document.getElementById('step-counter').textContent = 
-                            `步骤 ${currentAnimationStep}/${animationSteps.length}`;
-                    }
-                }
             }
             
             // 添加动画控制面板
@@ -1455,6 +1819,11 @@
             document.getElementById('prev-btn').disabled = true;
             document.getElementById('next-btn').disabled = false;
             
+            // 移除在开始时显示进度条的代码
+            
+            // 初始化进度条步骤标记
+            initProgressMarkers();
+            
             // 添加相机旋转动画
             animateCameraRotation(25, 1000);
         }
@@ -1554,10 +1923,209 @@
             document.getElementById('step-description').textContent = 
                 '欢迎来到 MCP 模型可视化！点击"开始"按钮开始演示。';
             document.getElementById('step-title').textContent = "";
+            
+            // 隐藏进度条
+            const progressContainer = document.getElementById('progress-container');
+            progressContainer.style.display = 'none';
         }
         
         // 页面加载完成后初始化
         window.onload = init;
+        
+        // 初始化进度条步骤标记
+        function initProgressMarkers() {
+            const progressBar = document.getElementById('progress-bar');
+            const totalSteps = steps.length;
+            
+            // 清除现有标记
+            const existingMarkers = document.querySelectorAll('.step-marker');
+            existingMarkers.forEach(marker => marker.remove());
+            
+            // 添加步骤标记
+            for (let i = 0; i < totalSteps; i++) {
+                const marker = document.createElement('div');
+                marker.className = 'step-marker';
+                marker.dataset.step = i;
+                const position = (i / (totalSteps - 1)) * 100;
+                marker.style.left = `${position}%`;
+                progressBar.appendChild(marker);
+            }
+            
+            updateProgressBar(0);
+        }
+        
+        // 更新进度条位置
+        function updateProgressBar(stepIndex) {
+            const totalSteps = steps.length;
+            const progress = (stepIndex / (totalSteps - 1)) * 100;
+            
+            const progressFill = document.getElementById('progress-fill');
+            const progressHandle = document.getElementById('progress-handle');
+            
+            progressFill.style.width = `${progress}%`;
+            progressHandle.style.left = `${progress}%`;
+        }
+        
+        // 跳转到指定步骤
+        function jumpToStep(stepIndex) {
+            if (stepIndex >= 0 && stepIndex < steps.length) {
+                currentStep = stepIndex;
+                steps[currentStep]();
+                
+                // 更新按钮状态
+                document.getElementById('prev-btn').disabled = (currentStep === 0);
+                document.getElementById('next-btn').disabled = (currentStep === steps.length - 1);
+                
+                // 更新进度条
+                updateProgressBar(currentStep);
+            }
+        }
+        
+        // 进度条拖动功能
+        function setupProgressDrag() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressHandle = document.getElementById('progress-handle');
+            let isDragging = false;
+            
+            // 鼠标/触摸按下事件
+            progressHandle.addEventListener('mousedown', startDrag);
+            progressHandle.addEventListener('touchstart', startDrag);
+            
+            // 鼠标/触摸移动事件
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+            
+            // 鼠标/触摸释放事件
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+            
+            // 点击进度条跳转
+            progressBar.addEventListener('click', jumpToPosition);
+            
+            function startDrag(e) {
+                e.preventDefault();
+                isDragging = true;
+                
+                // 如果有自动播放，停止它
+                pausePlayback();
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                const rect = progressBar.getBoundingClientRect();
+                let clientX;
+                
+                if (e.type === 'touchmove') {
+                    clientX = e.touches[0].clientX;
+                } else {
+                    clientX = e.clientX;
+                }
+                
+                // 计算相对位置（0-1范围）
+                let position = (clientX - rect.left) / rect.width;
+                position = Math.max(0, Math.min(1, position));
+                
+                // 更新进度条位置
+                const progressFill = document.getElementById('progress-fill');
+                progressFill.style.width = `${position * 100}%`;
+                progressHandle.style.left = `${position * 100}%`;
+            }
+            
+            function endDrag(e) {
+                if (!isDragging) return;
+                
+                const rect = progressBar.getBoundingClientRect();
+                let clientX;
+                
+                if (e.type === 'touchend') {
+                    clientX = e.changedTouches[0].clientX;
+                } else {
+                    clientX = e.clientX;
+                }
+                
+                // 计算相对位置（0-1范围）
+                let position = (clientX - rect.left) / rect.width;
+                position = Math.max(0, Math.min(1, position));
+                
+                // 计算对应的步骤索引
+                const totalSteps = steps.length;
+                const stepIndex = Math.round(position * (totalSteps - 1));
+                
+                // 跳转到相应步骤
+                jumpToStep(stepIndex);
+                
+                isDragging = false;
+            }
+            
+            function jumpToPosition(e) {
+                const rect = progressBar.getBoundingClientRect();
+                let position = (e.clientX - rect.left) / rect.width;
+                position = Math.max(0, Math.min(1, position));
+                
+                // 计算对应的步骤索引
+                const totalSteps = steps.length;
+                const stepIndex = Math.round(position * (totalSteps - 1));
+                
+                // 更新进度条位置
+                const progressFill = document.getElementById('progress-fill');
+                progressFill.style.width = `${position * 100}%`;
+                progressHandle.style.left = `${position * 100}%`;
+                
+                // 跳转到相应步骤
+                jumpToStep(stepIndex);
+                
+                // 如果有自动播放，停止它
+                pausePlayback();
+            }
+        }
+        
+        // 设置播放控制功能
+        let playInterval = null; // 全局变量以便于控制
+        
+        function setupPlaybackControls() {
+            const playBtn = document.getElementById('play-btn');
+            const pauseBtn = document.getElementById('pause-btn');
+            
+            // 播放按钮事件
+            playBtn.addEventListener('click', function() {
+                startPlayback();
+            });
+            
+            // 暂停按钮事件
+            pauseBtn.addEventListener('click', function() {
+                pausePlayback();
+            });
+        }
+        
+        // 开始自动播放
+        function startPlayback() {
+            // 停止现有的播放间隔
+            pausePlayback();
+            
+            if (currentStep < steps.length - 1) {
+                // 设置新的播放间隔
+                playInterval = setInterval(function() {
+                    if (currentStep < steps.length - 1) {
+                        nextStep();
+                        
+                        // 更新进度条
+                        updateProgressBar(currentStep);
+                    } else {
+                        pausePlayback();
+                    }
+                }, 3000); // 每3秒播放一步
+            }
+        }
+        
+        // 暂停自动播放
+        function pausePlayback() {
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+            }
+        }
     </script>
 </body>
 </html> 
