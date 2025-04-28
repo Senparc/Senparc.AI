@@ -515,17 +515,17 @@
             let animationTimeouts = [];
             
             // 添加工作流标签
-            addFloatingLabel("完整 MCP 工作流", 0, 7, 0);
+            addFloatingLabel("完整 MCP 工作流", 0, -17, 0);
             
             // 创建所有实体，但初始时透明度设为0
-            const llm = createEntity(SHAPE_TYPES.LLM, "LLM", 0, 6, 0, 1.2);
-            const host = createEntity(SHAPE_TYPES.HOST, "Host 应用", -8, 3, 0, 1.0);
-            const client = createEntity(SHAPE_TYPES.CLIENT, "MCP Client", -4, 0, 0, 1.0);
-            const server = createEntity(SHAPE_TYPES.SERVER, "MCP Server", 0, -3, 0, 1.0);
-            const data = createEntity(SHAPE_TYPES.DATA, "数据源", 5, -5, 0, 1.0);
+            const llm = createEntity(SHAPE_TYPES.LLM, "LLM", 0, 6, 0, 0.6);
+            const host = createEntity(SHAPE_TYPES.HOST, "Host 应用", -8, 3, 0, 0.5);
+            const client = createEntity(SHAPE_TYPES.CLIENT, "MCP Client", -4, 0, 0, 0.5);
+            const server = createEntity(SHAPE_TYPES.SERVER, "MCP Server", 0, -3, 0, 0.5);
+            const data = createEntity(SHAPE_TYPES.DATA, "数据源", 5, -5, 0, 0.5);
             
             // 创建工具函数实体
-            const functionEntity = createEntity(SHAPE_TYPES.REMOTE, "工具函数", -4, -5, 0, 0.8);
+            const functionEntity = createEntity(SHAPE_TYPES.REMOTE, "工具函数", -4, -5, 0, 0.4);
             functionEntity.material.transparent = true;
             functionEntity.material.opacity = 0;
             if (functionEntity.children.length > 0) {
@@ -1101,15 +1101,6 @@
                 // 如果没有完成，继续动画
                 if (progress < 1) {
                     requestAnimationFrame(animateBall);
-                } else {
-                    // 动画完成后淡出小球
-                    fadeOutObject(ball, 500, () => {
-                        scene.remove(ball);
-                        const index = objects.indexOf(ball);
-                        if (index > -1) {
-                            objects.splice(index, 1);
-                        }
-                    });
                 }
             }
             
@@ -1151,6 +1142,7 @@
             }
             
             scene.add(line);
+            connections.push(line); // 添加到全局connections数组确保不会被清除
             
             // 计算中点
             const midPoint = new THREE.Vector3().addVectors(
