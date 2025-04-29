@@ -6,6 +6,8 @@ using Senparc.AI.Kernel;
 using Senparc.CO2NET.Extensions;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.Helpers;
+using DefaultNamespace;
+using Senparc.AI.Samples.Consoles.Samples.Plugins;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -92,7 +94,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 userId: "Jeffrey",
                                 maxHistoryStore: maxHistoryCount,
                                 chatSystemMessage: systemMessage,
-                                senparcAiSetting: setting);
+                                senparcAiSetting: setting,
+                                kernelBuilderAction: kh => 
+                                    kh.Plugins.AddFromType<NowPlugin>()
+                                              .AddFromType<SearchPlugin>()
+                                    );
             //var iWantToRun = chatConfig.iWantToRun;
 
             var multiLineContent = new StringBuilder();
@@ -101,10 +107,16 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var talkingRounds = 0;
             while (true)
             {
-                talkingRounds++;
-
-                await Console.Out.WriteLineAsync($"[{talkingRounds}] 人类：");
+                await Console.Out.WriteLineAsync($"[{talkingRounds + 1}] 人类：");
                 var input = Console.ReadLine() ?? "";
+
+                if (input.IsNullOrEmpty())
+                {
+                    Console.WriteLine("[请输入正确的内容]");
+                    continue;
+                }
+
+                talkingRounds++;
 
                 if (input.ToUpper() == "[ML]")
                 {
@@ -204,6 +216,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     await Console.Out.WriteLineAsync($"[{talkingRounds}] 机器：");
 
                     var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
+
                     if (useStream)
                     {
                         //使用流式输出
