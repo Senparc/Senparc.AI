@@ -1396,7 +1396,7 @@
                 // 步骤9: Host触发Client连接Server
                 () => {
                     document.getElementById('step-title').textContent = "9. Host触发Client连接Server";
-                    const hostToClient = createAnimatedConnection(host, client, "触发连接");
+                    const hostToClient = createAnimatedConnection(host, client, "触发连接", false, false, 0xffffff, 1, 8);
                     localConnections.push(hostToClient.line);
                     flowTexts.push(hostToClient.label);
                     
@@ -1702,7 +1702,7 @@
                 // 步骤22: LLM生成回复
                 () => {
                     document.getElementById('step-title').textContent = "23. LLM生成回复";
-                    const llmToClient = createAnimatedConnection(llm, client, "生成回复", false, true);
+                    const llmToClient = createAnimatedConnection(llm, client, "生成回复", false, true, 0xffffff, 1, 21);
                     localConnections.push(llmToClient.line);
                     flowTexts.push(llmToClient.label);
                     
@@ -1723,7 +1723,7 @@
                 // 步骤23: Client将最终回复传递给Host
                 () => {
                     document.getElementById('step-title').textContent = "24. Client将最终回复传递给Host";
-                    const clientToHost = createAnimatedConnection(client, host, "传递最终回复");
+                    const clientToHost = createAnimatedConnection(client, host, "传递最终回复", false, false, 0xffffff, 1, 22);
                     localConnections.push(clientToHost.line);
                     flowTexts.push(clientToHost.label);
                     
@@ -1775,6 +1775,18 @@
             // 前进到下一个动画步骤
             function nextAnimationStep() {
                 console.log("进入nextAnimationStep, 当前步骤:", currentAnimationStep, "/", animationSteps.length);
+                
+                // 列出所有浮动标签和连接标签的动画步骤ID
+                console.log("=== 当前所有标签的动画步骤ID ===");
+                allLabels.forEach(label => {
+                    if (label && label.element) {
+                        const animStepId = label.element.dataset.animStepId;
+                        if (animStepId) {
+                            console.log(`标签 "${label.element.textContent}" 的动画步骤ID: ${animStepId}`);
+                        }
+                    }
+                });
+                console.log("===============================");
                 
                 // 确保不超出动画步骤的总数
                 if (currentAnimationStep >= animationSteps.length) {
@@ -2765,30 +2777,30 @@
                 // 获取当前动画步骤标识（如果存在）
                 const animStepId = labelDiv.dataset.animStepId;
                 const stepId = labelDiv.dataset.stepId;
-                const animStepsLength = 24; // 设置动画步骤的总数
                 
                 console.log("更新标签透明度 - 当前动画步骤:", currentAnimationStep, 
                            "标签animStepId:", animStepId, 
                            "标签stepId:", stepId, 
                            "标签内容:", labelDiv.textContent);
                 
-                // 检查是否已经超出动画步骤范围（动画完成）
-                if (currentAnimationStep >= animStepsLength) {
-                    // 已完成全部动画，显示最后一个标签
-                    if (animStepId && parseInt(animStepId) === animStepsLength - 1) {
-                        console.log("动画已完成，显示最后一个标签");
+                // 在第7步中，animStepId的范围为6-23，对应标签上的1-19
+                // 而currentAnimationStep的范围为0-24，对应动画步骤7-25
+                
+                // 对连接线标签特殊处理，它们有animStepId值
+                if (animStepId !== undefined) {
+                    // 只有当标签的animStepId与当前动画步骤匹配时，才显示为完全不透明
+                    if (parseInt(animStepId) === currentAnimationStep) {
+                        console.log("动画步骤匹配，设置不透明");
                         labelDiv.style.opacity = '1';
                     } else {
+                        console.log("动画步骤不匹配，设置半透明");
                         labelDiv.style.opacity = '0.29'; // 0.71的透明度
                     }
-                }
-                // 正常的动画进行中
-                else if (animStepId && parseInt(animStepId) === currentAnimationStep) {
-                    console.log("匹配当前动画步骤，设置不透明");
+                } 
+                // 对没有animStepId的其他标签，保持不透明
+                else {
+                    console.log("没有动画步骤ID，保持不透明");
                     labelDiv.style.opacity = '1';
-                } else {
-                    console.log("不匹配当前动画步骤，设置半透明");
-                    labelDiv.style.opacity = '0.29'; // 0.71的透明度
                 }
             } else {
                 // 其他步骤中，所有标签都保持完全不透明
