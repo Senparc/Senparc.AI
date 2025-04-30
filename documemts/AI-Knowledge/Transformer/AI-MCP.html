@@ -303,6 +303,31 @@
             setupPlaybackControls();
         }
         
+        // 添加一个移动对象的动画函数
+        function moveObject(obj, targetPosition, duration = 1000, callback) {
+            const startPosition = obj.position.clone();
+            const startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用缓动函数使动画更自然
+                const easeProgress = easeInOutQuad(progress);
+                
+                // 计算当前位置
+                obj.position.lerpVectors(startPosition, targetPosition, easeProgress);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else if (callback) {
+                    callback();
+                }
+            }
+            
+            animate();
+        }
+        
         // 创建所有动画步骤
         function createSteps() {
             // 步骤1: MCP 介绍
@@ -317,10 +342,145 @@
             
             // 步骤2: MCP 架构
             steps.push(() => {
+                // 保存第一步中的实体，以便后续检查是否有重复元素
+                const firstStepObjects = [...objects];
+                const firstStepConnections = [...connections];
+                const firstStepLabels = [...labels];
+                
+                // 不立即清除场景，先找到需要保留的元素
+                // 记录需要保留的元素和它们的目标位置
+                const elementsToPreserve = [];
+                
+                // 检查第一步中的相关元素并标记需要保留的
+                for (let obj of firstStepObjects) {
+                    // 只有在对象中有子元素(标签)时才继续检查
+                    if (obj.children && obj.children.length > 0 && obj.children[0] instanceof THREE.CSS2DObject) {
+                        const label = obj.children[0];
+                        const labelText = label.element.textContent;
+                        
+                        // 根据标签文本判断是否为需要保留的元素
+                        if (labelText === "应用程序" || labelText.includes("Host")) {
+                            elementsToPreserve.push({
+                                obj: obj,
+                                label: label,
+                                targetPosition: new THREE.Vector3(-6, 2, 0),
+                                newLabelText: "Host"
+                            });
+                        } else if (labelText.includes("Client")) {
+                            elementsToPreserve.push({
+                                obj: obj,
+                                label: label,
+                                targetPosition: new THREE.Vector3(-3, 0, 0),
+                                newLabelText: "Client"
+                            });
+                        } else if (labelText === "API服务" || labelText.includes("Server")) {
+                            elementsToPreserve.push({
+                                obj: obj,
+                                label: label,
+                                targetPosition: new THREE.Vector3(0, -2, 0),
+                                newLabelText: "Server"
+                            });
+                        } else if (labelText === "数据源" || labelText.includes("本地数据")) {
+                            elementsToPreserve.push({
+                                obj: obj,
+                                label: label,
+                                targetPosition: new THREE.Vector3(3, -3, 0),
+                                newLabelText: "本地数据"
+                            });
+                        } else if (labelText === "外部工具" || labelText.includes("远程服务")) {
+                            elementsToPreserve.push({
+                                obj: obj,
+                                label: label,
+                                targetPosition: new THREE.Vector3(6, -1, 0),
+                                newLabelText: "远程服务"
+                            });
+                        }
+                    }
+                }
+                
+                // 清除非保留元素
                 clearScene();
                 // 隐藏进度条
                 document.getElementById('progress-container').style.display = 'none';
-                showMCPArchitecture();
+                
+                // 重新添加保留的元素到场景中（它们仍然在原位置）
+                const preservedObjects = {
+                    host: null,
+                    client: null,
+                    server: null,
+                    data: null,
+                    remote: null
+                };
+                
+                // 启动动画移动保留的元素到新位置
+                let animationsCompleted = 0;
+                const totalAnimations = elementsToPreserve.length;
+                
+                elementsToPreserve.forEach(item => {
+                    scene.add(item.obj);
+                    objects.push(item.obj);
+                    
+                    // 启动动画
+                    moveObject(item.obj, item.targetPosition, 1000, () => {
+                        // 动画完成时更新标签文本
+                        item.label.element.textContent = item.newLabelText;
+                        
+                        // 记录这个对象
+                        if (item.newLabelText === "Host") preservedObjects.host = item.obj;
+                        else if (item.newLabelText === "Client") preservedObjects.client = item.obj;
+                        else if (item.newLabelText === "Server") preservedObjects.server = item.obj;
+                        else if (item.newLabelText === "本地数据") preservedObjects.data = item.obj;
+                        else if (item.newLabelText === "远程服务") preservedObjects.remote = item.obj;
+                        
+                        // 检查是否所有动画都完成
+                        animationsCompleted++;
+                        if (animationsCompleted === totalAnimations) {
+                            // 所有动画完成后，补充创建没有保留的实体
+                            finishSceneSetup();
+                        }
+                    });
+                });
+                
+                // 如果没有需要动画的元素，直接完成场景设置
+                if (elementsToPreserve.length === 0) {
+                    finishSceneSetup();
+                }
+                
+                function finishSceneSetup() {
+                    // 补充创建没有保留的实体
+                    if (!preservedObjects.host) {
+                        preservedObjects.host = createEntity(SHAPE_TYPES.HOST, "Host", -6, 2, 0);
+                    }
+                    if (!preservedObjects.client) {
+                        preservedObjects.client = createEntity(SHAPE_TYPES.CLIENT, "Client", -3, 0, 0);
+                    }
+                    if (!preservedObjects.server) {
+                        preservedObjects.server = createEntity(SHAPE_TYPES.SERVER, "Server", 0, -2, 0);
+                    }
+                    if (!preservedObjects.data) {
+                        preservedObjects.data = createEntity(SHAPE_TYPES.DATA, "本地数据", 3, -3, 0);
+                    }
+                    if (!preservedObjects.remote) {
+                        preservedObjects.remote = createEntity(SHAPE_TYPES.REMOTE, "远程服务", 6, -1, 0);
+                    }
+                    
+                    // 添加连接线
+                    if (preservedObjects.host && preservedObjects.client) 
+                        createConnection(preservedObjects.host, preservedObjects.client);
+                    if (preservedObjects.client && preservedObjects.server) 
+                        createConnection(preservedObjects.client, preservedObjects.server);
+                    if (preservedObjects.server && preservedObjects.data) 
+                        createConnection(preservedObjects.server, preservedObjects.data);
+                    if (preservedObjects.server && preservedObjects.remote) 
+                        createConnection(preservedObjects.server, preservedObjects.remote);
+                    
+                    // 添加 MCP 标签
+                    const mcpLabel = createTextLabel("Model Context Protocol", 0, 3, 0);
+                    // 添加描述性标签
+                    addFloatingLabel("标准化连接", -4.5, 1, 0);
+                    addFloatingLabel("数据访问", 1.5, -2.5, 0);
+                }
+                
                 updateDescription(1);
                 document.getElementById('step-title').textContent = "MCP 架构";
             });
