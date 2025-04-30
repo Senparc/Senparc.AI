@@ -165,6 +165,16 @@
         #playback-controls button:hover {
             background: rgba(70, 70, 70, 0.8);
         }
+        
+        .label {
+            transition: opacity 0.3s ease, transform 0.2s ease;
+        }
+        
+        .label:hover {
+            opacity: 1 !important;
+            transform: scale(1.1);
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -211,6 +221,10 @@
         const objects = [];
         const labels = [];
         const connections = [];
+        let serverEntities = [];
+        let functionEntities = [];
+        let currentStepLabels = [];
+        let allLabels = [];
         
         // 实体颜色和形状定义
         const entityColors = {
@@ -2147,38 +2161,142 @@
         }
         
         // 创建浮动文本标签（不附加到对象）
-        function createTextLabel(text, x, y, z) {
+        function createTextLabel(text, x, y, z, stepId = currentStep) {
             const labelDiv = document.createElement('div');
             labelDiv.className = 'label';
             labelDiv.textContent = text;
+            
+            // 保存步骤ID
+            labelDiv.dataset.stepId = stepId;
+            
+            // 添加鼠标事件
+            labelDiv.addEventListener('mouseover', () => {
+                labelDiv.style.opacity = '1';
+                labelDiv.style.transition = 'opacity 0.2s ease';
+            });
+            
+            labelDiv.addEventListener('mouseout', () => {
+                updateLabelOpacity(labelDiv);
+            });
             
             const label = new THREE.CSS2DObject(labelDiv);
             label.position.set(x, y, z);
             scene.add(label);
             labels.push(label);
+            allLabels.push(label); // 添加到所有标签数组
+            
+            // 如果是当前步骤的标签，添加到当前步骤标签数组
+            if (stepId === currentStep) {
+                currentStepLabels.push(label);
+            }
+            
+            // 设置初始透明度
+            updateLabelOpacity(labelDiv);
+            
             return label;
         }
         
-        // 添加文本标签
-        function addTextLabel(parent, text, yOffset = 1.2) {
+        // 添加标签到对象
+        function addTextLabel(parent, text, yOffset = 1.2, stepId = currentStep) {
             const labelDiv = document.createElement('div');
             labelDiv.className = 'label';
             labelDiv.textContent = text;
+            
+            // 保存步骤ID
+            labelDiv.dataset.stepId = stepId;
+            
+            // 添加鼠标事件
+            labelDiv.addEventListener('mouseover', () => {
+                labelDiv.style.opacity = '1';
+                labelDiv.style.transition = 'opacity 0.2s ease';
+            });
+            
+            labelDiv.addEventListener('mouseout', () => {
+                updateLabelOpacity(labelDiv);
+            });
             
             const label = new THREE.CSS2DObject(labelDiv);
             label.position.set(0, yOffset, 0);
             parent.add(label);
             labels.push(label);
+            allLabels.push(label); // 添加到所有标签数组
+            
+            // 如果是当前步骤的标签，添加到当前步骤标签数组
+            if (stepId === currentStep) {
+                currentStepLabels.push(label);
+            }
+            
+            // 设置初始透明度
+            updateLabelOpacity(labelDiv);
+            
             return label;
         }
         
-        // 添加浮动标签（不附加到任何对象）
-        function addFloatingLabel(text, x, y, z) {
-            return createTextLabel(text, x, y, z);
+        // 添加浮动标签
+        function addFloatingLabel(text, x, y, z, stepId = currentStep) {
+            return createTextLabel(text, x, y, z, stepId);
         }
         
-        // 创建连接线
-        function createConnection(obj1, obj2, color = 0xaaaaaa, dashed = false) {
+        // 标签透明度管理函数
+        function updateLabelOpacity(labelDiv) {
+            if (!labelDiv) return;
+            
+            // 检查是否是当前步骤的标签
+            const isCurrentStepLabel = parseInt(labelDiv.dataset.stepId) === currentStep;
+            
+            // 设置透明度
+            labelDiv.style.opacity = isCurrentStepLabel ? '1' : '0.2';
+            labelDiv.style.transition = 'opacity 0.3s ease';
+        }
+        
+        // 更新所有标签的透明度
+        function updateAllLabelsOpacity() {
+            allLabels.forEach(label => {
+                if (label.element) {
+                    updateLabelOpacity(label.element);
+                }
+            });
+        }
+        
+        // 修改nextStep和prevStep函数，添加标签透明度更新
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                // 清空当前步骤标签数组
+                currentStepLabels = [];
+                
+                currentStep++;
+                steps[currentStep]();
+                
+                document.getElementById('prev-btn').disabled = false;
+                if (currentStep === steps.length - 1) {
+                    document.getElementById('next-btn').disabled = true;
+                }
+                
+                // 更新所有标签的透明度
+                updateAllLabelsOpacity();
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 0) {
+                // 清空当前步骤标签数组
+                currentStepLabels = [];
+                
+                currentStep--;
+                steps[currentStep]();
+                
+                document.getElementById('next-btn').disabled = false;
+                if (currentStep === 0) {
+                    document.getElementById('prev-btn').disabled = true;
+                }
+                
+                // 更新所有标签的透明度
+                updateAllLabelsOpacity();
+            }
+        }
+        
+        // 修改createAnimatedConnection函数中的标签创建部分
+        function createAnimatedConnection(obj1, obj2, text, dashed = false, isSecondLabel = false, color = 0xffffff, lineWidth = 1) {
             const points = [];
             points.push(obj1.position.clone());
             points.push(obj2.position.clone());
@@ -2191,9 +2309,17 @@
                     color: color,
                     dashSize: 0.3,
                     gapSize: 0.1,
+                    transparent: true,
+                    opacity: 0,
+                    linewidth: lineWidth // 注意：在WebGL中linewidth可能不起作用
                 });
             } else {
-                lineMaterial = new THREE.LineBasicMaterial({ color: color });
+                lineMaterial = new THREE.LineBasicMaterial({ 
+                    color: color,
+                    transparent: true,
+                    opacity: 0,
+                    linewidth: lineWidth // 注意：在WebGL中linewidth可能不起作用
+                });
             }
             
             const line = new THREE.Line(lineGeometry, lineMaterial);
@@ -2202,9 +2328,107 @@
                 line.computeLineDistances();
             }
             
-            scene.add(line);
-            connections.push(line);
-            return line;
+            scene.add(line); // 添加到全局connections数组确保不会被清除
+            
+            // 计算中点
+            const midPoint = new THREE.Vector3().addVectors(
+                obj1.position,
+                obj2.position
+            ).multiplyScalar(0.5);
+            
+            // 为避免标签重叠，计算标签位置的偏移量
+            let labelOffset = new THREE.Vector3(0, 0, 0);
+            const direction = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
+            // 计算垂直于连接线方向的向量 - 确保在3D空间中仍然可见
+            const upVector = new THREE.Vector3(0, 1, 0);
+            const perpendicular = new THREE.Vector3().crossVectors(direction, upVector).normalize();
+            
+            // 如果是第二个标签，放在线的下方，并增加偏移量
+            if (isSecondLabel) {
+                labelOffset.addScaledVector(perpendicular, -1.2); // 向下偏移，增加偏移量
+                labelOffset.y -= 0.5; // 额外的Y轴偏移，确保在3D空间中分开
+            } else {
+                labelOffset.addScaledVector(perpendicular, 1.2); // 向上偏移，增加偏移量
+                labelOffset.y += 0.5; // 额外的Y轴偏移，确保在3D空间中分开
+            }
+            
+            // 添加标签，但最初是隐藏的
+            const label = createTextLabel(text, 
+                midPoint.x + labelOffset.x, 
+                midPoint.y + labelOffset.y, 
+                midPoint.z + labelOffset.z,
+                currentStep); // 传递当前步骤ID
+            
+            if (label.element) {
+                label.element.style.opacity = 0;
+            }
+            
+            // 创建一个管道代替简单的线，使其在3D空间中更明显
+            const tubeGeometry = new THREE.TubeGeometry(
+                new THREE.CatmullRomCurve3([obj1.position.clone(), midPoint.clone(), obj2.position.clone()]),
+                16, // 管道分段数
+                0.05, // 管道半径
+                8, // 管道圆周分段数
+                false // 是否闭合
+            );
+            
+            const tubeMaterial = new THREE.MeshPhongMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0,
+                shininess: 30
+            });
+            
+            const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+            scene.add(tube);
+            objects.push(tube);
+            
+            // 添加箭头
+            const arrowLength = 0.4;
+            const angle = Math.atan2(
+                obj2.position.y - obj1.position.y,
+                Math.sqrt(Math.pow(obj2.position.x - obj1.position.x, 2) + Math.pow(obj2.position.z - obj1.position.z, 2))
+            );
+            
+            // 箭头位置 - 距离终点前一点，3D空间中的计算
+            const arrowDir = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
+            const arrowPos = new THREE.Vector3().copy(obj2.position).sub(arrowDir.multiplyScalar(arrowLength));
+            
+            const arrowGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
+            const arrowMaterial = new THREE.MeshPhongMaterial({ 
+                color: color,
+                transparent: true,
+                opacity: 0
+            });
+            
+            const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+            arrow.position.copy(arrowPos);
+            
+            // 计算箭头的旋转，使其指向目标对象
+            const arrowQuaternion = new THREE.Quaternion();
+            const arrowDirection = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
+            const arrowUp = new THREE.Vector3(0, 1, 0);
+            const arrowMatrix = new THREE.Matrix4().lookAt(obj1.position, obj2.position, arrowUp);
+            arrowQuaternion.setFromRotationMatrix(arrowMatrix);
+            arrow.quaternion.copy(arrowQuaternion);
+            arrow.rotateX(Math.PI / 2); // 调整箭头方向
+            
+            scene.add(arrow);
+            objects.push(arrow);
+            
+            // 创建淡入动画
+            fadeInObject(line, 1000);
+            fadeInObject(tube, 1000);
+            fadeInObject(arrow, 1000);
+            
+            // 标签淡入
+            if (label.element) {
+                fadeInElement(label.element, 1000, () => {
+                    updateLabelOpacity(label.element);
+                });
+            }
+            
+            return { line, tube, label, arrow };
         }
         
         // 清除场景
@@ -2332,36 +2556,14 @@
             return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         }
         
-        // 上一步
-        function prevStep() {
-            if (currentStep > 0) {
-                currentStep--;
-                steps[currentStep]();
-                
-                document.getElementById('next-btn').disabled = false;
-                if (currentStep === 0) {
-                    document.getElementById('prev-btn').disabled = true;
-                }
-            }
-        }
-        
-        // 下一步
-        function nextStep() {
-            if (currentStep < steps.length - 1) {
-                currentStep++;
-                steps[currentStep]();
-                
-                document.getElementById('prev-btn').disabled = false;
-                if (currentStep === steps.length - 1) {
-                    document.getElementById('next-btn').disabled = true;
-                }
-            }
-        }
-        
         // 重置演示
         function resetDemo() {
             clearScene();
             currentStep = -1;
+            
+            // 重置标签数组
+            currentStepLabels = [];
+            allLabels = [];
             
             // 重置相机到默认位置
             camera.position.set(0, 0, 20);
@@ -2420,6 +2622,9 @@
         // 跳转到指定步骤
         function jumpToStep(stepIndex) {
             if (stepIndex >= 0 && stepIndex < steps.length) {
+                // 清空当前步骤标签数组
+                currentStepLabels = [];
+                
                 currentStep = stepIndex;
                 steps[currentStep]();
                 
@@ -2429,6 +2634,9 @@
                 
                 // 更新进度条
                 updateProgressBar(currentStep);
+                
+                // 更新所有标签的透明度
+                updateAllLabelsOpacity();
             }
         }
         
@@ -2647,8 +2855,8 @@
             return ring;
         }
         
-        // 重新添加createAnimatedConnection函数，修复错误
-        function createAnimatedConnection(obj1, obj2, text, dashed = false, isSecondLabel = false, color = 0xffffff, lineWidth = 1) {
+        // 创建连接线
+        function createConnection(obj1, obj2, color = 0xaaaaaa, dashed = false) {
             const points = [];
             points.push(obj1.position.clone());
             points.push(obj2.position.clone());
@@ -2660,18 +2868,10 @@
                 lineMaterial = new THREE.LineDashedMaterial({
                     color: color,
                     dashSize: 0.3,
-                    gapSize: 0.1,
-                    transparent: true,
-                    opacity: 0,
-                    linewidth: lineWidth // 注意：在WebGL中linewidth可能不起作用
+                    gapSize: 0.1
                 });
             } else {
-                lineMaterial = new THREE.LineBasicMaterial({ 
-                    color: color,
-                    transparent: true,
-                    opacity: 0,
-                    linewidth: lineWidth // 注意：在WebGL中linewidth可能不起作用
-                });
+                lineMaterial = new THREE.LineBasicMaterial({ color: color });
             }
             
             const line = new THREE.Line(lineGeometry, lineMaterial);
@@ -2680,109 +2880,10 @@
                 line.computeLineDistances();
             }
             
-            scene.add(line); // 添加到全局connections数组确保不会被清除
-            
-            // 计算中点
-            const midPoint = new THREE.Vector3().addVectors(
-                obj1.position,
-                obj2.position
-            ).multiplyScalar(0.5);
-            
-            // 为避免标签重叠，计算标签位置的偏移量
-            let labelOffset = new THREE.Vector3(0, 0, 0);
-            const direction = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
-            // 计算垂直于连接线方向的向量 - 确保在3D空间中仍然可见
-            const upVector = new THREE.Vector3(0, 1, 0);
-            const perpendicular = new THREE.Vector3().crossVectors(direction, upVector).normalize();
-            
-            // 如果是第二个标签，放在线的下方，并增加偏移量
-            if (isSecondLabel) {
-                labelOffset.addScaledVector(perpendicular, -1.2); // 向下偏移，增加偏移量
-                labelOffset.y -= 0.5; // 额外的Y轴偏移，确保在3D空间中分开
-            } else {
-                labelOffset.addScaledVector(perpendicular, 1.2); // 向上偏移，增加偏移量
-                labelOffset.y += 0.5; // 额外的Y轴偏移，确保在3D空间中分开
-            }
-            
-            // 添加标签，但最初是隐藏的
-            const label = createTextLabel(text, 
-                midPoint.x + labelOffset.x, 
-                midPoint.y + labelOffset.y, 
-                midPoint.z + labelOffset.z);
-            
-            if (label.element) {
-                label.element.style.opacity = 0;
-            }
-            
-            // 创建一个管道代替简单的线，使其在3D空间中更明显
-            const tubeGeometry = new THREE.TubeGeometry(
-                new THREE.CatmullRomCurve3([obj1.position.clone(), midPoint.clone(), obj2.position.clone()]),
-                16, // 管道分段数
-                0.05, // 管道半径
-                8, // 管道圆周分段数
-                false // 是否闭合
-            );
-            
-            const tubeMaterial = new THREE.MeshPhongMaterial({
-                color: color,
-                transparent: true,
-                opacity: 0,
-                shininess: 30
-            });
-            
-            const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
-            scene.add(tube);
-            objects.push(tube);
-            
-            // 添加箭头
-            const arrowLength = 0.4;
-            const angle = Math.atan2(
-                obj2.position.y - obj1.position.y,
-                Math.sqrt(Math.pow(obj2.position.x - obj1.position.x, 2) + Math.pow(obj2.position.z - obj1.position.z, 2))
-            );
-            
-            // 箭头位置 - 距离终点前一点，3D空间中的计算
-            const arrowDir = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
-            const arrowPos = new THREE.Vector3().copy(obj2.position).sub(arrowDir.multiplyScalar(arrowLength));
-            
-            const arrowGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
-            const arrowMaterial = new THREE.MeshPhongMaterial({ 
-                color: color,
-                transparent: true,
-                opacity: 0
-            });
-            
-            const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-            arrow.position.copy(arrowPos);
-            
-            // 计算箭头的旋转，使其指向目标对象
-            const arrowQuaternion = new THREE.Quaternion();
-            const arrowDirection = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
-            const arrowUp = new THREE.Vector3(0, 1, 0);
-            const arrowMatrix = new THREE.Matrix4().lookAt(obj1.position, obj2.position, arrowUp);
-            arrowQuaternion.setFromRotationMatrix(arrowMatrix);
-            arrow.quaternion.copy(arrowQuaternion);
-            arrow.rotateX(Math.PI / 2); // 调整箭头方向
-            
-            scene.add(arrow);
-            objects.push(arrow);
-            
-            // 创建淡入动画
-            fadeInObject(line, 1000);
-            fadeInObject(tube, 1000);
-            fadeInObject(arrow, 1000);
-            
-            // 标签淡入
-            if (label.element) {
-                fadeInElement(label.element, 1000);
-            }
-            
-            return { line, tube, label, arrow };
+            scene.add(line);
+            connections.push(line);
+            return line;
         }
-        
-        // 在文件开头，与objects等全局变量相同位置添加两个数组
-        let serverEntities = [];
-        let functionEntities = [];
     </script>
 </body>
 </html> 
