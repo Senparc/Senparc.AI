@@ -1412,54 +1412,9 @@
                     }
                 },
                 
-                // 修改顺序 - 原步骤11现在移到这里: 所有Server返回功能函数列表给Client 
-                () => {
-                    document.getElementById('step-title').textContent = "10. 所有Server返回功能函数列表给Client";
-                    
-                    // 所有Server返回函数列表
-                    for (const serverObj of serverEntities) {
-                        // 使用更粗、更明显的连线，不同颜色
-                        const serverToClient = createAnimatedConnection(serverObj, client, "返回功能函数列表", false, true, 0x2ecc71, 3);
-                        localConnections.push(serverToClient.line);
-                        flowTexts.push(serverToClient.label);
-                        
-                        // 错开时间添加数据流效果
-                        setTimeout(() => {
-                            const dataBall = createEnhancedDataBall(serverObj.position, client.position, 0x2ecc71);
-                            dataBalls.push(dataBall);
-                            createConnectionEffect(serverObj.position, client.position, 0x2ecc71);
-                        }, serverEntities.indexOf(serverObj) * 300);
-                    }
-                    
-                    // 添加说明
-                    addFloatingLabel("4. 所有Server返回各自的功能函数列表", 3, -1, 0, currentStep, 9);
-                    
-                    if (!animationPaused) {
-                        const timeout = setTimeout(() => nextAnimationStep(), 3000);
-                        animationTimeouts.push(timeout);
-                    }
-                },
-                
-                // 步骤11: 用户输入查询 (原步骤12)
-                () => {
-                    document.getElementById('step-title').textContent = "11. 用户输入查询";
-                    
-                    // 在Host周围创建闪烁效果表示用户输入
-                    const userInputIndicator = createPulsingEffect(host, 0x3498db);
-                    dataBalls.push(userInputIndicator);
-                    
-                    // 添加说明
-                    addFloatingLabel("5. 用户输入查询", -8, 4, 0, currentStep, 10);
-                    
-                    if (!animationPaused) {
-                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
-                        animationTimeouts.push(timeout);
-                    }
-                },
-                
                 // 修改顺序 - 原步骤10移到这里: Client连接多个Server
                 () => {
-                    document.getElementById('step-title').textContent = "12. Client连接多个Server";
+                    document.getElementById('step-title').textContent = "10. Client连接多个Server";
                     
                     // 连接到所有Server
                     for (const serverObj of serverEntities) {
@@ -1477,10 +1432,55 @@
                     }
                     
                     // 添加说明
-                    addFloatingLabel("6. Client向多个Server发送查询请求", -2, 0, 0, currentStep, 11);
+                    addFloatingLabel("4. Client向多个Server发送查询请求", -2, 0, 0, currentStep, 9);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 3000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 修改顺序 - 原步骤11现在移到这里: 所有Server返回功能函数列表给Client 
+                () => {
+                    document.getElementById('step-title').textContent = "11. 所有Server返回功能函数列表给Client";
+                    
+                    // 所有Server返回函数列表
+                    for (const serverObj of serverEntities) {
+                        // 使用更粗、更明显的连线，不同颜色
+                        const serverToClient = createAnimatedConnection(serverObj, client, "返回功能函数列表", false, true, 0x2ecc71, 3);
+                        localConnections.push(serverToClient.line);
+                        flowTexts.push(serverToClient.label);
+                        
+                        // 错开时间添加数据流效果
+                        setTimeout(() => {
+                            const dataBall = createEnhancedDataBall(serverObj.position, client.position, 0x2ecc71);
+                            dataBalls.push(dataBall);
+                            createConnectionEffect(serverObj.position, client.position, 0x2ecc71);
+                        }, serverEntities.indexOf(serverObj) * 300);
+                    }
+                    
+                    // 添加说明
+                    addFloatingLabel("5. 所有Server返回各自的功能函数列表", 3, -1, 0, currentStep, 10);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 3000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤11: 用户输入查询 (原步骤12)
+                () => {
+                    document.getElementById('step-title').textContent = "12. 用户输入查询";
+                    
+                    // 在Host周围创建闪烁效果表示用户输入
+                    const userInputIndicator = createPulsingEffect(host, 0x3498db);
+                    dataBalls.push(userInputIndicator);
+                    
+                    // 添加说明
+                    addFloatingLabel("6. 用户输入查询", -8, 4, 0, currentStep, 11);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
                         animationTimeouts.push(timeout);
                     }
                 },
