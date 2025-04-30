@@ -874,12 +874,13 @@
                 () => {
                     document.getElementById('step-title').textContent = "7. 多个Server提前启动";
                     
-                    // 调整主Server位置
+                    // 调整主Server位置 - 保持在中心位置
                     moveObject(server, new THREE.Vector3(0, -3, 0), 500);
                     
-                    // 创建额外的两个Server
-                    const server2 = createEntity(SHAPE_TYPES.SERVER, "文件Server", -3, -3, 0, 0.5);
-                    const server3 = createEntity(SHAPE_TYPES.SERVER, "数据库Server", 3, -3, 0, 0.5);
+                    // 创建额外的两个Server - 垂直于连线排列（z轴上区分）
+                    // 一个在近端（z为正），一个在远端（z为负）
+                    const server2 = createEntity(SHAPE_TYPES.SERVER, "文件Server", 0, -3, 3, 0.5);
+                    const server3 = createEntity(SHAPE_TYPES.SERVER, "数据库Server", 0, -3, -3, 0.5);
                     
                     // 初始不可见
                     server2.material.transparent = true;
@@ -889,9 +890,12 @@
                     if (server2.children.length > 0) server2.children[0].visible = false;
                     if (server3.children.length > 0) server3.children[0].visible = false;
                     
-                    // 创建对应的功能函数实体
-                    const function2 = createEntity(SHAPE_TYPES.REMOTE, "文件功能", -3, -5, 0, 0.4);
-                    const function3 = createEntity(SHAPE_TYPES.REMOTE, "数据库功能", 3, -5, 0, 0.4);
+                    // 创建对应的功能函数实体 - 正好在Server下方
+                    const function2 = createEntity(SHAPE_TYPES.REMOTE, "文件功能", 0, -5, 3, 0.4);
+                    const function3 = createEntity(SHAPE_TYPES.REMOTE, "数据库功能", 0, -5, -3, 0.4);
+                    
+                    // 调整主function的位置，确保在主Server下方
+                    moveObject(functionEntity, new THREE.Vector3(0, -5, 0), 500);
                     
                     // 初始不可见
                     function2.material.transparent = true;
@@ -971,13 +975,14 @@
                     }
                 },
                 
-                // 修改步骤10: Client连接到多个Server
+                // 修改步骤10: Client连接多个Server
                 () => {
                     document.getElementById('step-title').textContent = "10. Client连接多个Server";
                     
                     // 连接到所有Server
                     for (const serverObj of serverEntities) {
-                        const clientToServer = createAnimatedConnection(client, serverObj, "连接服务器");
+                        // 使用更粗、更明显的连线
+                        const clientToServer = createAnimatedConnection(client, serverObj, "连接服务器", false, false, 0xe74c3c, 1);
                         localConnections.push(clientToServer.line);
                         flowTexts.push(clientToServer.label);
                         
@@ -1004,7 +1009,8 @@
                     
                     // 所有Server返回函数列表
                     for (const serverObj of serverEntities) {
-                        const serverToClient = createAnimatedConnection(serverObj, client, "返回功能函数列表", false, true);
+                        // 使用更粗、更明显的连线，不同颜色
+                        const serverToClient = createAnimatedConnection(serverObj, client, "返回功能函数列表", false, true, 0x2ecc71, 3);
                         localConnections.push(serverToClient.line);
                         flowTexts.push(serverToClient.label);
                         
@@ -2642,7 +2648,7 @@
         }
         
         // 重新添加createAnimatedConnection函数，修复错误
-        function createAnimatedConnection(obj1, obj2, text, dashed = false, isSecondLabel = false) {
+        function createAnimatedConnection(obj1, obj2, text, dashed = false, isSecondLabel = false, color = 0xffffff, lineWidth = 1) {
             const points = [];
             points.push(obj1.position.clone());
             points.push(obj2.position.clone());
@@ -2652,17 +2658,19 @@
             
             if (dashed) {
                 lineMaterial = new THREE.LineDashedMaterial({
-                    color: 0xffffff,
+                    color: color,
                     dashSize: 0.3,
                     gapSize: 0.1,
                     transparent: true,
-                    opacity: 0
+                    opacity: 0,
+                    linewidth: lineWidth // 注意：在WebGL中linewidth可能不起作用
                 });
             } else {
                 lineMaterial = new THREE.LineBasicMaterial({ 
-                    color: 0xffffff,
+                    color: color,
                     transparent: true,
-                    opacity: 0
+                    opacity: 0,
+                    linewidth: lineWidth // 注意：在WebGL中linewidth可能不起作用
                 });
             }
             
@@ -2683,14 +2691,17 @@
             // 为避免标签重叠，计算标签位置的偏移量
             let labelOffset = new THREE.Vector3(0, 0, 0);
             const direction = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
-            // 计算垂直于连接线方向的向量
-            const perpendicular = new THREE.Vector3(-direction.y, direction.x, 0).normalize();
+            // 计算垂直于连接线方向的向量 - 确保在3D空间中仍然可见
+            const upVector = new THREE.Vector3(0, 1, 0);
+            const perpendicular = new THREE.Vector3().crossVectors(direction, upVector).normalize();
             
             // 如果是第二个标签，放在线的下方，并增加偏移量
             if (isSecondLabel) {
                 labelOffset.addScaledVector(perpendicular, -1.2); // 向下偏移，增加偏移量
+                labelOffset.y -= 0.5; // 额外的Y轴偏移，确保在3D空间中分开
             } else {
                 labelOffset.addScaledVector(perpendicular, 1.2); // 向上偏移，增加偏移量
+                labelOffset.y += 0.5; // 额外的Y轴偏移，确保在3D空间中分开
             }
             
             // 添加标签，但最初是隐藏的
@@ -2703,29 +2714,62 @@
                 label.element.style.opacity = 0;
             }
             
+            // 创建一个管道代替简单的线，使其在3D空间中更明显
+            const tubeGeometry = new THREE.TubeGeometry(
+                new THREE.CatmullRomCurve3([obj1.position.clone(), midPoint.clone(), obj2.position.clone()]),
+                16, // 管道分段数
+                0.05, // 管道半径
+                8, // 管道圆周分段数
+                false // 是否闭合
+            );
+            
+            const tubeMaterial = new THREE.MeshPhongMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0,
+                shininess: 30
+            });
+            
+            const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+            scene.add(tube);
+            objects.push(tube);
+            
             // 添加箭头
             const arrowLength = 0.4;
-            const angle = Math.atan2(direction.y, direction.x);
+            const angle = Math.atan2(
+                obj2.position.y - obj1.position.y,
+                Math.sqrt(Math.pow(obj2.position.x - obj1.position.x, 2) + Math.pow(obj2.position.z - obj1.position.z, 2))
+            );
             
-            // 箭头位置 - 距离终点前一点
-            const arrowX = obj2.position.x - arrowLength * Math.cos(angle);
-            const arrowY = obj2.position.y - arrowLength * Math.sin(angle);
+            // 箭头位置 - 距离终点前一点，3D空间中的计算
+            const arrowDir = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
+            const arrowPos = new THREE.Vector3().copy(obj2.position).sub(arrowDir.multiplyScalar(arrowLength));
             
             const arrowGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
             const arrowMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0xffffff,
+                color: color,
                 transparent: true,
                 opacity: 0
             });
             
             const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-            arrow.position.set(arrowX, arrowY, 0);
-            arrow.rotation.z = angle - Math.PI / 2;
+            arrow.position.copy(arrowPos);
+            
+            // 计算箭头的旋转，使其指向目标对象
+            const arrowQuaternion = new THREE.Quaternion();
+            const arrowDirection = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
+            const arrowUp = new THREE.Vector3(0, 1, 0);
+            const arrowMatrix = new THREE.Matrix4().lookAt(obj1.position, obj2.position, arrowUp);
+            arrowQuaternion.setFromRotationMatrix(arrowMatrix);
+            arrow.quaternion.copy(arrowQuaternion);
+            arrow.rotateX(Math.PI / 2); // 调整箭头方向
+            
             scene.add(arrow);
             objects.push(arrow);
             
             // 创建淡入动画
             fadeInObject(line, 1000);
+            fadeInObject(tube, 1000);
             fadeInObject(arrow, 1000);
             
             // 标签淡入
@@ -2733,7 +2777,7 @@
                 fadeInElement(label.element, 1000);
             }
             
-            return { line, label, arrow };
+            return { line, tube, label, arrow };
         }
         
         // 在文件开头，与objects等全局变量相同位置添加两个数组
