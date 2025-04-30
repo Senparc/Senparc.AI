@@ -1485,9 +1485,32 @@
                     }
                 },
                 
+                // 新增步骤: Host将请求交给Client处理
+                () => {
+                    document.getElementById('step-title').textContent = "13. Host将请求交给Client处理";
+                    
+                    // 创建Host到Client的连接
+                    const hostToClient = createAnimatedConnection(host, client, "传递用户请求", false, true);
+                    localConnections.push(hostToClient.line);
+                    flowTexts.push(hostToClient.label);
+                    
+                    // 添加数据流动画效果
+                    const dataBall = createEnhancedDataBall(host.position, client.position, 0x3498db);
+                    dataBalls.push(dataBall);
+                    createConnectionEffect(host.position, client.position, 0x3498db);
+                    
+                    // 添加说明
+                    addFloatingLabel("7. Host将请求交给Client处理", -7, 2.5, 0, currentStep, 12);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
                 // 原步骤13: Client向LLM提供信息和查询
                 () => {
-                    document.getElementById('step-title').textContent = "13. Client向LLM提供工具信息和查询内容";
+                    document.getElementById('step-title').textContent = "14. Client向LLM提供工具信息和查询内容";
                     const clientToLlm = createAnimatedConnection(client, llm, "提供工具和查询");
                     localConnections.push(clientToLlm.line);
                     flowTexts.push(clientToLlm.label);
@@ -1498,7 +1521,7 @@
                     createConnectionEffect(client.position, llm.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("7. Client将功能函数列表和用户问题提供给LLM", -2, 4.5, 0, currentStep, 12);
+                    addFloatingLabel("8. Client将功能函数列表和用户问题提供给LLM", -2, 4.5, 0, currentStep, 12);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1508,7 +1531,7 @@
                 
                 // 步骤14: LLM选择合适的工具
                 () => {
-                    document.getElementById('step-title').textContent = "14. LLM选择合适的工具";
+                    document.getElementById('step-title').textContent = "15. LLM选择合适的工具";
                     const llmToClient = createAnimatedConnection(llm, client, "选择工具调用");
                     localConnections.push(llmToClient.line);
                     flowTexts.push(llmToClient.label);
@@ -1519,7 +1542,7 @@
                     createConnectionEffect(llm.position, client.position, 0x1abc9c);
                     
                     // 添加说明
-                    addFloatingLabel("8. LLM决定使用哪个工具", 3, 5, 0, currentStep, 13);
+                    addFloatingLabel("9. LLM决定使用哪个工具", 3, 5, 0, currentStep, 13);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1529,7 +1552,7 @@
                 
                 // 步骤15: Client向Server发送工具调用请求
                 () => {
-                    document.getElementById('step-title').textContent = "15. Client向Server发送工具调用请求";
+                    document.getElementById('step-title').textContent = "16. Client向Server发送工具调用请求";
                     const clientToServer = createAnimatedConnection(client, server, "发送工具调用请求", false, true);
                     localConnections.push(clientToServer.line);
                     flowTexts.push(clientToServer.label);
@@ -1540,7 +1563,7 @@
                     createConnectionEffect(client.position, server.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("9. Client向Server请求调用工具", -5, -2, 0, currentStep, 14);
+                    addFloatingLabel("10. Client向Server请求调用工具", -5, -2, 0, currentStep, 14);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1550,7 +1573,7 @@
                 
                 // 步骤16: Server调用工具函数
                 () => {
-                    document.getElementById('step-title').textContent = "16. Server调用工具函数";
+                    document.getElementById('step-title').textContent = "17. Server调用工具函数";
                     const serverToFunction = createAnimatedConnection(server, functionEntity, "调用工具函数");
                     localConnections.push(serverToFunction.line);
                     flowTexts.push(serverToFunction.label);
@@ -1561,7 +1584,7 @@
                     createConnectionEffect(server.position, functionEntity.position, 0xf39c12);
                     
                     // 添加说明
-                    addFloatingLabel("10. Server调用本地工具", -2, -3, 0, currentStep, 15);
+                    addFloatingLabel("11. Server调用本地工具", -2, -3, 0, currentStep, 15);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1571,7 +1594,7 @@
                 
                 // 步骤17: 工具函数访问数据源
                 () => {
-                    document.getElementById('step-title').textContent = "17. 工具函数访问数据源";
+                    document.getElementById('step-title').textContent = "18. 工具函数访问数据源";
                     const functionToData = createAnimatedConnection(functionEntity, data, "访问数据");
                     localConnections.push(functionToData.line);
                     flowTexts.push(functionToData.label);
@@ -1582,7 +1605,7 @@
                     createConnectionEffect(functionEntity.position, data.position, 0x9b59b6);
                     
                     // 添加说明
-                    addFloatingLabel("11. 工具访问外部数据", 0, -6, 0, currentStep, 16);
+                    addFloatingLabel("12. 工具访问外部数据", 0, -6, 0, currentStep, 16);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1592,7 +1615,7 @@
                 
                 // 步骤18: 数据源返回数据给工具函数
                 () => {
-                    document.getElementById('step-title').textContent = "18. 数据源返回数据给工具函数";
+                    document.getElementById('step-title').textContent = "19. 数据源返回数据给工具函数";
                     const dataToFunction = createAnimatedConnection(data, functionEntity, "返回数据");
                     localConnections.push(dataToFunction.line);
                     flowTexts.push(dataToFunction.label);
@@ -1603,7 +1626,7 @@
                     createConnectionEffect(data.position, functionEntity.position, 0x2ecc71);
                     
                     // 添加说明
-                    addFloatingLabel("12. 数据源返回数据", 3, -6, 0, currentStep, 17);
+                    addFloatingLabel("13. 数据源返回数据", 3, -6, 0, currentStep, 17);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1613,7 +1636,7 @@
                 
                 // 步骤19: 函数执行结果返回给Server
                 () => {
-                    document.getElementById('step-title').textContent = "19. 函数执行结果返回给Server";
+                    document.getElementById('step-title').textContent = "20. 函数执行结果返回给Server";
                     const functionToServer = createAnimatedConnection(functionEntity, server, "返回处理结果");
                     localConnections.push(functionToServer.line);
                     flowTexts.push(functionToServer.label);
@@ -1624,7 +1647,7 @@
                     createConnectionEffect(functionEntity.position, server.position, 0x9b59b6);
                     
                     // 添加说明
-                    addFloatingLabel("13. Server执行function-calling并获取结果", -1, -8, 0, currentStep, 18);
+                    addFloatingLabel("14. Server执行function-calling并获取结果", -1, -8, 0, currentStep, 18);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1634,7 +1657,7 @@
                 
                 // 步骤20: Server将结果返回给Client
                 () => {
-                    document.getElementById('step-title').textContent = "20. Server将结果返回给Client";
+                    document.getElementById('step-title').textContent = "21. Server将结果返回给Client";
                     const serverToClient = createAnimatedConnection(server, client, "返回工具执行结果", false, true);
                     localConnections.push(serverToClient.line);
                     flowTexts.push(serverToClient.label);
@@ -1645,7 +1668,7 @@
                     createConnectionEffect(server.position, client.position, 0xf39c12);
                     
                     // 添加说明
-                    addFloatingLabel("14. Server返回工具执行结果", 0, -1, 0, currentStep, 19);
+                    addFloatingLabel("15. Server返回工具执行结果", 0, -1, 0, currentStep, 19);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1655,7 +1678,7 @@
                 
                 // 步骤21: Client将工具结果提供给LLM
                 () => {
-                    document.getElementById('step-title').textContent = "21. Client将工具结果提供给LLM";
+                    document.getElementById('step-title').textContent = "22. Client将工具结果提供给LLM";
                     const clientToLlm = createAnimatedConnection(client, llm, "提供工具结果", false, true);
                     localConnections.push(clientToLlm.line);
                     flowTexts.push(clientToLlm.label);
@@ -1666,7 +1689,7 @@
                     createConnectionEffect(client.position, llm.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("15. Client将工具结果传递给LLM", -3, 3, 0, currentStep, 20);
+                    addFloatingLabel("16. Client将工具结果传递给LLM", -3, 3, 0, currentStep, 20);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1676,7 +1699,7 @@
                 
                 // 步骤22: LLM生成回复
                 () => {
-                    document.getElementById('step-title').textContent = "22. LLM生成回复";
+                    document.getElementById('step-title').textContent = "23. LLM生成回复";
                     const llmToClient = createAnimatedConnection(llm, client, "生成回复", false, true);
                     localConnections.push(llmToClient.line);
                     flowTexts.push(llmToClient.label);
@@ -1687,7 +1710,7 @@
                     createConnectionEffect(llm.position, client.position, 0x1abc9c);
                     
                     // 添加说明
-                    addFloatingLabel("16. LLM结合工具结果生成回复", 4, 3, 0, currentStep, 21);
+                    addFloatingLabel("17. LLM结合工具结果生成回复", 4, 3, 0, currentStep, 21);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1697,7 +1720,7 @@
                 
                 // 步骤23: Client将最终回复传递给Host
                 () => {
-                    document.getElementById('step-title').textContent = "23. Client将最终回复传递给Host";
+                    document.getElementById('step-title').textContent = "24. Client将最终回复传递给Host";
                     const clientToHost = createAnimatedConnection(client, host, "传递最终回复");
                     localConnections.push(clientToHost.line);
                     flowTexts.push(clientToHost.label);
@@ -1708,7 +1731,7 @@
                     createConnectionEffect(client.position, host.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("17. 最终回复传递给用户", -6, 0, 0, currentStep, 22);
+                    addFloatingLabel("18. 最终回复传递给用户", -6, 0, 0, currentStep, 22);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1718,10 +1741,10 @@
                 
                 // 步骤24: 完成工作流
                 () => {
-                    document.getElementById('step-title').textContent = "24. 完成MCP工作流";
+                    document.getElementById('step-title').textContent = "25. 完成MCP工作流";
                     
                     // 添加总结说明
-                    addFloatingLabel("18. MCP完成数据传递", 0, -10, 0);
+                    addFloatingLabel("19. MCP完成数据传递", 0, -10, 0);
                     
                     // 更新最终步骤中的连接线
                     updateConnectionsForFinalStep(localConnections);
