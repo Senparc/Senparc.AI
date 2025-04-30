@@ -930,7 +930,7 @@
                     });
                     
                     // 添加说明
-                    addFloatingLabel("1. 多个专用Server在后台启动", 0, -1.5, 0);
+                    addFloatingLabel("1. 多个专用Server在后台启动", 0, -1.5, 0, currentStep, 6);
                     
                     // 淡入新Server
                     fadeInObject(server2, 1000);
@@ -960,7 +960,7 @@
                     }
                     
                     // 添加说明
-                    addFloatingLabel("2. 每个Server查找各自的功能函数", 0, -6, 0);
+                    addFloatingLabel("2. 每个Server查找各自的功能函数", 0, -6, 0, currentStep, 7);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 3000);
@@ -981,7 +981,7 @@
                     createConnectionEffect(host.position, client.position, 0x3498db);
                     
                     // 添加说明
-                    addFloatingLabel("3. Host应用初始化MCP Client", -6.5, 1.5, 0);
+                    addFloatingLabel("3. Host应用初始化MCP Client", -6.5, 1.5, 0, currentStep, 8);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1009,7 +1009,7 @@
                     }
                     
                     // 添加说明
-                    addFloatingLabel("4. Client同时连接到多个已启动的Server", -2, 0, 0);
+                    addFloatingLabel("4. Client同时连接到多个已启动的Server", -2, 0, 0, currentStep, 9);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 3000);
@@ -1037,7 +1037,7 @@
                     }
                     
                     // 添加说明
-                    addFloatingLabel("5. 所有Server返回各自的功能函数列表", 3, -1, 0);
+                    addFloatingLabel("5. 所有Server返回各自的功能函数列表", 3, -1, 0, currentStep, 10);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 3000);
@@ -1054,7 +1054,7 @@
                     dataBalls.push(userInputIndicator);
                     
                     // 添加说明
-                    addFloatingLabel("6. 用户输入查询", -8, 4, 0);
+                    addFloatingLabel("6. 用户输入查询", -8, 4, 0, currentStep, 11);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1076,7 +1076,7 @@
                     createConnectionEffect(client.position, llm.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("7. Client将功能函数列表和用户问题提供给LLM", -2, 4.5, 0);
+                    addFloatingLabel("7. Client将功能函数列表和用户问题提供给LLM", -2, 4.5, 0, currentStep, 12);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1097,7 +1097,7 @@
                     createConnectionEffect(llm.position, client.position, 0x1abc9c);
                     
                     // 添加说明
-                    addFloatingLabel("8. LLM决定使用哪个工具", 3, 5, 0);
+                    addFloatingLabel("8. LLM决定使用哪个工具", 3, 5, 0, currentStep, 13);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1118,7 +1118,7 @@
                     createConnectionEffect(client.position, server.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("9. Client向Server请求调用工具", -5, -2, 0);
+                    addFloatingLabel("9. Client向Server请求调用工具", -5, -2, 0, currentStep, 14);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1139,7 +1139,7 @@
                     createConnectionEffect(server.position, functionEntity.position, 0xf39c12);
                     
                     // 添加说明
-                    addFloatingLabel("10. Server调用本地工具", -2, -3, 0);
+                    addFloatingLabel("10. Server调用本地工具", -2, -3, 0, currentStep, 15);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1160,7 +1160,7 @@
                     createConnectionEffect(functionEntity.position, data.position, 0x9b59b6);
                     
                     // 添加说明
-                    addFloatingLabel("11. 工具访问外部数据", 0, -6, 0);
+                    addFloatingLabel("11. 工具访问外部数据", 0, -6, 0, currentStep, 16);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1181,7 +1181,7 @@
                     createConnectionEffect(data.position, functionEntity.position, 0x2ecc71);
                     
                     // 添加说明
-                    addFloatingLabel("12. 数据源返回数据", 3, -6, 0);
+                    addFloatingLabel("12. 数据源返回数据", 3, -6, 0, currentStep, 17);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1202,7 +1202,7 @@
                     createConnectionEffect(functionEntity.position, server.position, 0x9b59b6);
                     
                     // 添加说明
-                    addFloatingLabel("13. Server执行function-calling并获取结果", -1, -8, 0);
+                    addFloatingLabel("13. Server执行function-calling并获取结果", -1, -8, 0, currentStep, 18);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1223,7 +1223,7 @@
                     createConnectionEffect(server.position, client.position, 0xf39c12);
                     
                     // 添加说明
-                    addFloatingLabel("14. Server返回工具执行结果", 0, -1, 0);
+                    addFloatingLabel("14. Server返回工具执行结果", 0, -1, 0, currentStep, 19);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1244,7 +1244,7 @@
                     createConnectionEffect(client.position, llm.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("15. Client将工具结果传递给LLM", -3, 3, 0);
+                    addFloatingLabel("15. Client将工具结果传递给LLM", -3, 3, 0, currentStep, 20);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1265,7 +1265,7 @@
                     createConnectionEffect(llm.position, client.position, 0x1abc9c);
                     
                     // 添加说明
-                    addFloatingLabel("16. LLM结合工具结果生成回复", 4, 3, 0);
+                    addFloatingLabel("16. LLM结合工具结果生成回复", 4, 3, 0, currentStep, 21);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1286,7 +1286,7 @@
                     createConnectionEffect(client.position, host.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("17. 最终回复传递给用户", -6, 0, 0);
+                    addFloatingLabel("17. 最终回复传递给用户", -6, 0, 0, currentStep, 22);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1333,6 +1333,19 @@
                     
                     // 更新进度条
                     updateProgressBar(currentAnimationStep);
+                    
+                    // 更新标签透明度 - 考虑动画步骤而不仅是全局步骤
+                    if (currentStep === 6) { // 第7步（索引为6）
+                        allLabels.forEach(label => {
+                            if (label && label.element) {
+                                // 根据动画步骤ID更新标签透明度
+                                updateLabelOpacity(label.element);
+                            }
+                        });
+                    } else {
+                        // 其他步骤使用原始的标签透明度更新逻辑
+                        setTimeout(updateAllLabelsOpacity, 100);
+                    }
                 }
             }
             
@@ -1359,6 +1372,19 @@
                 
                 // 更新进度条
                 updateProgressBar(currentAnimationStep);
+                
+                // 延迟更新所有标签的透明度 - 考虑动画步骤
+                if (currentStep === 6) { // 第7步（索引为6）
+                    allLabels.forEach(label => {
+                        if (label && label.element) {
+                            // 根据动画步骤ID更新标签透明度
+                            updateLabelOpacity(label.element);
+                        }
+                    });
+                } else {
+                    // 其他步骤使用原始的标签透明度更新逻辑
+                    setTimeout(updateAllLabelsOpacity, 100);
+                }
             }
             
             // 重置场景状态
@@ -2190,8 +2216,12 @@
                 currentStepLabels.push(label);
             }
             
-            // 设置初始透明度
-            updateLabelOpacity(labelDiv);
+            // 设置初始透明度 - 强制设置
+            if (parseInt(labelDiv.dataset.stepId) === currentStep) {
+                labelDiv.style.opacity = '1';
+            } else {
+                labelDiv.style.opacity = '0.2';
+            }
             
             return label;
         }
@@ -2233,32 +2263,51 @@
         }
         
         // 添加浮动标签
-        function addFloatingLabel(text, x, y, z, stepId = currentStep) {
-            return createTextLabel(text, x, y, z, stepId);
+        function addFloatingLabel(text, x, y, z, stepId = currentStep, animStepId = null) {
+            const label = createTextLabel(text, x, y, z, stepId);
+            
+            // 如果处于第7步且提供了动画步骤ID，添加该ID到标签
+            if (currentStep === 6 && animStepId !== null && label.element) {
+                label.element.dataset.animStepId = animStepId;
+            }
+            
+            return label;
         }
         
         // 标签透明度管理函数
         function updateLabelOpacity(labelDiv) {
             if (!labelDiv) return;
             
-            // 检查是否是当前步骤的标签
-            const isCurrentStepLabel = parseInt(labelDiv.dataset.stepId) === currentStep;
+            // 只在步骤7（完整工作流）中应用透明度变化，其他步骤保持原样
+            if (currentStep === 6) { // 步骤7的索引是6
+                // 获取当前动画步骤标识（如果存在）
+                const animStepId = labelDiv.dataset.animStepId;
+                
+                // 只有当标签有动画步骤ID且与当前动画步骤匹配时，才保持不透明
+                if (animStepId && parseInt(animStepId) === currentAnimationStep) {
+                    labelDiv.style.opacity = '1';
+                } else {
+                    labelDiv.style.opacity = '0.2';
+                }
+            } else {
+                // 其他步骤中，所有标签都保持完全不透明
+                labelDiv.style.opacity = '1';
+            }
             
-            // 设置透明度
-            labelDiv.style.opacity = isCurrentStepLabel ? '1' : '0.2';
             labelDiv.style.transition = 'opacity 0.3s ease';
         }
         
         // 更新所有标签的透明度
         function updateAllLabelsOpacity() {
+            console.log("更新所有标签透明度, 当前步骤:", currentStep);
             allLabels.forEach(label => {
-                if (label.element) {
+                if (label && label.element) {
                     updateLabelOpacity(label.element);
                 }
             });
         }
         
-        // 修改nextStep和prevStep函数，添加标签透明度更新
+        // 修改nextStep和prevStep函数，确保标签透明度更新
         function nextStep() {
             if (currentStep < steps.length - 1) {
                 // 清空当前步骤标签数组
@@ -2272,8 +2321,8 @@
                     document.getElementById('next-btn').disabled = true;
                 }
                 
-                // 更新所有标签的透明度
-                updateAllLabelsOpacity();
+                // 延迟一小段时间后更新标签透明度，确保新标签已创建
+                setTimeout(updateAllLabelsOpacity, 100);
             }
         }
         
@@ -2290,8 +2339,8 @@
                     document.getElementById('prev-btn').disabled = true;
                 }
                 
-                // 更新所有标签的透明度
-                updateAllLabelsOpacity();
+                // 延迟一小段时间后更新标签透明度，确保新标签已创建
+                setTimeout(updateAllLabelsOpacity, 100);
             }
         }
         
@@ -2494,13 +2543,14 @@
             document.getElementById('prev-btn').disabled = true;
             document.getElementById('next-btn').disabled = false;
             
-            // 移除在开始时显示进度条的代码
-            
             // 初始化进度条步骤标记
             initProgressMarkers();
             
             // 添加相机旋转动画
             animateCameraRotation(25, 1000);
+            
+            // 更新标签透明度
+            setTimeout(updateAllLabelsOpacity, 100);
         }
         
         // 相机旋转动画
@@ -2635,8 +2685,8 @@
                 // 更新进度条
                 updateProgressBar(currentStep);
                 
-                // 更新所有标签的透明度
-                updateAllLabelsOpacity();
+                // 延迟更新所有标签的透明度
+                setTimeout(updateAllLabelsOpacity, 100);
             }
         }
         
