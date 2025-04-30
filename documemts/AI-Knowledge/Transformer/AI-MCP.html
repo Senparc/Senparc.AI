@@ -2724,21 +2724,8 @@
         function updateLabelOpacity(labelDiv) {
             if (!labelDiv) return;
             
-            // 只在步骤7（完整工作流）中应用透明度变化，其他步骤保持原样
-            if (currentStep === 6) { // 步骤7的索引是6
-                // 获取当前动画步骤标识（如果存在）
-                const animStepId = labelDiv.dataset.animStepId;
-                
-                // 只有当标签有动画步骤ID且与当前动画步骤匹配时，才保持不透明
-                if (animStepId && parseInt(animStepId) === currentAnimationStep) {
-                    labelDiv.style.opacity = '1';
-                } else {
-                    labelDiv.style.opacity = '0.2';
-                }
-            } else {
-                // 其他步骤中，所有标签都保持完全不透明
-                labelDiv.style.opacity = '1';
-            }
+            // 所有标签都保持完全不透明，无论在哪个步骤
+            labelDiv.style.opacity = '1';
             
             labelDiv.style.transition = 'opacity 0.3s ease';
         }
