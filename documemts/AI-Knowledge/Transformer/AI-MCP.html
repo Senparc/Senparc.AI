@@ -225,6 +225,7 @@
         let functionEntities = [];
         let currentStepLabels = [];
         let allLabels = [];
+        let currentAnimationStep = 0; // 存储当前动画步骤索引
         
         // 实体颜色和形状定义
         const entityColors = {
@@ -1221,7 +1222,8 @@
             // 标记当前是否处于动画状态
             let isAnimating = true;
             let animationPaused = false;  // 确保动画默认不是暂停状态
-            let currentAnimationStep = 0;
+            // 重置全局的currentAnimationStep
+            currentAnimationStep = 0;
             let animationTimeouts = [];
             
             // 添加工作流标签
@@ -1419,7 +1421,7 @@
                     // 连接到所有Server
                     for (const serverObj of serverEntities) {
                         // 使用更粗、更明显的连线
-                        const clientToServer = createAnimatedConnection(client, serverObj, "连接服务器", false, false, 0xe74c3c, 1);
+                        const clientToServer = createAnimatedConnection(client, serverObj, "连接服务器", false, false, 0xe74c3c, 1, 9);
                         localConnections.push(clientToServer.line);
                         flowTexts.push(clientToServer.label);
                         
@@ -1447,7 +1449,7 @@
                     // 所有Server返回函数列表
                     for (const serverObj of serverEntities) {
                         // 使用更粗、更明显的连线，不同颜色
-                        const serverToClient = createAnimatedConnection(serverObj, client, "返回功能函数列表", false, true, 0x2ecc71, 3);
+                        const serverToClient = createAnimatedConnection(serverObj, client, "返回功能函数列表", false, true, 0x2ecc71, 3, 10);
                         localConnections.push(serverToClient.line);
                         flowTexts.push(serverToClient.label);
                         
@@ -1490,7 +1492,7 @@
                     document.getElementById('step-title').textContent = "13. Host将请求交给Client处理";
                     
                     // 创建Host到Client的连接
-                    const hostToClient = createAnimatedConnection(host, client, "传递用户请求", false, true);
+                    const hostToClient = createAnimatedConnection(host, client, "传递用户请求", false, true, 0xffffff, 1, 12);
                     localConnections.push(hostToClient.line);
                     flowTexts.push(hostToClient.label);
                     
@@ -1511,7 +1513,7 @@
                 // 原步骤13: Client向LLM提供信息和查询
                 () => {
                     document.getElementById('step-title').textContent = "14. Client向LLM提供工具信息和查询内容";
-                    const clientToLlm = createAnimatedConnection(client, llm, "提供工具和查询");
+                    const clientToLlm = createAnimatedConnection(client, llm, "提供工具和查询", false, false, 0xffffff, 1, 13);
                     localConnections.push(clientToLlm.line);
                     flowTexts.push(clientToLlm.label);
                     
@@ -1521,7 +1523,7 @@
                     createConnectionEffect(client.position, llm.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("8. Client将功能函数列表和用户问题提供给LLM", -2, 4.5, 0, currentStep, 12);
+                    addFloatingLabel("8. Client将功能函数列表和用户问题提供给LLM", -2, 4.5, 0, currentStep, 13);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1532,7 +1534,7 @@
                 // 步骤14: LLM选择合适的工具
                 () => {
                     document.getElementById('step-title').textContent = "15. LLM选择合适的工具";
-                    const llmToClient = createAnimatedConnection(llm, client, "选择工具调用");
+                    const llmToClient = createAnimatedConnection(llm, client, "选择工具调用", false, false, 0xffffff, 1, 13);
                     localConnections.push(llmToClient.line);
                     flowTexts.push(llmToClient.label);
                     
@@ -1553,7 +1555,7 @@
                 // 步骤15: Client向Server发送工具调用请求
                 () => {
                     document.getElementById('step-title').textContent = "16. Client向Server发送工具调用请求";
-                    const clientToServer = createAnimatedConnection(client, server, "发送工具调用请求", false, true);
+                    const clientToServer = createAnimatedConnection(client, server, "发送工具调用请求", false, true, 0xffffff, 1, 14);
                     localConnections.push(clientToServer.line);
                     flowTexts.push(clientToServer.label);
                     
@@ -1574,7 +1576,7 @@
                 // 步骤16: Server调用工具函数
                 () => {
                     document.getElementById('step-title').textContent = "17. Server调用工具函数";
-                    const serverToFunction = createAnimatedConnection(server, functionEntity, "调用工具函数");
+                    const serverToFunction = createAnimatedConnection(server, functionEntity, "调用工具函数", false, false, 0xffffff, 1, 15);
                     localConnections.push(serverToFunction.line);
                     flowTexts.push(serverToFunction.label);
                     
@@ -1595,7 +1597,7 @@
                 // 步骤17: 工具函数访问数据源
                 () => {
                     document.getElementById('step-title').textContent = "18. 工具函数访问数据源";
-                    const functionToData = createAnimatedConnection(functionEntity, data, "访问数据");
+                    const functionToData = createAnimatedConnection(functionEntity, data, "访问数据", false, false, 0xffffff, 1, 16);
                     localConnections.push(functionToData.line);
                     flowTexts.push(functionToData.label);
                     
@@ -1616,7 +1618,7 @@
                 // 步骤18: 数据源返回数据给工具函数
                 () => {
                     document.getElementById('step-title').textContent = "19. 数据源返回数据给工具函数";
-                    const dataToFunction = createAnimatedConnection(data, functionEntity, "返回数据");
+                    const dataToFunction = createAnimatedConnection(data, functionEntity, "返回数据", false, false, 0xffffff, 1, 17);
                     localConnections.push(dataToFunction.line);
                     flowTexts.push(dataToFunction.label);
                     
@@ -1637,7 +1639,7 @@
                 // 步骤19: 函数执行结果返回给Server
                 () => {
                     document.getElementById('step-title').textContent = "20. 函数执行结果返回给Server";
-                    const functionToServer = createAnimatedConnection(functionEntity, server, "返回处理结果");
+                    const functionToServer = createAnimatedConnection(functionEntity, server, "返回处理结果", false, false, 0xffffff, 1, 18);
                     localConnections.push(functionToServer.line);
                     flowTexts.push(functionToServer.label);
                     
@@ -1658,7 +1660,7 @@
                 // 步骤20: Server将结果返回给Client
                 () => {
                     document.getElementById('step-title').textContent = "21. Server将结果返回给Client";
-                    const serverToClient = createAnimatedConnection(server, client, "返回工具执行结果", false, true);
+                    const serverToClient = createAnimatedConnection(server, client, "返回工具执行结果", false, true, 0xffffff, 1, 19);
                     localConnections.push(serverToClient.line);
                     flowTexts.push(serverToClient.label);
                     
@@ -1679,7 +1681,7 @@
                 // 步骤21: Client将工具结果提供给LLM
                 () => {
                     document.getElementById('step-title').textContent = "22. Client将工具结果提供给LLM";
-                    const clientToLlm = createAnimatedConnection(client, llm, "提供工具结果", false, true);
+                    const clientToLlm = createAnimatedConnection(client, llm, "提供工具结果", false, true, 0xffffff, 1, 20);
                     localConnections.push(clientToLlm.line);
                     flowTexts.push(clientToLlm.label);
                     
@@ -1772,15 +1774,36 @@
             
             // 前进到下一个动画步骤
             function nextAnimationStep() {
+                console.log("进入nextAnimationStep, 当前步骤:", currentAnimationStep, "/", animationSteps.length);
+                
+                // 确保不超出动画步骤的总数
+                if (currentAnimationStep >= animationSteps.length) {
+                    console.log("已达到动画最后一步，不再前进");
+                    currentAnimationStep = animationSteps.length - 1; // 限制在最后一步
+                    
+                    // 更新标签透明度
+                    if (currentStep === 6) { // 第7步（索引为6）
+                        allLabels.forEach(label => {
+                            if (label && label.element) {
+                                updateLabelOpacity(label.element);
+                            }
+                        });
+                    }
+                    return;
+                }
+                
                 if (currentAnimationStep < animationSteps.length) {
+                    console.log("执行动画步骤:", currentAnimationStep);
                     animationSteps[currentAnimationStep]();
                     currentAnimationStep++;
+                    console.log("更新后的动画步骤:", currentAnimationStep);
                     
                     // 更新进度条
                     updateProgressBar(currentAnimationStep);
                     
                     // 更新标签透明度 - 考虑动画步骤而不仅是全局步骤
                     if (currentStep === 6) { // 第7步（索引为6）
+                        console.log("更新第7步中所有标签的透明度");
                         allLabels.forEach(label => {
                             if (label && label.element) {
                                 // 根据动画步骤ID更新标签透明度
@@ -1834,6 +1857,10 @@
             
             // 重置场景状态
             function resetSceneState() {
+                // 重置动画步骤
+                currentAnimationStep = 0;
+                console.log("重置场景状态，当前动画步骤:", currentAnimationStep);
+                
                 // 重置所有可见性和透明度
                 [llm, host, client, server, data, functionEntity].forEach(entity => {
                     if (entity) {
@@ -2663,11 +2690,11 @@
             }
             
             // 设置初始透明度 - 强制设置
-            if (parseInt(labelDiv.dataset.stepId) === currentStep) {
-                labelDiv.style.opacity = '1';
-            } else {
-                labelDiv.style.opacity = '0.2';
-            }
+            console.log("设置初始透明度, 当前步骤:", currentStep);
+            console.log("设置初始透明度, 标签步骤ID:", labelDiv.dataset.stepId);
+            
+            // 不在这里设置透明度，而是统一由updateLabelOpacity处理
+            updateLabelOpacity(labelDiv);
             
             return label;
         }
@@ -2710,11 +2737,20 @@
         
         // 添加浮动标签
         function addFloatingLabel(text, x, y, z, stepId = currentStep, animStepId = null) {
+            console.log("添加浮动标签, 文本:", text);
+            console.log("添加浮动标签, 当前步骤:", currentStep);
+            console.log("添加浮动标签, 步骤ID:", stepId);
+            console.log("添加浮动标签, 动画步骤ID:", animStepId);
+            console.log("添加浮动标签, 当前动画步骤:", currentAnimationStep);
+            
             const label = createTextLabel(text, x, y, z, stepId);
             
             // 如果处于第7步且提供了动画步骤ID，添加该ID到标签
             if (currentStep === 6 && animStepId !== null && label.element) {
                 label.element.dataset.animStepId = animStepId;
+                console.log("为标签设置动画步骤ID:", animStepId);
+                // 设置animStepId后更新透明度
+                updateLabelOpacity(label.element);
             }
             
             return label;
@@ -2724,8 +2760,40 @@
         function updateLabelOpacity(labelDiv) {
             if (!labelDiv) return;
             
-            // 所有标签都保持完全不透明，无论在哪个步骤
-            labelDiv.style.opacity = '1';
+            // 只在步骤7（完整工作流）中应用透明度变化，其他步骤保持原样
+            if (currentStep === 6) { // 步骤7的索引是6
+                // 获取当前动画步骤标识（如果存在）
+                const animStepId = labelDiv.dataset.animStepId;
+                const stepId = labelDiv.dataset.stepId;
+                const animStepsLength = 24; // 设置动画步骤的总数
+                
+                console.log("更新标签透明度 - 当前动画步骤:", currentAnimationStep, 
+                           "标签animStepId:", animStepId, 
+                           "标签stepId:", stepId, 
+                           "标签内容:", labelDiv.textContent);
+                
+                // 检查是否已经超出动画步骤范围（动画完成）
+                if (currentAnimationStep >= animStepsLength) {
+                    // 已完成全部动画，显示最后一个标签
+                    if (animStepId && parseInt(animStepId) === animStepsLength - 1) {
+                        console.log("动画已完成，显示最后一个标签");
+                        labelDiv.style.opacity = '1';
+                    } else {
+                        labelDiv.style.opacity = '0.29'; // 0.71的透明度
+                    }
+                }
+                // 正常的动画进行中
+                else if (animStepId && parseInt(animStepId) === currentAnimationStep) {
+                    console.log("匹配当前动画步骤，设置不透明");
+                    labelDiv.style.opacity = '1';
+                } else {
+                    console.log("不匹配当前动画步骤，设置半透明");
+                    labelDiv.style.opacity = '0.29'; // 0.71的透明度
+                }
+            } else {
+                // 其他步骤中，所有标签都保持完全不透明
+                labelDiv.style.opacity = '1';
+            }
             
             labelDiv.style.transition = 'opacity 0.3s ease';
         }
@@ -2778,7 +2846,7 @@
         }
         
         // 修改createAnimatedConnection函数中的标签创建部分
-        function createAnimatedConnection(obj1, obj2, text, dashed = false, isSecondLabel = false, color = 0xffffff, lineWidth = 1) {
+        function createAnimatedConnection(obj1, obj2, text, dashed = false, isSecondLabel = false, color = 0xffffff, lineWidth = 1, animStepId = null) {
             const points = [];
             points.push(obj1.position.clone());
             points.push(obj2.position.clone());
@@ -2840,6 +2908,12 @@
                 midPoint.y + labelOffset.y, 
                 midPoint.z + labelOffset.z,
                 currentStep); // 传递当前步骤ID
+            
+            // 如果处于第7步且提供了动画步骤ID，为标签设置动画步骤ID
+            if (currentStep === 6 && animStepId !== null && label.element) {
+                console.log("为连接线标签设置动画步骤ID:", animStepId, "标签内容:", text);
+                label.element.dataset.animStepId = animStepId;
+            }
             
             if (label.element) {
                 label.element.style.opacity = 0;
