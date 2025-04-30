@@ -1318,7 +1318,7 @@
                     
                     // 创建额外的两个Server - 垂直于连线排列（z轴上区分）
                     // 一个在近端（z为正），一个在远端（z为负）
-                    const server2 = createEntity(SHAPE_TYPES.SERVER, "数据库Server", 0, -3, 3, 0.5);
+                    const server2 = createEntity(SHAPE_TYPES.SERVER, "文件 Server", 0, -3, 3, 0.5);
                     const server3 = createEntity(SHAPE_TYPES.SERVER, "API Server", 0, -3, -3, 0.5);
                     
                     // 初始不可见
@@ -1797,7 +1797,8 @@
                     if (currentStep === 6) { // 第7步（索引为6）
                         allLabels.forEach(label => {
                             if (label && label.element) {
-                                updateLabelOpacity(label.element);
+                                // 为所有标签设置标准的半透明效果
+                                label.element.style.opacity = '0.33';
                             }
                         });
                     }
@@ -1812,6 +1813,12 @@
                     
                     // 更新进度条
                     updateProgressBar(currentAnimationStep);
+                    
+                    // 更新步骤计数器
+                    const stepCounter = document.getElementById('step-counter');
+                    if (stepCounter) {
+                        stepCounter.textContent = `步骤 ${currentAnimationStep}/${animationSteps.length}`;
+                    }
                     
                     // 更新标签透明度 - 考虑动画步骤而不仅是全局步骤
                     if (currentStep === 6) { // 第7步（索引为6）
@@ -1852,6 +1859,12 @@
                 
                 // 更新进度条
                 updateProgressBar(currentAnimationStep);
+                
+                // 更新步骤计数器
+                const stepCounter = document.getElementById('step-counter');
+                if (stepCounter) {
+                    stepCounter.textContent = `步骤 ${currentAnimationStep}/${animationSteps.length}`;
+                }
                 
                 // 延迟更新所有标签的透明度 - 考虑动画步骤
                 if (currentStep === 6) { // 第7步（索引为6）
@@ -1930,13 +1943,13 @@
                     marker.style.left = `${(i / (totalSteps - 1)) * 100}%`;
                     progressBar.appendChild(marker);
                     
-                    // 点击标记跳转到对应步骤
-                    marker.addEventListener('click', () => {
-                        animationPaused = true;
-                        pauseBtn.disabled = false;
-                        playBtn.disabled = false;
-                        jumpToStep(i);
-                    });
+                    // 禁用点击事件
+                    // marker.addEventListener('click', () => {
+                    //     animationPaused = true;
+                    //     pauseBtn.disabled = false;
+                    //     playBtn.disabled = false;
+                    //     jumpToStep(i);
+                    // });
                 }
                 
                 // 更新进度条状态
@@ -2687,7 +2700,7 @@
             });
             
             labelDiv.addEventListener('mouseout', () => {
-                updateLabelOpacity(labelDiv);
+                labelDiv.style.opacity = '0.33'; // 设置为33%不透明度
             });
             
             const label = new THREE.CSS2DObject(labelDiv);
@@ -2701,12 +2714,14 @@
                 currentStepLabels.push(label);
             }
             
-            // 设置初始透明度 - 强制设置
-            console.log("设置初始透明度, 当前步骤:", currentStep);
-            console.log("设置初始透明度, 标签步骤ID:", labelDiv.dataset.stepId);
+            // 设置初始透明度和过渡效果
+            labelDiv.style.opacity = '1';
+            labelDiv.style.transition = 'opacity 0.3s ease';
             
-            // 不在这里设置透明度，而是统一由updateLabelOpacity处理
-            updateLabelOpacity(labelDiv);
+            // 2秒后变为33%不透明度
+            setTimeout(() => {
+                labelDiv.style.opacity = '0.33';
+            }, 2000);
             
             return label;
         }
@@ -2727,7 +2742,7 @@
             });
             
             labelDiv.addEventListener('mouseout', () => {
-                updateLabelOpacity(labelDiv);
+                labelDiv.style.opacity = '0.33';
             });
             
             const label = new THREE.CSS2DObject(labelDiv);
@@ -2742,27 +2757,51 @@
             }
             
             // 设置初始透明度
-            updateLabelOpacity(labelDiv);
+            labelDiv.style.opacity = '1';
+            labelDiv.style.transition = 'opacity 0.3s ease';
+            
+            // 2秒后变为33%不透明度
+            setTimeout(() => {
+                labelDiv.style.opacity = '0.33';
+            }, 2000);
             
             return label;
         }
         
         // 添加浮动标签
         function addFloatingLabel(text, x, y, z, stepId = currentStep, animStepId = null) {
-            console.log("添加浮动标签, 文本:", text);
-            console.log("添加浮动标签, 当前步骤:", currentStep);
-            console.log("添加浮动标签, 步骤ID:", stepId);
-            console.log("添加浮动标签, 动画步骤ID:", animStepId);
-            console.log("添加浮动标签, 当前动画步骤:", currentAnimationStep);
-            
             const label = createTextLabel(text, x, y, z, stepId);
             
-            // 如果处于第7步且提供了动画步骤ID，添加该ID到标签
-            if (currentStep === 6 && animStepId !== null && label.element) {
-                label.element.dataset.animStepId = animStepId;
-                console.log("为标签设置动画步骤ID:", animStepId);
-                // 设置animStepId后更新透明度
-                updateLabelOpacity(label.element);
+            if (label.element) {
+                // 给标签添加动画效果：初始完全不透明，2秒后变为33%不透明度
+                // 只在鼠标hover时恢复完全不透明
+                const labelDiv = label.element;
+                
+                // 设置初始状态为完全不透明
+                labelDiv.style.opacity = '1';
+                
+                // 设置动画效果和过渡
+                labelDiv.style.transition = 'opacity 0.3s ease';
+                
+                // 2秒后变为33%不透明度
+                setTimeout(() => {
+                    labelDiv.style.opacity = '0.33';
+                }, 2000);
+                
+                // 鼠标hover时恢复完全不透明
+                labelDiv.addEventListener('mouseover', () => {
+                    labelDiv.style.opacity = '1';
+                });
+                
+                // 鼠标移出时恢复33%不透明度
+                labelDiv.addEventListener('mouseout', () => {
+                    labelDiv.style.opacity = '0.33';
+                });
+                
+                // 如果处于第7步且提供了动画步骤ID，添加该ID到标签
+                if (currentStep === 6 && animStepId !== null) {
+                    labelDiv.dataset.animStepId = animStepId;
+                }
             }
             
             return label;
@@ -2834,9 +2873,6 @@
                 if (currentStep === steps.length - 1) {
                     document.getElementById('next-btn').disabled = true;
                 }
-                
-                // 延迟一小段时间后更新标签透明度，确保新标签已创建
-                setTimeout(updateAllLabelsOpacity, 100);
             }
         }
         
@@ -2852,9 +2888,6 @@
                 if (currentStep === 0) {
                     document.getElementById('prev-btn').disabled = true;
                 }
-                
-                // 延迟一小段时间后更新标签透明度，确保新标签已创建
-                setTimeout(updateAllLabelsOpacity, 100);
             }
         }
         
@@ -2993,7 +3026,12 @@
             // 标签淡入
             if (label.element) {
                 fadeInElement(label.element, 1000, () => {
-                    updateLabelOpacity(label.element);
+                    // 设置初始状态为完全不透明
+                    label.element.style.opacity = '1';
+                    // 2秒后变为33%不透明度
+                    setTimeout(() => {
+                        label.element.style.opacity = '0.33';
+                    }, 2000);
                 });
             }
             
@@ -3068,9 +3106,6 @@
             
             // 添加相机旋转动画
             animateCameraRotation(25, 1000);
-            
-            // 更新标签透明度
-            setTimeout(updateAllLabelsOpacity, 100);
         }
         
         // 相机旋转动画
