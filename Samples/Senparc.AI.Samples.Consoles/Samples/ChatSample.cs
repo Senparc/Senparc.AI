@@ -215,7 +215,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                     await Console.Out.WriteLineAsync($"[{talkingRounds}] 机器：");
 
-                    var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
+                    var useStream = true;
 
                     if (useStream)
                     {

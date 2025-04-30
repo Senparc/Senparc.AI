@@ -165,6 +165,16 @@
         #playback-controls button:hover {
             background: rgba(70, 70, 70, 0.8);
         }
+        
+        .label {
+            transition: opacity 0.3s ease, transform 0.2s ease;
+        }
+        
+        .label:hover {
+            opacity: 1 !important;
+            transform: scale(1.1);
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -211,6 +221,10 @@
         const objects = [];
         const labels = [];
         const connections = [];
+        let serverEntities = [];
+        let functionEntities = [];
+        let currentStepLabels = [];
+        let allLabels = [];
         
         // 实体颜色和形状定义
         const entityColors = {
@@ -303,6 +317,31 @@
             setupPlaybackControls();
         }
         
+        // 添加一个移动对象的动画函数
+        function moveObject(obj, targetPosition, duration = 1000, callback) {
+            const startPosition = obj.position.clone();
+            const startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用缓动函数使动画更自然
+                const easeProgress = easeInOutQuad(progress);
+                
+                // 计算当前位置
+                obj.position.lerpVectors(startPosition, targetPosition, easeProgress);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else if (callback) {
+                    callback();
+                }
+            }
+            
+            animate();
+        }
+        
         // 创建所有动画步骤
         function createSteps() {
             // 步骤1: MCP 介绍
@@ -317,10 +356,145 @@
             
             // 步骤2: MCP 架构
             steps.push(() => {
+                // 保存第一步中的实体，以便后续检查是否有重复元素
+                const firstStepObjects = [...objects];
+                const firstStepConnections = [...connections];
+                const firstStepLabels = [...labels];
+                
+                // 不立即清除场景，先找到需要保留的元素
+                // 记录需要保留的元素和它们的目标位置
+                const elementsToPreserve = [];
+                
+                // 检查第一步中的相关元素并标记需要保留的
+                for (let obj of firstStepObjects) {
+                    // 只有在对象中有子元素(标签)时才继续检查
+                    if (obj.children && obj.children.length > 0 && obj.children[0] instanceof THREE.CSS2DObject) {
+                        const label = obj.children[0];
+                        const labelText = label.element.textContent;
+                        
+                        // 根据标签文本判断是否为需要保留的元素
+                        if (labelText === "应用程序" || labelText.includes("Host")) {
+                            elementsToPreserve.push({
+                                obj: obj,
+                                label: label,
+                                targetPosition: new THREE.Vector3(-6, 2, 0),
+                                newLabelText: "Host"
+                            });
+                        } else if (labelText.includes("Client")) {
+                            elementsToPreserve.push({
+                                obj: obj,
+                                label: label,
+                                targetPosition: new THREE.Vector3(-3, 0, 0),
+                                newLabelText: "Client"
+                            });
+                        } else if (labelText === "API服务" || labelText.includes("Server")) {
+                            elementsToPreserve.push({
+                                obj: obj,
+                                label: label,
+                                targetPosition: new THREE.Vector3(0, -2, 0),
+                                newLabelText: "Server"
+                            });
+                        } else if (labelText === "数据源" || labelText.includes("本地数据")) {
+                            elementsToPreserve.push({
+                                obj: obj,
+                                label: label,
+                                targetPosition: new THREE.Vector3(3, -3, 0),
+                                newLabelText: "本地数据"
+                            });
+                        } else if (labelText === "外部工具" || labelText.includes("远程服务")) {
+                            elementsToPreserve.push({
+                                obj: obj,
+                                label: label,
+                                targetPosition: new THREE.Vector3(6, -1, 0),
+                                newLabelText: "远程服务"
+                            });
+                        }
+                    }
+                }
+                
+                // 清除非保留元素
                 clearScene();
                 // 隐藏进度条
                 document.getElementById('progress-container').style.display = 'none';
-                showMCPArchitecture();
+                
+                // 重新添加保留的元素到场景中（它们仍然在原位置）
+                const preservedObjects = {
+                    host: null,
+                    client: null,
+                    server: null,
+                    data: null,
+                    remote: null
+                };
+                
+                // 启动动画移动保留的元素到新位置
+                let animationsCompleted = 0;
+                const totalAnimations = elementsToPreserve.length;
+                
+                elementsToPreserve.forEach(item => {
+                    scene.add(item.obj);
+                    objects.push(item.obj);
+                    
+                    // 启动动画
+                    moveObject(item.obj, item.targetPosition, 1000, () => {
+                        // 动画完成时更新标签文本
+                        item.label.element.textContent = item.newLabelText;
+                        
+                        // 记录这个对象
+                        if (item.newLabelText === "Host") preservedObjects.host = item.obj;
+                        else if (item.newLabelText === "Client") preservedObjects.client = item.obj;
+                        else if (item.newLabelText === "Server") preservedObjects.server = item.obj;
+                        else if (item.newLabelText === "本地数据") preservedObjects.data = item.obj;
+                        else if (item.newLabelText === "远程服务") preservedObjects.remote = item.obj;
+                        
+                        // 检查是否所有动画都完成
+                        animationsCompleted++;
+                        if (animationsCompleted === totalAnimations) {
+                            // 所有动画完成后，补充创建没有保留的实体
+                            finishSceneSetup();
+                        }
+                    });
+                });
+                
+                // 如果没有需要动画的元素，直接完成场景设置
+                if (elementsToPreserve.length === 0) {
+                    finishSceneSetup();
+                }
+                
+                function finishSceneSetup() {
+                    // 补充创建没有保留的实体
+                    if (!preservedObjects.host) {
+                        preservedObjects.host = createEntity(SHAPE_TYPES.HOST, "Host", -6, 2, 0);
+                    }
+                    if (!preservedObjects.client) {
+                        preservedObjects.client = createEntity(SHAPE_TYPES.CLIENT, "Client", -3, 0, 0);
+                    }
+                    if (!preservedObjects.server) {
+                        preservedObjects.server = createEntity(SHAPE_TYPES.SERVER, "Server", 0, -2, 0);
+                    }
+                    if (!preservedObjects.data) {
+                        preservedObjects.data = createEntity(SHAPE_TYPES.DATA, "本地数据", 3, -3, 0);
+                    }
+                    if (!preservedObjects.remote) {
+                        preservedObjects.remote = createEntity(SHAPE_TYPES.REMOTE, "远程服务", 6, -1, 0);
+                    }
+                    
+                    // 添加连接线
+                    if (preservedObjects.host && preservedObjects.client) 
+                        createConnection(preservedObjects.host, preservedObjects.client);
+                    if (preservedObjects.client && preservedObjects.server) 
+                        createConnection(preservedObjects.client, preservedObjects.server);
+                    if (preservedObjects.server && preservedObjects.data) 
+                        createConnection(preservedObjects.server, preservedObjects.data);
+                    if (preservedObjects.server && preservedObjects.remote) 
+                        createConnection(preservedObjects.server, preservedObjects.remote);
+                    
+                    // 添加 MCP 标签
+                    const mcpLabel = createTextLabel("Model Context Protocol", 0, 3, 0);
+                    // 添加描述性标签
+                    addFloatingLabel("标准化连接", -4.5, 1, 0);
+                    addFloatingLabel("数据访问", 1.5, -2.5, 0);
+                }
+                
                 updateDescription(1);
                 document.getElementById('step-title').textContent = "MCP 架构";
             });
@@ -710,19 +884,104 @@
                     });
                 },
                 
-                // 步骤7: Host向Client发送查询请求
+                // 新步骤7: 显示多个Server并提前启动
                 () => {
-                    document.getElementById('step-title').textContent = "7. Host向Client发送查询请求";
-                    const hostToClient = createAnimatedConnection(host, client, "发送查询");
+                    document.getElementById('step-title').textContent = "7. 多个Server提前启动";
+                    
+                    // 调整主Server位置 - 保持在中心位置
+                    moveObject(server, new THREE.Vector3(0, -3, 0), 500);
+                    
+                    // 创建额外的两个Server - 垂直于连线排列（z轴上区分）
+                    // 一个在近端（z为正），一个在远端（z为负）
+                    const server2 = createEntity(SHAPE_TYPES.SERVER, "文件Server", 0, -3, 3, 0.5);
+                    const server3 = createEntity(SHAPE_TYPES.SERVER, "数据库Server", 0, -3, -3, 0.5);
+                    
+                    // 初始不可见
+                    server2.material.transparent = true;
+                    server2.material.opacity = 0;
+                    server3.material.transparent = true;
+                    server3.material.opacity = 0;
+                    if (server2.children.length > 0) server2.children[0].visible = false;
+                    if (server3.children.length > 0) server3.children[0].visible = false;
+                    
+                    // 创建对应的功能函数实体 - 正好在Server下方
+                    const function2 = createEntity(SHAPE_TYPES.REMOTE, "文件功能", 0, -5, 3, 0.4);
+                    const function3 = createEntity(SHAPE_TYPES.REMOTE, "数据库功能", 0, -5, -3, 0.4);
+                    
+                    // 调整主function的位置，确保在主Server下方
+                    moveObject(functionEntity, new THREE.Vector3(0, -5, 0), 500);
+                    
+                    // 初始不可见
+                    function2.material.transparent = true;
+                    function2.material.opacity = 0;
+                    function3.material.transparent = true;
+                    function3.material.opacity = 0;
+                    if (function2.children.length > 0) function2.children[0].visible = false;
+                    if (function3.children.length > 0) function3.children[0].visible = false;
+                    
+                    // 将新实体添加到全局对象中
+                    serverEntities = [server, server2, server3];
+                    functionEntities = [functionEntity, function2, function3];
+                    
+                    // 所有Server同时激活
+                    serverEntities.forEach(serverObj => {
+                        const serverActivation = createPulsingEffect(serverObj, 0xf39c12);
+                        dataBalls.push(serverActivation);
+                    });
+                    
+                    // 添加说明
+                    addFloatingLabel("1. 多个专用Server在后台启动", 0, -1.5, 0, currentStep, 6);
+                    
+                    // 淡入新Server
+                    fadeInObject(server2, 1000);
+                    fadeInObject(server3, 1000);
+                    fadeInObject(function2, 1000);
+                    fadeInObject(function3, 1000);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 新步骤8: 多个Server查找功能函数
+                () => {
+                    document.getElementById('step-title').textContent = "8. 多个Server查找各自的功能函数";
+                    
+                    // 为每个Server创建到对应function的连接
+                    for (let i = 0; i < serverEntities.length; i++) {
+                        const serverObj = serverEntities[i];
+                        const functionObj = functionEntities[i];
+                        
+                        // 添加数据流动画效果
+                        const dataBall = createEnhancedDataBall(serverObj.position, functionObj.position, 0xf39c12);
+                        dataBalls.push(dataBall);
+                        createConnectionEffect(serverObj.position, functionObj.position, 0xf39c12);
+                    }
+                    
+                    // 添加说明
+                    addFloatingLabel("2. 每个Server查找各自的功能函数", 0, -6, 0, currentStep, 7);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 3000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 原步骤9: Host触发Client连接Server
+                () => {
+                    document.getElementById('step-title').textContent = "9. Host触发Client连接Server";
+                    const hostToClient = createAnimatedConnection(host, client, "触发连接");
                     localConnections.push(hostToClient.line);
                     flowTexts.push(hostToClient.label);
                     
                     // 添加数据流动画效果
-                    const dataBall1 = createDataBall(host.position, client.position, 0x3498db);
+                    const dataBall1 = createEnhancedDataBall(host.position, client.position, 0x3498db);
                     dataBalls.push(dataBall1);
+                    createConnectionEffect(host.position, client.position, 0x3498db);
                     
                     // 添加说明
-                    addFloatingLabel("1. 用户输入查询", -6.5, 1.5, 0);
+                    addFloatingLabel("3. Host应用初始化MCP Client", -6.5, 1.5, 0, currentStep, 8);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -730,19 +989,72 @@
                     }
                 },
                 
-                // 步骤8: Client连接到Server
+                // 修改步骤10: Client连接多个Server
                 () => {
-                    document.getElementById('step-title').textContent = "8. Client连接到Server";
-                    const clientToServer = createAnimatedConnection(client, server, "连接服务器");
-                    localConnections.push(clientToServer.line);
-                    flowTexts.push(clientToServer.label);
+                    document.getElementById('step-title').textContent = "10. Client连接多个Server";
                     
-                    // 添加数据流动画效果
-                    const dataBall2 = createDataBall(client.position, server.position, 0xe74c3c);
-                    dataBalls.push(dataBall2);
+                    // 连接到所有Server
+                    for (const serverObj of serverEntities) {
+                        // 使用更粗、更明显的连线
+                        const clientToServer = createAnimatedConnection(client, serverObj, "连接服务器", false, false, 0xe74c3c, 1);
+                        localConnections.push(clientToServer.line);
+                        flowTexts.push(clientToServer.label);
+                        
+                        // 添加数据流动画效果，稍微错开时间
+                        setTimeout(() => {
+                            const dataBall = createEnhancedDataBall(client.position, serverObj.position, 0xe74c3c);
+                            dataBalls.push(dataBall);
+                            createConnectionEffect(client.position, serverObj.position, 0xe74c3c);
+                        }, serverEntities.indexOf(serverObj) * 300);
+                    }
                     
                     // 添加说明
-                    addFloatingLabel("2. Client连接Server", -2, 0, 0);
+                    addFloatingLabel("4. Client同时连接到多个已启动的Server", -2, 0, 0, currentStep, 9);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 3000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 修改步骤11: 所有Server返回功能函数列表给Client
+                () => {
+                    document.getElementById('step-title').textContent = "11. 所有Server返回功能函数列表给Client";
+                    
+                    // 所有Server返回函数列表
+                    for (const serverObj of serverEntities) {
+                        // 使用更粗、更明显的连线，不同颜色
+                        const serverToClient = createAnimatedConnection(serverObj, client, "返回功能函数列表", false, true, 0x2ecc71, 3);
+                        localConnections.push(serverToClient.line);
+                        flowTexts.push(serverToClient.label);
+                        
+                        // 错开时间添加数据流效果
+                        setTimeout(() => {
+                            const dataBall = createEnhancedDataBall(serverObj.position, client.position, 0x2ecc71);
+                            dataBalls.push(dataBall);
+                            createConnectionEffect(serverObj.position, client.position, 0x2ecc71);
+                        }, serverEntities.indexOf(serverObj) * 300);
+                    }
+                    
+                    // 添加说明
+                    addFloatingLabel("5. 所有Server返回各自的功能函数列表", 3, -1, 0, currentStep, 10);
+                    
+                    if (!animationPaused) {
+                        const timeout = setTimeout(() => nextAnimationStep(), 3000);
+                        animationTimeouts.push(timeout);
+                    }
+                },
+                
+                // 步骤12: 用户输入查询
+                () => {
+                    document.getElementById('step-title').textContent = "12. 用户输入查询";
+                    
+                    // 在Host周围创建闪烁效果表示用户输入
+                    const userInputIndicator = createPulsingEffect(host, 0x3498db);
+                    dataBalls.push(userInputIndicator);
+                    
+                    // 添加说明
+                    addFloatingLabel("6. 用户输入查询", -8, 4, 0, currentStep, 11);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -750,59 +1062,21 @@
                     }
                 },
                 
-                // 步骤9: Server检索工具列表
+                // 其余步骤序号依次增加，但逻辑保持不变
+                // 原步骤12改为13: Client向LLM提供信息和查询
                 () => {
-                    document.getElementById('step-title').textContent = "9. Server检索工具列表";
-                    const serverToFunction = createAnimatedConnection(server, functionEntity, "检索工具列表");
-                    localConnections.push(serverToFunction.line);
-                    flowTexts.push(serverToFunction.label);
-                    
-                    // 添加数据流动画效果
-                    const dataBall3 = createDataBall(server.position, functionEntity.position, 0xf39c12);
-                    dataBalls.push(dataBall3);
-                    
-                    // 添加说明
-                    addFloatingLabel("3. MCP Server列出可用工具", -1, -4, 0);
-                    
-                    if (!animationPaused) {
-                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
-                        animationTimeouts.push(timeout);
-                    }
-                },
-                
-                // 步骤10: Server返回工具列表给Client
-                () => {
-                    document.getElementById('step-title').textContent = "10. Server返回工具列表给Client";
-                    const serverToClient = createAnimatedConnection(server, client, "返回工具列表");
-                    localConnections.push(serverToClient.line);
-                    flowTexts.push(serverToClient.label);
-                    
-                    // 添加数据流动画效果
-                    const dataBall4 = createDataBall(server.position, client.position, 0x2ecc71);
-                    dataBalls.push(dataBall4);
-                    
-                    // 添加说明
-                    addFloatingLabel("4. Server返回工具列表", 2, -1, 0);
-                    
-                    if (!animationPaused) {
-                        const timeout = setTimeout(() => nextAnimationStep(), 2000);
-                        animationTimeouts.push(timeout);
-                    }
-                },
-                
-                // 步骤11: Client向LLM提供工具信息和查询内容
-                () => {
-                    document.getElementById('step-title').textContent = "11. Client向LLM提供工具信息和查询内容";
+                    document.getElementById('step-title').textContent = "13. Client向LLM提供工具信息和查询内容";
                     const clientToLlm = createAnimatedConnection(client, llm, "提供工具和查询");
                     localConnections.push(clientToLlm.line);
                     flowTexts.push(clientToLlm.label);
                     
                     // 添加数据流动画效果
-                    const dataBall5 = createDataBall(client.position, llm.position, 0xe74c3c);
+                    const dataBall5 = createEnhancedDataBall(client.position, llm.position, 0xe74c3c);
                     dataBalls.push(dataBall5);
+                    createConnectionEffect(client.position, llm.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("5. Client将工具列表和用户问题提供给LLM", -2, 4.5, 0);
+                    addFloatingLabel("7. Client将功能函数列表和用户问题提供给LLM", -2, 4.5, 0, currentStep, 12);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -810,19 +1084,20 @@
                     }
                 },
                 
-                // 步骤12: LLM选择合适的工具
+                // 步骤14: LLM选择合适的工具
                 () => {
-                    document.getElementById('step-title').textContent = "12. LLM选择合适的工具";
+                    document.getElementById('step-title').textContent = "14. LLM选择合适的工具";
                     const llmToClient = createAnimatedConnection(llm, client, "选择工具调用");
                     localConnections.push(llmToClient.line);
                     flowTexts.push(llmToClient.label);
                     
                     // 添加数据流动画效果
-                    const dataBall6 = createDataBall(llm.position, client.position, 0x1abc9c);
+                    const dataBall6 = createEnhancedDataBall(llm.position, client.position, 0x1abc9c);
                     dataBalls.push(dataBall6);
+                    createConnectionEffect(llm.position, client.position, 0x1abc9c);
                     
                     // 添加说明
-                    addFloatingLabel("6. LLM决定使用哪个工具", 3, 5, 0);
+                    addFloatingLabel("8. LLM决定使用哪个工具", 3, 5, 0, currentStep, 13);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -830,19 +1105,20 @@
                     }
                 },
                 
-                // 步骤13: Client向Server发送工具调用请求
+                // 步骤15: Client向Server发送工具调用请求
                 () => {
-                    document.getElementById('step-title').textContent = "13. Client向Server发送工具调用请求";
+                    document.getElementById('step-title').textContent = "15. Client向Server发送工具调用请求";
                     const clientToServer = createAnimatedConnection(client, server, "发送工具调用请求", false, true);
                     localConnections.push(clientToServer.line);
                     flowTexts.push(clientToServer.label);
                     
                     // 添加数据流动画效果
-                    const dataBall7 = createDataBall(client.position, server.position, 0xe74c3c);
+                    const dataBall7 = createEnhancedDataBall(client.position, server.position, 0xe74c3c);
                     dataBalls.push(dataBall7);
+                    createConnectionEffect(client.position, server.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("7. Client向Server请求调用工具", -5, -2, 0);
+                    addFloatingLabel("9. Client向Server请求调用工具", -5, -2, 0, currentStep, 14);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -850,19 +1126,20 @@
                     }
                 },
                 
-                // 步骤14: Server调用工具函数
+                // 步骤16: Server调用工具函数
                 () => {
-                    document.getElementById('step-title').textContent = "14. Server调用工具函数";
+                    document.getElementById('step-title').textContent = "16. Server调用工具函数";
                     const serverToFunction = createAnimatedConnection(server, functionEntity, "调用工具函数");
                     localConnections.push(serverToFunction.line);
                     flowTexts.push(serverToFunction.label);
                     
                     // 添加数据流动画效果
-                    const dataBall8 = createDataBall(server.position, functionEntity.position, 0xf39c12);
+                    const dataBall8 = createEnhancedDataBall(server.position, functionEntity.position, 0xf39c12);
                     dataBalls.push(dataBall8);
+                    createConnectionEffect(server.position, functionEntity.position, 0xf39c12);
                     
                     // 添加说明
-                    addFloatingLabel("8. Server调用本地工具", -2, -3, 0);
+                    addFloatingLabel("10. Server调用本地工具", -2, -3, 0, currentStep, 15);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -870,19 +1147,20 @@
                     }
                 },
                 
-                // 步骤15: 工具函数访问数据源
+                // 步骤17: 工具函数访问数据源
                 () => {
-                    document.getElementById('step-title').textContent = "15. 工具函数访问数据源";
+                    document.getElementById('step-title').textContent = "17. 工具函数访问数据源";
                     const functionToData = createAnimatedConnection(functionEntity, data, "访问数据");
                     localConnections.push(functionToData.line);
                     flowTexts.push(functionToData.label);
                     
                     // 添加数据流动画效果
-                    const dataBall9 = createDataBall(functionEntity.position, data.position, 0x9b59b6);
+                    const dataBall9 = createEnhancedDataBall(functionEntity.position, data.position, 0x9b59b6);
                     dataBalls.push(dataBall9);
+                    createConnectionEffect(functionEntity.position, data.position, 0x9b59b6);
                     
                     // 添加说明
-                    addFloatingLabel("9. 工具访问外部数据", 0, -6, 0);
+                    addFloatingLabel("11. 工具访问外部数据", 0, -6, 0, currentStep, 16);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -890,19 +1168,20 @@
                     }
                 },
                 
-                // 步骤16: 数据源返回数据给工具函数
+                // 步骤18: 数据源返回数据给工具函数
                 () => {
-                    document.getElementById('step-title').textContent = "16. 数据源返回数据给工具函数";
+                    document.getElementById('step-title').textContent = "18. 数据源返回数据给工具函数";
                     const dataToFunction = createAnimatedConnection(data, functionEntity, "返回数据");
                     localConnections.push(dataToFunction.line);
                     flowTexts.push(dataToFunction.label);
                     
                     // 添加数据流动画效果
-                    const dataBall10 = createDataBall(data.position, functionEntity.position, 0x2ecc71);
+                    const dataBall10 = createEnhancedDataBall(data.position, functionEntity.position, 0x2ecc71);
                     dataBalls.push(dataBall10);
+                    createConnectionEffect(data.position, functionEntity.position, 0x2ecc71);
                     
                     // 添加说明
-                    addFloatingLabel("10. 数据源返回数据", 3, -6, 0);
+                    addFloatingLabel("12. 数据源返回数据", 3, -6, 0, currentStep, 17);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -910,19 +1189,20 @@
                     }
                 },
                 
-                // 步骤17: 函数执行结果返回给Server
+                // 步骤19: 函数执行结果返回给Server
                 () => {
-                    document.getElementById('step-title').textContent = "17. 函数执行结果返回给Server";
+                    document.getElementById('step-title').textContent = "19. 函数执行结果返回给Server";
                     const functionToServer = createAnimatedConnection(functionEntity, server, "返回处理结果");
                     localConnections.push(functionToServer.line);
                     flowTexts.push(functionToServer.label);
                     
                     // 添加数据流动画效果
-                    const dataBall11 = createDataBall(functionEntity.position, server.position, 0x9b59b6);
+                    const dataBall11 = createEnhancedDataBall(functionEntity.position, server.position, 0x9b59b6);
                     dataBalls.push(dataBall11);
+                    createConnectionEffect(functionEntity.position, server.position, 0x9b59b6);
                     
                     // 添加说明
-                    addFloatingLabel("11. Server执行function-calling并获取结果", -1, -8, 0);
+                    addFloatingLabel("13. Server执行function-calling并获取结果", -1, -8, 0, currentStep, 18);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -930,19 +1210,20 @@
                     }
                 },
                 
-                // 步骤18: Server将结果返回给Client
+                // 步骤20: Server将结果返回给Client
                 () => {
-                    document.getElementById('step-title').textContent = "18. Server将结果返回给Client";
+                    document.getElementById('step-title').textContent = "20. Server将结果返回给Client";
                     const serverToClient = createAnimatedConnection(server, client, "返回工具执行结果", false, true);
                     localConnections.push(serverToClient.line);
                     flowTexts.push(serverToClient.label);
                     
                     // 添加数据流动画效果
-                    const dataBall12 = createDataBall(server.position, client.position, 0xf39c12);
+                    const dataBall12 = createEnhancedDataBall(server.position, client.position, 0xf39c12);
                     dataBalls.push(dataBall12);
+                    createConnectionEffect(server.position, client.position, 0xf39c12);
                     
                     // 添加说明
-                    addFloatingLabel("12. Server返回工具执行结果", 0, -1, 0);
+                    addFloatingLabel("14. Server返回工具执行结果", 0, -1, 0, currentStep, 19);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -950,19 +1231,20 @@
                     }
                 },
                 
-                // 步骤19: Client将工具结果提供给LLM
+                // 步骤21: Client将工具结果提供给LLM
                 () => {
-                    document.getElementById('step-title').textContent = "19. Client将工具结果提供给LLM";
+                    document.getElementById('step-title').textContent = "21. Client将工具结果提供给LLM";
                     const clientToLlm = createAnimatedConnection(client, llm, "提供工具结果", false, true);
                     localConnections.push(clientToLlm.line);
                     flowTexts.push(clientToLlm.label);
                     
                     // 添加数据流动画效果
-                    const dataBall13 = createDataBall(client.position, llm.position, 0xe74c3c);
+                    const dataBall13 = createEnhancedDataBall(client.position, llm.position, 0xe74c3c);
                     dataBalls.push(dataBall13);
+                    createConnectionEffect(client.position, llm.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("13. Client将工具结果传递给LLM", -3, 3, 0);
+                    addFloatingLabel("15. Client将工具结果传递给LLM", -3, 3, 0, currentStep, 20);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -970,19 +1252,20 @@
                     }
                 },
                 
-                // 步骤20: LLM生成回复
+                // 步骤22: LLM生成回复
                 () => {
-                    document.getElementById('step-title').textContent = "20. LLM生成回复";
+                    document.getElementById('step-title').textContent = "22. LLM生成回复";
                     const llmToClient = createAnimatedConnection(llm, client, "生成回复", false, true);
                     localConnections.push(llmToClient.line);
                     flowTexts.push(llmToClient.label);
                     
                     // 添加数据流动画效果
-                    const dataBall14 = createDataBall(llm.position, client.position, 0x1abc9c);
+                    const dataBall14 = createEnhancedDataBall(llm.position, client.position, 0x1abc9c);
                     dataBalls.push(dataBall14);
+                    createConnectionEffect(llm.position, client.position, 0x1abc9c);
                     
                     // 添加说明
-                    addFloatingLabel("14. LLM结合工具结果生成回复", 4, 3, 0);
+                    addFloatingLabel("16. LLM结合工具结果生成回复", 4, 3, 0, currentStep, 21);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -990,19 +1273,20 @@
                     }
                 },
                 
-                // 步骤21: Client将最终回复传递给Host
+                // 步骤23: Client将最终回复传递给Host
                 () => {
-                    document.getElementById('step-title').textContent = "21. Client将最终回复传递给Host";
+                    document.getElementById('step-title').textContent = "23. Client将最终回复传递给Host";
                     const clientToHost = createAnimatedConnection(client, host, "传递最终回复");
                     localConnections.push(clientToHost.line);
                     flowTexts.push(clientToHost.label);
                     
                     // 添加数据流动画效果
-                    const dataBall15 = createDataBall(client.position, host.position, 0xe74c3c);
+                    const dataBall15 = createEnhancedDataBall(client.position, host.position, 0xe74c3c);
                     dataBalls.push(dataBall15);
+                    createConnectionEffect(client.position, host.position, 0xe74c3c);
                     
                     // 添加说明
-                    addFloatingLabel("16. 最终回复传递给用户", -6, 0, 0);
+                    addFloatingLabel("17. 最终回复传递给用户", -6, 0, 0, currentStep, 22);
                     
                     if (!animationPaused) {
                         const timeout = setTimeout(() => nextAnimationStep(), 2000);
@@ -1010,12 +1294,12 @@
                     }
                 },
                 
-                // 步骤22: 完成工作流
+                // 步骤24: 完成工作流
                 () => {
-                    document.getElementById('step-title').textContent = "22. 完成MCP工作流";
+                    document.getElementById('step-title').textContent = "24. 完成MCP工作流";
                     
                     // 添加总结说明
-                    addFloatingLabel("17. MCP完成数据传递", 0, -10, 0);
+                    addFloatingLabel("18. MCP完成数据传递", 0, -10, 0);
                     
                     // 更新最终步骤中的连接线
                     updateConnectionsForFinalStep(localConnections);
@@ -1049,6 +1333,19 @@
                     
                     // 更新进度条
                     updateProgressBar(currentAnimationStep);
+                    
+                    // 更新标签透明度 - 考虑动画步骤而不仅是全局步骤
+                    if (currentStep === 6) { // 第7步（索引为6）
+                        allLabels.forEach(label => {
+                            if (label && label.element) {
+                                // 根据动画步骤ID更新标签透明度
+                                updateLabelOpacity(label.element);
+                            }
+                        });
+                    } else {
+                        // 其他步骤使用原始的标签透明度更新逻辑
+                        setTimeout(updateAllLabelsOpacity, 100);
+                    }
                 }
             }
             
@@ -1075,6 +1372,19 @@
                 
                 // 更新进度条
                 updateProgressBar(currentAnimationStep);
+                
+                // 延迟更新所有标签的透明度 - 考虑动画步骤
+                if (currentStep === 6) { // 第7步（索引为6）
+                    allLabels.forEach(label => {
+                        if (label && label.element) {
+                            // 根据动画步骤ID更新标签透明度
+                            updateLabelOpacity(label.element);
+                        }
+                    });
+                } else {
+                    // 其他步骤使用原始的标签透明度更新逻辑
+                    setTimeout(updateAllLabelsOpacity, 100);
+                }
             }
             
             // 重置场景状态
@@ -1271,10 +1581,12 @@
                     "显示数据源",
                     "显示工具函数",
                     "显示LLM",
-                    "Host向Client发送查询请求",
-                    "Client连接到Server",
-                    "Server检索工具列表",
-                    "Server返回工具列表给Client",
+                    "多个Server提前启动",
+                    "多个Server查找各自的功能函数",
+                    "Host触发Client连接Server",
+                    "Client连接多个Server",
+                    "所有Server返回功能函数列表给Client",
+                    "用户输入查询",
                     "Client向LLM提供工具信息和查询内容",
                     "LLM选择合适的工具",
                     "Client向Server发送工具调用请求",
@@ -1463,16 +1775,20 @@
             nextAnimationStep();
         }
         
-        // 创建数据流动动画球体
-        function createDataBall(startPos, endPos, color) {
-            // 创建小球
-            const ballGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+        // 添加粒子特效系统
+        let particleGroups = [];
+        
+        // 创建增强版数据球和轨迹特效
+        function createEnhancedDataBall(startPos, endPos, color) {
+            // 基础球体
+            const ballGeometry = new THREE.SphereGeometry(0.2, 12, 12); // 提高球体细分度
             const ballMaterial = new THREE.MeshPhongMaterial({
                 color: color,
                 emissive: color,
-                emissiveIntensity: 0.5,
+                emissiveIntensity: 0.8,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.9,
+                shininess: 100
             });
             const ball = new THREE.Mesh(ballGeometry, ballMaterial);
             
@@ -1481,24 +1797,168 @@
             scene.add(ball);
             objects.push(ball);
             
+            // 发光光晕
+            const glowSize = 0.35;
+            const glowGeometry = new THREE.SphereGeometry(glowSize, 16, 16);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.4,
+                side: THREE.BackSide,
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            ball.add(glow);
+            
+            // 粒子系统 - 创建跟随球体的尾迹
+            const particleCount = 40;
+            const particleGroup = new THREE.Group();
+            scene.add(particleGroup);
+            particleGroups.push(particleGroup);
+            
+            // 计算方向向量
+            const direction = new THREE.Vector3().subVectors(endPos, startPos).normalize();
+            
             // 设置动画
             const startTime = Date.now();
             const duration = 2000; // 2秒
+            const particleLifespan = 800; // 粒子寿命(毫秒)
+            let particles = [];
             
             function animateBall() {
-                const elapsedTime = Date.now() - startTime;
+                const currentTime = Date.now();
+                const elapsedTime = currentTime - startTime;
                 const progress = Math.min(elapsedTime / duration, 1);
                 
                 // 使用缓动函数
                 const easeProgress = easeInOutQuad(progress);
                 
                 // 计算当前位置
-                ball.position.lerpVectors(startPos, endPos, easeProgress);
+                const currentPosition = new THREE.Vector3();
+                currentPosition.lerpVectors(startPos, endPos, easeProgress);
+                ball.position.copy(currentPosition);
+                
+                // 添加新粒子 (每帧添加1-2个粒子)
+                if (progress < 0.95) {
+                    const particleCount = Math.random() > 0.5 ? 1 : 2;
+                    for (let i = 0; i < particleCount; i++) {
+                        createParticle(currentPosition, direction, currentTime, color);
+                    }
+                }
+                
+                // 更新所有粒子
+                updateParticles(currentTime);
                 
                 // 如果没有完成，继续动画
                 if (progress < 1) {
                     requestAnimationFrame(animateBall);
+                } else {
+                    // 动画完成后，逐渐消失粒子
+                    const cleanupInterval = setInterval(() => {
+                        if (particles.length === 0) {
+                            clearInterval(cleanupInterval);
+                            scene.remove(particleGroup);
+                            const index = particleGroups.indexOf(particleGroup);
+                            if (index > -1) {
+                                particleGroups.splice(index, 1);
+                            }
+                        }
+                        updateParticles(Date.now());
+                    }, 100);
                 }
+            }
+            
+            // 创建粒子
+            function createParticle(position, direction, birthTime, baseColor) {
+                // 粒子大小随机变化
+                const size = 0.05 + Math.random() * 0.1;
+                const geometry = new THREE.SphereGeometry(size, 8, 8);
+                
+                // 基于基础颜色增加一些随机变化
+                const hsl = new THREE.Color(baseColor).getHSL({});
+                const newColor = new THREE.Color().setHSL(
+                    hsl.h + (Math.random() * 0.1 - 0.05), // 色调微调
+                    hsl.s * (0.8 + Math.random() * 0.4), // 饱和度变化
+                    hsl.l * (0.8 + Math.random() * 0.4)  // 亮度变化
+                );
+                
+                const material = new THREE.MeshBasicMaterial({
+                    color: newColor,
+                    transparent: true,
+                    opacity: 0.7 + Math.random() * 0.3
+                });
+                
+                const particle = new THREE.Mesh(geometry, material);
+                
+                // 位置微调，在球体附近随机位置
+                const offset = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.1,
+                    (Math.random() - 0.5) * 0.1,
+                    (Math.random() - 0.5) * 0.1
+                );
+                particle.position.copy(position).add(offset);
+                
+                // 添加反向偏移，让粒子从球体后方生成，形成拖尾效果
+                const backOffset = new THREE.Vector3().copy(direction).multiplyScalar(-0.1 - Math.random() * 0.2);
+                particle.position.add(backOffset);
+                
+                // 粒子数据
+                particle.userData = {
+                    birthTime: birthTime,
+                    lifespan: particleLifespan * (0.8 + Math.random() * 0.4), // 随机寿命
+                    initialScale: particle.scale.x,
+                    velocity: new THREE.Vector3(
+                        // 速度方向基于球体移动方向，但有随机偏移
+                        direction.x * (-0.3 - Math.random() * 0.3) + (Math.random() - 0.5) * 0.02,
+                        direction.y * (-0.3 - Math.random() * 0.3) + (Math.random() - 0.5) * 0.02,
+                        direction.z * (-0.3 - Math.random() * 0.3) + (Math.random() - 0.5) * 0.02
+                    )
+                };
+                
+                particleGroup.add(particle);
+                particles.push(particle);
+            }
+            
+            // 更新所有粒子
+            function updateParticles(currentTime) {
+                const particlesToRemove = [];
+                
+                particles.forEach(particle => {
+                    const age = currentTime - particle.userData.birthTime;
+                    
+                    if (age > particle.userData.lifespan) {
+                        particlesToRemove.push(particle);
+                    } else {
+                        // 计算生命周期百分比 (0-1)
+                        const lifeProgress = age / particle.userData.lifespan;
+                        
+                        // 更新透明度 - 开始和结束时较低，中间较高
+                        const opacityFactor = Math.sin(lifeProgress * Math.PI);
+                        particle.material.opacity = opacityFactor * 0.7;
+                        
+                        // 更新大小 - 逐渐变小
+                        const scaleFactor = 1 - lifeProgress * 0.9;
+                        particle.scale.set(
+                            particle.userData.initialScale * scaleFactor,
+                            particle.userData.initialScale * scaleFactor,
+                            particle.userData.initialScale * scaleFactor
+                        );
+                        
+                        // 更新位置 - 基于速度
+                        particle.position.add(particle.userData.velocity);
+                        
+                        // 速度逐渐变慢
+                        particle.userData.velocity.multiplyScalar(0.95);
+                    }
+                });
+                
+                // 移除过期粒子
+                particlesToRemove.forEach(particle => {
+                    particleGroup.remove(particle);
+                    const index = particles.indexOf(particle);
+                    if (index > -1) {
+                        particles.splice(index, 1);
+                    }
+                });
             }
             
             // 开始动画
@@ -1507,100 +1967,131 @@
             return ball;
         }
         
-        // 创建带动画效果的连接线和标签
-        function createAnimatedConnection(obj1, obj2, text, dashed = false, isSecondLabel = false) {
-            const points = [];
-            points.push(obj1.position.clone());
-            points.push(obj2.position.clone());
+        // 创建电影级闪光特效 - 用于连接线的特效
+        function createConnectionEffect(start, end, color, duration = 2000) {
+            // 从起点到终点的方向向量
+            const direction = new THREE.Vector3().subVectors(end, start).normalize();
             
-            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-            let lineMaterial;
+            // 创建一组闪光粒子
+            const flashCount = Math.floor(10 + Math.random() * 5);
+            const flashGroup = new THREE.Group();
+            scene.add(flashGroup);
             
-            if (dashed) {
-                lineMaterial = new THREE.LineDashedMaterial({
-                    color: 0xffffff,
-                    dashSize: 0.3,
-                    gapSize: 0.1,
+            // 控制变量
+            const startTime = Date.now();
+            const flashes = [];
+            
+            // 创建闪光效果
+            for (let i = 0; i < flashCount; i++) {
+                // 确定闪光在路径上的位置 (0-1)
+                const positionOnPath = Math.random();
+                
+                // 闪光出现的时间 (ms)
+                const appearTime = startTime + positionOnPath * duration * 0.9;
+                
+                // 闪光形状 - 使用精灵为了始终面向摄像机
+                const flashMaterial = new THREE.SpriteMaterial({
+                    color: color,
                     transparent: true,
-                    opacity: 0
+                    opacity: 0,
+                    blending: THREE.AdditiveBlending
                 });
-            } else {
-                lineMaterial = new THREE.LineBasicMaterial({ 
-                    color: 0xffffff,
+                
+                const flash = new THREE.Sprite(flashMaterial);
+                flash.scale.set(0.3, 0.3, 1);
+                
+                // 计算闪光位置
+                const flashPosition = new THREE.Vector3().lerpVectors(start, end, positionOnPath);
+                // 添加一点随机偏移
+                const offset = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.1,
+                    (Math.random() - 0.5) * 0.1,
+                    (Math.random() - 0.5) * 0.1
+                );
+                flashPosition.add(offset);
+                flash.position.copy(flashPosition);
+                
+                // 存储闪光数据
+                flash.userData = {
+                    appearTime: appearTime,
+                    duration: 200 + Math.random() * 300, // 闪光持续时间 200-500ms
+                    maxOpacity: 0.6 + Math.random() * 0.4,
+                    maxScale: 0.2 + Math.random() * 0.3
+                };
+                
+                flashGroup.add(flash);
+                flashes.push(flash);
+                
+                // 创建延迟0.1秒的重复闪光以增强光晕效果
+                const delayedFlashMaterial = new THREE.SpriteMaterial({
+                    color: color,
                     transparent: true,
-                    opacity: 0
+                    opacity: 0,
+                    blending: THREE.AdditiveBlending
                 });
+                
+                const delayedFlash = new THREE.Sprite(delayedFlashMaterial);
+                delayedFlash.scale.set(0.3, 0.3, 1);
+                delayedFlash.position.copy(flashPosition);
+                
+                // 存储延迟闪光数据
+                delayedFlash.userData = {
+                    appearTime: appearTime + 50, // 延迟0.1秒
+                    duration: 200 + Math.random() * 300,
+                    maxOpacity: 0.4 + Math.random() * 0.3, // 略低的不透明度
+                    maxScale: 0.25 + Math.random() * 0.35 // 略大的尺寸
+                };
+                
+                flashGroup.add(delayedFlash);
+                flashes.push(delayedFlash);
             }
             
-            const line = new THREE.Line(lineGeometry, lineMaterial);
-            
-            if (dashed) {
-                line.computeLineDistances();
+            // 动画函数
+            function animateFlashes() {
+                const currentTime = Date.now();
+                const elapsed = currentTime - startTime;
+                
+                // 更新所有闪光
+                flashes.forEach(flash => {
+                    const flashAge = currentTime - flash.userData.appearTime;
+                    
+                    if (flashAge > 0 && flashAge < flash.userData.duration) {
+                        // 闪光正在活跃期
+                        const progress = flashAge / flash.userData.duration;
+                        
+                        // 闪光亮度变化 - 快速亮起，缓慢暗下
+                        let opacity;
+                        if (progress < 0.2) {
+                            // 快速亮起
+                            opacity = (progress / 0.2) * flash.userData.maxOpacity;
+                        } else {
+                            // 缓慢暗下
+                            opacity = flash.userData.maxOpacity * (1 - ((progress - 0.2) / 0.8));
+                        }
+                        flash.material.opacity = opacity;
+                        
+                        // 闪光大小变化
+                        const scale = flash.userData.maxScale * (1 + Math.sin(progress * Math.PI) * 0.5);
+                        flash.scale.set(scale, scale, 1);
+                    } else if (flashAge >= flash.userData.duration) {
+                        // 闪光结束，设为不可见
+                        flash.material.opacity = 0;
+                    }
+                });
+                
+                // 继续动画或清理
+                if (elapsed < duration + 700) { // 额外700ms确保所有闪光完成
+                    requestAnimationFrame(animateFlashes);
+                } else {
+                    // 动画结束，清理
+                    scene.remove(flashGroup);
+                }
             }
             
-            scene.add(line);
-            connections.push(line); // 添加到全局connections数组确保不会被清除
+            // 开始动画
+            animateFlashes();
             
-            // 计算中点
-            const midPoint = new THREE.Vector3().addVectors(
-                obj1.position,
-                obj2.position
-            ).multiplyScalar(0.5);
-            
-            // 为避免标签重叠，计算标签位置的偏移量
-            let labelOffset = new THREE.Vector3(0, 0, 0);
-            const direction = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
-            // 计算垂直于连接线方向的向量
-            const perpendicular = new THREE.Vector3(-direction.y, direction.x, 0).normalize();
-            
-            // 如果是第二个标签，放在线的下方，并增加偏移量
-            if (isSecondLabel) {
-                labelOffset.addScaledVector(perpendicular, -1.2); // 向下偏移，增加偏移量
-            } else {
-                labelOffset.addScaledVector(perpendicular, 1.2); // 向上偏移，增加偏移量
-            }
-            
-            // 添加标签，但最初是隐藏的
-            const label = createTextLabel(text, 
-                midPoint.x + labelOffset.x, 
-                midPoint.y + labelOffset.y, 
-                midPoint.z + labelOffset.z);
-            
-            if (label.element) {
-                label.element.style.opacity = 0;
-            }
-            
-            // 添加箭头
-            const arrowLength = 0.4;
-            const angle = Math.atan2(direction.y, direction.x);
-            
-            // 箭头位置 - 距离终点前一点
-            const arrowX = obj2.position.x - arrowLength * Math.cos(angle);
-            const arrowY = obj2.position.y - arrowLength * Math.sin(angle);
-            
-            const arrowGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
-            const arrowMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0
-            });
-            
-            const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-            arrow.position.set(arrowX, arrowY, 0);
-            arrow.rotation.z = angle - Math.PI / 2;
-            scene.add(arrow);
-            objects.push(arrow);
-            
-            // 创建淡入动画
-            fadeInObject(line, 1000);
-            fadeInObject(arrow, 1000);
-            
-            // 标签淡入
-            if (label.element) {
-                fadeInElement(label.element, 1000);
-            }
-            
-            return { line, label, arrow };
+            return flashGroup;
         }
         
         // 淡入对象
@@ -1696,38 +2187,165 @@
         }
         
         // 创建浮动文本标签（不附加到对象）
-        function createTextLabel(text, x, y, z) {
+        function createTextLabel(text, x, y, z, stepId = currentStep) {
             const labelDiv = document.createElement('div');
             labelDiv.className = 'label';
             labelDiv.textContent = text;
+            
+            // 保存步骤ID
+            labelDiv.dataset.stepId = stepId;
+            
+            // 添加鼠标事件
+            labelDiv.addEventListener('mouseover', () => {
+                labelDiv.style.opacity = '1';
+                labelDiv.style.transition = 'opacity 0.2s ease';
+            });
+            
+            labelDiv.addEventListener('mouseout', () => {
+                updateLabelOpacity(labelDiv);
+            });
             
             const label = new THREE.CSS2DObject(labelDiv);
             label.position.set(x, y, z);
             scene.add(label);
             labels.push(label);
+            allLabels.push(label); // 添加到所有标签数组
+            
+            // 如果是当前步骤的标签，添加到当前步骤标签数组
+            if (stepId === currentStep) {
+                currentStepLabels.push(label);
+            }
+            
+            // 设置初始透明度 - 强制设置
+            if (parseInt(labelDiv.dataset.stepId) === currentStep) {
+                labelDiv.style.opacity = '1';
+            } else {
+                labelDiv.style.opacity = '0.2';
+            }
+            
             return label;
         }
         
-        // 添加文本标签
-        function addTextLabel(parent, text, yOffset = 1.2) {
+        // 添加标签到对象
+        function addTextLabel(parent, text, yOffset = 1.2, stepId = currentStep) {
             const labelDiv = document.createElement('div');
             labelDiv.className = 'label';
             labelDiv.textContent = text;
+            
+            // 保存步骤ID
+            labelDiv.dataset.stepId = stepId;
+            
+            // 添加鼠标事件
+            labelDiv.addEventListener('mouseover', () => {
+                labelDiv.style.opacity = '1';
+                labelDiv.style.transition = 'opacity 0.2s ease';
+            });
+            
+            labelDiv.addEventListener('mouseout', () => {
+                updateLabelOpacity(labelDiv);
+            });
             
             const label = new THREE.CSS2DObject(labelDiv);
             label.position.set(0, yOffset, 0);
             parent.add(label);
             labels.push(label);
+            allLabels.push(label); // 添加到所有标签数组
+            
+            // 如果是当前步骤的标签，添加到当前步骤标签数组
+            if (stepId === currentStep) {
+                currentStepLabels.push(label);
+            }
+            
+            // 设置初始透明度
+            updateLabelOpacity(labelDiv);
+            
             return label;
         }
         
-        // 添加浮动标签（不附加到任何对象）
-        function addFloatingLabel(text, x, y, z) {
-            return createTextLabel(text, x, y, z);
+        // 添加浮动标签
+        function addFloatingLabel(text, x, y, z, stepId = currentStep, animStepId = null) {
+            const label = createTextLabel(text, x, y, z, stepId);
+            
+            // 如果处于第7步且提供了动画步骤ID，添加该ID到标签
+            if (currentStep === 6 && animStepId !== null && label.element) {
+                label.element.dataset.animStepId = animStepId;
+            }
+            
+            return label;
         }
         
-        // 创建连接线
-        function createConnection(obj1, obj2, color = 0xaaaaaa, dashed = false) {
+        // 标签透明度管理函数
+        function updateLabelOpacity(labelDiv) {
+            if (!labelDiv) return;
+            
+            // 只在步骤7（完整工作流）中应用透明度变化，其他步骤保持原样
+            if (currentStep === 6) { // 步骤7的索引是6
+                // 获取当前动画步骤标识（如果存在）
+                const animStepId = labelDiv.dataset.animStepId;
+                
+                // 只有当标签有动画步骤ID且与当前动画步骤匹配时，才保持不透明
+                if (animStepId && parseInt(animStepId) === currentAnimationStep) {
+                    labelDiv.style.opacity = '1';
+                } else {
+                    labelDiv.style.opacity = '0.2';
+                }
+            } else {
+                // 其他步骤中，所有标签都保持完全不透明
+                labelDiv.style.opacity = '1';
+            }
+            
+            labelDiv.style.transition = 'opacity 0.3s ease';
+        }
+        
+        // 更新所有标签的透明度
+        function updateAllLabelsOpacity() {
+            console.log("更新所有标签透明度, 当前步骤:", currentStep);
+            allLabels.forEach(label => {
+                if (label && label.element) {
+                    updateLabelOpacity(label.element);
+                }
+            });
+        }
+        
+        // 修改nextStep和prevStep函数，确保标签透明度更新
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                // 清空当前步骤标签数组
+                currentStepLabels = [];
+                
+                currentStep++;
+                steps[currentStep]();
+                
+                document.getElementById('prev-btn').disabled = false;
+                if (currentStep === steps.length - 1) {
+                    document.getElementById('next-btn').disabled = true;
+                }
+                
+                // 延迟一小段时间后更新标签透明度，确保新标签已创建
+                setTimeout(updateAllLabelsOpacity, 100);
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 0) {
+                // 清空当前步骤标签数组
+                currentStepLabels = [];
+                
+                currentStep--;
+                steps[currentStep]();
+                
+                document.getElementById('next-btn').disabled = false;
+                if (currentStep === 0) {
+                    document.getElementById('prev-btn').disabled = true;
+                }
+                
+                // 延迟一小段时间后更新标签透明度，确保新标签已创建
+                setTimeout(updateAllLabelsOpacity, 100);
+            }
+        }
+        
+        // 修改createAnimatedConnection函数中的标签创建部分
+        function createAnimatedConnection(obj1, obj2, text, dashed = false, isSecondLabel = false, color = 0xffffff, lineWidth = 1) {
             const points = [];
             points.push(obj1.position.clone());
             points.push(obj2.position.clone());
@@ -1740,9 +2358,17 @@
                     color: color,
                     dashSize: 0.3,
                     gapSize: 0.1,
+                    transparent: true,
+                    opacity: 0,
+                    linewidth: lineWidth // 注意：在WebGL中linewidth可能不起作用
                 });
             } else {
-                lineMaterial = new THREE.LineBasicMaterial({ color: color });
+                lineMaterial = new THREE.LineBasicMaterial({ 
+                    color: color,
+                    transparent: true,
+                    opacity: 0,
+                    linewidth: lineWidth // 注意：在WebGL中linewidth可能不起作用
+                });
             }
             
             const line = new THREE.Line(lineGeometry, lineMaterial);
@@ -1751,9 +2377,107 @@
                 line.computeLineDistances();
             }
             
-            scene.add(line);
-            connections.push(line);
-            return line;
+            scene.add(line); // 添加到全局connections数组确保不会被清除
+            
+            // 计算中点
+            const midPoint = new THREE.Vector3().addVectors(
+                obj1.position,
+                obj2.position
+            ).multiplyScalar(0.5);
+            
+            // 为避免标签重叠，计算标签位置的偏移量
+            let labelOffset = new THREE.Vector3(0, 0, 0);
+            const direction = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
+            // 计算垂直于连接线方向的向量 - 确保在3D空间中仍然可见
+            const upVector = new THREE.Vector3(0, 1, 0);
+            const perpendicular = new THREE.Vector3().crossVectors(direction, upVector).normalize();
+            
+            // 如果是第二个标签，放在线的下方，并增加偏移量
+            if (isSecondLabel) {
+                labelOffset.addScaledVector(perpendicular, -1.2); // 向下偏移，增加偏移量
+                labelOffset.y -= 0.5; // 额外的Y轴偏移，确保在3D空间中分开
+            } else {
+                labelOffset.addScaledVector(perpendicular, 1.2); // 向上偏移，增加偏移量
+                labelOffset.y += 0.5; // 额外的Y轴偏移，确保在3D空间中分开
+            }
+            
+            // 添加标签，但最初是隐藏的
+            const label = createTextLabel(text, 
+                midPoint.x + labelOffset.x, 
+                midPoint.y + labelOffset.y, 
+                midPoint.z + labelOffset.z,
+                currentStep); // 传递当前步骤ID
+            
+            if (label.element) {
+                label.element.style.opacity = 0;
+            }
+            
+            // 创建一个管道代替简单的线，使其在3D空间中更明显
+            const tubeGeometry = new THREE.TubeGeometry(
+                new THREE.CatmullRomCurve3([obj1.position.clone(), midPoint.clone(), obj2.position.clone()]),
+                16, // 管道分段数
+                0.05, // 管道半径
+                8, // 管道圆周分段数
+                false // 是否闭合
+            );
+            
+            const tubeMaterial = new THREE.MeshPhongMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0,
+                shininess: 30
+            });
+            
+            const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+            scene.add(tube);
+            objects.push(tube);
+            
+            // 添加箭头
+            const arrowLength = 0.4;
+            const angle = Math.atan2(
+                obj2.position.y - obj1.position.y,
+                Math.sqrt(Math.pow(obj2.position.x - obj1.position.x, 2) + Math.pow(obj2.position.z - obj1.position.z, 2))
+            );
+            
+            // 箭头位置 - 距离终点前一点，3D空间中的计算
+            const arrowDir = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
+            const arrowPos = new THREE.Vector3().copy(obj2.position).sub(arrowDir.multiplyScalar(arrowLength));
+            
+            const arrowGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
+            const arrowMaterial = new THREE.MeshPhongMaterial({ 
+                color: color,
+                transparent: true,
+                opacity: 0
+            });
+            
+            const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+            arrow.position.copy(arrowPos);
+            
+            // 计算箭头的旋转，使其指向目标对象
+            const arrowQuaternion = new THREE.Quaternion();
+            const arrowDirection = new THREE.Vector3().subVectors(obj2.position, obj1.position).normalize();
+            const arrowUp = new THREE.Vector3(0, 1, 0);
+            const arrowMatrix = new THREE.Matrix4().lookAt(obj1.position, obj2.position, arrowUp);
+            arrowQuaternion.setFromRotationMatrix(arrowMatrix);
+            arrow.quaternion.copy(arrowQuaternion);
+            arrow.rotateX(Math.PI / 2); // 调整箭头方向
+            
+            scene.add(arrow);
+            objects.push(arrow);
+            
+            // 创建淡入动画
+            fadeInObject(line, 1000);
+            fadeInObject(tube, 1000);
+            fadeInObject(arrow, 1000);
+            
+            // 标签淡入
+            if (label.element) {
+                fadeInElement(label.element, 1000, () => {
+                    updateLabelOpacity(label.element);
+                });
+            }
+            
+            return { line, tube, label, arrow };
         }
         
         // 清除场景
@@ -1819,13 +2543,14 @@
             document.getElementById('prev-btn').disabled = true;
             document.getElementById('next-btn').disabled = false;
             
-            // 移除在开始时显示进度条的代码
-            
             // 初始化进度条步骤标记
             initProgressMarkers();
             
             // 添加相机旋转动画
             animateCameraRotation(25, 1000);
+            
+            // 更新标签透明度
+            setTimeout(updateAllLabelsOpacity, 100);
         }
         
         // 相机旋转动画
@@ -1881,36 +2606,14 @@
             return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         }
         
-        // 上一步
-        function prevStep() {
-            if (currentStep > 0) {
-                currentStep--;
-                steps[currentStep]();
-                
-                document.getElementById('next-btn').disabled = false;
-                if (currentStep === 0) {
-                    document.getElementById('prev-btn').disabled = true;
-                }
-            }
-        }
-        
-        // 下一步
-        function nextStep() {
-            if (currentStep < steps.length - 1) {
-                currentStep++;
-                steps[currentStep]();
-                
-                document.getElementById('prev-btn').disabled = false;
-                if (currentStep === steps.length - 1) {
-                    document.getElementById('next-btn').disabled = true;
-                }
-            }
-        }
-        
         // 重置演示
         function resetDemo() {
             clearScene();
             currentStep = -1;
+            
+            // 重置标签数组
+            currentStepLabels = [];
+            allLabels = [];
             
             // 重置相机到默认位置
             camera.position.set(0, 0, 20);
@@ -1969,6 +2672,9 @@
         // 跳转到指定步骤
         function jumpToStep(stepIndex) {
             if (stepIndex >= 0 && stepIndex < steps.length) {
+                // 清空当前步骤标签数组
+                currentStepLabels = [];
+                
                 currentStep = stepIndex;
                 steps[currentStep]();
                 
@@ -1978,6 +2684,9 @@
                 
                 // 更新进度条
                 updateProgressBar(currentStep);
+                
+                // 延迟更新所有标签的透明度
+                setTimeout(updateAllLabelsOpacity, 100);
             }
         }
         
@@ -2125,6 +2834,105 @@
                 clearInterval(playInterval);
                 playInterval = null;
             }
+        }
+        
+        // 在动画函数区域添加脉冲效果函数
+        // 创建脉冲效果（用于表示用户输入或Server启动）
+        function createPulsingEffect(targetObject, color) {
+            // 创建一个环形几何体
+            const ringGeometry = new THREE.RingGeometry(1, 1.2, 32);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.7,
+                side: THREE.DoubleSide
+            });
+            
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.position.copy(targetObject.position);
+            ring.position.x -= 1.5; // 稍微偏移，表示从用户来的输入
+            ring.position.y += 1.5;
+            // 旋转环使其垂直于与目标对象连线
+            const direction = new THREE.Vector3().subVectors(targetObject.position, ring.position).normalize();
+            // 创建旋转四元数，使环垂直于方向向量
+            const quaternion = new THREE.Quaternion();
+            // 默认环在XY平面上，需要旋转使其法线与连线方向一致
+            // 先计算从z轴(环的默认法线)到目标方向的旋转
+            const upVector = new THREE.Vector3(0, 0, 1);
+            const axis = new THREE.Vector3().crossVectors(upVector, direction).normalize();
+            const angle = Math.acos(upVector.dot(direction));
+            quaternion.setFromAxisAngle(axis, angle);
+            ring.quaternion.copy(quaternion);
+            
+            scene.add(ring);
+            
+            // 创建延迟的第二个环
+            const ringDelayed = new THREE.Mesh(ringGeometry.clone(), ringMaterial.clone());
+            ringDelayed.position.copy(ring.position);
+            ringDelayed.quaternion.copy(ring.quaternion);
+            ringDelayed.material.opacity = 0.5; // 略低的透明度
+            scene.add(ringDelayed);
+            
+            // 设置动画
+            const startTime = Date.now();
+            const duration = 2000; // 2秒一个循环
+            
+            function animatePulse() {
+                const currentTime = Date.now();
+                const elapsedTime = (currentTime - startTime) % duration;
+                const progress = elapsedTime / duration;
+                
+                // 主环脉冲效果 - 缩放和透明度
+                const scale = 1 + 0.5 * Math.sin(progress * Math.PI * 2);
+                ring.scale.set(scale, scale, 1);
+                ring.material.opacity = 0.7 * (1 - progress);
+                
+                // 延迟环的动画 - 使用0.1秒延迟
+                const delayedProgress = ((currentTime - startTime - 100) % duration) / duration;
+                if (delayedProgress >= 0) {
+                    const delayedScale = 1 + 0.6 * Math.sin(delayedProgress * Math.PI * 2);
+                    ringDelayed.scale.set(delayedScale, delayedScale, 1);
+                    ringDelayed.material.opacity = 0.5 * (1 - delayedProgress);
+                }
+                
+                requestAnimationFrame(animatePulse);
+            }
+            
+            // 开始动画
+            requestAnimationFrame(animatePulse);
+            
+            // 返回主环以便能添加到dataBalls数组
+            return ring;
+        }
+        
+        // 创建连接线
+        function createConnection(obj1, obj2, color = 0xaaaaaa, dashed = false) {
+            const points = [];
+            points.push(obj1.position.clone());
+            points.push(obj2.position.clone());
+            
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            let lineMaterial;
+            
+            if (dashed) {
+                lineMaterial = new THREE.LineDashedMaterial({
+                    color: color,
+                    dashSize: 0.3,
+                    gapSize: 0.1
+                });
+            } else {
+                lineMaterial = new THREE.LineBasicMaterial({ color: color });
+            }
+            
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            
+            if (dashed) {
+                line.computeLineDistances();
+            }
+            
+            scene.add(line);
+            connections.push(line);
+            return line;
         }
     </script>
 </body>
