@@ -5,8 +5,12 @@
 */
 
 
+using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.Redis;
+using NRedisStack.Graph;
+using OllamaSharp.Models;
 using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
@@ -14,6 +18,7 @@ using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Helpers;
 using Senparc.CO2NET.Extensions;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -140,6 +145,104 @@ namespace Senparc.AI.Kernel.Handlers
 
         //    return iWantToConfig;
         //}
+
+        #endregion
+
+        #region Vector Database
+
+        /// <summary>
+        /// Config Vector Database
+        /// </summary>
+        /// <param name="iWantToConfig"></param>
+        /// <param name="vectorDb"></param>
+        /// <returns></returns>
+        public static IWantToConfig ConfigVectorStore(this IWantToConfig iWantToConfig, VectorDB vectorDb
+        /*ISenparcAiSetting? senparcAiSetting = null*/)
+        {
+
+            var kb = iWantToConfig.SemanticKernelHelper.KernelBuilder;
+
+            switch (vectorDb.Type)
+            {
+                case VectorDB.VectorDBType.HardDisk:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.SqlServer:
+                    {
+
+                        break;
+                    }
+                case VectorDB.VectorDBType.Redis:
+                    {
+                        kb.AddRedisVectorStore(vectorDb.ConnectionString);
+                        break;
+                    }
+                case VectorDB.VectorDBType.Memory:
+                    {
+
+                        break;
+                    }
+                default:
+                    {
+
+                        break;
+                    }
+            }
+
+            return iWantToConfig;
+        }
+
+        /// <summary>
+        /// Get Vector Collection
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TRecord"></typeparam>
+        /// <param name="iWwantToRun"></param>
+        /// <param name="vectorDb"></param>
+        /// <param name="name"></param>
+        /// <param name="vectorStoreRecordDefinition"></param>
+        /// <returns></returns>
+        public static IVectorStoreRecordCollection<TKey, TRecord> GetVectorCollection<TKey, TRecord>(this IWantToRun iWwantToRun, VectorDB vectorDb, string name, VectorStoreRecordDefinition? vectorStoreRecordDefinition = null)
+             where TKey : notnull where TRecord : notnull
+        {
+            IDatabase database;
+            IVectorStore vectorStore;
+            IVectorStoreRecordCollection<TKey, TRecord> collection = null;
+
+            //TODO: If the logic becomes overly complex in the future, different combinations can be considered to be separated into different libraries
+
+            switch (vectorDb.Type)
+            {
+                case VectorDB.VectorDBType.Memory:
+                    break;
+                case VectorDB.VectorDBType.HardDisk:
+                    break;
+                case VectorDB.VectorDBType.Redis:
+                    database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
+                    vectorStore = new RedisVectorStore(database,
+                        new() { StorageType = RedisStorageType.Json });
+                    collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
+                    break;
+                case VectorDB.VectorDBType.Mulivs:
+                    break;
+                case VectorDB.VectorDBType.Chroma:
+                    break;
+                case VectorDB.VectorDBType.PostgreSQL:
+                    break;
+                case VectorDB.VectorDBType.Sqlite:
+                    break;
+                case VectorDB.VectorDBType.SqlServer:
+                    break;
+                //case VectorDB.VectorDBType.Default:
+                //    break;
+                default:
+                    break;
+            }
+
+            return collection;
+        }
+
 
         #endregion
 
