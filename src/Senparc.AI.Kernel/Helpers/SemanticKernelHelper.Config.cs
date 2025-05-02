@@ -15,6 +15,10 @@ using System.Net.Http;
 //using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using System.Net;
 using Microsoft.SemanticKernel.Connectors.Ollama;
+using System.Runtime.CompilerServices;
+using Senparc.AI.Entities.Keys;
+using Senparc.CO2NET;
+using RTools_NTS.Util;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 
 // Memory functionality is experimental
@@ -249,7 +253,6 @@ namespace Senparc.AI.Kernel.Helpers
 
             //TODO:测试多次添加
             //KernelBuilder = builder;
-
             return kernelBuilder;
         }
 
@@ -300,6 +303,83 @@ namespace Senparc.AI.Kernel.Helpers
             return kernelBuilder;
         }
 
+        /// <summary>
+        /// Get Embedding Result
+        /// </summary>
+        /// <param name="modelName"></param>
+        /// <param name="text"></param>
+        /// <param name="senparcAiSetting"></param>
+        /// <param name="azureDeployName"></param>
+        /// <returns></returns>
+        /// <exception cref="SenparcAiException"></exception>
+        public async Task<ReadOnlyMemory<float>> GetEmbeddingAsync(string modelName, string text, ISenparcAiSetting senparcAiSetting = null, string azureDeployName = null)
+        {
+            senparcAiSetting ??= this.AiSetting;
+            var aiPlatForm = senparcAiSetting.AiPlatform;
+
+            var embeddingService = aiPlatForm switch
+            {
+                //AiPlatform.OpenAI =>  new OpenAITextEmbeddingGenerationService(
+                //                apiKey: senparcAiSetting.ApiKey,
+                //                httpClient: _httpClient,
+                //                modelId: modelName,
+                //                loggerFactory: loggerFactory
+                //           );
+                // ),
+
+                //memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(
+                //    modelId: modelName,
+                //    apiKey: senparcAiSetting.ApiKey,
+                //    orgId: senparcAiSetting.OrganizationId,
+                //    httpClient: _httpClient),
+                AiPlatform.AzureOpenAI => new AzureOpenAITextEmbeddingGenerationService(
+                           deploymentName: azureDeployName ?? modelName,
+                           endpoint: senparcAiSetting.Endpoint,
+                                apiKey: senparcAiSetting.ApiKey,
+                           httpClient: _httpClient,
+                                modelId: modelName,
+                                loggerFactory: loggerFactory
+                           ),
+                AiPlatform.NeuCharAI => new AzureOpenAITextEmbeddingGenerationService(
+                            deploymentName: azureDeployName ?? modelName,
+                           endpoint: senparcAiSetting.Endpoint,
+                                apiKey: senparcAiSetting.ApiKey,
+                           httpClient: _httpClient,
+                                modelId: modelName,
+                                loggerFactory: loggerFactory
+                           ),
+                //AiPlatform.HuggingFace => memoryBuilder.WithTextEmbeddingGeneration(
+                //    (loggerFactory, httpClient) =>
+                //    {
+                //        return new AzureOpenAITextEmbeddingGenerationService(
+                //        deploymentName: azureDeployName,
+                //             endpoint: senparcAiSetting.Endpoint,
+                //             apiKey: senparcAiSetting.ApiKey,
+                //        httpClient: _httpClient,
+                //             modelId: modelName,
+                //             loggerFactory: loggerFactory
+                //        );
+                //    }),
+
+                //AiPlatform.Ollama => memoryBuilder.WithTextEmbeddingGeneration((loggerFactory, httpClient) =>
+                //{
+                //    return new OllamaTextEmbeddingGenerationService(
+                //         endpoint: new Uri(senparcAiSetting.Endpoint),
+                //         modelId: modelName,
+                //         loggerFactory: loggerFactory
+                //    );
+                //}),
+
+                _ => throw new SenparcAiException($"GetEmbedding 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+            };
+
+            var base64 = Convert.ToBase64String( Encoding.UTF8.GetBytes( text ));
+            var embeddingResult = await embeddingService.GenerateEmbeddingAsync(text, _kernel);
+
+            return embeddingResult;
+
+        }
+
         #region Memory 相关
 
         ISemanticTextMemory _textMemory = null;//TODO:适配多重不同的请求
@@ -323,6 +403,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// </summary>
         /// <returns></returns>
         //[Obsolete("该方法已被SK放弃，原文为：Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]
+        [Obsolete]
         public ISemanticTextMemory? GetMemory(string modelName, ISenparcAiSetting senparcAiSetting,
             IKernelBuilder? kernelBuilder, string azureDeployName = null, ITextEmbeddingGenerationService textEmbeddingGeneration = null)
         {
@@ -333,6 +414,8 @@ namespace Senparc.AI.Kernel.Helpers
 
                 var memoryBuilder = new MemoryBuilder();
                 memoryBuilder.WithHttpClient(_httpClient);
+
+
 
                 _ = aiPlatForm switch
                 {

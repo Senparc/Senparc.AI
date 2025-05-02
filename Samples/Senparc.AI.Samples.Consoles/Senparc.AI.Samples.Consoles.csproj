@@ -26,12 +26,12 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
-		<PackageReference Include="Microsoft.KernelMemory.Core" Version="0.71.240820.1" />
-		<PackageReference Include="Microsoft.KernelMemory.MemoryDb.Redis" Version="0.71.240820.1" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.46.0" />
-		<PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.46.0-preview" />
-		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.46.0-alpha" />
-		<PackageReference Include="Senparc.Xncf.SenMapic" Version="0.1.0-alpha2" />
+		<!--<PackageReference Include="Microsoft.KernelMemory.Core" Version="0.71.240820.1" />
+		<PackageReference Include="Microsoft.KernelMemory.MemoryDb.Redis" Version="0.71.240820.1" />-->
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.48.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.47.0-preview" />
+		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.48.0-alpha" />
+		<PackageReference Include="Senparc.Xncf.SenMapic" Version="0.1.5-alpha4" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Planning.SequentialPlanner" Version="0.24.230912.2-preview" />-->
 		<ProjectReference Include="..\..\src\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
 		<ProjectReference Include="..\..\src\Senparc.AI\Senparc.AI.csproj" />

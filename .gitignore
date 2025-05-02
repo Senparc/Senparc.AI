@@ -8,7 +8,6 @@ appsettings.Development.json
 /src/Senparc.AI.Kernel.Tests/App_Data/SenparcTraceLog
 *.DS_Store
 /Samples/Senparc.AI.Samples.Consoles/Properties/PublishProfiles
-/documents/AI-Knowledge/Transformer/*copy*.html
-.idea/
-documents/AI-Knowledge/Transformer/AI-MCP-v*.html
-documents/AI-Knowledge/Transformer/AI-MoE *.html
+/Samples/Senparc.AI.Samples.Consoles/Senparc.AI.Samples.Consoles.csproj.user
+/documemts/AI-Knowledge/Transformer/*copy*.html
+.idea
