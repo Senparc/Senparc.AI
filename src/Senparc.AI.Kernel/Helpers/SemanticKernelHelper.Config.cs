@@ -19,6 +19,7 @@ using System.Runtime.CompilerServices;
 using Senparc.AI.Entities.Keys;
 using Senparc.CO2NET;
 using RTools_NTS.Util;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 
 // Memory functionality is experimental
 #pragma warning disable SKEXP0003, SKEXP0011, SKEXP0052, SKEXP0020, SKEXP0012, SKEXP0001

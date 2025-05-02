@@ -35,7 +35,7 @@ namespace Senparc.AI.Kernel
 
             Func<IServiceProvider, object, OpenAIChatCompletionService> implementationFactory =
                 (IServiceProvider serviceProvider, object? _) =>
-                new OpenAIChatCompletionService(modelId, new OpenAIClient(apiKey), serviceProvider.GetService<ILoggerFactory>());
+                new OpenAIChatCompletionService(modelId, apiKey, orgId, null, serviceProvider.GetService<ILoggerFactory>());
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
             builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
             return builder;
@@ -43,44 +43,44 @@ namespace Senparc.AI.Kernel
 
         #region Ollama
 
-    //    public static IKernelBuilder AddOllamaChatCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
-    //    {
-    //        string modelId2 = modelId;
+        //    public static IKernelBuilder AddOllamaChatCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
+        //    {
+        //        string modelId2 = modelId;
 
-    //        Func<IServiceProvider, object, OllamaChatCompletionService> implementationFactory =
-    //(IServiceProvider serviceProvider, object? _) =>
-    //        new OllamaChatCompletionService(modelId: modelId, endpoint: new Uri(endpoint), loggerFactory: serviceProvider.GetService<ILoggerFactory>());
-    //        builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
+        //        Func<IServiceProvider, object, OllamaChatCompletionService> implementationFactory =
+        //(IServiceProvider serviceProvider, object? _) =>
+        //        new OllamaChatCompletionService(modelId: modelId, endpoint: new Uri(endpoint), loggerFactory: serviceProvider.GetService<ILoggerFactory>());
+        //        builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, IChatCompletionService>)implementationFactory);
 
-    //        return builder;
-    //    }
+        //        return builder;
+        //    }
 
-    //    public static IKernelBuilder AddOllamaTextCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
-    //    {
-    //        string modelId2 = modelId;
+        //    public static IKernelBuilder AddOllamaTextCompletion(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
+        //    {
+        //        string modelId2 = modelId;
 
-    //        Func<IServiceProvider, object, OllamaTextGenerationService> implementationFactory =
-    //(IServiceProvider serviceProvider, object? _) =>
-    //        new OllamaTextGenerationService(modelId: modelId, endpoint: new Uri(endpoint), loggerFactory: serviceProvider.GetService<ILoggerFactory>());
+        //        Func<IServiceProvider, object, OllamaTextGenerationService> implementationFactory =
+        //(IServiceProvider serviceProvider, object? _) =>
+        //        new OllamaTextGenerationService(modelId: modelId, endpoint: new Uri(endpoint), loggerFactory: serviceProvider.GetService<ILoggerFactory>());
 
-    //        builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
+        //        builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextGenerationService>)implementationFactory);
 
-    //        return builder;
-    //    }
+        //        return builder;
+        //    }
 
 
-    //    public static IKernelBuilder AddOllamaTextEmbedding(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
-    //    {
-    //        string modelId2 = modelId;
+        //    public static IKernelBuilder AddOllamaTextEmbedding(this IKernelBuilder builder, string modelId, string endpoint, string serviceId = null)
+        //    {
+        //        string modelId2 = modelId;
 
-    //        Func<IServiceProvider, object, OllamaTextEmbeddingGenerationService> implementationFactory =
-    //(IServiceProvider serviceProvider, object? _) =>
-    //        new OllamaTextEmbeddingGenerationService(modelId: modelId, endpoint: new Uri(endpoint), loggerFactory: serviceProvider.GetService<ILoggerFactory>());
+        //        Func<IServiceProvider, object, OllamaTextEmbeddingGenerationService> implementationFactory =
+        //(IServiceProvider serviceProvider, object? _) =>
+        //        new OllamaTextEmbeddingGenerationService(modelId: modelId, endpoint: new Uri(endpoint), loggerFactory: serviceProvider.GetService<ILoggerFactory>());
 
-    //        builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextEmbeddingGenerationService>)implementationFactory);
+        //        builder.Services.AddKeyedSingleton((object?)serviceId, (Func<IServiceProvider, object?, ITextEmbeddingGenerationService>)implementationFactory);
 
-    //        return builder;
-    //    }
+        //        return builder;
+        //    }
 
 
         #endregion
