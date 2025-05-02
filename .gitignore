@@ -1,9 +1,8 @@
 .vs/
 bin/
 obj/
-.user
+*.user
 /BuildOutPut
-/.DS_Store
 appsettings.test.json
 appsettings.Development.json
 /src/Senparc.AI.Kernel.Tests/App_Data/SenparcTraceLog

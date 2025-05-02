@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -80,17 +81,22 @@ namespace Senparc.AI.Kernel
             string chatSystemMessage = null,
             string promptTemplate = null,
             ISenparcAiSetting senparcAiSetting = null,
+            Action<IKernelBuilder> kernelBuilderAction = null,
             string humanId = "User", string robotId = "Assistant", string hisgoryArgName = "history", string humanInputArgName = "human_input")
         {
             //promptTemplate ??= DefaultSetting.GetPromptForChat(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE, humanId, robotId, hisgoryArgName, humanInputArgName);
 
-            var iWanToRun = this.IWantTo(senparcAiSetting)
-                .ConfigModel(ConfigModel.Chat, userId, modelName)
-                .BuildKernel()
+            var iWantToConfig = this.IWantTo(senparcAiSetting)
+                .ConfigModel(ConfigModel.Chat, userId, modelName);
+
+            //需要在 iWantToConfig.BuildKernel() 之前运行
+            kernelBuilderAction?.Invoke(iWantToConfig.IWantTo.KernelBuilder);
+
+            var iWanToRun = iWantToConfig.BuildKernel()
                 .CreateFunctionFromPrompt(chatSystemMessage, promptConfigParameter)
                 .iWantToRun;
 
-            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
+            var iWantTo = iWantToConfig.IWantTo;
             iWantTo.TempStore["MaxHistoryCount"] = maxHistoryStore;
 
             var chatHistory = new ChatHistory();
@@ -110,7 +116,8 @@ namespace Senparc.AI.Kernel
         /// <returns></returns>
         public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string input,
         Action<StreamingKernelContent> inStreamItemProceessing = null,
-        string humanId = "User", string robotId = "Assistant", string historyArgName = "history", string humanInputArgName = "human_input")
+        string humanId = "User", string robotId = "Assistant", string historyArgName = "history", string humanInputArgName = "human_input",
+        PromptConfigParameter? parameter = null)
         {
             //var function = iWantToRun.Kernel.Plugins.GetSemanticFunction("Chat");
             //request.FunctionPipeline = new[] { function };
@@ -139,7 +146,7 @@ namespace Senparc.AI.Kernel
 
             SenparcKernelAiResult<string>? aiResult = null;
             List<IContentItem> visionResult = await ChatHelper.TryGetImagesBase64FromContent(Senparc.CO2NET.SenparcDI.GetServiceProvider(), input);
-            aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
+            aiResult = await iWantToRun.RunChatVisionAsync(newRequest, chatHistory, visionResult,parameter, inStreamItemProceessing);
             //            if (visionResult.Exists(z => z.Type == ContentType.Image))
             //            {
             //                aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);

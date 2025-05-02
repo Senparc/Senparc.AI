@@ -31,7 +31,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AutoGen" Version="0.2.1" />
+		<PackageReference Include="AutoGen" Version="0.2.3" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
 		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Web" Version="1.48.0-alpha" />
 		<PackageReference Include="Senparc.Weixin.Work" Version="3.25.5" />

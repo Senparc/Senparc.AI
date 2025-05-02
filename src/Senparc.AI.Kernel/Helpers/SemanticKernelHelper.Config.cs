@@ -439,7 +439,7 @@ namespace Senparc.AI.Kernel.Helpers
                     AiPlatform.AzureOpenAI => memoryBuilder.WithTextEmbeddingGeneration(
                            (loggerFactory, httpClient) =>
                            {
-                               return new AzureOpenAITextEmbeddingGenerationService(
+                               return new  AzureOpenAITextEmbeddingGenerationService(
                                     deploymentName: azureDeployName,
                                     endpoint: senparcAiSetting.Endpoint,
                                     apiKey: senparcAiSetting.ApiKey,

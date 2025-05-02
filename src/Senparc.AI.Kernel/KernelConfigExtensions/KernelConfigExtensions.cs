@@ -660,7 +660,6 @@ namespace Senparc.AI.Kernel.Handlers
             return result;
         }
 
-
         #endregion
 
         #region Vision 模型运行
@@ -693,6 +692,7 @@ namespace Senparc.AI.Kernel.Handlers
             Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
+
             var helper = iWanToRun.SemanticKernelHelper;
             var kernel = helper.GetKernel();
             //var function = iWanToRun.KernelFunction;
@@ -775,6 +775,128 @@ namespace Senparc.AI.Kernel.Handlers
 
             return result;
         }
+
+        #region Chat
+
+
+        /// <summary>
+        /// 运行 Chat + Vision 模型
+        /// </summary>
+        /// <param name="iWanToRun"></param>
+        /// <param name="request"></param>
+        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
+        /// <returns></returns>
+        public static Task<SenparcKernelAiResult<string>> RunChatVisionAsync(this IWantToRun iWanToRun,
+            SenparcAiRequest request, ChatHistory chatHistory, List<IContentItem> contentList,
+            PromptConfigParameter? parameter = null,
+            Action<StreamingKernelContent> inStreamItemProceessing = null)
+        {
+            return RunChatVisionAsync<string>(iWanToRun, request, chatHistory, contentList, parameter, inStreamItemProceessing);
+        }
+
+        /// <summary>
+        /// 运行 Chat + Vision 模型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="iWanToRun"></param>
+        /// <param name="request"></param>
+        /// <param name="chatHistory"></param>
+        /// <param name="contentList"></param>
+        /// <param name="parameter"></param>
+        /// <param name="inStreamItemProceessing"></param>
+        /// <returns></returns>
+        public static async Task<SenparcKernelAiResult<T>> RunChatVisionAsync<T>(this IWantToRun iWanToRun,
+           SenparcAiRequest request, ChatHistory chatHistory, List<IContentItem> contentList,
+            PromptConfigParameter? parameter = null,
+           Action<StreamingKernelContent> inStreamItemProceessing = null)
+        {
+            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
+
+            var helper = iWanToRun.SemanticKernelHelper;
+            var kernel = helper.GetKernel();
+            //var function = iWanToRun.KernelFunction;
+
+            //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
+
+            iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
+            var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
+            var tempArguments = request.TempAiArguments?.KernelArguments;
+
+            FunctionResult? functionResult = null;
+            var result = new SenparcKernelAiResult<T>(iWanToRun, inputContent: null);
+
+            var useStream = inStreamItemProceessing != null;
+
+            var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+
+            ChatMessageContentItemCollection contentItems = new ChatMessageContentItemCollection();
+            foreach (var contentItem in contentList)
+            {
+                //if (contentItem.Type == Helpers.ContentType.Text)
+                //{
+                //    contentItems.Add(new TextContent(contentItem.TextContent));
+                //}
+                //else if (contentItem.Type == Helpers.ContentType.Image)
+                //{
+                //    contentItems.Add(new ImageContent_ImageBase64(contentItem.ImageData, "image/jpg"));
+                //}
+                if (contentItem is ContentItem_Text ciText)
+                {
+                    contentItems.Add(new TextContent(ciText.TextContent));
+                }
+                else if (contentItem is ContentItem_ImageBse64 ciBae64)
+                {
+                    contentItems.Add(new ImageContent(ciBae64.ImageData, "image/jpg"));
+                }
+                else if (contentItem is ContentItem_ImageUrl ciImageUrl)
+                {
+                    contentItems.Add(new ImageContent("data:image/jpeg;base64," + ciImageUrl.image_url.Url));
+                }
+            }
+
+            chatHistory.AddUserMessage(contentItems);
+
+             parameter ??= new PromptConfigParameter()
+            {
+                MaxTokens = 3500,
+                Temperature = 0.7,
+                TopP = 0.5,
+            };
+            PromptExecutionSettings? executionSettings = helper.GetExecutionSetting(parameter, helper.AiSetting);
+
+            if (kernel.Plugins.Count>0)
+            {
+                executionSettings.FunctionChoiceBehavior = FunctionChoiceBehavior.Auto();
+            }
+
+            if (useStream)
+            {
+                result.StreamResult = chatCompletionService.GetStreamingChatMessageContentsAsync(chatHistory, executionSettings: executionSettings, kernel: iWanToRun.Kernel);
+
+                var stringResult = new StringBuilder();
+
+                if (result.StreamResult != null)
+                {
+                    await foreach (var item in result.StreamResult)
+                    {
+                        stringResult.Append(item);
+                        inStreamItemProceessing?.Invoke(item);//执行流
+                    }
+                }
+
+                result.OutputString = stringResult.ToString();
+            }
+            else
+            {
+                var contentResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, executionSettings: executionSettings, kernel: iWanToRun.Kernel);
+                //result.Result = contentResult;
+                result.OutputString = contentResult.ToString();
+            }
+
+            return result;
+        }
+
+        #endregion
 
         #endregion
 

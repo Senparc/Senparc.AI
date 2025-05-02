@@ -12,6 +12,7 @@ using Microsoft.SemanticKernel;
 using System.ClientModel;
 using Microsoft.SemanticKernel.Connectors.Ollama;
 using Microsoft.SemanticKernel.Embeddings;
+using OpenAI;
 
 namespace Senparc.AI.Kernel
 {
