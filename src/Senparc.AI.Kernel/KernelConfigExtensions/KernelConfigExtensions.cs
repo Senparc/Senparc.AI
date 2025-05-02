@@ -220,8 +220,8 @@ namespace Senparc.AI.Kernel.Handlers
                     break;
                 case VectorDB.VectorDBType.Redis:
                     database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
-                    vectorStore = new RedisVectorStore(database,
-                        new() { StorageType = RedisStorageType.Json });
+                    vectorStore = new RedisVectorStore(database
+                        /*new() { StorageType = RedisStorageType.Json }*/);
                     collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                     break;
                 case VectorDB.VectorDBType.Mulivs:

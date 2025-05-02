@@ -333,7 +333,15 @@ namespace Senparc.AI.Kernel.Helpers
                 //    orgId: senparcAiSetting.OrganizationId,
                 //    httpClient: _httpClient),
                 AiPlatform.AzureOpenAI => new AzureOpenAITextEmbeddingGenerationService(
-                           deploymentName: azureDeployName,
+                           deploymentName: azureDeployName ?? modelName,
+                           endpoint: senparcAiSetting.Endpoint,
+                                apiKey: senparcAiSetting.ApiKey,
+                           httpClient: _httpClient,
+                                modelId: modelName,
+                                loggerFactory: loggerFactory
+                           ),
+                AiPlatform.NeuCharAI => new AzureOpenAITextEmbeddingGenerationService(
+                            deploymentName: azureDeployName ?? modelName,
                            endpoint: senparcAiSetting.Endpoint,
                                 apiKey: senparcAiSetting.ApiKey,
                            httpClient: _httpClient,
@@ -365,6 +373,7 @@ namespace Senparc.AI.Kernel.Helpers
                 _ => throw new SenparcAiException($"GetEmbedding 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
+            var base64 = Convert.ToBase64String( Encoding.UTF8.GetBytes( text ));
             var embeddingResult = await embeddingService.GenerateEmbeddingAsync(text, _kernel);
 
             return embeddingResult;

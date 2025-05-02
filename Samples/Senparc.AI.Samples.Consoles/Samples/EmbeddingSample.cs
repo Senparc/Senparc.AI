@@ -22,7 +22,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
     public class Record
     {
         [VectorStoreRecordKey]
-        public ulong Id { get; set; }
+        public string Id { get; set; }
 
         [VectorStoreRecordData(IsIndexed = true)]
         public string Name { get; set; }
@@ -90,21 +90,15 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
 
                 var info = prompt.Split(new[] { ":::" }, StringSplitOptions.None);
-                var embeddingResult = iWantToRun
-                            .MemorySaveInformation(
-                                modelName: modelName,
-                                azureDeployName: textEmbeddingAzureDeployName(aiSetting),
-                                collection: memoryCollectionName, id: info[0], text: info[1]);
 
                 var record = new Record()
                 {
-                    Id = (ulong)i,
+                    Id = i.ToString(),
                     Name = info[0],
                     Description = info[1],
                     DescriptionEmbedding = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, info[1]),
                     Tags = new[] { info[0] }
                 };
-
 
                 await vectorCollection.UpsertAsync(record);
 
@@ -127,19 +121,18 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 ReadOnlyMemory<float> searchVector = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, question);
 
-
                 //新方法
                 var vectorResult = vectorCollection.SearchEmbeddingAsync(searchVector, top);
                 var j = 0;
                 await foreach (var restulItem in vectorResult)
                 {
-                        await Console.Out.WriteLineAsync($"应答结果[{j + 1}]：");
-                        await Console.Out.WriteLineAsync("  Id:\t\t" + restulItem.Record.Id);
-                        await Console.Out.WriteLineAsync("  Description:\t\t" + restulItem.Record.Description);
-                        await Console.Out.WriteLineAsync("  Id:\t\t" + string.Join(',', restulItem.Record.Tags));
-                        await Console.Out.WriteLineAsync("  Relevance:\t\t" + restulItem.Score);
-                        await Console.Out.WriteLineAsync($"-- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
-                        j++;
+                    await Console.Out.WriteLineAsync($"应答结果[{j + 1}]：");
+                    await Console.Out.WriteLineAsync("  Id:\t\t" + restulItem.Record.Id);
+                    await Console.Out.WriteLineAsync("  Description:\t\t" + restulItem.Record.Description);
+                    await Console.Out.WriteLineAsync("  Id:\t\t" + string.Join(',', restulItem.Record.Tags));
+                    await Console.Out.WriteLineAsync("  Relevance:\t\t" + restulItem.Score);
+                    await Console.Out.WriteLineAsync($"-- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
+                    j++;
                 }
 
                 if (j == 0)
