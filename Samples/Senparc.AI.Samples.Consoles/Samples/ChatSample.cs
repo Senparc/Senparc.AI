@@ -244,8 +244,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
                         {
                             Console.WriteLine();
                             Console.WriteLine();
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine($"\t\t >>> 本次请求执行了 function-calling：{result.GetLastFunctionResultContent().FunctionResultContent?.FunctionName} <<<");
+
+                            SampleHelper.PrintNote($"本次请求执行了 function-calling：{result.GetLastFunctionResultContent().FunctionResultContent?.FunctionName}");
                         }
 
                         //复原颜色
