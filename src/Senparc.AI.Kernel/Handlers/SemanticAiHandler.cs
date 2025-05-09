@@ -146,7 +146,7 @@ namespace Senparc.AI.Kernel
 
             SenparcKernelAiResult<string>? aiResult = null;
             List<IContentItem> visionResult = await ChatHelper.TryGetImagesBase64FromContent(Senparc.CO2NET.SenparcDI.GetServiceProvider(), input);
-            aiResult = await iWantToRun.RunChatVisionAsync(newRequest, chatHistory, visionResult,parameter, inStreamItemProceessing);
+            aiResult = await iWantToRun.RunChatVisionAsync(newRequest, chatHistory, visionResult, parameter, inStreamItemProceessing);
             //            if (visionResult.Exists(z => z.Type == ContentType.Image))
             //            {
             //                aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
@@ -168,8 +168,16 @@ namespace Senparc.AI.Kernel
                 this.RemoveHistory(chatHistory, maxHistoryCount - 1);
             }
 
-            //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
-            chatHistory.AddAssistantMessage(aiResult.OutputString);
+            var history = aiResult.IWantToRun.StoredAiArguments.Context[historyArgName] as ChatHistory;
+            if (history != null)
+            {
+                chatHistory.Add(history.Last());
+            }
+            else
+            {
+                //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
+                chatHistory.AddAssistantMessage(aiResult.OutputString);
+            }
 
             //记录对话历史（可选）
             //request.SetStoredContext(historyArgName, newHistory);
