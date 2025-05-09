@@ -5,10 +5,12 @@ Last modifier: FelixJ
 
 
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Handlers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -50,12 +52,46 @@ namespace Senparc.AI.Kernel
             IWantToRun = iwantToRun;
             InputContext = inputContext;
         }
+
+        /// <summary>
+        /// Get last response FunctionResultContent
+        /// </summary>
+        /// <returns></returns>
+        public (FunctionResultContent? FunctionResultContent, bool IsFunctionCall) GetLastFunctionResultContent()
+        {
+            //var functionResultContent = (IWantToRun.StoredAiArguments.Context["history"] as ChatHistory)
+            //                ?.Last()
+            //        .Items.FirstOrDefault(z => z is Microsoft.SemanticKernel.FunctionResultContent) as FunctionResultContent;
+
+            //var msgResult = (result.IWantToRun.StoredAiArguments.Context["history"] as ChatHistory).Last().Items.FirstOrDefault(z => z is Microsoft.SemanticKernel.FunctionResultContent);
+
+            var functionResultContent = 
+                (IWantToRun.StoredAiArguments.Context["history"] as ChatHistory)
+                .Last().Items.LastOrDefault() as Microsoft.SemanticKernel.FunctionResultContent;
+
+            /*
+             {
+  "CallId": "call_yl8mID5uxS3hJB2J3RenVhXh",
+  "PluginName": "NowPlugin",
+  "FunctionName": "GetCurrentNowTime",
+  "Result": "2025-05-09 22:11:42",
+  "MimeType": null,
+  "InnerContent": null,
+  "ModelId": null,
+  "Metadata": null
+}
+            */
+
+            var isFunctionCall = functionResultContent != null && functionResultContent.FunctionName != null;
+            return (functionResultContent, isFunctionCall);
+        }
     }
 
     public class SenparcAiResult<T> : SenparcAiResult, IAiResult
     {
         public T Result { get; set; }
-        public IAsyncEnumerable<StreamingKernelContent>? /*SKContext*/ StreamResult { get; set; }
+        public IAsyncEnumerable<StreamingKernelContent>? /*SKContext*/
+            StreamResult { get; set; }
 
         public SenparcAiResult(IWantToRun iWwantToRun, string inputContent)
             : base(iWwantToRun, inputContent)

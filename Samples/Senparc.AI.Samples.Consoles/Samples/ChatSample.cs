@@ -95,7 +95,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 maxHistoryStore: maxHistoryCount,
                                 chatSystemMessage: systemMessage,
                                 senparcAiSetting: setting,
-                                kernelBuilderAction: kh => 
+                                kernelBuilderAction: kh =>
                                     kh.Plugins.AddFromType<NowPlugin>()
                                               .AddFromType<SearchPlugin>()
                                     );
@@ -239,6 +239,14 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                         //输出结果
                         SenparcAiResult result = await _semanticAiHandler.ChatAsync(iWantToRun, input, streamItemProceessing);
+
+                        if (result.GetLastFunctionResultContent().IsFunctionCall)
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine();
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine($"\t\t >>> 本次请求执行了 function-calling：{result.GetLastFunctionResultContent().FunctionResultContent?.FunctionName} <<<");
+                        }
 
                         //复原颜色
                         Console.ForegroundColor = originalColor;
