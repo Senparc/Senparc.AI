@@ -41,6 +41,8 @@ namespace Senparc.AI.Kernel
 
         public virtual IWantToRun IWantToRun { get; set; }
 
+        public FunctionResultContent LastFunctionResultContent { get; private set; }
+
         public SenparcAiResult(IWantToRun iwantToRun, string? inputContent)
         {
             IWantToRun = iwantToRun;
@@ -51,6 +53,17 @@ namespace Senparc.AI.Kernel
         {
             IWantToRun = iwantToRun;
             InputContext = inputContext;
+        }
+
+        /// <summary>
+        /// Set last response FunctionResultContent
+        /// </summary>
+        /// <param name="functionResultContent"></param>
+        public void SetLastFunctionResultContent(FunctionResultContent functionResultContent = null)
+        {
+            LastFunctionResultContent = functionResultContent ??
+                    ((IWantToRun.StoredAiArguments.Context["history"] as ChatHistory)?
+                        .LastOrDefault()?.Items?.LastOrDefault() as Microsoft.SemanticKernel.FunctionResultContent);
         }
 
         /// <summary>
@@ -65,9 +78,9 @@ namespace Senparc.AI.Kernel
 
             //var msgResult = (result.IWantToRun.StoredAiArguments.Context["history"] as ChatHistory).Last().Items.FirstOrDefault(z => z is Microsoft.SemanticKernel.FunctionResultContent);
 
-            var functionResultContent = 
-                (IWantToRun.StoredAiArguments.Context["history"] as ChatHistory)
-                .Last().Items.LastOrDefault() as Microsoft.SemanticKernel.FunctionResultContent;
+            var functionResultContent = LastFunctionResultContent;
+            //(IWantToRun.StoredAiArguments.Context["history"] as ChatHistory)
+            //.Last().Items.LastOrDefault() as Microsoft.SemanticKernel.FunctionResultContent;
 
             /*
              {
@@ -91,7 +104,8 @@ namespace Senparc.AI.Kernel
     {
         public T Result { get; set; }
         public IAsyncEnumerable<StreamingKernelContent>? /*SKContext*/
-            StreamResult { get; set; }
+            StreamResult
+        { get; set; }
 
         public SenparcAiResult(IWantToRun iWwantToRun, string inputContent)
             : base(iWwantToRun, inputContent)

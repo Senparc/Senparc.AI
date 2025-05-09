@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using NetTopologySuite.Index.HPRtree;
 using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Interfaces;
@@ -168,16 +169,9 @@ namespace Senparc.AI.Kernel
                 this.RemoveHistory(chatHistory, maxHistoryCount - 1);
             }
 
-            var history = aiResult.IWantToRun.StoredAiArguments.Context[historyArgName] as ChatHistory;
-            if (history != null)
-            {
-                chatHistory.Add(history.Last());
-            }
-            else
-            {
-                //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
-                chatHistory.AddAssistantMessage(aiResult.OutputString);
-            }
+            aiResult.SetLastFunctionResultContent();
+            //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
+            chatHistory.AddAssistantMessage(aiResult.OutputString);
 
             //记录对话历史（可选）
             //request.SetStoredContext(historyArgName, newHistory);
@@ -227,13 +221,25 @@ namespace Senparc.AI.Kernel
                 while (removeCount > 0)
                 {
                     var firstUser = chatHistory.First(z => z.Role == AuthorRole.User);
-                    var firstAssistant = chatHistory.FirstOrDefault(z => z.Role == AuthorRole.Assistant);
+                    var firstUserIndex = chatHistory.IndexOf(firstUser);
 
                     chatHistory.Remove(firstUser);
-                    if (firstAssistant != null)
+
+                    var removeList = chatHistory.Skip(firstUserIndex).TakeWhile(z => z.Role != AuthorRole.User).ToList();
+
+                    //中间可能还有其他类型，或 tool
+
+                    for (int i = 0; i < removeList.Count(); i++)
                     {
-                        chatHistory.Remove(firstAssistant);
+                        chatHistory.Remove(removeList[i]);
                     }
+
+
+                    //var firstAssistant = chatHistory.FirstOrDefault(z => z.Role == AuthorRole.Assistant);
+                    //if (firstAssistant != null)
+                    //{
+                    //    chatHistory.Remove(firstAssistant);
+                    //}
 
                     removeCount--;
                 }
