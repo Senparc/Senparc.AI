@@ -2,6 +2,7 @@
 using AutoGen.Core;
 using AutoGen.OpenAI;
 using AutoGen.SemanticKernel;
+using System;
 using System.Collections.Generic;
 
 namespace Senparc.AI.Agents.AgentExtensions;
@@ -103,7 +104,25 @@ public static class AgentExtension
     /// <param name="adminAgent"></param>
     /// <param name="orchestrator"></param>
     /// <returns></returns>
+    [Obsolete("请使用方法 CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, IOrchestrator orchestrator)")]
     public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, TFromAgent adminAgent,  IOrchestrator orchestrator)
+        where TFromAgent : IAgent
+    {
+        var aiTeam = new GroupChat(
+            members: graphConnector.Agents.Values,
+            orchestrator: orchestrator//,
+           /* workflow: graphConnector.Graph*/);
+        return aiTeam;
+    }
+
+    /// <summary>
+    /// 创建 AITeam 对象（GroupChat）
+    /// </summary>
+    /// <typeparam name="TFromAgent"></typeparam>
+    /// <param name="graphConnector"></param>
+    /// <param name="orchestrator"></param>
+    /// <returns></returns>
+    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, IOrchestrator orchestrator)
         where TFromAgent : IAgent
     {
         var aiTeam = new GroupChat(
