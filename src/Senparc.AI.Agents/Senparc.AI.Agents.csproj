@@ -1,49 +1,50 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-		<PropertyGroup>
-				<TargetFramework>netstandard2.1</TargetFramework>
-				<Version>0.5.5</Version>
-				<Nullable>enable</Nullable>
-				<LangVersion>10.0</LangVersion>
-				<AssemblyName>Senparc.AI.Agents</AssemblyName>
-				<RootNamespace>Senparc.AI.Agents</RootNamespace>
-				<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
-				<Description>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Version>0.5.6</Version>
+		<Nullable>enable</Nullable>
+		<LangVersion>10.0</LangVersion>
+		<AssemblyName>Senparc.AI.Agents</AssemblyName>
+		<RootNamespace>Senparc.AI.Agents</RootNamespace>
+		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
+		<Description>
 			Senparc.AI.Agents - AI Agents（智能体），支持 AutoGen，可配置 Agent 进行协作
 		</Description>
-				<Copyright>Senparc Copyright © 2004~2025</Copyright>
-				<PackageTags>
+		<Copyright>Senparc Copyright © 2004~2025</Copyright>
+		<PackageTags>
 			Senparc.AI.Agents,Agents,C#,AIGC,GenAI,AGI,LLM,SemanticKernel
 		</PackageTags>
-				<Authors>Jeffrey Su</Authors>
-				<Owners>Senparc</Owners>
-				<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-				<ProjectUrl>https://github.com/Senparc/Senparc.AI.Agents</ProjectUrl>
-				<Title>Senparc.AI.Agents.dll</Title>
-				<Summary>Senparc.AI 核心模块</Summary>
-				<PackageProjectUrl>https://github.com/Senparc/Senparc.AI.Agents</PackageProjectUrl>
-				<PackageIcon>icon.jpg</PackageIcon>
-				<PackageReleaseNotes>
-					v0.1.0 创世
+		<Authors>Jeffrey Su</Authors>
+		<Owners>Senparc</Owners>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<ProjectUrl>https://github.com/Senparc/Senparc.AI.Agents</ProjectUrl>
+		<Title>Senparc.AI.Agents.dll</Title>
+		<Summary>Senparc.AI 核心模块</Summary>
+		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI.Agents</PackageProjectUrl>
+		<PackageIcon>icon.jpg</PackageIcon>
+		<PackageReleaseNotes>
+			v0.1.0 创世
 
-					[2024-09-07] v0.2.0 SemanticKernelHelper 提供重新设置 SenparcAiSetting 参数方法
-					[2024-11-19] v0.4.0 Update CO2NET, reframe for Aspire
-					[2025-01-25] v0.5.1 fix output result for nonstreaming request
-					[2025-02-02] v0.5.2 Upgrade support for Ollama, finished test for DeepSeek-r1 and nomic-embed-text:v1.5
-				</PackageReleaseNotes>
-				<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Agents</RepositoryUrl>
-				<Configurations>Debug;Release;Test</Configurations>
-				<NoWarn>SKEXP0001;SKEXP0010;SKEXP0050;SKEXP0070</NoWarn>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-				<OutputPath>..\..\BuildOutPut\</OutputPath>
-				<DocumentationFile>..\..\BuildOutPut\netstandard2.1\Senparc.AI.Agents.xml</DocumentationFile>
-		</PropertyGroup>
-		<ItemGroup>
-				<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
-		</ItemGroup>
-		<ItemGroup>
-				<PackageReference Include="AutoGen" Version="0.2.3" />
-				<ProjectReference Include="..\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
-		</ItemGroup>
+			[2024-09-07] v0.2.0 SemanticKernelHelper 提供重新设置 SenparcAiSetting 参数方法
+			[2024-11-19] v0.4.0 Update CO2NET, reframe for Aspire
+			[2025-01-25] v0.5.1 fix output result for nonstreaming request
+			[2025-02-02] v0.5.2 Upgrade support for Ollama, finished test for DeepSeek-r1 and nomic-embed-text:v1.5
+			[2025-05-25] v0.5.6 Support IOrchestrator for CreateAiTeam() method
+		</PackageReleaseNotes>
+		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Agents</RepositoryUrl>
+		<Configurations>Debug;Release;Test</Configurations>
+		<NoWarn>SKEXP0001;SKEXP0010;SKEXP0050;SKEXP0070</NoWarn>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+		<OutputPath>..\..\BuildOutPut\</OutputPath>
+		<DocumentationFile>..\..\BuildOutPut\netstandard2.1\Senparc.AI.Agents.xml</DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AutoGen" Version="0.2.3" />
+		<ProjectReference Include="..\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
+	</ItemGroup>
 </Project>
