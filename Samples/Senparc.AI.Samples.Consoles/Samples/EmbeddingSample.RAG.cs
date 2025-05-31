@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.IdentityModel.Abstractions;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Text;
 using Senparc.AI.Entities;
+using Senparc.AI.Entities.Keys;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Trace;
@@ -14,6 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Qdrant.Client.Grpc.MaxOptimizationThreads.Types;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -115,7 +118,14 @@ namespace Senparc.AI.Samples.Consoles.Samples
             var iWantToRunEmbedding = embeddingAiHandler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, _userId)
-                 .BuildKernel();
+                 .ConfigVectorStore(embeddingAiSetting.VectorDB)
+            .BuildKernel();
+
+            var modelName = textEmbeddingGenerationName(embeddingAiSetting);
+
+            var vectorName = "senparc-sample-rag";
+            var vectorCollection = iWantToRunEmbedding.GetVectorCollection<ulong, Record>(embeddingAiSetting.VectorDB, vectorName);
+            await vectorCollection.EnsureCollectionExistsAsync();
 
             var i = 0;
             var dt = SystemTime.Now;
@@ -148,17 +158,19 @@ namespace Senparc.AI.Samples.Consoles.Samples
                MemoryStore:
                    try
                    {
-                       paragraphs.ForEach(paragraph =>
+                       paragraphs.ForEach(async paragraph =>
                        {
                            var currentI = i++;
 
-                           iWantToRunEmbedding
-                             .MemorySaveInformation(
-                                 modelName: textEmbeddingGenerationName(embeddingAiSetting),
-                                 azureDeployName: textEmbeddingAzureDeployName(embeddingAiSetting),
-                                 collection: memoryCollectionName,
-                                 id: $"paragraph-{Guid.NewGuid().ToString("n")}",
-                                 text: paragraph);
+                           var record = new Record()
+                           {
+                               Id = (ulong)i,
+                               Name = vectorName + "-paragraph-" + i,
+                               Description = paragraph,
+                               DescriptionEmbedding = await iWantToRunEmbedding.SemanticKernelHelper.GetEmbeddingAsync(modelName, paragraph),
+                               Tags = new[] { i.ToString() }
+                           };
+                           await vectorCollection.UpsertAsync(record);
                        });
                    }
                    catch (Exception ex)
@@ -220,18 +232,18 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 var questionDt = DateTime.Now;
                 var limit = 3;
-                var embeddingResult = await iWantToRunEmbedding.MemorySearchAsync(
-                        modelName: textEmbeddingGenerationName(embeddingAiSetting),
-                        azureDeployName: textEmbeddingAzureDeployName(embeddingAiSetting),
-                        memoryCollectionName: memoryCollectionName,
-                        query: question,
-                        limit: limit);
 
-                await foreach (var item in embeddingResult.MemoryQueryResult)
+
+                ReadOnlyMemory<float> searchVector = await iWantToRunEmbedding.SemanticKernelHelper.GetEmbeddingAsync(modelName, question);
+
+                var vectorResult = vectorCollection.SearchAsync(searchVector, limit);
+
+
+                await foreach (var item in vectorResult)
                 {
                     results.AppendLine($@"//////
-{item.Metadata.Text}
-******{item.Relevance}");
+{item.Record.Description}
+******{item.Score}");
                 }
 
                 SenparcTrace.SendCustomLog("RAG日志", $@"提问：{question}，耗时：{(DateTime.Now - questionDt).TotalMilliseconds}ms

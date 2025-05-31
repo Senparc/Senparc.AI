@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoE (Mixture of Experts) 模型可视化</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #canvas { 
+            width: 100%; 
+            height: 100%;
+            position: fixed;
+        }
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            max-width: 400px;
+            font-size: 16px;
+        }
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .step-btn {
+            margin: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .step-btn#prev-btn{
+            display: inline-block;
+        }
+        .label {
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 5px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 3px;
+            font-size: 20px;
+            pointer-events: none;
+        }
+        .expert-label {
+            color: #ffffff;
+            font-weight: bold;
+        }
+        .probability {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        #parameters-control {
+            position: absolute;
+            top: 85px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none; /* 默认隐藏 */
+            width: 280px;
+        }
+        
+        .parameter-section {
+            margin-bottom: 20px;
+        }
+        
+        .parameter-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .parameter-section h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .slider {
+            flex-grow: 1;
+            margin: 0 10px;
+        }
+        
+        .disabled-token {
+            color: #888888 !important;
+            text-decoration: line-through;
+        }
+        
+        .param-description {
+            font-size: 12px;
+            margin-top: 5px;
+            line-height: 1.3;
+        }
+        
+        #expert-selection {
+            position: absolute;
+            top: 85px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none; /* 默认隐藏 */
+            width: 280px;
+        }
+        
+        .expert-checkbox {
+            margin: 8px 0;
+        }
+        
+        #expert-weights-chart {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 5px;
+            padding: 10px;
+            display: none;
+            width: 500px;
+            height: 300px;
+        }
+        
+        #weights-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .chart-title {
+            color: white;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        
+        #copyright {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        #copyright a {
+            pointer-events: auto;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .expert {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .expert:hover {
+            transform: scale(1.05);
+        }
+        
+        .expert.selected {
+            box-shadow: 0 0 10px 3px rgba(255, 255, 0, 0.8);
+        }
+        
+        .router-token {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .router-token:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="info">
+        <h2>MoE (Mixture of Experts) 模型原理</h2>
+        <p id="step-description">Welcome to MoE model visualization! Click "Start" button to begin the demonstration.</p>
+    </div>
+    <div id="controls">
+        <button class="step-btn" id="start-btn">开始</button>
+        <button class="step-btn" id="prev-btn" disabled>上一步</button>
+        <button class="step-btn" id="next-btn" disabled>下一步</button>
+        <button class="step-btn" id="reset-btn">重置</button>
+    </div>
+    <div id="parameters-control">
+        <h3>Router Parameter Control</h3>
+        
+        <!-- Router Temperature control -->
+        <div class="parameter-section">
+            <h4>Router Temperature (Temperature)</h4>
+            <div class="slider-container">
+                <span>0</span>
+                <input type="range" min="0" max="2" step="0.1" value="1.0" class="slider" id="router-temp-slider">
+                <span>2</span>
+            </div>
+            <div id="router-temp-value">Current Value: 1.0</div>
+            <p class="param-description">Adjust the randomness of the router: low temperature for more deterministic, high temperature for more diverse</p>
+        </div>
+        
+        <!-- Top-k control -->
+        <div class="parameter-section">
+            <h4>Select Expert Number (Top-k)</h4>
+            <div class="slider-container">
+                <span>1</span>
+                <input type="range" min="1" max="8" step="1" value="2" class="slider" id="topk-slider">
+                <span>8</span>
+            </div>
+            <div id="topk-value">Current Value: 2</div>
+            <p class="param-description">Select the number of activated experts (MoE's sparsity)</p>
+        </div>
+    </div>
+    
+    <div id="expert-selection">
+        <h3>Expert Selection</h3>
+        <p class="param-description">Select to view expert details</p>
+        <div id="expert-checkboxes">
+            <!-- Will be dynamically added by JavaScript -->
+        </div>
+    </div>
+    
+    <div id="expert-weights-chart">
+        <h3 class="chart-title">Expert Weight Distribution</h3>
+        <canvas id="weights-canvas"></canvas>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+
+    <!-- Add copyright information at the end of the body -->
+    <div id="copyright">
+        <span>© Senparc</span>
+        <span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documents/AI-Knowledge/Transformer" target="_blank" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">GitHub Documentation</a></span>
+    </div>
+
+    <!-- 改为CDN引用 -->
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/CSS2DRenderer.js"></script>
+    <script>
+        // 在脚本顶部添加错误处理
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript错误:', e.message);
+            alert('发生错误: ' + e.message + '\n请检查控制台获取详细信息');
+        });
+
+        // Three.js 初始化和场景设置
+        let scene, camera, renderer, labelRenderer, controls;
+        let currentStep = 0;
+        const steps = [];
+        const tokens = [];
+        const experts = [];
+        const expertObjects = [];
+        const labels = [];
+        const connections = [];
+        
+        // 颜色定义
+        const colors = {
+            input: 0x3498db,     // 蓝色 - 输入tokens
+            router: 0xe74c3c,    // 红色 - 路由器
+            expert1: 0x2ecc71,   // 绿色 - 专家1
+            expert2: 0xf39c12,   // 橙色 - 专家2  
+            expert3: 0x9b59b6,   // 紫色 - 专家3
+            expert4: 0x1abc9c,   // 青绿色 - 专家4
+            expert5: 0xd35400,   // 深橙色 - 专家5
+            expert6: 0x8e44ad,   // 深紫色 - 专家6
+            expert7: 0x27ae60,   // 深绿色 - 专家7
+            expert8: 0x3498db,   // 蓝色 - 专家8
+            output: 0xf1c40f,    // 黄色 - 输出结果
+            connection: 0xbdc3c7, // 浅灰色 - 连接线
+            active: 0xecf0f1     // 亮白色 - 激活状态
+        };
+        
+        // 专家设置
+        const expertConfig = [
+            { id: 1, name: "语法专家", color: colors.expert1, domain: "语法结构" },
+            { id: 2, name: "逻辑专家", color: colors.expert2, domain: "逻辑推理" },
+            { id: 3, name: "知识专家", color: colors.expert3, domain: "事实知识" },
+            { id: 4, name: "创意专家", color: colors.expert4, domain: "创意生成" },
+            { id: 5, name: "情感专家", color: colors.expert5, domain: "情感表达" },
+            { id: 6, name: "数学专家", color: colors.expert6, domain: "数学计算" },
+            { id: 7, name: "代码专家", color: colors.expert7, domain: "编程代码" },
+            { id: 8, name: "总结专家", color: colors.expert8, domain: "内容总结" }
+        ];
+        
+        // 步骤描述
+        const stepDescriptions = [
+            "Step 1: Input text is split into token sequence, passed into the model.",
+            "Step 2: Router analyzes input, calculates relevance score for each expert.",
+            "Step 3: Router selects experts based on score and sparse parameter (Top-k).",
+            "Step 4: Selected experts process input tokens, generate outputs.",
+            "Step 5: System merges outputs of all activated experts, generates final result."
+        ];
+        
+        // 交互控制变量
+        let routerTemperature = 1.0;
+        let topKExperts = 2;
+        let selectedExperts = new Set();
+        let expertWeights = [];
+        let raycaster, mouse;
+        let tooltip;
+        let isSelectionMode = false;
+        
+        // 输入示例
+        const inputExamples = [
+            "如何编写一个高效的算法",
+            "写一首关于春天的诗",
+            "计算3的5次方是多少",
+            "分析这段代码的错误",
+            "表达对朋友的关心"
+        ];
+        let currentInput = inputExamples[0];
+        
+        // 初始化 Three.js 场景
+        function init() {
+            // 检查Three.js是否正确加载
+            if (typeof THREE === 'undefined') {
+                console.error('错误: Three.js未加载!');
+                alert('Three.js库未正确加载，请检查网络连接或引用路径');
+                return;
+            }
+            
+            try {
+                // 创建场景
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x121212);
+                
+                // 创建相机 - 调整以适应垂直布局
+                camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 20;
+                camera.position.y = 0; // 居中垂直视角
+                
+                // 创建渲染器
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.getElementById('canvas').appendChild(renderer.domElement);
+                
+                // 创建CSS2D渲染器用于标签
+                labelRenderer = new THREE.CSS2DRenderer();
+                labelRenderer.setSize(window.innerWidth, window.innerHeight);
+                labelRenderer.domElement.style.position = 'absolute';
+                labelRenderer.domElement.style.top = '0px';
+                labelRenderer.domElement.style.pointerEvents = 'none';
+                document.getElementById('canvas').appendChild(labelRenderer.domElement);
+                
+                // 添加控制
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.1;
+                
+                // 添加光源
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                scene.add(ambientLight);
+                
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(1, 1, 1);
+                scene.add(directionalLight);
+                
+                // 初始化射线投射器和鼠标向量
+                raycaster = new THREE.Raycaster();
+                mouse = new THREE.Vector2();
+                
+                // 初始化tooltip
+                tooltip = document.getElementById('tooltip');
+                
+                // 窗口大小调整
+                window.addEventListener('resize', onWindowResize, false);
+                
+                // 设置按钮事件
+                document.getElementById('start-btn').addEventListener('click', startDemo);
+                document.getElementById('prev-btn').addEventListener('click', prevStep);
+                document.getElementById('next-btn').addEventListener('click', nextStep);
+                document.getElementById('reset-btn').addEventListener('click', resetDemo);
+                
+                // 添加鼠标事件
+                renderer.domElement.addEventListener('mousemove', onMouseMove);
+                renderer.domElement.addEventListener('click', onClick);
+                
+                // 创建动画步骤
+                createSteps();
+                
+                // 设置专家选择界面
+                setupExpertSelection();
+                
+                // 开始渲染循环
+                animate();
+                
+                console.log('Three.js初始化成功');
+            } catch (error) {
+                console.error('初始化Three.js时出错:', error);
+                alert('初始化三维场景时发生错误，请检查控制台获取详情');
+            }
+        }
+        
+        // 设置专家选择界面
+        function setupExpertSelection() {
+            const checkboxContainer = document.getElementById('expert-checkboxes');
+            checkboxContainer.innerHTML = '';
+            
+            expertConfig.forEach(expert => {
+                const div = document.createElement('div');
+                div.className = 'expert-checkbox';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `expert-${expert.id}`;
+                checkbox.value = expert.id;
+                
+                const label = document.createElement('label');
+                label.htmlFor = `expert-${expert.id}`;
+                label.innerHTML = `<span style="color: #${expert.color.toString(16)}">■</span> ${expert.name}`;
+                
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        selectedExperts.add(parseInt(this.value));
+                    } else {
+                        selectedExperts.delete(parseInt(this.value));
+                    }
+                    updateExpertHighlights();
+                });
+                
+                div.appendChild(checkbox);
+                div.appendChild(label);
+                checkboxContainer.appendChild(div);
+            });
+        }
+        
+        // 创建所有动画步骤
+        function createSteps() {
+            // 步骤1: 展示输入 tokens
+            steps.push(() => {
+                clearScene();
+                createInputTokens(currentInput);
+                updateDescription(0);
+            });
+            
+            // 步骤2: 路由器分析输入
+            steps.push(() => {
+                showRouter();
+                updateDescription(1);
+            });
+            
+            // 步骤3: 选择最相关的专家
+            steps.push(() => {
+                selectExperts();
+                updateDescription(2);
+            });
+            
+            // 步骤4: 专家处理输入
+            steps.push(() => {
+                expertsProcessInput();
+                updateDescription(3);
+                
+                // 隐藏路由器参数，显示专家选择
+                document.getElementById('parameters-control').style.display = 'none';
+                document.getElementById('expert-selection').style.display = 'block';
+            });
+            
+            // 步骤5: 合并专家输出
+            steps.push(() => {
+                mergeExpertOutputs();
+                updateDescription(4);
+                
+                // 隐藏专家选择
+                document.getElementById('expert-selection').style.display = 'none';
+            });
+        }
+        
+        // 创建输入 tokens - 垂直布局
+        function createInputTokens(text) {
+            // 简单拆分文本到tokens
+            const words = text.split(/(?=[，。！？\s])|(?<=[，。！？\s])/g).filter(w => w.trim());
+            tokens.length = 0;
+            
+            for (let i = 0; i < words.length; i++) {
+                if (!words[i].trim()) continue; // 跳过空白
+                
+                const tokenGeometry = new THREE.BoxGeometry(1, 1, 1);
+                const tokenMaterial = new THREE.MeshPhongMaterial({ color: colors.input });
+                const token = new THREE.Mesh(tokenGeometry, tokenMaterial);
+                
+                // 放在最上方，水平排列
+                token.position.x = (i - (words.length - 1) / 2) * 2;
+                token.position.y = 10; // 放在顶部
+                token.position.z = 0;
+                
+                token.userData.type = 'input';
+                token.userData.text = words[i];
+                
+                scene.add(token);
+                tokens.push(token);
+                
+                addTextLabel(token, words[i], 1.2);
+            }
+        }
+        
+        // 添加文本标签
+        function addTextLabel(parent, text, yOffset = 1.2, probability = null, xOffset = 0) {
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'label';
+            labelDiv.textContent = text;
+            
+            if (probability !== null) {
+                const probSpan = document.createElement('span');
+                probSpan.className = 'probability';
+                probSpan.textContent = ` (${probability.toFixed(2)})`;
+                labelDiv.appendChild(probSpan);
+            }
+            
+            const label = new THREE.CSS2DObject(labelDiv);
+            label.position.set(xOffset, yOffset, 0);
+            parent.add(label);
+            labels.push(label);
+            return label;
+        }
+        
+        // 添加专家标签
+        function addExpertLabel(parent, expert, yOffset = 1.2) {
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'label expert-label';
+            labelDiv.innerHTML = `<span style="color: #${expert.color.toString(16)}">■</span> ${expert.name}`;
+            
+            const label = new THREE.CSS2DObject(labelDiv);
+            label.position.set(0, yOffset, 0);
+            parent.add(label);
+            labels.push(label);
+            return label;
+        }
+        
+        // 展示路由器 - 垂直布局
+        function showRouter() {
+            // 创建门控网络 - 使用更复杂的形状来表示门控机制
+            const routerGroup = new THREE.Group();
+            
+            // 创建中心球体
+            const centerGeometry = new THREE.SphereGeometry(1, 16, 16);
+            const centerMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.router,
+                emissive: new THREE.Color(0xff0000),
+                emissiveIntensity: 0.3
+            });
+            const centerSphere = new THREE.Mesh(centerGeometry, centerMaterial);
+            routerGroup.add(centerSphere);
+            
+            // 创建环绕的环
+            const ringGeometry = new THREE.TorusGeometry(1.5, 0.2, 16, 32);
+            const ringMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.router,
+                emissive: new THREE.Color(0xff0000),
+                emissiveIntensity: 0.2
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2;
+            routerGroup.add(ring);
+            
+            // 创建门控箭头
+            const arrowGeometry = new THREE.ConeGeometry(0.3, 1, 8);
+            const arrowMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.router,
+                emissive: new THREE.Color(0xff0000),
+                emissiveIntensity: 0.2
+            });
+            
+            // 创建8个箭头，均匀分布
+            for (let i = 0; i < 8; i++) {
+                const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+                const angle = (i / 8) * Math.PI * 2;
+                arrow.position.x = Math.cos(angle) * 1.5;
+                arrow.position.z = Math.sin(angle) * 1.5;
+                arrow.lookAt(0, 0, 0);
+                arrow.rotation.y += Math.PI;
+                routerGroup.add(arrow);
+            }
+            
+            // 路由器位于 tokens 下方
+            routerGroup.position.y = 5;
+            routerGroup.position.x = 0;
+            routerGroup.position.z = 0;
+            routerGroup.userData.type = 'router';
+            routerGroup.userData.name = 'Gating Network';
+            scene.add(routerGroup);
+            
+            // 添加路由器标签
+            addTextLabel(routerGroup, "门控网络", 2.2);
+            
+            // 缓慢移动输入tokens到更高位置
+            const targetY = 12;
+            
+            // 先移动方块，在移动完成后创建连线
+            for (let token of tokens) {
+                animateObjectPosition(token, { y: targetY }, 1000, () => {
+                    // 在回调中创建连线，确保使用最新位置
+                    createConnection(token, routerGroup, 0.08);
+                });
+            }
+            
+            // 缓慢旋转路由器
+            animateRouterRotation(routerGroup);
+        }
+        
+        // 路由器旋转动画
+        function animateRouterRotation(router) {
+            let startTime = null;
+            const duration = 10000; // 10秒旋转一周
+            
+            function rotate(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                
+                router.rotation.y = (elapsed / duration) * Math.PI * 2;
+                
+                if (currentStep === 1 || currentStep === 2) {
+                    requestAnimationFrame(rotate);
+                }
+            }
+            
+            requestAnimationFrame(rotate);
+        }
+        
+        // 选择最相关的专家
+        function selectExperts() {
+            // 添加专家
+            createExperts();
+            
+            // 计算专家权重
+            calculateExpertWeights();
+            
+            // 显示参数控制面板
+            document.getElementById('parameters-control').style.display = 'block';
+            document.getElementById('expert-weights-chart').style.display = 'block';
+            
+            // 立即更新权重图表
+            updateExpertWeightsChart();
+            
+            // 确保图表尺寸正确
+            const canvas = document.getElementById('weights-canvas');
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            
+            // 设置路由器参数控制事件
+            const routerTempSlider = document.getElementById('router-temp-slider');
+            const topkSlider = document.getElementById('topk-slider');
+            
+            // 设置初始值
+            routerTempSlider.value = routerTemperature;
+            topkSlider.value = topKExperts;
+            
+            // 更新显示的当前值
+            document.getElementById('router-temp-value').textContent = `Current Value: ${routerTemperature.toFixed(1)}`;
+            document.getElementById('topk-value').textContent = `Current Value: ${topKExperts}`;
+            
+            // 添加事件监听器
+            routerTempSlider.addEventListener('input', handleRouterParameterChange);
+            topkSlider.addEventListener('input', handleRouterParameterChange);
+            
+            // 强制触发一次重绘
+            setTimeout(() => {
+                updateExpertWeightsChart();
+            }, 100);
+        }
+        
+        // 创建专家 - 垂直布局
+        function createExperts() {
+            experts.length = 0;
+            expertObjects.length = 0;
+            
+            const numExperts = expertConfig.length;
+            const radius = 6; // 放置专家的圆的半径
+            
+            for (let i = 0; i < numExperts; i++) {
+                const angle = (i / numExperts) * Math.PI * 2;
+                const expert = expertConfig[i];
+                
+                // 创建专家物体
+                const expertGeometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+                const expertMaterial = new THREE.MeshPhongMaterial({ 
+                    color: expert.color,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const expertObj = new THREE.Mesh(expertGeometry, expertMaterial);
+                
+                // 计算位置 - 在路由器下方成环形
+                expertObj.position.x = radius * Math.sin(angle);
+                expertObj.position.y = 0; // 路由器下方的中间层
+                expertObj.position.z = radius * Math.cos(angle);
+                
+                // 添加用户数据
+                expertObj.userData.type = 'expert';
+                expertObj.userData.id = expert.id;
+                expertObj.userData.name = expert.name;
+                expertObj.userData.domain = expert.domain;
+                expertObj.userData.color = expert.color;
+                expertObj.userData.weight = 0;
+                expertObj.userData.selected = false;
+                
+                scene.add(expertObj);
+                expertObjects.push(expertObj);
+                experts.push({
+                    id: expert.id,
+                    obj: expertObj,
+                    config: expert,
+                    weight: 0,
+                    selected: false
+                });
+                
+                // 添加专家标签
+                addExpertLabel(expertObj, expert, 1.5);
+            }
+            
+            // 连接路由器和专家
+            const router = scene.children.find(obj => obj.userData.type === 'router');
+            if (router) {
+                for (let expert of expertObjects) {
+                    createConnection(router, expert, 0.05);
+                }
+            }
+        }
+        
+        // 计算专家权重
+        function calculateExpertWeights() {
+            // 根据输入和温度生成权重
+            // 以下是示例权重计算 - 实际系统中这会基于复杂的神经网络
+            
+            // 为每个输入类型定义不同专家的相关性基础权重
+            const baseWeights = {
+                "如何编写一个高效的算法": [0.1, 0.3, 0.1, 0.0, 0.0, 0.1, 0.4, 0.0],
+                "写一首关于春天的诗": [0.2, 0.0, 0.1, 0.5, 0.2, 0.0, 0.0, 0.0],
+                "计算3的5次方是多少": [0.0, 0.2, 0.0, 0.0, 0.0, 0.8, 0.0, 0.0],
+                "分析这段代码的错误": [0.1, 0.2, 0.1, 0.0, 0.0, 0.0, 0.6, 0.0],
+                "表达对朋友的关心": [0.1, 0.0, 0.1, 0.3, 0.5, 0.0, 0.0, 0.0]
+            };
+            
+            // 获取当前输入的基础权重
+            let weights = baseWeights[currentInput] || Array(expertConfig.length).fill(1/expertConfig.length);
+            
+            // 应用温度
+            weights = applyTemperature(weights, routerTemperature);
+            
+            // 存储权重
+            expertWeights = [...weights];
+            
+            // 获取Top-K阈值 - 提前计算以便统一使用
+            const threshold = getTopKThreshold(weights, topKExperts);
+            
+            // 更新专家权重
+            experts.forEach((expert, index) => {
+                expert.weight = weights[index];
+                expert.obj.userData.weight = weights[index];
+                
+                // 设置专家透明度基于权重
+                expert.obj.material.opacity = 0.3 + 0.7 * weights[index];
+                
+                // 清除之前的发光效果
+                // 找到所有子物体并移除glow球体
+                for (let i = expert.obj.children.length - 1; i >= 0; i--) {
+                    const child = expert.obj.children[i];
+                    // 只移除非标签的子物体（发光球体）
+                    if (!(child instanceof THREE.CSS2DObject)) {
+                        expert.obj.remove(child);
+                    }
+                }
+                
+                // 根据Top-K决定是否选择
+                expert.selected = weights[index] >= threshold;
+                expert.obj.userData.selected = expert.selected;
+                
+                // 设置视觉效果
+                if (expert.selected) {
+                    expert.obj.material.emissive = new THREE.Color(0x333333);
+                    expert.obj.material.emissiveIntensity = 0.5;
+                    
+                    // 发光效果
+                    const glowGeometry = new THREE.SphereGeometry(1.2, 16, 16);
+                    const glowMaterial = new THREE.MeshBasicMaterial({
+                        color: expert.config.color,
+                        transparent: true,
+                        opacity: 0.2
+                    });
+                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    expert.obj.add(glow);
+                } else {
+                    expert.obj.material.emissive = new THREE.Color(0x000000);
+                    expert.obj.material.emissiveIntensity = 0;
+                }
+            });
+        }
+        
+        // 获取Top-K阈值
+        function getTopKThreshold(weights, k) {
+            // 复制并排序权重
+            const sortedWeights = [...weights].sort((a, b) => b - a);
+            // 返回第k个元素的权重作为阈值
+            return sortedWeights[Math.min(k - 1, sortedWeights.length - 1)];
+        }
+        
+        // 应用温度处理权重
+        function applyTemperature(weights, temperature) {
+            if (temperature <= 0) {
+                // 温度为0时，权重最高的专家获得所有权重
+                const maxIndex = weights.indexOf(Math.max(...weights));
+                return weights.map((_, i) => i === maxIndex ? 1.0 : 0.0);
+            }
+            
+            // 应用温度
+            const logits = weights.map(w => Math.log(Math.max(w, 0.01))); // 避免log(0)
+            const scaledLogits = logits.map(l => l / temperature);
+            
+            // 数值稳定性
+            const maxLogit = Math.max(...scaledLogits);
+            const expLogits = scaledLogits.map(l => Math.exp(l - maxLogit));
+            
+            // 计算总和并归一化
+            const sumExpLogits = expLogits.reduce((a, b) => a + b, 0);
+            return expLogits.map(e => e / sumExpLogits);
+        }
+        
+        // 专家处理输入 - 垂直布局
+        function expertsProcessInput() {
+            // 移除图表
+            document.getElementById('expert-weights-chart').style.display = 'none';
+            
+            // 只保留选中的专家
+            const selectedExpertObjs = expertObjects.filter(e => e.userData.selected);
+            
+            // 为每个选定的专家创建处理结果
+            for (let expert of selectedExpertObjs) {
+                // 获取专家ID
+                const expertId = expert.userData.id;
+                
+                // 为专家创建处理结果的输出token
+                const outputTokenGeometry = new THREE.BoxGeometry(1, 1, 1);
+                const outputTokenMaterial = new THREE.MeshPhongMaterial({ 
+                    color: expert.userData.color,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                
+                const outputToken = new THREE.Mesh(outputTokenGeometry, outputTokenMaterial);
+                
+                // 放在专家正下方
+                outputToken.position.copy(expert.position);
+                outputToken.position.y = -5; // 垂直向下
+                
+                outputToken.userData.type = 'expertOutput';
+                outputToken.userData.expertId = expertId;
+                outputToken.userData.weight = expert.userData.weight;
+                outputToken.userData.text = getExpertOutput(expertId);
+                
+                scene.add(outputToken);
+                
+                // 添加专家生成的输出标签
+                addTextLabel(outputToken, outputToken.userData.text, 0, expert.userData.weight);
+                
+                // 添加连接线
+                createConnection(expert, outputToken, 0.1, expert.userData.color);
+            }
+            
+            // 移动相机以更好地查看专家处理过程
+            animateCameraMove({ x: 0, y: -2, z: 16 }, 1000);
+        }
+        
+        // 获取专家输出
+        function getExpertOutput(expertId) {
+            // 根据当前输入和专家类型生成不同的输出
+            const expertOutputs = {
+                "如何编写一个高效的算法": {
+                    1: "清晰结构",
+                    2: "逻辑清晰",
+                    3: "算法原理",
+                    4: "创新方法",
+                    5: "简洁表达",
+                    6: "时间复杂度",
+                    7: "代码优化",
+                    8: "要点总结"
+                },
+                "写一首关于春天的诗": {
+                    1: "韵律结构",
+                    2: "意境连贯",
+                    3: "春天知识",
+                    4: "意象创造",
+                    5: "情感表达",
+                    6: "格律计算",
+                    7: "格式化",
+                    8: "主题凝练"
+                },
+                "计算3的5次方是多少": {
+                    1: "句式完整",
+                    2: "推理过程",
+                    3: "数学知识",
+                    4: "类比说明",
+                    5: "简洁表达",
+                    6: "243",
+                    7: "代码表示",
+                    8: "概念总结"
+                },
+                "分析这段代码的错误": {
+                    1: "表述完整",
+                    2: "逻辑分析",
+                    3: "编程知识",
+                    4: "解决方案",
+                    5: "友好提示",
+                    6: "算法分析",
+                    7: "错误定位",
+                    8: "问题总结"
+                },
+                "表达对朋友的关心": {
+                    1: "完整表达",
+                    2: "合理关联",
+                    3: "沟通知识",
+                    4: "真诚建议",
+                    5: "温暖问候",
+                    6: "精确表达",
+                    7: "格式优化",
+                    8: "核心要点"
+                }
+            };
+            
+            return expertOutputs[currentInput]?.[expertId] || `Expert ${expertId} Output`;
+        }
+        
+        // 合并专家输出 - 修正垂直位置
+        function mergeExpertOutputs() {
+            // 获取所有专家输出
+            const expertOutputs = scene.children.filter(obj => obj.userData.type === 'expertOutput');
+            
+            if (expertOutputs.length === 0) {
+                console.error('没有找到专家输出对象');
+                return;
+            }
+            
+            // 计算所有专家输出的平均位置
+            let avgX = 0, avgZ = 0;
+            let lowestY = Infinity; // 找到最低的Y值
+            
+            expertOutputs.forEach(output => {
+                avgX += output.position.x;
+                avgZ += output.position.z;
+                // 记录最低的Y位置
+                if (output.position.y < lowestY) {
+                    lowestY = output.position.y;
+                }
+            });
+            
+            avgX /= expertOutputs.length;
+            avgZ /= expertOutputs.length;
+            
+            // 合并输出文本
+            let mergedOutput = '';
+            expertOutputs.forEach(output => {
+                mergedOutput += output.userData.text + ' ';
+            });
+            
+            // 创建最终输出
+            const finalOutputGeometry = new THREE.IcosahedronGeometry(1.5, 1);
+            const finalOutputMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.output,
+                emissive: new THREE.Color(0xffff00),
+                emissiveIntensity: 0.3,
+                shininess: 50,
+                transparent: true,
+                opacity: 0.9
+            });
+            const finalOutput = new THREE.Mesh(finalOutputGeometry, finalOutputMaterial);
+            
+            // 明确设置最终输出位置
+            // 将最终输出设置为更靠近专家输出的位置（从-10或-15调整到-8）
+            finalOutput.position.x = avgX;
+            finalOutput.position.y = -10; // 调整为更靠近专家输出的位置
+            finalOutput.position.z = avgZ;
+            
+            // 保存初始Y坐标用于动画
+            finalOutput.userData.initialY = finalOutput.position.y;
+            
+            console.log(`专家输出位置: y=${lowestY}, 最终输出位置: y=${finalOutput.position.y}`);
+            
+            finalOutput.userData.type = 'finalOutput';
+            finalOutput.userData.text = mergedOutput;
+            
+            scene.add(finalOutput);
+            
+            // 添加外发光效果
+            const glowGeometry = new THREE.SphereGeometry(2, 32, 32);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffff99,
+                transparent: true,
+                opacity: 0.15,
+                side: THREE.BackSide
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            finalOutput.add(glow);
+            
+            // 添加内核效果
+            const coreGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+            const coreMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9
+            });
+            const core = new THREE.Mesh(coreGeometry, coreMaterial);
+            finalOutput.add(core);
+            
+            // 添加动态光环
+            const ringGeometry = new THREE.RingGeometry(2.2, 2.5, 32);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.4,
+                side: THREE.DoubleSide
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2;
+            finalOutput.add(ring);
+            
+            // 添加标签
+            addTextLabel(finalOutput, "最终合成结果", 2.2);
+            addTextLabel(finalOutput, mergedOutput, -2.2);
+            
+            // 创建从专家输出到最终输出的连接
+            expertOutputs.forEach(output => {
+                createAnimatedConnection(output, finalOutput);
+            });
+            
+            // 运行动画
+            animateFinalOutputComplex(finalOutput, ring);
+            
+            // 调整相机位置，确保能看到整个垂直流程
+            // 计算整个场景的垂直范围
+            const topY = 12; // 输入tokens的顶部
+            const bottomY = -10; // 最终输出的底部
+            const centerY = (topY + bottomY) / 2; // 垂直中心
+            
+            animateCameraMove({ 
+                x: 0, 
+                y: centerY, // 相机Y位置对准场景垂直中心
+                z: 25 // 足够远以看到整个场景
+            }, 1500);
+        }
+        
+        // 创建动画连接线
+        function createAnimatedConnection(source, target) {
+            // 创建曲线路径
+            const sourcePos = source.position.clone();
+            const targetPos = target.position.clone();
+            const midPoint = new THREE.Vector3(
+                (sourcePos.x + targetPos.x) / 2,
+                (sourcePos.y + targetPos.y) / 2 + 2, // 增加高度使曲线更明显
+                (sourcePos.z + targetPos.z) / 2
+            );
+            
+            // 创建三次贝塞尔曲线
+            const curve = new THREE.CubicBezierCurve3(
+                sourcePos,
+                new THREE.Vector3(sourcePos.x, midPoint.y, midPoint.z),
+                new THREE.Vector3(targetPos.x, midPoint.y, midPoint.z),
+                targetPos
+            );
+            
+            // 创建曲线路径的几何体
+            const points = curve.getPoints(50);
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            
+            // 根据专家颜色选择连接线颜色
+            const color = source.material.color.clone();
+            
+            // 创建渐变材质
+            const material = new THREE.LineBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.7,
+                linewidth: 2
+            });
+            
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
+            connections.push(line);
+            
+            // 添加沿着连接线移动的粒子
+            animateParticlesAlongLine(curve, color);
+            
+            return line;
+        }
+        
+        // 沿曲线移动粒子动画
+        function animateParticlesAlongLine(curve, color) {
+            // 为每条线创建5个粒子
+            for (let i = 0; i < 5; i++) {
+                // 创建小球体作为粒子
+                const particleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+                const particleMaterial = new THREE.MeshBasicMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+                
+                // 随机起始位置
+                const startOffset = Math.random();
+                
+                // 添加到场景
+                scene.add(particle);
+                
+                // 动画函数
+                function moveParticle() {
+                    // 计算当前位置 (循环移动)
+                    const time = (Date.now() * 0.0005 + startOffset) % 1;
+                    const position = curve.getPointAt(time);
+                    particle.position.copy(position);
+                    
+                    // 脉冲效果
+                    const pulse = Math.sin(Date.now() * 0.01 + startOffset * 10) * 0.5 + 0.5;
+                    particle.scale.setScalar(0.8 + pulse * 0.4);
+                    particleMaterial.opacity = 0.4 + pulse * 0.6;
+                    
+                    // 如果仍在步骤5，继续动画
+                    if (currentStep === 4) {
+                        requestAnimationFrame(moveParticle);
+                    } else {
+                        // 如果不在步骤5，移除粒子
+                        scene.remove(particle);
+                    }
+                }
+                
+                moveParticle();
+            }
+        }
+        
+        // 复合动画效果
+        function animateFinalOutputComplex(finalOutput, ring) {
+            let startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                
+                // 让最终输出沿Y轴缓慢旋转
+                finalOutput.rotation.y = elapsed * 0.0005;
+                
+                // 让环沿X轴旋转
+                ring.rotation.z = elapsed * 0.001;
+                
+                // 脉冲效果
+                const pulse = Math.sin(elapsed * 0.002) * 0.5 + 0.5;
+                finalOutput.material.emissiveIntensity = 0.2 + pulse * 0.3;
+                ring.scale.setScalar(0.9 + pulse * 0.2);
+                
+                // 小幅度浮动
+                finalOutput.position.y = finalOutput.userData.initialY + Math.sin(elapsed * 0.001) * 0.3;
+                
+                // 只在步骤5中继续动画
+                if (currentStep === 4) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+        }
+        
+        // 其他辅助函数
+        function updateDescription(stepIndex) {
+            document.getElementById('step-description').textContent = stepDescriptions[stepIndex];
+        }
+        
+        function updateRouterControls() {
+            // 更新控制器显示数值
+            document.getElementById('router-temp-value').textContent = `Current Value: ${routerTemperature.toFixed(1)}`;
+            document.getElementById('topk-value').textContent = `Current Value: ${topKExperts}`;
+            
+            // 更新滑块位置
+            document.getElementById('router-temp-slider').value = routerTemperature;
+            document.getElementById('topk-slider').value = topKExperts;
+        }
+        
+        function updateExpertHighlights() {
+            // 更新专家高亮状态
+            expertObjects.forEach(expert => {
+                const expertId = expert.userData.id;
+                if (selectedExperts.has(expertId)) {
+                    // 高亮选中的专家
+                    expert.material.emissive = new THREE.Color(0xffff00);
+                    expert.material.emissiveIntensity = 0.5;
+                } else {
+                    // 恢复未选中专家的状态
+                    if (expert.userData.selected) {
+                        expert.material.emissive = new THREE.Color(0x333333);
+                        expert.material.emissiveIntensity = 0.5;
+                    } else {
+                        expert.material.emissive = new THREE.Color(0x000000);
+                        expert.material.emissiveIntensity = 0;
+                    }
+                }
+            });
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        function onMouseMove(event) {
+            event.preventDefault();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // 更新射线投射器
+            raycaster.setFromCamera(mouse, camera);
+            
+            // 检查与对象的交互
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            // 默认隐藏提示框
+            tooltip.style.display = 'none';
+            
+            // 重置鼠标样式
+            document.body.style.cursor = 'default';
+            
+            if (intersects.length > 0) {
+                const obj = intersects[0].object;
+                
+                // 忽略不相关的对象
+                if (!obj.userData || !obj.userData.type) return;
+                
+                // 根据对象类型处理
+                if (obj.userData.type === 'expert') {
+                    document.body.style.cursor = 'pointer';
+                    
+                    // 显示专家信息
+                    tooltip.innerHTML = `
+                        <strong>${obj.userData.name}</strong><br>
+                        领域: ${obj.userData.domain}<br>
+                        权重: ${obj.userData.weight.toFixed(2)}<br>
+                        ${obj.userData.selected ? '已激活' : '未激活'}
+                    `;
+                    
+                    tooltip.style.left = `${event.clientX + 10}px`;
+                    tooltip.style.top = `${event.clientY + 10}px`;
+                    tooltip.style.display = 'block';
+                }
+                else if (obj.userData.type === 'router') {
+                    document.body.style.cursor = 'pointer';
+                    
+                    // 显示路由器信息
+                    tooltip.innerHTML = `
+                        <strong>路由器</strong><br>
+                        温度: ${routerTemperature.toFixed(1)}<br>
+                        Top-K: ${topKExperts}
+                    `;
+                    
+                    tooltip.style.left = `${event.clientX + 10}px`;
+                    tooltip.style.top = `${event.clientY + 10}px`;
+                    tooltip.style.display = 'block';
+                }
+            }
+        }
+        
+        function onClick(event) {
+            event.preventDefault();
+            
+            // 只在选择专家阶段生效
+            if (currentStep !== 3) return;
+            
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            if (intersects.length > 0) {
+                const obj = intersects[0].object;
+                
+                // 忽略不相关的对象
+                if (!obj.userData || !obj.userData.type) return;
+                
+                // 点击专家
+                if (obj.userData.type === 'expert') {
+                    const expertId = obj.userData.id;
+                    
+                    // 切换专家选择状态
+                    if (selectedExperts.has(expertId)) {
+                        selectedExperts.delete(expertId);
+                    } else {
+                        selectedExperts.add(expertId);
+                    }
+                    
+                    // 更新复选框
+                    document.getElementById(`expert-${expertId}`).checked = selectedExperts.has(expertId);
+                    
+                    // 更新视觉效果
+                    updateExpertHighlights();
+                }
+            }
+        }
+        
+        // 创建连接线
+        function createConnection(obj1, obj2, width = 0.05, color = colors.connection) {
+            // 创建从obj1到obj2的连接线
+            const points = [];
+            points.push(obj1.position.clone());
+            points.push(obj2.position.clone());
+            
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({ 
+                color: color,
+                linewidth: 2,
+                transparent: true,
+                opacity: 0.7
+            });
+            
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
+            connections.push(line);
+            
+            return line;
+        }
+        
+        // 清理场景
+        function clearScene() {
+            // 移除所有3D对象和标签
+            while(scene.children.length > 0) { 
+                const obj = scene.children[0];
+                // 递归移除所有子对象，包括CSS2D标签
+                function removeAllChildren(object) {
+                    while(object.children.length > 0) {
+                        removeAllChildren(object.children[0]);
+                        object.remove(object.children[0]);
+                    }
+                }
+                removeAllChildren(obj);
+                scene.remove(obj); 
+            }
+            
+            // 重置数组
+            tokens.length = 0;
+            experts.length = 0;
+            expertObjects.length = 0;
+            connections.length = 0;
+            labels.length = 0; // 确保清空标签数组
+            
+            // 重新添加光源
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // 隐藏控制面板
+            document.getElementById('parameters-control').style.display = 'none';
+            document.getElementById('expert-selection').style.display = 'none';
+            document.getElementById('expert-weights-chart').style.display = 'none';
+        }
+        
+        // 对象位置动画
+        function animateObjectPosition(obj, targetPos, duration, callback) {
+            const startPos = {
+                x: obj.position.x,
+                y: obj.position.y,
+                z: obj.position.z
+            };
+            
+            let startTime = null;
+            
+            function update(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用缓动函数
+                const easeProgress = easeInOutCubic(progress);
+                
+                // 更新位置
+                if (targetPos.x !== undefined) {
+                    obj.position.x = startPos.x + (targetPos.x - startPos.x) * easeProgress;
+                }
+                if (targetPos.y !== undefined) {
+                    obj.position.y = startPos.y + (targetPos.y - startPos.y) * easeProgress;
+                }
+                if (targetPos.z !== undefined) {
+                    obj.position.z = startPos.z + (targetPos.z - startPos.z) * easeProgress;
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else if (callback) {
+                    // 动画完成时执行回调
+                    callback();
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+        
+        // 缓动函数
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        
+        // 相机移动动画
+        function animateCameraMove(targetPos, duration) {
+            const startPos = {
+                x: camera.position.x,
+                y: camera.position.y,
+                z: camera.position.z
+            };
+            
+            let startTime = null;
+            
+            function update(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用缓动函数
+                const easeProgress = easeInOutCubic(progress);
+                
+                // 更新位置
+                if (targetPos.x !== undefined) {
+                    camera.position.x = startPos.x + (targetPos.x - startPos.x) * easeProgress;
+                }
+                if (targetPos.y !== undefined) {
+                    camera.position.y = startPos.y + (targetPos.y - startPos.y) * easeProgress;
+                }
+                if (targetPos.z !== undefined) {
+                    camera.position.z = startPos.z + (targetPos.z - startPos.z) * easeProgress;
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+        
+        // 路由器参数变化处理
+        function handleRouterParameterChange(event) {
+            if (event.target.id === 'router-temp-slider') {
+                routerTemperature = parseFloat(event.target.value);
+            } else if (event.target.id === 'topk-slider') {
+                topKExperts = parseInt(event.target.value);
+            }
+            
+            // 更新显示
+            updateRouterControls();
+            
+            // 重新计算专家权重
+            calculateExpertWeights();
+            
+            // 更新权重图表
+            updateExpertWeightsChart();
+        }
+        
+        // 专家权重图表
+        function updateExpertWeightsChart() {
+            const canvas = document.getElementById('weights-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 重置画布尺寸
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            
+            // 设置图表边距
+            const margin = {
+                top: 30,
+                right: 30,
+                bottom: 50,
+                left: 60
+            };
+            
+            // 计算图表区域
+            const chartWidth = canvas.width - margin.left - margin.right;
+            const chartHeight = canvas.height - margin.top - margin.bottom;
+            
+            // 清除画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制坐标轴
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, margin.top + chartHeight);
+            ctx.lineTo(margin.left + chartWidth, margin.top + chartHeight);
+            ctx.stroke();
+            
+            // 绘制水平辅助线
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 1;
+            
+            // Y轴刻度
+            for (let i = 0; i <= 10; i++) {
+                const y = margin.top + chartHeight - (i / 10) * chartHeight;
+                ctx.beginPath();
+                ctx.moveTo(margin.left, y);
+                ctx.lineTo(margin.left + chartWidth, y);
+                ctx.stroke();
+                
+                // Y轴标签
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText((i / 10).toFixed(1), margin.left - 10, y);
+            }
+            
+            // 获取Top-K阈值
+            const threshold = getTopKThreshold(expertWeights, topKExperts);
+            
+            // 绘制Top-K阈值线
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            const thresholdY = margin.top + chartHeight - threshold * chartHeight;
+            ctx.beginPath();
+            ctx.moveTo(margin.left, thresholdY);
+            ctx.lineTo(margin.left + chartWidth, thresholdY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // 绘制阈值标签
+            ctx.fillStyle = '#ff0000';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(`阈值: ${threshold.toFixed(2)}`, margin.left + 10, thresholdY - 5);
+            
+            // 绘制柱状图
+            const barWidth = chartWidth / expertConfig.length - 10;
+            
+            expertConfig.forEach((expert, index) => {
+                const weight = expertWeights[index];
+                const x = margin.left + index * (barWidth + 10) + 5;
+                const barHeight = weight * chartHeight;
+                const y = margin.top + chartHeight - barHeight;
+                
+                // 根据是否超过阈值设置颜色
+                ctx.fillStyle = weight >= threshold ? 
+                    `#${expert.color.toString(16)}` : 
+                    'rgba(150, 150, 150, 0.5)';
+                
+                // 绘制柱状
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                // 绘制权重值
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(weight.toFixed(2), x + barWidth / 2, y - 5);
+                
+                // 绘制专家名称 (旋转45度)
+                ctx.save();
+                ctx.translate(x + barWidth / 2, margin.top + chartHeight + 10);
+                ctx.rotate(Math.PI / 4);
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(expert.name, 0, 0);
+                ctx.restore();
+            });
+            
+            // 绘制标题
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('Expert Weight Distribution', canvas.width / 2, 10);
+        }
+        
+        // 开始演示
+        function startDemo() {
+            try {
+                console.log('Starting demo...');
+                currentStep = 0;
+                
+                // 随机选择一个输入示例
+                currentInput = inputExamples[Math.floor(Math.random() * inputExamples.length)];
+                console.log('Selected input:', currentInput);
+                
+                // 禁用开始按钮
+                document.getElementById('start-btn').disabled = true;
+                
+                // 启用下一步按钮
+                document.getElementById('next-btn').disabled = false;
+                
+                // 执行第一步
+                if (steps && steps.length > 0) {
+                    console.log('Executing first step');
+                    steps[currentStep]();
+                } else {
+                    console.error('Error: steps array undefined or empty');
+                    alert('无法开始演示：步骤未正确定义');
+                }
+            } catch (error) {
+                console.error('Error starting demo:', error);
+                alert('开始演示时发生错误，请检查控制台获取详情');
+            }
+        }
+        
+        // 下一步
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                steps[currentStep]();
+                
+                // 启用上一步按钮
+                document.getElementById('prev-btn').disabled = false;
+                
+                // 禁用下一步按钮如果到达最后步骤
+                if (currentStep === steps.length - 1) {
+                    document.getElementById('next-btn').disabled = true;
+                }
+            }
+        }
+        
+        // 上一步
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                
+                // 清理场景
+                clearScene();
+                
+                // 从头执行到当前步骤
+                for (let i = 0; i <= currentStep; i++) {
+                    steps[i]();
+                }
+                
+                // 禁用上一步按钮如果到达第一步
+                if (currentStep === 0) {
+                    document.getElementById('prev-btn').disabled = true;
+                }
+                
+                // 启用下一步按钮
+                document.getElementById('next-btn').disabled = false;
+                
+                // 隐藏控制面板
+                document.getElementById('parameters-control').style.display = 'none';
+                document.getElementById('expert-selection').style.display = 'none';
+                document.getElementById('expert-weights-chart').style.display = 'none';
+                
+                // 如果到了第3步，显示相应控制
+                if (currentStep === 2) {
+                    document.getElementById('parameters-control').style.display = 'block';
+                    document.getElementById('expert-weights-chart').style.display = 'block';
+                }
+                
+                // 如果到了第4步，显示专家选择
+                if (currentStep === 3) {
+                    document.getElementById('expert-selection').style.display = 'block';
+                }
+            }
+        }
+        
+        // 重置演示
+        function resetDemo() {
+            // 重置步骤
+            currentStep = -1;
+            
+            // 重置参数
+            routerTemperature = 1.0;
+            topKExperts = 2;
+            selectedExperts.clear();
+            
+            // 清理场景
+            clearScene();
+            
+            // 重置相机
+            camera.position.set(0, 2, 15);
+            controls.target.set(0, 0, 0);
+            controls.update();
+            
+            // 重置按钮状态
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('prev-btn').disabled = true;
+            document.getElementById('next-btn').disabled = true;
+            
+            // 重置描述
+            document.getElementById('step-description').textContent = 
+                'Welcome to MoE model visualization! Click "Start" button to begin the demonstration.';
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

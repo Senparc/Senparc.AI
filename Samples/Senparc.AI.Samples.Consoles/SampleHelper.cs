@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -117,6 +118,18 @@ namespace Senparc.AI.Samples.Consoles
 
                 Console.WriteLine("  " + options[i].PadRight(Console.WindowWidth - options[i].Length - 2));
             }
+        }
+
+        /// <summary>
+        /// Print alert message
+        /// </summary>
+        /// <param name="message"></param>
+        public static void PrintNote(string message)
+        {
+            var oldColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("\t\t >>> " + message);
+            Console.ForegroundColor = oldColor;
         }
     }
 }

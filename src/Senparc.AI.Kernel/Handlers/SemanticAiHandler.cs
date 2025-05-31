@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using NetTopologySuite.Index.HPRtree;
 using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Interfaces;
@@ -80,17 +82,22 @@ namespace Senparc.AI.Kernel
             string chatSystemMessage = null,
             string promptTemplate = null,
             ISenparcAiSetting senparcAiSetting = null,
+            Action<IKernelBuilder> kernelBuilderAction = null,
             string humanId = "User", string robotId = "Assistant", string hisgoryArgName = "history", string humanInputArgName = "human_input")
         {
             //promptTemplate ??= DefaultSetting.GetPromptForChat(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE, humanId, robotId, hisgoryArgName, humanInputArgName);
 
-            var iWanToRun = this.IWantTo(senparcAiSetting)
-                .ConfigModel(ConfigModel.Chat, userId, modelName)
-                .BuildKernel()
+            var iWantToConfig = this.IWantTo(senparcAiSetting)
+                .ConfigModel(ConfigModel.Chat, userId, modelName);
+
+            //需要在 iWantToConfig.BuildKernel() 之前运行
+            kernelBuilderAction?.Invoke(iWantToConfig.IWantTo.KernelBuilder);
+
+            var iWanToRun = iWantToConfig.BuildKernel()
                 .CreateFunctionFromPrompt(chatSystemMessage, promptConfigParameter)
                 .iWantToRun;
 
-            var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
+            var iWantTo = iWantToConfig.IWantTo;
             iWantTo.TempStore["MaxHistoryCount"] = maxHistoryStore;
 
             var chatHistory = new ChatHistory();
@@ -110,7 +117,8 @@ namespace Senparc.AI.Kernel
         /// <returns></returns>
         public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string input,
         Action<StreamingKernelContent> inStreamItemProceessing = null,
-        string humanId = "User", string robotId = "Assistant", string historyArgName = "history", string humanInputArgName = "human_input")
+        string humanId = "User", string robotId = "Assistant", string historyArgName = "history", string humanInputArgName = "human_input",
+        PromptConfigParameter? parameter = null)
         {
             //var function = iWantToRun.Kernel.Plugins.GetSemanticFunction("Chat");
             //request.FunctionPipeline = new[] { function };
@@ -139,7 +147,7 @@ namespace Senparc.AI.Kernel
 
             SenparcKernelAiResult<string>? aiResult = null;
             List<IContentItem> visionResult = await ChatHelper.TryGetImagesBase64FromContent(Senparc.CO2NET.SenparcDI.GetServiceProvider(), input);
-            aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
+            aiResult = await iWantToRun.RunChatVisionAsync(newRequest, chatHistory, visionResult, parameter, inStreamItemProceessing);
             //            if (visionResult.Exists(z => z.Type == ContentType.Image))
             //            {
             //                aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
@@ -161,6 +169,7 @@ namespace Senparc.AI.Kernel
                 this.RemoveHistory(chatHistory, maxHistoryCount - 1);
             }
 
+            aiResult.SetLastFunctionResultContent();
             //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
             chatHistory.AddAssistantMessage(aiResult.OutputString);
 
@@ -212,13 +221,24 @@ namespace Senparc.AI.Kernel
                 while (removeCount > 0)
                 {
                     var firstUser = chatHistory.First(z => z.Role == AuthorRole.User);
-                    var firstAssistant = chatHistory.FirstOrDefault(z => z.Role == AuthorRole.Assistant);
+                    var firstUserIndex = chatHistory.IndexOf(firstUser);
 
                     chatHistory.Remove(firstUser);
-                    if (firstAssistant != null)
+
+                    var removeList = chatHistory.Skip(firstUserIndex).TakeWhile(z => z.Role != AuthorRole.User).ToList();
+
+                    //中间可能还有其他类型，或 tool
+
+                    for (int i = 0; i < removeList.Count(); i++)
                     {
-                        chatHistory.Remove(firstAssistant);
+                        chatHistory.Remove(removeList[i]);
                     }
+
+                    //var firstAssistant = chatHistory.FirstOrDefault(z => z.Role == AuthorRole.Assistant);
+                    //if (firstAssistant != null)
+                    //{
+                    //    chatHistory.Remove(firstAssistant);
+                    //}
 
                     removeCount--;
                 }

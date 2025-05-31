@@ -25,7 +25,7 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
 
         //KernelFunction 可以使用静态方法，也可以使用实例方法
 
-        [KernelFunction, Description("获取时间")]
+        [KernelFunction, Description("获取 URL")]
         public async Task<string> GetURL(KernelArguments arguments)
         {
             string[] urls = new[] {
