@@ -22,7 +22,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
     public class Record
     {
         [VectorStoreKey]
-        public string Id { get; set; }
+        public ulong Id { get; set; }
 
         [VectorStoreData(IsIndexed = true)]
         public string Name { get; set; }
@@ -30,7 +30,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         [VectorStoreData(IsFullTextIndexed = true)]
         public string Description { get; set; }
 
-        [VectorStoreVector(Dimensions: 4, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
+        [VectorStoreVector(Dimensions: 1536, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
         public ReadOnlyMemory<float>? DescriptionEmbedding { get; set; }
 
         [VectorStoreData(IsIndexed = true)]
@@ -77,7 +77,9 @@ namespace Senparc.AI.Samples.Consoles.Samples
                  .ConfigVectorStore(aiSetting.VectorDB)
                  .BuildKernel();
 
-            var vectorCollection = iWantToRun.GetVectorCollection<string, Record>(aiSetting.VectorDB, vectorName);
+            var vectorCollection = iWantToRun.GetVectorCollection<ulong, Record>(aiSetting.VectorDB, vectorName);
+            await vectorCollection.EnsureCollectionExistsAsync();
+           
             var modelName = textEmbeddingGenerationName(aiSetting);
 
             //开始对话
@@ -94,12 +96,14 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 var record = new Record()
                 {
-                    Id = info[0],
+                    Id = ulong.Parse(info[0]),
                     Name = vectorName + ":" + info[0],
                     Description = info[1],
                     DescriptionEmbedding = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, info[1]),
                     Tags = new[] { info[0] }
                 };
+
+
 
                 await vectorCollection.UpsertAsync(record);
 
@@ -118,11 +122,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
 
                 var questionDt = DateTime.Now;
-                var top = isReference ? 3 : 2;
+                var top = 3;// isReference ? 3 : 2;
 
                 ReadOnlyMemory<float> searchVector = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, question);
 
-                var r1 =await vectorCollection.GetAsync(vectorName + ":1");//OK
+                //var r1 = await vectorCollection.GetAsync(1);//OK
+                //Console.WriteLine("r1:" + r1.ToJson(true));
 
                 //vectorCollection = iWantToRun.GetVectorCollection<string, Record>(aiSetting.VectorDB, "senparc-vector-record");
                 var vectorResult = vectorCollection.SearchAsync(searchVector, top);

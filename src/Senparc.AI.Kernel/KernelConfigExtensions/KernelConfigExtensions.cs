@@ -6,11 +6,14 @@
 
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.Qdrant;
 using Microsoft.SemanticKernel.Connectors.Redis;
 using OllamaSharp.Models;
+using Qdrant.Client;
 using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
@@ -204,7 +207,7 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDB.VectorDBType.Qdrant:
                     {
-                        
+                        servives.AddQdrantVectorStore(vectorDb.ConnectionString);
                         break;
                     }
                 case VectorDB.VectorDBType.Redis:
@@ -296,7 +299,9 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDB.VectorDBType.Qdrant:
                     {
-
+                        database = null;
+                        vectorStore = new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true);
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
                 case VectorDB.VectorDBType.Redis:
