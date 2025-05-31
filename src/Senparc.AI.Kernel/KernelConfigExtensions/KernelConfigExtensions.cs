@@ -166,13 +166,45 @@ namespace Senparc.AI.Kernel.Handlers
 
             switch (vectorDb.Type)
             {
-                case VectorDB.VectorDBType.HardDisk:
+                case VectorDB.VectorDBType.AzureAISearch:
                     {
                         break;
                     }
-                case VectorDB.VectorDBType.SqlServer:
+                case VectorDB.VectorDBType.CosmosDBMongoDB:
                     {
-
+                        break;
+                    }
+                case VectorDB.VectorDBType.CosmosDBNoSQL:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Couchbase:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Elasticsearch:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Chroma:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Milvus:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.MongoDB:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Postgres:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Qdrant:
+                    {
+                        
                         break;
                     }
                 case VectorDB.VectorDBType.Redis:
@@ -180,7 +212,16 @@ namespace Senparc.AI.Kernel.Handlers
                         servives.AddRedisVectorStore(vectorDb.ConnectionString);
                         break;
                     }
-                case VectorDB.VectorDBType.Memory:
+                case VectorDB.VectorDBType.SqlServer:
+                    {
+
+                        break;
+                    }
+                case VectorDB.VectorDBType.SQLite:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Weaviate:
                     {
 
                         break;
@@ -217,10 +258,47 @@ namespace Senparc.AI.Kernel.Handlers
 
             switch (vectorDb.Type)
             {
-                case VectorDB.VectorDBType.Memory:
-                    break;
-                case VectorDB.VectorDBType.HardDisk:
-                    break;
+                case VectorDB.VectorDBType.AzureAISearch:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.CosmosDBMongoDB:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.CosmosDBNoSQL:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Couchbase:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Elasticsearch:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Chroma:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Milvus:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.MongoDB:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Postgres:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Qdrant:
+                    {
+
+                        break;
+                    }
                 case VectorDB.VectorDBType.Redis:
                     database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
                     vectorStore = new RedisVectorStore(database,
@@ -228,18 +306,20 @@ namespace Senparc.AI.Kernel.Handlers
 
                     collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                     break;
-                case VectorDB.VectorDBType.Mulivs:
-                    break;
-                case VectorDB.VectorDBType.Chroma:
-                    break;
-                case VectorDB.VectorDBType.PostgreSQL:
-                    break;
-                case VectorDB.VectorDBType.Sqlite:
-                    break;
                 case VectorDB.VectorDBType.SqlServer:
-                    break;
-                //case VectorDB.VectorDBType.Default:
-                //    break;
+                    {
+
+                        break;
+                    }
+                case VectorDB.VectorDBType.SQLite:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Weaviate:
+                    {
+
+                        break;
+                    }
                 default:
                     break;
             }
