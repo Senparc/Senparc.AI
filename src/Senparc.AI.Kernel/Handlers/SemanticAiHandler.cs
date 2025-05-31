@@ -234,7 +234,6 @@ namespace Senparc.AI.Kernel
                         chatHistory.Remove(removeList[i]);
                     }
 
-
                     //var firstAssistant = chatHistory.FirstOrDefault(z => z.Role == AuthorRole.Assistant);
                     //if (firstAssistant != null)
                     //{

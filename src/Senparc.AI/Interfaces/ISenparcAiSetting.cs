@@ -187,15 +187,29 @@ namespace Senparc.AI.Interfaces
 
         public enum VectorDBType
         {
-            Memory,
-            HardDisk,
+            //Memory,
+            //HardDisk,
+            //Redis,
+            //Mulivs,
+            //Chroma,
+            //PostgreSQL,
+            //Sqlite,
+            //SqlServer,
+            AzureAISearch,
+            CosmosDBMongoDB,
+            CosmosDBNoSQL,
+            Couchbase,
+            Elasticsearch,
+            Chroma,     //Planed
+            Milvus,     //Planed
+            MongoDB,
+            Postgres,
+            Qdrant,
             Redis,
-            Mulivs,
-            Chroma,
-            PostgreSQL,
-            Sqlite,
-            SqlServer,
-            Default = Memory,
+            SqlServer,  //Planed
+            SQLite,
+            Weaviate,
+            Default = Redis,
         }
     }
 }

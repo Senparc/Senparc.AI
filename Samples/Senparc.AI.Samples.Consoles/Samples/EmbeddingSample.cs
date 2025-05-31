@@ -21,19 +21,19 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
     public class Record
     {
-        [VectorStoreRecordKey]
-        public string Id { get; set; }
+        [VectorStoreKey]
+        public ulong Id { get; set; }
 
-        [VectorStoreRecordData(IsIndexed = true)]
+        [VectorStoreData(IsIndexed = true)]
         public string Name { get; set; }
 
-        [VectorStoreRecordData(IsFullTextIndexed = true)]
+        [VectorStoreData(IsFullTextIndexed = true)]
         public string Description { get; set; }
 
-        [VectorStoreRecordVector(Dimensions: 4, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
+        [VectorStoreVector(Dimensions: 3072 /*根据模型调整，例如 text-embedding-ada-002 为 1536*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
         public ReadOnlyMemory<float>? DescriptionEmbedding { get; set; }
 
-        [VectorStoreRecordData(IsIndexed = true)]
+        [VectorStoreData(IsIndexed = true)]
         public string[] Tags { get; set; }
     }
 
@@ -44,8 +44,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
         SemanticAiHandler _semanticAiHandler => (SemanticAiHandler)_aiHandler;
         string _userId = "Jeffrey";
         string memoryCollectionName = "EmbeddingTest";
-        Func<ISenparcAiSetting, string> textEmbeddingGenerationName => setting => setting.ModelName.Embedding ?? "text-embedding-ada-002";
-        Func<ISenparcAiSetting, string> textEmbeddingAzureDeployName => setting => setting.ModelName.Embedding ?? "text-embedding-ada-002";
+        static Func<ISenparcAiSetting, string> textEmbeddingGenerationName => setting => setting.ModelName.Embedding ?? "text-embedding-ada-002";
+        static Func<ISenparcAiSetting, string> textEmbeddingAzureDeployName => setting => setting.ModelName.Embedding ?? "text-embedding-ada-002";
 
         public EmbeddingSample(IAiHandler aiHandler)
         {
@@ -53,20 +53,15 @@ namespace Senparc.AI.Samples.Consoles.Samples
             _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
         }
 
-        public async Task RunAsync(bool isReference = false, bool isRag = false)
+        public async Task RunAsync(bool isRag = false)
         {
-            if (isReference)
-            {
-                await Console.Out.WriteLineAsync("EmbeddingSample 开始运行。请输入需要 Embedding 的内容，id 和 text 以 :::（三个英文冒号）分割，输入 n 继续下一步。");
-            }
-            else
-            {
-                await Console.Out.WriteLineAsync("EmbeddingSample 开始运行。请输入需要 Embedding 的内容，URL 和介绍以 :::（三个英文冒号）分割，输入 n 继续下一步。");
-            }
+            await Console.Out.WriteLineAsync("EmbeddingSample 开始运行。请输入需要 Embedding 的内容，输入 n 继续下一步。");
+
             await Console.Out.WriteLineAsync("请输入");
 
 
             var aiSetting = _semanticAiHandler.SemanticKernelHelper.AiSetting;
+            var vectorName = "senparc-vector-record-ai";
 
             //测试 TextEmbedding
             var iWantToRun = _semanticAiHandler
@@ -76,7 +71,9 @@ namespace Senparc.AI.Samples.Consoles.Samples
                  .ConfigVectorStore(aiSetting.VectorDB)
                  .BuildKernel();
 
-            var vectorCollection = iWantToRun.GetVectorCollection<string, Record>(aiSetting.VectorDB, "senparc-vector-record");
+            var vectorCollection = iWantToRun.GetVectorCollection<ulong, Record>(aiSetting.VectorDB, vectorName);
+            await vectorCollection.EnsureCollectionExistsAsync();
+
             var modelName = textEmbeddingGenerationName(aiSetting);
 
             //开始对话
@@ -89,17 +86,14 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     break;
                 }
 
-                var info = prompt.Split(new[] { ":::" }, StringSplitOptions.None);
-
                 var record = new Record()
                 {
-                    Id = i.ToString(),
-                    Name = info[0],
-                    Description = info[1],
-                    DescriptionEmbedding = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, info[1]),
-                    Tags = new[] { info[0] }
+                    Id = (ulong)i,
+                    Name = vectorName + ":" + i,
+                    Description = prompt,
+                    DescriptionEmbedding = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, prompt),
+                    Tags = new[] { i.ToString() }
                 };
-
                 await vectorCollection.UpsertAsync(record);
 
                 i++;
@@ -117,12 +111,15 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
 
                 var questionDt = DateTime.Now;
-                var top = isReference ? 3 : 2;
+                var top = 3;// isReference ? 3 : 2;
 
                 ReadOnlyMemory<float> searchVector = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, question);
 
-                //新方法
-                var vectorResult = vectorCollection.SearchEmbeddingAsync(searchVector, top);
+                //var r1 = await vectorCollection.GetAsync(1);//OK
+                //Console.WriteLine("r1:" + r1.ToJson(true));
+
+                //vectorCollection = iWantToRun.GetVectorCollection<string, Record>(aiSetting.VectorDB, "senparc-vector-record");
+                var vectorResult = vectorCollection.SearchAsync(searchVector, top);
                 var j = 0;
                 await foreach (var restulItem in vectorResult)
                 {
@@ -132,6 +129,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     await Console.Out.WriteLineAsync("  Id:\t\t" + string.Join(',', restulItem.Record.Tags));
                     await Console.Out.WriteLineAsync("  Relevance:\t\t" + restulItem.Score);
                     await Console.Out.WriteLineAsync($"-- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
+                    await Console.Out.WriteLineAsync();
                     j++;
                 }
 

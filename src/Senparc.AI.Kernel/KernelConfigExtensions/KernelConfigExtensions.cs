@@ -5,12 +5,15 @@
 */
 
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.Qdrant;
 using Microsoft.SemanticKernel.Connectors.Redis;
-using NRedisStack.Graph;
 using OllamaSharp.Models;
+using Qdrant.Client;
 using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
@@ -162,10 +165,54 @@ namespace Senparc.AI.Kernel.Handlers
 
             var kb = iWantToConfig.SemanticKernelHelper.KernelBuilder;
 
+            var servives = kb.Services;
+
             switch (vectorDb.Type)
             {
-                case VectorDB.VectorDBType.HardDisk:
+                case VectorDB.VectorDBType.AzureAISearch:
                     {
+                        break;
+                    }
+                case VectorDB.VectorDBType.CosmosDBMongoDB:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.CosmosDBNoSQL:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Couchbase:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Elasticsearch:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Chroma:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Milvus:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.MongoDB:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Postgres:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Qdrant:
+                    {
+                        servives.AddQdrantVectorStore(vectorDb.ConnectionString);
+                        break;
+                    }
+                case VectorDB.VectorDBType.Redis:
+                    {
+                        servives.AddRedisVectorStore(vectorDb.ConnectionString);
                         break;
                     }
                 case VectorDB.VectorDBType.SqlServer:
@@ -173,12 +220,11 @@ namespace Senparc.AI.Kernel.Handlers
 
                         break;
                     }
-                case VectorDB.VectorDBType.Redis:
+                case VectorDB.VectorDBType.SQLite:
                     {
-                        kb.AddRedisVectorStore(vectorDb.ConnectionString);
                         break;
                     }
-                case VectorDB.VectorDBType.Memory:
+                case VectorDB.VectorDBType.Weaviate:
                     {
 
                         break;
@@ -203,39 +249,82 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="name"></param>
         /// <param name="vectorStoreRecordDefinition"></param>
         /// <returns></returns>
-        public static IVectorStoreRecordCollection<TKey, TRecord> GetVectorCollection<TKey, TRecord>(this IWantToRun iWwantToRun, VectorDB vectorDb, string name, VectorStoreRecordDefinition? vectorStoreRecordDefinition = null)
-             where TKey : notnull where TRecord : notnull
+        public static VectorStoreCollection<TKey, TRecord> GetVectorCollection<TKey, TRecord>(this IWantToRun iWwantToRun, VectorDB vectorDb, string name, VectorStoreCollectionDefinition? vectorStoreRecordDefinition = null)
+             where TKey : notnull
+             where TRecord : class
         {
             IDatabase database;
-            IVectorStore vectorStore;
-            IVectorStoreRecordCollection<TKey, TRecord> collection = null;
+            VectorStore vectorStore;
+            VectorStoreCollection<TKey, TRecord> collection = null;
 
             //TODO: If the logic becomes overly complex in the future, different combinations can be considered to be separated into different libraries
 
             switch (vectorDb.Type)
             {
-                case VectorDB.VectorDBType.Memory:
-                    break;
-                case VectorDB.VectorDBType.HardDisk:
-                    break;
+                case VectorDB.VectorDBType.AzureAISearch:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.CosmosDBMongoDB:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.CosmosDBNoSQL:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Couchbase:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Elasticsearch:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Chroma:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Milvus:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.MongoDB:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Postgres:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Qdrant:
+                    {
+                        database = null;
+                        vectorStore = new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true);
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
+                        break;
+                    }
                 case VectorDB.VectorDBType.Redis:
                     database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
-                    vectorStore = new RedisVectorStore(database
-                        /*new() { StorageType = RedisStorageType.Json }*/);
+                    vectorStore = new RedisVectorStore(database,
+                        new() { StorageType = RedisStorageType.Json });
+
                     collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                     break;
-                case VectorDB.VectorDBType.Mulivs:
-                    break;
-                case VectorDB.VectorDBType.Chroma:
-                    break;
-                case VectorDB.VectorDBType.PostgreSQL:
-                    break;
-                case VectorDB.VectorDBType.Sqlite:
-                    break;
                 case VectorDB.VectorDBType.SqlServer:
-                    break;
-                //case VectorDB.VectorDBType.Default:
-                //    break;
+                    {
+
+                        break;
+                    }
+                case VectorDB.VectorDBType.SQLite:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Weaviate:
+                    {
+
+                        break;
+                    }
                 default:
                     break;
             }
@@ -856,7 +945,7 @@ namespace Senparc.AI.Kernel.Handlers
 
             chatHistory.AddUserMessage(contentItems);
 
-             parameter ??= new PromptConfigParameter()
+            parameter ??= new PromptConfigParameter()
             {
                 MaxTokens = 3500,
                 Temperature = 0.7,
@@ -864,7 +953,7 @@ namespace Senparc.AI.Kernel.Handlers
             };
             PromptExecutionSettings? executionSettings = helper.GetExecutionSetting(parameter, helper.AiSetting);
 
-            if (kernel.Plugins.Count>0)
+            if (kernel.Plugins.Count > 0)
             {
                 executionSettings.FunctionChoiceBehavior = FunctionChoiceBehavior.Auto();
             }
