@@ -1,6 +1,7 @@
 ﻿using Microsoft.SemanticKernel.Embeddings;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +12,8 @@ namespace Senparc.AI.Kernel.Handlers
         #region Memory 相关
 
 #pragma warning disable SKEXP0001
+
+        [Obsolete("Please use new methods", true)]
         public static IWantToRun MemorySaveInformation(this IWantToRun iWantToRun,
             string modelName,
             string collection,
@@ -76,6 +79,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="cancel">Cancellation token</param>
         /// <returns>Memories found</returns>
         /// <returns></returns>
+        [Obsolete("Please use new methods", true)]
         public static async Task<SenparcAiResult_MemoryQuery> MemorySearchAsync(this IWantToRun iWantToRun,
             string modelName,
             string memoryCollectionName,

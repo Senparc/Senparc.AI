@@ -44,8 +44,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
         SemanticAiHandler _semanticAiHandler => (SemanticAiHandler)_aiHandler;
         string _userId = "Jeffrey";
         string memoryCollectionName = "EmbeddingTest";
-        Func<ISenparcAiSetting, string> textEmbeddingGenerationName => setting => setting.ModelName.Embedding ?? "text-embedding-ada-002";
-        Func<ISenparcAiSetting, string> textEmbeddingAzureDeployName => setting => setting.ModelName.Embedding ?? "text-embedding-ada-002";
+        static Func<ISenparcAiSetting, string> textEmbeddingGenerationName => setting => setting.ModelName.Embedding ?? "text-embedding-ada-002";
+        static Func<ISenparcAiSetting, string> textEmbeddingAzureDeployName => setting => setting.ModelName.Embedding ?? "text-embedding-ada-002";
 
         public EmbeddingSample(IAiHandler aiHandler)
         {
@@ -79,7 +79,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var vectorCollection = iWantToRun.GetVectorCollection<ulong, Record>(aiSetting.VectorDB, vectorName);
             await vectorCollection.EnsureCollectionExistsAsync();
-           
+
             var modelName = textEmbeddingGenerationName(aiSetting);
 
             //开始对话
@@ -102,9 +102,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     DescriptionEmbedding = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, info[1]),
                     Tags = new[] { info[0] }
                 };
-
-
-
                 await vectorCollection.UpsertAsync(record);
 
                 i++;
