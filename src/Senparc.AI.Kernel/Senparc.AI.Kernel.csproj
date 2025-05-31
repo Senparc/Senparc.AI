@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.23.4</Version>
+		<Version>0.24.0</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>12.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -57,6 +57,7 @@
 			[2025-02-02] v0.23.0-beta1 Upgrade support for Ollama, finished test for DeepSeek-r1 and nomic-embed-text:v1.5
 			[2025-05-10] v0.23.3 Support result.GetLastFunctionResultContent() function
 			[2025-05-10] v0.23.4 Upgrade for Chat history limit
+			[2025-06-01] v0.24.0 Upgrade for vector database; update Sample for Embedding and RAG
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
