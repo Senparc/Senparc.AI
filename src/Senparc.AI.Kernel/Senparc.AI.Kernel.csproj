@@ -78,6 +78,7 @@
 		<PackageReference Include="Microsoft.SemanticKernel" Version="1.54.0" />
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.54.0-preview" />
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.54.0-alpha" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.54.0-preview" />
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Redis" Version="1.54.0-preview" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
 		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.54.0-alpha" />
