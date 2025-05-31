@@ -89,9 +89,8 @@ switch (index)
         {
             //Embedding Sample
             Console.WriteLine("请输入需要，进入对应 Embedding测试：");
-            Console.WriteLine("[1] 普通信息（Information）");
-            Console.WriteLine("[2] 引用信息（Reference）");
-            Console.WriteLine("[3] 检索增强生成（RAG）");
+            Console.WriteLine("[1] 普通 Embedding + 查询");
+            Console.WriteLine("[2] 检索增强生成（RAG）");
             index = Console.ReadLine();
             Console.WriteLine();
             try
@@ -103,15 +102,10 @@ switch (index)
                 {
                     case "1":
                         {
-                            await embeddingSample.RunAsync(isReference: false);
+                            await embeddingSample.RunAsync();
                         }
                         break;
                     case "2":
-                        {
-                            await embeddingSample.RunAsync(isReference: true);
-                        }
-                        break;
-                    case "3":
                         {
                             await embeddingSample.RunRagAsync(serviceProvider);
                         }

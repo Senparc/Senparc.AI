@@ -30,7 +30,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         [VectorStoreData(IsFullTextIndexed = true)]
         public string Description { get; set; }
 
-        [VectorStoreVector(Dimensions: 1536, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
+        [VectorStoreVector(Dimensions: 3072 /*根据模型调整，例如 text-embedding-ada-002 为 1536*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
         public ReadOnlyMemory<float>? DescriptionEmbedding { get; set; }
 
         [VectorStoreData(IsIndexed = true)]
@@ -53,16 +53,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
             _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
         }
 
-        public async Task RunAsync(bool isReference = false, bool isRag = false)
+        public async Task RunAsync(bool isRag = false)
         {
-            if (isReference)
-            {
-                await Console.Out.WriteLineAsync("EmbeddingSample 开始运行。请输入需要 Embedding 的内容，id 和 text 以 :::（三个英文冒号）分割，输入 n 继续下一步。");
-            }
-            else
-            {
-                await Console.Out.WriteLineAsync("EmbeddingSample 开始运行。请输入需要 Embedding 的内容，URL 和介绍以 :::（三个英文冒号）分割，输入 n 继续下一步。");
-            }
+            await Console.Out.WriteLineAsync("EmbeddingSample 开始运行。请输入需要 Embedding 的内容，输入 n 继续下一步。");
+
             await Console.Out.WriteLineAsync("请输入");
 
 
@@ -92,15 +86,13 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     break;
                 }
 
-                var info = prompt.Split(new[] { ":::" }, StringSplitOptions.None);
-
                 var record = new Record()
                 {
-                    Id = ulong.Parse(info[0]),
-                    Name = vectorName + ":" + info[0],
-                    Description = info[1],
-                    DescriptionEmbedding = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, info[1]),
-                    Tags = new[] { info[0] }
+                    Id = (ulong)i,
+                    Name = vectorName + ":" + i,
+                    Description = prompt,
+                    DescriptionEmbedding = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, prompt),
+                    Tags = new[] { i.ToString() }
                 };
                 await vectorCollection.UpsertAsync(record);
 
@@ -137,6 +129,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     await Console.Out.WriteLineAsync("  Id:\t\t" + string.Join(',', restulItem.Record.Tags));
                     await Console.Out.WriteLineAsync("  Relevance:\t\t" + restulItem.Score);
                     await Console.Out.WriteLineAsync($"-- cost {(DateTime.Now - questionDt).TotalMilliseconds}ms");
+                    await Console.Out.WriteLineAsync();
                     j++;
                 }
 

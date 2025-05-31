@@ -52,15 +52,15 @@
 
 ### Embedding 普通信息测试
 ```
-1:::My name is Jeffrey
-2:::My country is China
-3:::I'm working for Senparc
-4:::Senparc is a company based in Suzhou
-5:::Senparc is founded at 2010
-6:::Senparc startup at 2010, in Jiangsu Province, Suzhou City, Gusu Distinct
-7:::Senparc.Weixin SDK is made by Senparc, main author is Jeffrey Su who is also the founder of Senparc.
-8:::Jeffrey Su's Chinese name is Zhenwei Su.
-9:::Zhenwei Su has written two books.
+My name is Jeffrey
+My country is China
+I'm working for Senparc
+Senparc is a company based in Suzhou
+Senparc is founded at 2010
+Senparc startup at 2010, in Jiangsu Province, Suzhou City, Gusu Distinct
+Senparc.Weixin SDK is made by Senparc, main author is Jeffrey Su who is also the founder of Senparc.
+Jeffrey Su's Chinese name is Zhenwei Su.
+Zhenwei Su has written two books.
 ```
 
 ### Embedding 引用信息测试
