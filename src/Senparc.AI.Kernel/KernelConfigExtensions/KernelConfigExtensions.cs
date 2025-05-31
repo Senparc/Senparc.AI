@@ -5,11 +5,11 @@
 */
 
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.Redis;
-using NRedisStack.Graph;
 using OllamaSharp.Models;
 using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
@@ -162,6 +162,8 @@ namespace Senparc.AI.Kernel.Handlers
 
             var kb = iWantToConfig.SemanticKernelHelper.KernelBuilder;
 
+            var servives = kb.Services;
+
             switch (vectorDb.Type)
             {
                 case VectorDB.VectorDBType.HardDisk:
@@ -175,7 +177,7 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDB.VectorDBType.Redis:
                     {
-                        kb.AddRedisVectorStore(vectorDb.ConnectionString);
+                        servives.AddRedisVectorStore(vectorDb.ConnectionString);
                         break;
                     }
                 case VectorDB.VectorDBType.Memory:
@@ -203,12 +205,13 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="name"></param>
         /// <param name="vectorStoreRecordDefinition"></param>
         /// <returns></returns>
-        public static IVectorStoreRecordCollection<TKey, TRecord> GetVectorCollection<TKey, TRecord>(this IWantToRun iWwantToRun, VectorDB vectorDb, string name, VectorStoreRecordDefinition? vectorStoreRecordDefinition = null)
-             where TKey : notnull where TRecord : notnull
+        public static VectorStoreCollection<TKey, TRecord> GetVectorCollection<TKey, TRecord>(this IWantToRun iWwantToRun, VectorDB vectorDb, string name, VectorStoreCollectionDefinition? vectorStoreRecordDefinition = null)
+             where TKey : notnull
+             where TRecord : class
         {
             IDatabase database;
-            IVectorStore vectorStore;
-            IVectorStoreRecordCollection<TKey, TRecord> collection = null;
+            VectorStore vectorStore;
+            VectorStoreCollection<TKey, TRecord> collection = null;
 
             //TODO: If the logic becomes overly complex in the future, different combinations can be considered to be separated into different libraries
 
@@ -220,8 +223,9 @@ namespace Senparc.AI.Kernel.Handlers
                     break;
                 case VectorDB.VectorDBType.Redis:
                     database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
-                    vectorStore = new RedisVectorStore(database
-                        /*new() { StorageType = RedisStorageType.Json }*/);
+                    vectorStore = new RedisVectorStore(database,
+                        new() { StorageType = RedisStorageType.Json });
+
                     collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                     break;
                 case VectorDB.VectorDBType.Mulivs:
@@ -856,7 +860,7 @@ namespace Senparc.AI.Kernel.Handlers
 
             chatHistory.AddUserMessage(contentItems);
 
-             parameter ??= new PromptConfigParameter()
+            parameter ??= new PromptConfigParameter()
             {
                 MaxTokens = 3500,
                 Temperature = 0.7,
@@ -864,7 +868,7 @@ namespace Senparc.AI.Kernel.Handlers
             };
             PromptExecutionSettings? executionSettings = helper.GetExecutionSetting(parameter, helper.AiSetting);
 
-            if (kernel.Plugins.Count>0)
+            if (kernel.Plugins.Count > 0)
             {
                 executionSettings.FunctionChoiceBehavior = FunctionChoiceBehavior.Auto();
             }

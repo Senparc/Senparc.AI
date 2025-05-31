@@ -21,19 +21,19 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
     public class Record
     {
-        [VectorStoreRecordKey]
+        [VectorStoreKey]
         public string Id { get; set; }
 
-        [VectorStoreRecordData(IsIndexed = true)]
+        [VectorStoreData(IsIndexed = true)]
         public string Name { get; set; }
 
-        [VectorStoreRecordData(IsFullTextIndexed = true)]
+        [VectorStoreData(IsFullTextIndexed = true)]
         public string Description { get; set; }
 
-        [VectorStoreRecordVector(Dimensions: 4, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
+        [VectorStoreVector(Dimensions: 4, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
         public ReadOnlyMemory<float>? DescriptionEmbedding { get; set; }
 
-        [VectorStoreRecordData(IsIndexed = true)]
+        [VectorStoreData(IsIndexed = true)]
         public string[] Tags { get; set; }
     }
 
@@ -67,6 +67,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
 
             var aiSetting = _semanticAiHandler.SemanticKernelHelper.AiSetting;
+            var vectorName = "senparc-vector-record-ai";
 
             //测试 TextEmbedding
             var iWantToRun = _semanticAiHandler
@@ -76,7 +77,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                  .ConfigVectorStore(aiSetting.VectorDB)
                  .BuildKernel();
 
-            var vectorCollection = iWantToRun.GetVectorCollection<string, Record>(aiSetting.VectorDB, "senparc-vector-record");
+            var vectorCollection = iWantToRun.GetVectorCollection<string, Record>(aiSetting.VectorDB, vectorName);
             var modelName = textEmbeddingGenerationName(aiSetting);
 
             //开始对话
@@ -93,8 +94,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 var record = new Record()
                 {
-                    Id = i.ToString(),
-                    Name = info[0],
+                    Id = info[0],
+                    Name = vectorName + ":" + info[0],
                     Description = info[1],
                     DescriptionEmbedding = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, info[1]),
                     Tags = new[] { info[0] }
@@ -121,8 +122,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 ReadOnlyMemory<float> searchVector = await iWantToRun.SemanticKernelHelper.GetEmbeddingAsync(modelName, question);
 
-                //新方法
-                var vectorResult = vectorCollection.SearchEmbeddingAsync(searchVector, top);
+                var r1 =await vectorCollection.GetAsync(vectorName + ":1");//OK
+
+                //vectorCollection = iWantToRun.GetVectorCollection<string, Record>(aiSetting.VectorDB, "senparc-vector-record");
+                var vectorResult = vectorCollection.SearchAsync(searchVector, top);
                 var j = 0;
                 await foreach (var restulItem in vectorResult)
                 {
