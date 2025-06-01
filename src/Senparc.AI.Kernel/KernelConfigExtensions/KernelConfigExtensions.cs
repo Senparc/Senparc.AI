@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.InMemory;
 using Microsoft.SemanticKernel.Connectors.Qdrant;
 using Microsoft.SemanticKernel.Connectors.Redis;
 using OllamaSharp.Models;
@@ -217,7 +218,6 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDB.VectorDBType.SqlServer:
                     {
-
                         break;
                     }
                 case VectorDB.VectorDBType.SQLite:
@@ -226,13 +226,32 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDB.VectorDBType.Weaviate:
                     {
-
+                        break;
+                    }
+                case VectorDB.VectorDBType.Faiss:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.InMemory:
+                    {
+                        servives.AddInMemoryVectorStore();
+                        break;
+                    }
+                case VectorDB.VectorDBType.JDBC:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Pinecon:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.VolatileInMemory:
+                    {
                         break;
                     }
                 default:
                     {
-
-                        break;
+                        throw new ArgumentOutOfRangeException(nameof(vectorDb.Type), $"Unsupported VectorDB type: {vectorDb.Type}");
                     }
             }
 
@@ -323,6 +342,28 @@ namespace Senparc.AI.Kernel.Handlers
                 case VectorDB.VectorDBType.Weaviate:
                     {
 
+                        break;
+                    }
+                case VectorDB.VectorDBType.Faiss:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.InMemory:
+                    {
+                        vectorStore = new InMemoryVectorStore();
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
+                        break;
+                    }
+                case VectorDB.VectorDBType.JDBC:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.Pinecon:
+                    {
+                        break;
+                    }
+                case VectorDB.VectorDBType.VolatileInMemory:
+                    {
                         break;
                     }
                 default:

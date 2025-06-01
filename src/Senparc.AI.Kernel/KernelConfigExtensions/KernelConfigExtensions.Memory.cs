@@ -37,6 +37,7 @@ namespace Senparc.AI.Kernel.Handlers
             return iWantToRun;
         }
 
+        [Obsolete("Please use new methods", true)]
         public static IWantToRun MemorySaveReference(this IWantToRun iWantToRun,
                string modelName,
                string collection,
