@@ -198,16 +198,21 @@ namespace Senparc.AI.Interfaces
             AzureAISearch,
             CosmosDBMongoDB,
             CosmosDBNoSQL,
+            Chroma,     //Planed
             Couchbase,
             Elasticsearch,
-            Chroma,     //Planed
-            Milvus,     //Planed
+            Faiss,
+            InMemory,
+            JDBC,
+            Milvus,     //Planed (not included in https://learn.microsoft.com/en-us/semantic-kernel/concepts/vector-store-connectors/out-of-the-box-connectors/inmemory-connector?pivots=programming-language-csharp)
             MongoDB,
+            Pinecon,
             Postgres,
             Qdrant,
             Redis,
             SqlServer,  //Planed
             SQLite,
+            VolatileInMemory,
             Weaviate,
             Default = Redis,
         }
