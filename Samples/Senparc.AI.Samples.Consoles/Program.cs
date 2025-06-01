@@ -51,6 +51,7 @@ Console.WriteLine("开源地址：https://github.com/Senparc/Senparc.AI");
 Console.WriteLine("-----------------------");
 Console.WriteLine($"当前模型：{SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform} - {SampleSetting.CurrentSetting.Endpoint}");
 Console.WriteLine($"当前 HttpClient 日志开关：{(SampleSetting.EnableHttpClientLog ? "开启" : "关闭")}");
+Console.WriteLine($"当前向量数据库设置：{SampleSetting.CurrentSetting.VectorDB.Type} {SampleSetting.CurrentSetting.VectorDB.ConnectionString}");
 Console.WriteLine("=======================");
 Console.WriteLine();
 Console.WriteLine("请输入序号，开始对应功能测试：");
