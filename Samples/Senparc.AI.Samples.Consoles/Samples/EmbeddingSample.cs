@@ -30,7 +30,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         [VectorStoreData(IsFullTextIndexed = true)]
         public string Description { get; set; }
 
-        [VectorStoreVector(Dimensions: 3072 /*根据模型调整，例如 text-embedding-ada-002 为 1536*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
+        [VectorStoreVector(Dimensions: 1536 /*根据模型调整，例如 text-embedding-ada-002 为 1536，Large 为 3072*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
         public ReadOnlyMemory<float>? DescriptionEmbedding { get; set; }
 
         [VectorStoreData(IsIndexed = true)]

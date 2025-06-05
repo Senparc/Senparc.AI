@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.25.0</Version>
+		<Version>0.25.1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>12.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -59,6 +59,7 @@
 			[2025-05-10] v0.23.4 Upgrade for Chat history limit
 			[2025-06-01] v0.24.0 Upgrade for vector database, support for Qdrant; update Sample for Embedding and RAG
 			[2025-06-02] v0.25.0 Upgrade for vector database, support for InMemory; update Sample for Embedding and RAG
+			[2025-06-05] v0.25.1 Update basic Senparc.AI library
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
