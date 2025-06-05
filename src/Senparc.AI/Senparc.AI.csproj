@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.24.1</Version>
+		<Version>0.24.2</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI</AssemblyName>
@@ -55,6 +55,7 @@
 			[2025-01-19] v0.20.0-beta1 Update Senparc.AI.Agents; Fixed some namespace spelling errors
 			[2025-01-21] v0.21.0-beta1 Support for DeepSeek
 			[2025-02-02] v0.22.0 Upgrade support for Ollama, finished test for DeepSeek-r1 and nomic-embed-text:v1.5
+			[2025-06-05] v0.24.1 Update VectorDBType values
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
