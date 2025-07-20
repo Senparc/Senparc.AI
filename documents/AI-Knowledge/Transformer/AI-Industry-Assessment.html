@@ -34,7 +34,10 @@
             color: white;
             padding: 20px;
             border-radius: 8px;
-            width: 350px;
+            width: 420px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            overflow-x: hidden;
         }
         .input-section {
             margin-bottom: 20px;
@@ -75,6 +78,56 @@
             text-align: right;
             font-weight: bold;
             color: #ffcc00;
+        }
+        .value-weight-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+        .value-weight-row .slider-value {
+            margin-right: 15px;
+        }
+        .weight-control {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+        }
+        .weight-control label {
+            margin-right: 8px;
+            color: #ccc;
+            white-space: nowrap;
+        }
+        .weight-slider {
+            width: 60px;
+            margin: 0 8px;
+        }
+        .weight-value {
+            color: #ffcc00;
+            font-weight: bold;
+            min-width: 35px;
+            text-align: right;
+        }
+        /* 自定义滚动条样式 */
+        #controls::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #controls::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+        
+        #controls::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+        
+        #controls::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
         }
         .evaluate-btn {
             width: 100%;
@@ -156,8 +209,8 @@
         }
         #legend {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            top: 20px;
+            left: 20px;
             background: rgba(0,0,0,0.8);
             color: white;
             padding: 15px;
@@ -224,6 +277,14 @@
                     <input type="range" min="0" max="100" value="60" class="slider" id="data-availability">
                     <span class="slider-value">60%</span>
                 </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">60%</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="40" class="weight-slider" id="data-weight">
+                        <span class="weight-value">40%</span>
+                    </div>
+                </div>
             </div>
             <div class="input-group">
                 <label>流程标准化程度（0-5级）</label>
@@ -232,6 +293,14 @@
                     <input type="range" min="0" max="5" step="0.5" value="3" class="slider" id="process-standardization">
                     <span class="slider-value">3.0</span>
                 </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">3.0</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="40" class="weight-slider" id="process-weight">
+                        <span class="weight-value">40%</span>
+                    </div>
+                </div>
             </div>
             <div class="input-group">
                 <label>环境感知需求（传感器密度）</label>
@@ -239,6 +308,14 @@
                     <span>低</span>
                     <input type="range" min="1" max="10" value="5" class="slider" id="sensor-density">
                     <span class="slider-value">5</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">5</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="20" class="weight-slider" id="sensor-weight">
+                        <span class="weight-value">20%</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -252,6 +329,14 @@
                     <input type="range" min="6" max="36" value="18" class="slider" id="roi-period">
                     <span class="slider-value">18</span>
                 </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">18</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="40" class="weight-slider" id="roi-weight">
+                        <span class="weight-value">40%</span>
+                    </div>
+                </div>
             </div>
             <div class="input-group">
                 <label>人工替代成本（万元/岗·年）</label>
@@ -260,6 +345,14 @@
                     <input type="range" min="5" max="50" value="20" class="slider" id="labor-cost">
                     <span class="slider-value">20</span>
                 </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">20</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="40" class="weight-slider" id="labor-weight">
+                        <span class="weight-value">40%</span>
+                    </div>
+                </div>
             </div>
             <div class="input-group">
                 <label>边际效益递增阈值</label>
@@ -267,6 +360,14 @@
                     <span>100</span>
                     <input type="range" min="100" max="10000" value="1000" class="slider" id="scale-threshold">
                     <span class="slider-value">1000</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">1000</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="20" class="weight-slider" id="scale-weight">
+                        <span class="weight-value">20%</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -280,6 +381,14 @@
                     <input type="range" min="0" max="100" value="70" class="slider" id="policy-support">
                     <span class="slider-value">70</span>
                 </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">70</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="40" class="weight-slider" id="policy-weight">
+                        <span class="weight-value">40%</span>
+                    </div>
+                </div>
             </div>
             <div class="input-group">
                 <label>伦理风险等级（1-5级）</label>
@@ -288,6 +397,14 @@
                     <input type="range" min="1" max="5" step="0.5" value="2.5" class="slider" id="ethical-risk">
                     <span class="slider-value">2.5</span>
                 </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">2.5</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="30" class="weight-slider" id="ethical-weight">
+                        <span class="weight-value">30%</span>
+                    </div>
+                </div>
             </div>
             <div class="input-group">
                 <label>公众接受度（调研百分比）</label>
@@ -295,6 +412,14 @@
                     <span>0%</span>
                     <input type="range" min="0" max="100" value="75" class="slider" id="public-acceptance">
                     <span class="slider-value">75%</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">75%</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="30" class="weight-slider" id="public-weight">
+                        <span class="weight-value">30%</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -318,6 +443,11 @@
                 </div>
             </div>
             <div id="result-description"></div>
+        </div>
+        
+        <div class="result-section" id="selected-industry-section" style="display: none;">
+            <div class="result-title">选中行业详情</div>
+            <div id="selected-industry-info"></div>
         </div>
     </div>
     
@@ -352,6 +482,7 @@
         let axisLabels = [];
         let industryPoints = [];
         let currentIndustryPoint = null;
+        let raycaster, mouse; // 用于鼠标交互
         
         // 颜色定义
         const colors = {
@@ -404,6 +535,10 @@
             // 创建示例行业点
             createSampleIndustryPoints();
             
+            // 初始化射线投射器和鼠标向量，用于拾取对象
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            
             // 设置事件监听器
             setupEventListeners();
             
@@ -419,7 +554,7 @@
             const axisLength = 10;
             const gridSize = 10;
             
-            // 创建坐标轴
+            // 创建坐标轴 - 只显示正数区域
             const axisGeometry = new THREE.BufferGeometry();
             const axisMaterial = new THREE.LineBasicMaterial({ color: colors.axis, linewidth: 2 });
             
@@ -457,10 +592,10 @@
             
             axisLabels.push(xLabel, yLabel, zLabel);
             
-            // 创建网格
+            // 创建网格 - 只显示正数区域
             createGrid(gridSize);
             
-            // 添加刻度标记
+            // 添加刻度标记 - 只显示正数区域
             createAxisTicks(axisLength);
         }
         
@@ -477,23 +612,24 @@
             return label;
         }
         
-        // 创建网格
+        // 创建网格 - 只显示正数区域
         function createGrid(size) {
-            const gridHelper = new THREE.GridHelper(size, size, colors.grid, colors.grid);
-            gridHelper.position.y = 0;
-            scene.add(gridHelper);
+            // XY平面网格（底面）
+            const xyGridHelper = new THREE.GridHelper(size, size, colors.grid, colors.grid);
+            xyGridHelper.position.y = 0;
+            scene.add(xyGridHelper);
             
-            // 创建YZ平面网格
+            // YZ平面网格（侧面）
             const yzGridHelper = new THREE.GridHelper(size, size, colors.grid, colors.grid);
             yzGridHelper.rotation.x = Math.PI / 2;
             yzGridHelper.position.z = 0;
             scene.add(yzGridHelper);
             
-            // 创建XY平面网格
-            const xyGridHelper = new THREE.GridHelper(size, size, colors.grid, colors.grid);
-            xyGridHelper.rotation.z = Math.PI / 2;
-            xyGridHelper.position.y = 0;
-            scene.add(xyGridHelper);
+            // XZ平面网格（后面）
+            const xzGridHelper = new THREE.GridHelper(size, size, colors.grid, colors.grid);
+            xzGridHelper.rotation.z = Math.PI / 2;
+            xzGridHelper.position.y = 0;
+            scene.add(xzGridHelper);
         }
         
         // 创建坐标轴刻度
@@ -530,11 +666,11 @@
         // 创建示例行业点
         function createSampleIndustryPoints() {
             const sampleIndustries = [
-                { name: "制造业", tech: 8.5, econ: 7.2, social: 6.8 },
-                { name: "金融业", tech: 9.1, econ: 8.5, social: 7.3 },
-                { name: "医疗健康", tech: 7.8, econ: 6.5, social: 8.2 },
-                { name: "教育", tech: 6.5, econ: 5.8, social: 7.5 },
-                { name: "零售业", tech: 8.2, econ: 7.8, social: 6.5 }
+                { name: "制造业", tech: 85, econ: 72, social: 68 },
+                { name: "金融业", tech: 91, econ: 85, social: 73 },
+                { name: "医疗健康", tech: 78, econ: 65, social: 82 },
+                { name: "教育", tech: 65, econ: 58, social: 75 },
+                { name: "零售业", tech: 82, econ: 78, social: 65 }
             ];
             
             sampleIndustries.forEach(industry => {
@@ -548,6 +684,11 @@
             const decision = calculateDecision(techScore, econScore, socialScore);
             const color = getDecisionColor(decision);
             
+            // 将分数映射到0-10的坐标范围
+            const mappedTechScore = mapScoreToCoordinate(techScore);
+            const mappedEconScore = mapScoreToCoordinate(econScore);
+            const mappedSocialScore = mapScoreToCoordinate(socialScore);
+            
             // 创建球体几何体
             const geometry = new THREE.SphereGeometry(0.3, 16, 16);
             const material = new THREE.MeshPhongMaterial({ 
@@ -557,7 +698,7 @@
             });
             
             const sphere = new THREE.Mesh(geometry, material);
-            sphere.position.set(techScore, econScore, socialScore);
+            sphere.position.set(mappedTechScore, mappedEconScore, mappedSocialScore);
             scene.add(sphere);
             
             // 添加标签
@@ -569,7 +710,7 @@
             label.position.set(0, 0.5, 0);
             sphere.add(label);
             
-            // 存储点信息
+            // 存储点信息（保存原始分数用于显示）
             const pointInfo = {
                 mesh: sphere,
                 label: label,
@@ -577,6 +718,9 @@
                 techScore: techScore,
                 econScore: econScore,
                 socialScore: socialScore,
+                mappedTechScore: mappedTechScore,
+                mappedEconScore: mappedEconScore,
+                mappedSocialScore: mappedSocialScore,
                 decision: decision,
                 isCurrent: isCurrent
             };
@@ -588,6 +732,12 @@
             }
             
             return pointInfo;
+        }
+        
+        // 将分数映射到0-10的坐标范围
+        function mapScoreToCoordinate(score) {
+            // 分数范围是0-100，映射到0-10
+            return (score / 100) * 10;
         }
         
         // 计算决策结果
@@ -617,32 +767,47 @@
         
         // 计算技术适配性分数
         function calculateTechScore(dataAvailability, processStandardization, sensorDensity) {
-            // 数据可用性权重40%，流程标准化权重40%，传感器密度权重20%
+            // 获取权重设置
+            const dataWeight = parseFloat(document.getElementById('data-weight').value) / 100;
+            const processWeight = parseFloat(document.getElementById('process-weight').value) / 100;
+            const sensorWeight = parseFloat(document.getElementById('sensor-weight').value) / 100;
+            
+            // 计算各项分数
             const dataScore = (dataAvailability / 100) * 100;
             const processScore = (processStandardization / 5) * 100;
             const sensorScore = ((11 - sensorDensity) / 10) * 100; // 传感器密度越低分数越高
             
-            return dataScore * 0.4 + processScore * 0.4 + sensorScore * 0.2;
+            return dataScore * dataWeight + processScore * processWeight + sensorScore * sensorWeight;
         }
         
         // 计算经济可行性分数
         function calculateEconScore(roiPeriod, laborCost, scaleThreshold) {
-            // ROI周期权重40%，人工成本权重40%，规模阈值权重20%
+            // 获取权重设置
+            const roiWeight = parseFloat(document.getElementById('roi-weight').value) / 100;
+            const laborWeight = parseFloat(document.getElementById('labor-weight').value) / 100;
+            const scaleWeight = parseFloat(document.getElementById('scale-weight').value) / 100;
+            
+            // 计算各项分数
             const roiScore = Math.max(0, 100 - (roiPeriod - 6) * 3.33); // 6个月=100分，36个月=0分
             const laborScore = Math.min(100, (laborCost - 5) * 2.22); // 5万=0分，50万=100分
             const scaleScore = Math.max(0, 100 - (scaleThreshold - 100) / 99); // 100=100分，10000=0分
             
-            return roiScore * 0.4 + laborScore * 0.4 + scaleScore * 0.2;
+            return roiScore * roiWeight + laborScore * laborWeight + scaleScore * scaleWeight;
         }
         
         // 计算社会可行性分数
         function calculateSocialScore(policySupport, ethicalRisk, publicAcceptance) {
-            // 政策支持权重40%，伦理风险权重30%，公众接受度权重30%
+            // 获取权重设置
+            const policyWeight = parseFloat(document.getElementById('policy-weight').value) / 100;
+            const ethicalWeight = parseFloat(document.getElementById('ethical-weight').value) / 100;
+            const publicWeight = parseFloat(document.getElementById('public-weight').value) / 100;
+            
+            // 计算各项分数
             const policyScore = policySupport;
             const ethicalScore = ((6 - ethicalRisk) / 5) * 100; // 风险等级越低分数越高
             const acceptanceScore = publicAcceptance;
             
-            return policyScore * 0.4 + ethicalScore * 0.3 + acceptanceScore * 0.3;
+            return policyScore * policyWeight + ethicalScore * ethicalWeight + acceptanceScore * publicWeight;
         }
         
         // 设置事件监听器
@@ -653,8 +818,17 @@
                 slider.addEventListener('input', updateSliderValue);
             });
             
+            // 权重滑块事件监听器
+            const weightSliders = document.querySelectorAll('.weight-slider');
+            weightSliders.forEach(slider => {
+                slider.addEventListener('input', updateWeightValue);
+            });
+            
             // 评估按钮事件监听器
             document.getElementById('evaluate-btn').addEventListener('click', evaluateIndustry);
+            
+            // 鼠标点击事件监听器
+            renderer.domElement.addEventListener('click', onMouseClick, false);
         }
         
         // 更新滑块值显示
@@ -674,6 +848,122 @@
             } else {
                 valueDisplay.textContent = value;
             }
+        }
+        
+        // 更新权重值显示
+        function updateWeightValue(event) {
+            const slider = event.target;
+            const valueDisplay = slider.parentNode.querySelector('.weight-value');
+            const value = parseFloat(slider.value);
+            valueDisplay.textContent = value + '%';
+        }
+        
+        // 鼠标点击事件处理
+        function onMouseClick(event) {
+            // 计算鼠标在归一化设备坐标中的位置 (-1 到 +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+            
+            // 更新射线投射器
+            raycaster.setFromCamera(mouse, camera);
+            
+            // 获取所有行业点的mesh对象
+            const meshes = industryPoints.map(point => point.mesh);
+            
+            console.log('点击检测 - 行业点数量:', industryPoints.length);
+            console.log('鼠标位置:', mouse.x, mouse.y);
+            
+            // 检查射线与行业点的相交
+            const intersects = raycaster.intersectObjects(meshes);
+            
+            console.log('相交对象数量:', intersects.length);
+            
+            if (intersects.length > 0) {
+                const intersectedMesh = intersects[0].object;
+                const selectedPoint = industryPoints.find(point => point.mesh === intersectedMesh);
+                
+                console.log('选中的行业点:', selectedPoint);
+                
+                if (selectedPoint) {
+                    displaySelectedIndustry(selectedPoint);
+                }
+            }
+        }
+        
+        // 显示选中的行业信息
+        function displaySelectedIndustry(industryPoint) {
+            console.log('显示行业信息:', industryPoint);
+            
+            const selectedSection = document.getElementById('selected-industry-section');
+            const selectedInfo = document.getElementById('selected-industry-info');
+            
+            console.log('找到的元素:', selectedSection, selectedInfo);
+            
+            // 隐藏评估结果区域
+            document.getElementById('result-section').style.display = 'none';
+            
+            // 显示选中行业信息
+            selectedSection.style.display = 'block';
+            
+            // 生成行业信息HTML
+            const infoHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h4 style="color: #ffcc00; margin: 0 0 10px 0;">${industryPoint.name}</h4>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>技术适配性：</span>
+                        <span style="color: #ffcc00; font-weight: bold;">${industryPoint.techScore.toFixed(1)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>经济可行性：</span>
+                        <span style="color: #ffcc00; font-weight: bold;">${industryPoint.econScore.toFixed(1)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>社会可行性：</span>
+                        <span style="color: #ffcc00; font-weight: bold;">${industryPoint.socialScore.toFixed(1)}</span>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                        <strong>决策建议：</strong> ${getDecisionText(industryPoint.decision)}
+                    </div>
+                </div>
+            `;
+            
+            console.log('生成的HTML:', infoHTML);
+            selectedInfo.innerHTML = infoHTML;
+            
+            // 高亮选中的点
+            highlightSelectedPoint(industryPoint);
+        }
+        
+        // 获取决策文本
+        function getDecisionText(decision) {
+            switch (decision) {
+                case 'priority':
+                    return '✅ 优先布局 - 该行业非常适合AI应用，建议优先投入资源进行AI布局。';
+                case 'observe':
+                    return '⚠️ 观察改进 - 该行业AI应用条件一般，建议观察改进后再考虑投入。';
+                case 'delay':
+                    return '❌ 暂缓投入 - 该行业目前不适合大规模AI应用，建议暂缓投入。';
+                default:
+                    return '未知决策类型';
+            }
+        }
+        
+        // 高亮选中的点
+        function highlightSelectedPoint(selectedPoint) {
+            // 恢复所有点的原始颜色
+            industryPoints.forEach(point => {
+                if (point.isCurrent) {
+                    point.mesh.material.color.set(getDecisionColor(point.decision));
+                    point.mesh.material.opacity = 1.0;
+                } else {
+                    point.mesh.material.color.set(getDecisionColor(point.decision));
+                    point.mesh.material.opacity = 0.7;
+                }
+            });
+            
+            // 高亮选中的点
+            selectedPoint.mesh.material.color.set(0xffcc00); // 黄色高亮
+            selectedPoint.mesh.material.opacity = 1.0;
         }
         
         // 评估行业适用性
@@ -709,6 +999,10 @@
             
             // 创建新的行业评估点
             const newPoint = createIndustryPoint(industryName, techScore, econScore, socialScore, true);
+            
+            // 隐藏选中行业信息，显示评估结果
+            document.getElementById('selected-industry-section').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
             
             // 更新结果显示
             updateResultDisplay(techScore, econScore, socialScore, newPoint.decision);
