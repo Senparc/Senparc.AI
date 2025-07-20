@@ -207,6 +207,13 @@
             font-weight: bold;
             pointer-events: none;
         }
+        .tick-label {
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
         #legend {
             position: absolute;
             top: 20px;
@@ -502,6 +509,8 @@
             // 创建相机
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(15, 15, 15);
+            // 调整相机位置以适应0-10的坐标范围
+            camera.position.set(20, 20, 20);
             
             // 创建渲染器
             renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -586,9 +595,9 @@
             scene.add(zAxis);
             
             // 添加坐标轴标签
-            const xLabel = createAxisLabel("技术适配性", axisLength + 1, 0, 0);
-            const yLabel = createAxisLabel("经济可行性", 0, axisLength + 1, 0);
-            const zLabel = createAxisLabel("社会可行性", 0, 0, axisLength + 1);
+            const xLabel = createAxisLabel("技术适配性 (0-100)", axisLength + 1, 0, 0);
+            const yLabel = createAxisLabel("经济可行性 (0-100)", 0, axisLength + 1, 0);
+            const zLabel = createAxisLabel("社会可行性 (0-100)", 0, 0, axisLength + 1);
             
             axisLabels.push(xLabel, yLabel, zLabel);
             
@@ -660,7 +669,38 @@
                 ]);
                 const zTick = new THREE.Line(zTickGeometry, tickMaterial);
                 scene.add(zTick);
+                
+                // 添加刻度值标签
+                const tickValue = i * 10; // 映射回实际分数值
+                
+                // X轴刻度值
+                const xTickLabel = createTickLabel(tickValue.toString(), i, -0.3, 0);
+                scene.add(xTickLabel);
+                
+                // Y轴刻度值
+                const yTickLabel = createTickLabel(tickValue.toString(), -0.3, i, 0);
+                scene.add(yTickLabel);
+                
+                // Z轴刻度值
+                const zTickLabel = createTickLabel(tickValue.toString(), -0.3, 0, i);
+                scene.add(zTickLabel);
             }
+        }
+        
+        // 创建刻度值标签
+        function createTickLabel(text, x, y, z) {
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'tick-label';
+            labelDiv.textContent = text;
+            labelDiv.style.color = '#ffffff';
+            labelDiv.style.fontSize = '12px';
+            labelDiv.style.fontFamily = 'Arial, sans-serif';
+            labelDiv.style.pointerEvents = 'none';
+            
+            const label = new THREE.CSS2DObject(labelDiv);
+            label.position.set(x, y, z);
+            
+            return label;
         }
         
         // 创建示例行业点
@@ -870,19 +910,12 @@
             // 获取所有行业点的mesh对象
             const meshes = industryPoints.map(point => point.mesh);
             
-            console.log('点击检测 - 行业点数量:', industryPoints.length);
-            console.log('鼠标位置:', mouse.x, mouse.y);
-            
             // 检查射线与行业点的相交
             const intersects = raycaster.intersectObjects(meshes);
-            
-            console.log('相交对象数量:', intersects.length);
             
             if (intersects.length > 0) {
                 const intersectedMesh = intersects[0].object;
                 const selectedPoint = industryPoints.find(point => point.mesh === intersectedMesh);
-                
-                console.log('选中的行业点:', selectedPoint);
                 
                 if (selectedPoint) {
                     displaySelectedIndustry(selectedPoint);
@@ -892,12 +925,8 @@
         
         // 显示选中的行业信息
         function displaySelectedIndustry(industryPoint) {
-            console.log('显示行业信息:', industryPoint);
-            
             const selectedSection = document.getElementById('selected-industry-section');
             const selectedInfo = document.getElementById('selected-industry-info');
-            
-            console.log('找到的元素:', selectedSection, selectedInfo);
             
             // 隐藏评估结果区域
             document.getElementById('result-section').style.display = 'none';
@@ -917,7 +946,7 @@
                         <span>经济可行性：</span>
                         <span style="color: #ffcc00; font-weight: bold;">${industryPoint.econScore.toFixed(1)}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; space-between; margin-bottom: 10px;">
                         <span>社会可行性：</span>
                         <span style="color: #ffcc00; font-weight: bold;">${industryPoint.socialScore.toFixed(1)}</span>
                     </div>
@@ -927,7 +956,6 @@
                 </div>
             `;
             
-            console.log('生成的HTML:', infoHTML);
             selectedInfo.innerHTML = infoHTML;
             
             // 高亮选中的点
@@ -1059,7 +1087,8 @@
         function animateCameraToPoint(targetPosition) {
             const startPosition = camera.position.clone();
             const startTarget = controls.target.clone();
-            const targetCameraPosition = targetPosition.clone().add(new THREE.Vector3(3, 3, 3));
+            // 调整相机位置，适应0-10的坐标范围
+            const targetCameraPosition = targetPosition.clone().add(new THREE.Vector3(5, 5, 5));
             const targetControlsTarget = targetPosition.clone();
             
             let startTime = null;
