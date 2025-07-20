@@ -621,10 +621,8 @@
             return label;
         }
         
-        // 创建网格 - 只显示正数区域（已隐藏）
+        // 创建网格 - 三个坐标面的方格参考线
         function createGrid(size) {
-            // 注释掉网格创建代码以隐藏参考线
-            /*
             // XY平面网格（底面）
             const xyGridHelper = new THREE.GridHelper(size, size, colors.grid, colors.grid);
             xyGridHelper.position.y = 0;
@@ -641,7 +639,6 @@
             xzGridHelper.rotation.z = Math.PI / 2;
             xzGridHelper.position.y = 0;
             scene.add(xzGridHelper);
-            */
         }
         
         // 创建坐标轴刻度
