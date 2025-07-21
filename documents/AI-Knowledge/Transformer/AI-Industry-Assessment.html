@@ -623,22 +623,64 @@
         
         // 创建网格 - 三个坐标面的方格参考线
         function createGrid(size) {
-            // XY平面网格（底面）
-            const xyGridHelper = new THREE.GridHelper(size, size, colors.grid, colors.grid);
-            xyGridHelper.position.y = 0;
-            scene.add(xyGridHelper);
+            const gridMaterial = new THREE.LineBasicMaterial({ color: colors.grid });
             
-            // YZ平面网格（侧面）
-            const yzGridHelper = new THREE.GridHelper(size, size, colors.grid, colors.grid);
-            yzGridHelper.rotation.x = Math.PI / 2;
-            yzGridHelper.position.z = 0;
-            scene.add(yzGridHelper);
+            // XY平面网格（底面）- 从(0,0)到(10,10)
+            for (let i = 0; i <= size; i++) {
+                // 平行于X轴的线
+                const xLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, 0, i),
+                    new THREE.Vector3(size, 0, i)
+                ]);
+                const xLine = new THREE.Line(xLineGeometry, gridMaterial);
+                scene.add(xLine);
+                
+                // 平行于Y轴的线
+                const yLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(i, 0, 0),
+                    new THREE.Vector3(i, 0, size)
+                ]);
+                const yLine = new THREE.Line(yLineGeometry, gridMaterial);
+                scene.add(yLine);
+            }
             
-            // XZ平面网格（后面）
-            const xzGridHelper = new THREE.GridHelper(size, size, colors.grid, colors.grid);
-            xzGridHelper.rotation.z = Math.PI / 2;
-            xzGridHelper.position.y = 0;
-            scene.add(xzGridHelper);
+            // YZ平面网格（侧面）- 从(0,0)到(10,10)
+            for (let i = 0; i <= size; i++) {
+                // 平行于Y轴的线
+                const yLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, 0, i),
+                    new THREE.Vector3(0, size, i)
+                ]);
+                const yLine = new THREE.Line(yLineGeometry, gridMaterial);
+                scene.add(yLine);
+                
+                // 平行于Z轴的线
+                const zLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, i, 0),
+                    new THREE.Vector3(0, i, size)
+                ]);
+                const zLine = new THREE.Line(zLineGeometry, gridMaterial);
+                scene.add(zLine);
+            }
+            
+            // XZ平面网格（后面）- 从(0,0)到(10,10）
+            for (let i = 0; i <= size; i++) {
+                // 平行于X轴的线
+                const xLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, i, 0),
+                    new THREE.Vector3(size, i, 0)
+                ]);
+                const xLine = new THREE.Line(xLineGeometry, gridMaterial);
+                scene.add(xLine);
+                
+                // 平行于Z轴的线
+                const zLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(i, 0, 0),
+                    new THREE.Vector3(i, size, 0)
+                ]);
+                const zLine = new THREE.Line(zLineGeometry, gridMaterial);
+                scene.add(zLine);
+            }
         }
         
         // 创建坐标轴刻度
