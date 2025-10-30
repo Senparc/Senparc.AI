@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.25.1</Version>
+		<Version>0.25.2</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>12.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>

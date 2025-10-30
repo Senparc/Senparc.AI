@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Senparc.AI.Interfaces.VectorDB;
 
 namespace Senparc.AI.Kernel.Handlers
 {

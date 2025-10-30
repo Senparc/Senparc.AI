@@ -185,6 +185,19 @@ namespace Senparc.AI.Interfaces
         public VectorDBType Type { get; set; }
         public string ConnectionString { get; set; }
 
+        public enum VectorDBType
+        {
+            Memory,
+            HardDisk,
+            Redis,
+            Mulivs,
+            Chroma,
+            PostgreSQL,
+            Sqlite,
+            SqlServer,
+            Default = Memory,
+        }
+
         //public enum VectorDBType
         //{
         //    //Memory,

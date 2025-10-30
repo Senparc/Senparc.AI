@@ -45,17 +45,17 @@ namespace Senparc.AI
     }
 
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
-    public enum VectorDBType
-    {
-        Memory,
-        HardDisk,
-        Redis,
-        Mulivs,
-        Chroma,
-        PostgreSQL,
-        Sqlite,
-        SqlServer,
-        Default = Memory,
-    }
+    //public enum VectorDBType
+    //{
+    //    Memory,
+    //    HardDisk,
+    //    Redis,
+    //    Mulivs,
+    //    Chroma,
+    //    PostgreSQL,
+    //    Sqlite,
+    //    SqlServer,
+    //    Default = Memory,
+    //}
 #pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 }
