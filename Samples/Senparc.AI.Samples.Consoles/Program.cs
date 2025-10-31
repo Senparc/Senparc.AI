@@ -16,10 +16,6 @@ Console.WriteLine("完成 appsettings.json 添加");
 var config = configBuilder.Build();
 Console.WriteLine("完成 ServiceCollection 和 ConfigurationBuilder 初始化");
 
-//更多绑定操作参见：https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-2.2
-var senparcSetting = new SenparcSetting();
-config.GetSection("SenparcSetting").Bind(senparcSetting);
-
 var services = new ServiceCollection();
 
 services.AddSenparcGlobalServices(config)
@@ -40,7 +36,7 @@ services.AddScoped<IAiHandler, SemanticAiHandler>(s =>
 
 var serviceProvider = services.BuildServiceProvider();
 
-IRegisterService register = RegisterService.Start(senparcSetting)
+IRegisterService register = RegisterService.Start()
               .UseSenparcGlobal()
               .UseSenparcAI();
 
