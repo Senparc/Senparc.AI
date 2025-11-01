@@ -270,7 +270,7 @@ namespace Senparc.AI.Kernel.Handlers
                         collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
-                case VectorDBType.Mulivs:
+                case VectorDBType.Milvus:
                     {
                         break;
                     }
