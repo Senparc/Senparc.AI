@@ -292,7 +292,6 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDBType.Qdrant:
                     {
-                         database = null;
                         vectorStore = new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true);
                         collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
