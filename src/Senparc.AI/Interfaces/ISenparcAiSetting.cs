@@ -187,37 +187,51 @@ namespace Senparc.AI.Interfaces
 
         public enum VectorDBType
         {
-            //Memory,
-            //HardDisk,
-            //Redis,
-            //Mulivs,
-            //Chroma,
-            //PostgreSQL,
-            //Sqlite,
-            //SqlServer,
-
-            /* 注意：枚举值一旦确定，不能再进行修改 */
-
-            AzureAISearch=0,
-            CosmosDBMongoDB=1,
-            CosmosDBNoSQL=2,
-            Chroma=3,     //Planed
-            Couchbase=4,
-            Elasticsearch=5,
-            Faiss=6,
-            InMemory=7,
-            JDBC=8,
-            Milvus=9,     //Planed (not included in https://learn.microsoft.com/en-us/semantic-kernel/concepts/vector-store-connectors/out-of-the-box-connectors/inmemory-connector?pivots=programming-language-csharp)
-            MongoDB=10,
-            Pinecon=11,
-            Postgres=12,
-            Qdrant=13,
-            Redis=14,
-            SqlServer=15,  //Planed
-            SQLite=16,
-            VolatileInMemory=17,
-            Weaviate=18,
-            Default = InMemory,
+            Memory,
+            HardDisk,
+            Redis,
+            Milvus,
+            Chroma,
+            PostgreSQL,
+            Sqlite,
+            SqlServer,
+            Qdrant,
+            Default = Memory,
         }
+
+        //public enum VectorDBType
+        //{
+        //    //Memory,
+        //    //HardDisk,
+        //    //Redis,
+        //    //Mulivs,
+        //    //Chroma,
+        //    //PostgreSQL,
+        //    //Sqlite,
+        //    //SqlServer,
+
+        //    /* 注意：枚举值一旦确定，不能再进行修改 */
+
+        //    AzureAISearch=0,
+        //    CosmosDBMongoDB=1,
+        //    CosmosDBNoSQL=2,
+        //    Chroma=3,     //Planed
+        //    Couchbase=4,
+        //    Elasticsearch=5,
+        //    Faiss=6,
+        //    InMemory=7,
+        //    JDBC=8,
+        //    Milvus=9,     //Planed (not included in https://learn.microsoft.com/en-us/semantic-kernel/concepts/vector-store-connectors/out-of-the-box-connectors/inmemory-connector?pivots=programming-language-csharp)
+        //    MongoDB=10,
+        //    Pinecon=11,
+        //    Postgres=12,
+        //    Qdrant=13,
+        //    Redis=14,
+        //    SqlServer=15,  //Planed
+        //    SQLite=16,
+        //    VolatileInMemory=17,
+        //    Weaviate=18,
+        //    Default = InMemory,
+        //}
     }
 }
