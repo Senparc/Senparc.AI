@@ -191,7 +191,7 @@ namespace Senparc.AI.Kernel.Handlers
                         servives.AddRedisVectorStore(vectorDb.ConnectionString);
                         break;
                     }
-                case VectorDBType.Mulivs:
+                case VectorDBType.Milvus:
                     {
                         // servives.AddInMemoryVectorStore();
                         break;
