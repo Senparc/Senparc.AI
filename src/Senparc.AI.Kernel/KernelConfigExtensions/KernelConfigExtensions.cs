@@ -264,10 +264,11 @@ namespace Senparc.AI.Kernel.Handlers
                 case VectorDBType.Redis:
                     {
                         database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
-                        vectorStore = new RedisVectorStore(database,
-                            new() { StorageType = RedisStorageType.Json });
-
-                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
+                        using (var redisVectorStore = new RedisVectorStore(database,
+                            new() { StorageType = RedisStorageType.Json }))
+                        {
+                            collection = redisVectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
+                        }
                         break;
                     }
                 case VectorDBType.Milvus:
