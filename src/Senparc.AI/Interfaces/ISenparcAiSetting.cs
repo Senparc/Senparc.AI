@@ -190,7 +190,7 @@ namespace Senparc.AI.Interfaces
             Memory,
             HardDisk,
             Redis,
-            Mulivs,
+            Milvus,
             Chroma,
             PostgreSQL,
             Sqlite,
