@@ -243,9 +243,9 @@ namespace Senparc.AI.Kernel.Handlers
              where TKey : notnull
              where TRecord : class
         {
-            IDatabase database;
             VectorStore vectorStore;
             VectorStoreCollection<TKey, TRecord> collection = null;
+            var kernel = iWwantToRun.Kernel;
 
             //TODO: If the logic becomes overly complex in the future, different combinations can be considered to be separated into different libraries
 
@@ -253,7 +253,8 @@ namespace Senparc.AI.Kernel.Handlers
             {
                 case VectorDBType.Memory:
                     {
-                        vectorStore = new InMemoryVectorStore();
+                        // Retrieve from DI container (registered via ConfigVectorStore)
+                        vectorStore = kernel.Services.GetRequiredService<VectorStore>();
                         collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
@@ -263,12 +264,9 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDBType.Redis:
                     {
-                        database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
-                        using (var redisVectorStore = new RedisVectorStore(database,
-                            new() { StorageType = RedisStorageType.Json }))
-                        {
-                            collection = redisVectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-                        }
+                        // Retrieve from DI container (registered via ConfigVectorStore)
+                        vectorStore = kernel.Services.GetRequiredService<VectorStore>();
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
                 case VectorDBType.Milvus:
@@ -293,12 +291,14 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDBType.Qdrant:
                     {
-                        vectorStore = new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true);
+                        // Retrieve from DI container (registered via ConfigVectorStore)
+                        vectorStore = kernel.Services.GetRequiredService<VectorStore>();
                         collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
                 default:
-                    vectorStore = new InMemoryVectorStore();
+                    // For unsupported types, try to get from DI or throw an error
+                    vectorStore = kernel.Services.GetRequiredService<VectorStore>();
                     collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                     break;
             }
