@@ -250,6 +250,7 @@ namespace Senparc.AI.Kernel.Handlers
              where TRecord : class
         {
             IDatabase database;
+            VectorStore vectorStore;
             VectorStoreCollection<TKey, TRecord> collection = null;
 
             //TODO: If the logic becomes overly complex in the future, different combinations can be considered to be separated into different libraries
@@ -258,10 +259,8 @@ namespace Senparc.AI.Kernel.Handlers
             {
                 case VectorDBType.Memory:
                     {
-                        using (var inMemoryVectorStore = new InMemoryVectorStore())
-                        {
-                            collection = inMemoryVectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-                        }
+                        vectorStore = new InMemoryVectorStore();
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
                 case VectorDBType.HardDisk:
@@ -298,17 +297,13 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDBType.Qdrant:
                     {
-                        using (var qdrantVectorStore = new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true))
-                        {
-                            collection = qdrantVectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-                        }
+                        vectorStore = new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true);
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
                 default:
-                    using (var inMemoryVectorStore = new InMemoryVectorStore())
-                    {
-                        collection = inMemoryVectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-                    }
+                    vectorStore = new InMemoryVectorStore();
+                    collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                     break;
             }
 
