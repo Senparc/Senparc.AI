@@ -217,7 +217,7 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDBType.Qdrant:
                     {
-                        servives.AddQdrantVectorStore();
+                        servives.AddQdrantVectorStore(vectorDb.ConnectionString);
                         break;
                     }
                 default:
