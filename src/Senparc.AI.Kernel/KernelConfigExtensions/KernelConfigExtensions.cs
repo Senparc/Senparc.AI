@@ -239,6 +239,12 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="name"></param>
         /// <param name="vectorStoreRecordDefinition"></param>
         /// <returns></returns>
+        /// <remarks>
+        /// Note: VectorStore instances created in this method are not explicitly disposed.
+        /// The VectorStoreCollection returned may maintain a reference to the VectorStore and require it to remain alive.
+        /// For proper resource management, consider using dependency injection to manage VectorStore lifecycle
+        /// or ensure the collection is disposed when no longer needed.
+        /// </remarks>
         public static VectorStoreCollection<TKey, TRecord> GetVectorCollection<TKey, TRecord>(this IWantToRun iWwantToRun, VectorDB vectorDb, string name, VectorStoreCollectionDefinition? vectorStoreRecordDefinition = null)
              where TKey : notnull
              where TRecord : class
@@ -265,11 +271,9 @@ namespace Senparc.AI.Kernel.Handlers
                 case VectorDBType.Redis:
                     {
                         database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
-                        using (var redisVectorStore = new RedisVectorStore(database,
-                            new() { StorageType = RedisStorageType.Json }))
-                        {
-                            collection = redisVectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-                        }
+                        vectorStore = new RedisVectorStore(database,
+                            new() { StorageType = RedisStorageType.Json });
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
                 case VectorDBType.Milvus:
