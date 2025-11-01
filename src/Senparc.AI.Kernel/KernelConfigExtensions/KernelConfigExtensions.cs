@@ -193,26 +193,31 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDBType.Mulivs:
                     {
-                        servives.AddInMemoryVectorStore();
+                        // servives.AddInMemoryVectorStore();
                         break;
                     }
                 case VectorDBType.Chroma:
                     {
-                        servives.AddInMemoryVectorStore();
+                        // servives.AddInMemoryVectorStore();
                         break;
                     }
                 case VectorDBType.PostgreSQL:
                     {
-                        servives.AddInMemoryVectorStore();
+                        // servives.AddInMemoryVectorStore();
                         break;
                     }
                 case VectorDBType.Sqlite:
                     {
-                        servives.AddInMemoryVectorStore();
+                        // servives.AddInMemoryVectorStore();
                         break;
                     }
                 case VectorDBType.SqlServer:
                     {
+                        break;
+                    }
+                case VectorDBType.Qdrant:
+                    {
+                        servives.AddQdrantVectorStore();
                         break;
                     }
                 default:
@@ -283,6 +288,13 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                 case VectorDBType.SqlServer:
                     {
+                        break;
+                    }
+                case VectorDBType.Qdrant:
+                    {
+                         database = null;
+                        vectorStore = new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true);
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
                 default:

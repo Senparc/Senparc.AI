@@ -195,6 +195,7 @@ namespace Senparc.AI.Interfaces
             PostgreSQL,
             Sqlite,
             SqlServer,
+            Qdrant,
             Default = Memory,
         }
 
