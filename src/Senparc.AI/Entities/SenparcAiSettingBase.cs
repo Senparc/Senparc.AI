@@ -187,11 +187,9 @@ namespace Senparc.AI.Entities
 
         public virtual bool IsOpenAiKeysSetted => OpenAIKeys != null && !OpenAIKeys.ApiKey.IsNullOrEmpty();
 
-
-
         public SenparcAiSettingBase()
         {
-            VectorDB = new VectorDB() { Type = VectorDB.VectorDBType.Default };
+            VectorDB = new VectorDB() { Type = VectorDBType.Default };
         }
 
         #region 快速配置方法

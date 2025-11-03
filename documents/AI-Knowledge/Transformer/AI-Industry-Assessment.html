@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI行业适用性评估系统</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #canvas { 
+            width: 100%; 
+            height: 100%;
+            position: fixed;
+        }
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 450px;
+            font-size: 16px;
+        }
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 420px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        .input-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #ffcc00;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            box-sizing: border-box;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .slider {
+            flex-grow: 1;
+            margin: 0 10px;
+        }
+        .slider-value {
+            min-width: 50px;
+            text-align: right;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .value-weight-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+        .value-weight-row .slider-value {
+            margin-right: 15px;
+        }
+        .weight-control {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+        }
+        .weight-control label {
+            margin-right: 8px;
+            color: #ccc;
+            white-space: nowrap;
+        }
+        .weight-slider {
+            width: 60px;
+            margin: 0 8px;
+        }
+        .weight-value {
+            color: #ffcc00;
+            font-weight: bold;
+            min-width: 35px;
+            text-align: right;
+        }
+        /* 自定义滚动条样式 */
+        #controls::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #controls::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+        
+        #controls::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+        
+        #controls::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+        .evaluate-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .evaluate-btn:hover {
+            background: #27ae60;
+        }
+        .evaluate-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .result-section {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .result-priority {
+            background: rgba(46, 204, 113, 0.3);
+            border: 2px solid #2ecc71;
+        }
+        .result-observe {
+            background: rgba(243, 156, 18, 0.3);
+            border: 2px solid #f39c12;
+        }
+        .result-delay {
+            background: rgba(231, 76, 60, 0.3);
+            border: 2px solid #e74c3c;
+        }
+        .result-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .result-scores {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .score-item {
+            text-align: center;
+        }
+        .score-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .score-label {
+            font-size: 12px;
+            color: #ccc;
+        }
+        .label {
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 5px;
+            font-size: 14px;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .axis-label {
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 10px 15px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .tick-label {
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        #legend {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            width: 200px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+        .legend-text {
+            font-size: 14px;
+        }
+        #copyright {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        #copyright a {
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="info">
+        <h2>AI行业适用性评估系统</h2>
+        <p>本系统基于三个核心维度评估AI在特定行业的适用性：</p>
+        <ul>
+            <li><strong>技术适配性</strong>：评估技术实现的可行性</li>
+            <li><strong>经济可行性</strong>：评估投资回报和成本效益</li>
+            <li><strong>社会可行性</strong>：评估政策支持和公众接受度</li>
+        </ul>
+        <p>请在右侧输入行业信息并调整各项指标，系统将自动计算评估结果并在3D空间中显示。</p>
+    </div>
+    <div id="controls">
+        <div class="input-section">
+            <h3>行业信息</h3>
+            <div class="input-group">
+                <label for="industry-name">行业名称：</label>
+                <input type="text" id="industry-name" placeholder="例如：制造业、金融业、医疗健康...">
+            </div>
+        </div>
+        
+        <div class="input-section">
+            <h3>技术适配性评估</h3>
+            <div class="input-group">
+                <label>数据可用性（结构化占比）</label>
+                <div class="slider-container">
+                    <span>0%</span>
+                    <input type="range" min="0" max="100" value="60" class="slider" id="data-availability">
+                    <span class="slider-value">60%</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">60%</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="40" class="weight-slider" id="data-weight">
+                        <span class="weight-value">40%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>流程标准化程度（0-5级）</label>
+                <div class="slider-container">
+                    <span>0</span>
+                    <input type="range" min="0" max="5" step="0.5" value="3" class="slider" id="process-standardization">
+                    <span class="slider-value">3.0</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">3.0</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="40" class="weight-slider" id="process-weight">
+                        <span class="weight-value">40%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>环境感知需求（传感器密度）</label>
+                <div class="slider-container">
+                    <span>低</span>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="sensor-density">
+                    <span class="slider-value">5</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">5</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="20" class="weight-slider" id="sensor-weight">
+                        <span class="weight-value">20%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-section">
+            <h3>经济可行性评估</h3>
+            <div class="input-group">
+                <label>ROI周期（月）</label>
+                <div class="slider-container">
+                    <span>6</span>
+                    <input type="range" min="6" max="36" value="18" class="slider" id="roi-period">
+                    <span class="slider-value">18</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">18</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="40" class="weight-slider" id="roi-weight">
+                        <span class="weight-value">40%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>人工替代成本（万元/岗·年）</label>
+                <div class="slider-container">
+                    <span>5</span>
+                    <input type="range" min="5" max="50" value="20" class="slider" id="labor-cost">
+                    <span class="slider-value">20</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">20</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="40" class="weight-slider" id="labor-weight">
+                        <span class="weight-value">40%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>边际效益递增阈值</label>
+                <div class="slider-container">
+                    <span>100</span>
+                    <input type="range" min="100" max="10000" value="1000" class="slider" id="scale-threshold">
+                    <span class="slider-value">1000</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">1000</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="20" class="weight-slider" id="scale-weight">
+                        <span class="weight-value">20%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-section">
+            <h3>社会可行性评估</h3>
+            <div class="input-group">
+                <label>政策支持度（0-100指数）</label>
+                <div class="slider-container">
+                    <span>0</span>
+                    <input type="range" min="0" max="100" value="70" class="slider" id="policy-support">
+                    <span class="slider-value">70</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">70</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="40" class="weight-slider" id="policy-weight">
+                        <span class="weight-value">40%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>伦理风险等级（1-5级）</label>
+                <div class="slider-container">
+                    <span>1</span>
+                    <input type="range" min="1" max="5" step="0.5" value="2.5" class="slider" id="ethical-risk">
+                    <span class="slider-value">2.5</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">2.5</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="30" class="weight-slider" id="ethical-weight">
+                        <span class="weight-value">30%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>公众接受度（调研百分比）</label>
+                <div class="slider-container">
+                    <span>0%</span>
+                    <input type="range" min="0" max="100" value="75" class="slider" id="public-acceptance">
+                    <span class="slider-value">75%</span>
+                </div>
+                <div class="value-weight-row">
+                    <span class="slider-value">75%</span>
+                    <div class="weight-control">
+                        <label>权重：</label>
+                        <input type="range" min="0" max="100" value="30" class="weight-slider" id="public-weight">
+                        <span class="weight-value">30%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="evaluate-btn" id="evaluate-btn">评估适用性</button>
+        
+        <div class="result-section" id="result-section">
+            <div class="result-title" id="result-title">评估结果</div>
+            <div class="result-scores">
+                <div class="score-item">
+                    <div class="score-value" id="tech-score">0</div>
+                    <div class="score-label">技术适配性</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value" id="econ-score">0</div>
+                    <div class="score-label">经济可行性</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value" id="social-score">0</div>
+                    <div class="score-label">社会可行性</div>
+                </div>
+            </div>
+            <div id="result-description"></div>
+        </div>
+        
+        <div class="result-section" id="selected-industry-section" style="display: none;">
+            <div class="result-title">选中行业详情</div>
+            <div id="selected-industry-info"></div>
+        </div>
+    </div>
+    
+    <div id="legend">
+        <h4>决策结果说明</h4>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #2ecc71;"></div>
+            <div class="legend-text">优先布局 (≥70分)</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #f39c12;"></div>
+            <div class="legend-text">观察改进 (≥50分)</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #e74c3c;"></div>
+            <div class="legend-text">暂缓投入 (<50分)</div>
+        </div>
+    </div>
+
+    <div id="copyright">
+        <span>© Senparc</span>
+        <span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documents/AI-Knowledge/Transformer" target="_blank" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">GitHub</a></span>
+    </div>
+
+    <!-- 引入本地 Three.js 文件 -->
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/CSS2DRenderer.js"></script>
+    <script>
+        // Three.js 初始化和场景设置
+        let scene, camera, renderer, labelRenderer, controls;
+        let axisLabels = [];
+        let industryPoints = [];
+        let currentIndustryPoint = null;
+        let raycaster, mouse; // 用于鼠标交互
+        
+        // 颜色定义
+        const colors = {
+            priority: 0x2ecc71,    // 绿色 - 优先布局
+            observe: 0xf39c12,     // 橙色 - 观察改进
+            delay: 0xe74c3c,       // 红色 - 暂缓投入
+            axis: 0xffffff,        // 白色 - 坐标轴
+            grid: 0x444444         // 灰色 - 网格
+        };
+        
+        // 初始化 Three.js 场景
+        function init() {
+            // 创建场景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x121212);
+            
+            // 创建相机
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(15, 15, 15);
+            // 调整相机位置以适应0-10的坐标范围
+            camera.position.set(20, 20, 20);
+            
+            // 创建渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('canvas').appendChild(renderer.domElement);
+            
+            // 创建CSS2D渲染器用于标签
+            labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            document.getElementById('canvas').appendChild(labelRenderer.domElement);
+            
+            // 添加控制
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.1;
+            
+            // 添加光源
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // 创建3D坐标轴系统
+            createCoordinateSystem();
+            
+            // 创建示例行业点
+            createSampleIndustryPoints();
+            
+            // 初始化射线投射器和鼠标向量，用于拾取对象
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            
+            // 设置事件监听器
+            setupEventListeners();
+            
+            // 窗口大小调整
+            window.addEventListener('resize', onWindowResize, false);
+            
+            // 开始渲染循环
+            animate();
+        }
+        
+        // 创建3D坐标轴系统
+        function createCoordinateSystem() {
+            const axisLength = 10;
+            const gridSize = 10;
+            
+            // 创建坐标轴 - 只显示正数区域
+            const axisGeometry = new THREE.BufferGeometry();
+            const axisMaterial = new THREE.LineBasicMaterial({ color: colors.axis, linewidth: 2 });
+            
+            // X轴 (技术适配性)
+            const xAxisPoints = [
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(axisLength, 0, 0)
+            ];
+            const xAxisGeometry = new THREE.BufferGeometry().setFromPoints(xAxisPoints);
+            const xAxis = new THREE.Line(xAxisGeometry, axisMaterial);
+            scene.add(xAxis);
+            
+            // Y轴 (经济可行性)
+            const yAxisPoints = [
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, axisLength, 0)
+            ];
+            const yAxisGeometry = new THREE.BufferGeometry().setFromPoints(yAxisPoints);
+            const yAxis = new THREE.Line(yAxisGeometry, axisMaterial);
+            scene.add(yAxis);
+            
+            // Z轴 (社会可行性)
+            const zAxisPoints = [
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, 0, axisLength)
+            ];
+            const zAxisGeometry = new THREE.BufferGeometry().setFromPoints(zAxisPoints);
+            const zAxis = new THREE.Line(zAxisGeometry, axisMaterial);
+            scene.add(zAxis);
+            
+            // 添加坐标轴标签
+            const xLabel = createAxisLabel("技术适配性 (0-100)", axisLength + 1, 0, 0);
+            const yLabel = createAxisLabel("经济可行性 (0-100)", 0, axisLength + 1, 0);
+            const zLabel = createAxisLabel("社会可行性 (0-100)", 0, 0, axisLength + 1);
+            
+            axisLabels.push(xLabel, yLabel, zLabel);
+            
+            // 创建网格 - 只显示正数区域
+            createGrid(gridSize);
+            
+            // 添加刻度标记 - 只显示正数区域
+            createAxisTicks(axisLength);
+        }
+        
+        // 创建坐标轴标签
+        function createAxisLabel(text, x, y, z) {
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'axis-label';
+            labelDiv.textContent = text;
+            
+            const label = new THREE.CSS2DObject(labelDiv);
+            label.position.set(x, y, z);
+            scene.add(label);
+            
+            return label;
+        }
+        
+        // 创建网格 - 三个坐标面的方格参考线
+        function createGrid(size) {
+            const gridMaterial = new THREE.LineBasicMaterial({ color: colors.grid });
+            
+            // XY平面网格（底面）- 从(0,0)到(10,10)
+            for (let i = 0; i <= size; i++) {
+                // 平行于X轴的线
+                const xLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, 0, i),
+                    new THREE.Vector3(size, 0, i)
+                ]);
+                const xLine = new THREE.Line(xLineGeometry, gridMaterial);
+                scene.add(xLine);
+                
+                // 平行于Y轴的线
+                const yLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(i, 0, 0),
+                    new THREE.Vector3(i, 0, size)
+                ]);
+                const yLine = new THREE.Line(yLineGeometry, gridMaterial);
+                scene.add(yLine);
+            }
+            
+            // YZ平面网格（侧面）- 从(0,0)到(10,10)
+            for (let i = 0; i <= size; i++) {
+                // 平行于Y轴的线
+                const yLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, 0, i),
+                    new THREE.Vector3(0, size, i)
+                ]);
+                const yLine = new THREE.Line(yLineGeometry, gridMaterial);
+                scene.add(yLine);
+                
+                // 平行于Z轴的线
+                const zLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, i, 0),
+                    new THREE.Vector3(0, i, size)
+                ]);
+                const zLine = new THREE.Line(zLineGeometry, gridMaterial);
+                scene.add(zLine);
+            }
+            
+            // XZ平面网格（后面）- 从(0,0)到(10,10）
+            for (let i = 0; i <= size; i++) {
+                // 平行于X轴的线
+                const xLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, i, 0),
+                    new THREE.Vector3(size, i, 0)
+                ]);
+                const xLine = new THREE.Line(xLineGeometry, gridMaterial);
+                scene.add(xLine);
+                
+                // 平行于Z轴的线
+                const zLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(i, 0, 0),
+                    new THREE.Vector3(i, size, 0)
+                ]);
+                const zLine = new THREE.Line(zLineGeometry, gridMaterial);
+                scene.add(zLine);
+            }
+        }
+        
+        // 创建坐标轴刻度
+        function createAxisTicks(length) {
+            const tickMaterial = new THREE.LineBasicMaterial({ color: colors.axis });
+            
+            for (let i = 1; i <= length; i++) {
+                // X轴刻度
+                const xTickGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(i, -0.1, 0),
+                    new THREE.Vector3(i, 0.1, 0)
+                ]);
+                const xTick = new THREE.Line(xTickGeometry, tickMaterial);
+                scene.add(xTick);
+                
+                // Y轴刻度
+                const yTickGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(-0.1, i, 0),
+                    new THREE.Vector3(0.1, i, 0)
+                ]);
+                const yTick = new THREE.Line(yTickGeometry, tickMaterial);
+                scene.add(yTick);
+                
+                // Z轴刻度
+                const zTickGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(-0.1, 0, i),
+                    new THREE.Vector3(0.1, 0, i)
+                ]);
+                const zTick = new THREE.Line(zTickGeometry, tickMaterial);
+                scene.add(zTick);
+                
+                // 添加刻度值标签
+                const tickValue = i * 10; // 映射回实际分数值
+                
+                // X轴刻度值
+                const xTickLabel = createTickLabel(tickValue.toString(), i, -0.3, 0);
+                scene.add(xTickLabel);
+                
+                // Y轴刻度值
+                const yTickLabel = createTickLabel(tickValue.toString(), -0.3, i, 0);
+                scene.add(yTickLabel);
+                
+                // Z轴刻度值
+                const zTickLabel = createTickLabel(tickValue.toString(), -0.3, 0, i);
+                scene.add(zTickLabel);
+            }
+        }
+        
+        // 创建刻度值标签
+        function createTickLabel(text, x, y, z) {
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'tick-label';
+            labelDiv.textContent = text;
+            labelDiv.style.color = '#ffffff';
+            labelDiv.style.fontSize = '12px';
+            labelDiv.style.fontFamily = 'Arial, sans-serif';
+            labelDiv.style.pointerEvents = 'none';
+            
+            const label = new THREE.CSS2DObject(labelDiv);
+            label.position.set(x, y, z);
+            
+            return label;
+        }
+        
+        // 创建示例行业点
+        function createSampleIndustryPoints() {
+            const sampleIndustries = [
+                { name: "制造业", tech: 85, econ: 72, social: 68 },
+                { name: "金融业", tech: 91, econ: 85, social: 73 },
+                { name: "医疗健康", tech: 78, econ: 65, social: 82 },
+                { name: "教育", tech: 65, econ: 58, social: 75 },
+                { name: "零售业", tech: 82, econ: 78, social: 65 }
+            ];
+            
+            sampleIndustries.forEach(industry => {
+                createIndustryPoint(industry.name, industry.tech, industry.econ, industry.social, false);
+            });
+        }
+        
+        // 创建行业评估点
+        function createIndustryPoint(name, techScore, econScore, socialScore, isCurrent = false) {
+            // 计算决策结果和颜色
+            const decision = calculateDecision(techScore, econScore, socialScore);
+            const color = getDecisionColor(decision);
+            
+            // 将分数映射到0-10的坐标范围
+            const mappedTechScore = mapScoreToCoordinate(techScore);
+            const mappedEconScore = mapScoreToCoordinate(econScore);
+            const mappedSocialScore = mapScoreToCoordinate(socialScore);
+            
+            // 创建球体几何体
+            const geometry = new THREE.SphereGeometry(0.3, 16, 16);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: color,
+                transparent: true,
+                opacity: isCurrent ? 1.0 : 0.7
+            });
+            
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.set(mappedTechScore, mappedEconScore, mappedSocialScore);
+            scene.add(sphere);
+            
+            // 添加标签
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'label';
+            labelDiv.textContent = name;
+            
+            const label = new THREE.CSS2DObject(labelDiv);
+            label.position.set(0, 0.5, 0);
+            sphere.add(label);
+            
+            // 存储点信息（保存原始分数用于显示）
+            const pointInfo = {
+                mesh: sphere,
+                label: label,
+                name: name,
+                techScore: techScore,
+                econScore: econScore,
+                socialScore: socialScore,
+                mappedTechScore: mappedTechScore,
+                mappedEconScore: mappedEconScore,
+                mappedSocialScore: mappedSocialScore,
+                decision: decision,
+                isCurrent: isCurrent
+            };
+            
+            industryPoints.push(pointInfo);
+            
+            if (isCurrent) {
+                currentIndustryPoint = pointInfo;
+            }
+            
+            return pointInfo;
+        }
+        
+        // 将分数映射到0-10的坐标范围
+        function mapScoreToCoordinate(score) {
+            // 分数范围是0-100，映射到0-10
+            return (score / 100) * 10;
+        }
+        
+        // 计算决策结果
+        function calculateDecision(techScore, econScore, socialScore) {
+            const scores = [techScore, econScore, socialScore];
+            const highScores = scores.filter(score => score >= 70).length;
+            const lowScores = scores.filter(score => score < 50).length;
+            
+            if (highScores === 3) {
+                return 'priority';
+            } else if (lowScores >= 2) {
+                return 'delay';
+            } else {
+                return 'observe';
+            }
+        }
+        
+        // 获取决策颜色
+        function getDecisionColor(decision) {
+            switch (decision) {
+                case 'priority': return colors.priority;
+                case 'observe': return colors.observe;
+                case 'delay': return colors.delay;
+                default: return colors.observe;
+            }
+        }
+        
+        // 计算技术适配性分数
+        function calculateTechScore(dataAvailability, processStandardization, sensorDensity) {
+            // 获取权重设置
+            const dataWeight = parseFloat(document.getElementById('data-weight').value) / 100;
+            const processWeight = parseFloat(document.getElementById('process-weight').value) / 100;
+            const sensorWeight = parseFloat(document.getElementById('sensor-weight').value) / 100;
+            
+            // 计算各项分数
+            const dataScore = (dataAvailability / 100) * 100;
+            const processScore = (processStandardization / 5) * 100;
+            const sensorScore = ((11 - sensorDensity) / 10) * 100; // 传感器密度越低分数越高
+            
+            return dataScore * dataWeight + processScore * processWeight + sensorScore * sensorWeight;
+        }
+        
+        // 计算经济可行性分数
+        function calculateEconScore(roiPeriod, laborCost, scaleThreshold) {
+            // 获取权重设置
+            const roiWeight = parseFloat(document.getElementById('roi-weight').value) / 100;
+            const laborWeight = parseFloat(document.getElementById('labor-weight').value) / 100;
+            const scaleWeight = parseFloat(document.getElementById('scale-weight').value) / 100;
+            
+            // 计算各项分数
+            const roiScore = Math.max(0, 100 - (roiPeriod - 6) * 3.33); // 6个月=100分，36个月=0分
+            const laborScore = Math.min(100, (laborCost - 5) * 2.22); // 5万=0分，50万=100分
+            const scaleScore = Math.max(0, 100 - (scaleThreshold - 100) / 99); // 100=100分，10000=0分
+            
+            return roiScore * roiWeight + laborScore * laborWeight + scaleScore * scaleWeight;
+        }
+        
+        // 计算社会可行性分数
+        function calculateSocialScore(policySupport, ethicalRisk, publicAcceptance) {
+            // 获取权重设置
+            const policyWeight = parseFloat(document.getElementById('policy-weight').value) / 100;
+            const ethicalWeight = parseFloat(document.getElementById('ethical-weight').value) / 100;
+            const publicWeight = parseFloat(document.getElementById('public-weight').value) / 100;
+            
+            // 计算各项分数
+            const policyScore = policySupport;
+            const ethicalScore = ((6 - ethicalRisk) / 5) * 100; // 风险等级越低分数越高
+            const acceptanceScore = publicAcceptance;
+            
+            return policyScore * policyWeight + ethicalScore * ethicalWeight + acceptanceScore * publicWeight;
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 滑块事件监听器
+            const sliders = document.querySelectorAll('.slider');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', updateSliderValue);
+            });
+            
+            // 权重滑块事件监听器
+            const weightSliders = document.querySelectorAll('.weight-slider');
+            weightSliders.forEach(slider => {
+                slider.addEventListener('input', updateWeightValue);
+            });
+            
+            // 评估按钮事件监听器
+            document.getElementById('evaluate-btn').addEventListener('click', evaluateIndustry);
+            
+            // 鼠标点击事件监听器
+            renderer.domElement.addEventListener('click', onMouseClick, false);
+        }
+        
+        // 更新滑块值显示
+        function updateSliderValue(event) {
+            const slider = event.target;
+            const valueDisplay = slider.parentNode.querySelector('.slider-value');
+            const value = parseFloat(slider.value);
+            
+            if (slider.id === 'data-availability' || slider.id === 'public-acceptance') {
+                valueDisplay.textContent = value + '%';
+            } else if (slider.id === 'process-standardization' || slider.id === 'ethical-risk') {
+                valueDisplay.textContent = value.toFixed(1);
+            } else if (slider.id === 'roi-period') {
+                valueDisplay.textContent = value + '月';
+            } else if (slider.id === 'labor-cost') {
+                valueDisplay.textContent = value + '万';
+            } else {
+                valueDisplay.textContent = value;
+            }
+        }
+        
+        // 更新权重值显示
+        function updateWeightValue(event) {
+            const slider = event.target;
+            const valueDisplay = slider.parentNode.querySelector('.weight-value');
+            const value = parseFloat(slider.value);
+            valueDisplay.textContent = value + '%';
+        }
+        
+        // 鼠标点击事件处理
+        function onMouseClick(event) {
+            // 计算鼠标在归一化设备坐标中的位置 (-1 到 +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+            
+            // 更新射线投射器
+            raycaster.setFromCamera(mouse, camera);
+            
+            // 获取所有行业点的mesh对象
+            const meshes = industryPoints.map(point => point.mesh);
+            
+            // 检查射线与行业点的相交
+            const intersects = raycaster.intersectObjects(meshes);
+            
+            if (intersects.length > 0) {
+                const intersectedMesh = intersects[0].object;
+                const selectedPoint = industryPoints.find(point => point.mesh === intersectedMesh);
+                
+                if (selectedPoint) {
+                    displaySelectedIndustry(selectedPoint);
+                }
+            }
+        }
+        
+        // 显示选中的行业信息
+        function displaySelectedIndustry(industryPoint) {
+            const selectedSection = document.getElementById('selected-industry-section');
+            const selectedInfo = document.getElementById('selected-industry-info');
+            
+            // 隐藏评估结果区域
+            document.getElementById('result-section').style.display = 'none';
+            
+            // 显示选中行业信息
+            selectedSection.style.display = 'block';
+            
+            // 生成行业信息HTML
+            const infoHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h4 style="color: #ffcc00; margin: 0 0 10px 0;">${industryPoint.name}</h4>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>技术适配性：</span>
+                        <span style="color: #ffcc00; font-weight: bold;">${industryPoint.techScore.toFixed(1)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>经济可行性：</span>
+                        <span style="color: #ffcc00; font-weight: bold;">${industryPoint.econScore.toFixed(1)}</span>
+                    </div>
+                    <div style="display: flex; space-between; margin-bottom: 10px;">
+                        <span>社会可行性：</span>
+                        <span style="color: #ffcc00; font-weight: bold;">${industryPoint.socialScore.toFixed(1)}</span>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                        <strong>决策建议：</strong> ${getDecisionText(industryPoint.decision)}
+                    </div>
+                </div>
+            `;
+            
+            selectedInfo.innerHTML = infoHTML;
+            
+            // 高亮选中的点
+            highlightSelectedPoint(industryPoint);
+        }
+        
+        // 获取决策文本
+        function getDecisionText(decision) {
+            switch (decision) {
+                case 'priority':
+                    return '✅ 优先布局 - 该行业非常适合AI应用，建议优先投入资源进行AI布局。';
+                case 'observe':
+                    return '⚠️ 观察改进 - 该行业AI应用条件一般，建议观察改进后再考虑投入。';
+                case 'delay':
+                    return '❌ 暂缓投入 - 该行业目前不适合大规模AI应用，建议暂缓投入。';
+                default:
+                    return '未知决策类型';
+            }
+        }
+        
+        // 高亮选中的点
+        function highlightSelectedPoint(selectedPoint) {
+            // 恢复所有点的原始颜色
+            industryPoints.forEach(point => {
+                if (point.isCurrent) {
+                    point.mesh.material.color.set(getDecisionColor(point.decision));
+                    point.mesh.material.opacity = 1.0;
+                } else {
+                    point.mesh.material.color.set(getDecisionColor(point.decision));
+                    point.mesh.material.opacity = 0.7;
+                }
+            });
+            
+            // 高亮选中的点
+            selectedPoint.mesh.material.color.set(0xffcc00); // 黄色高亮
+            selectedPoint.mesh.material.opacity = 1.0;
+        }
+        
+        // 评估行业适用性
+        function evaluateIndustry() {
+            const industryName = document.getElementById('industry-name').value.trim();
+            
+            if (!industryName) {
+                alert('请输入行业名称');
+                return;
+            }
+            
+            // 获取所有滑块值
+            const dataAvailability = parseFloat(document.getElementById('data-availability').value);
+            const processStandardization = parseFloat(document.getElementById('process-standardization').value);
+            const sensorDensity = parseFloat(document.getElementById('sensor-density').value);
+            const roiPeriod = parseFloat(document.getElementById('roi-period').value);
+            const laborCost = parseFloat(document.getElementById('labor-cost').value);
+            const scaleThreshold = parseFloat(document.getElementById('scale-threshold').value);
+            const policySupport = parseFloat(document.getElementById('policy-support').value);
+            const ethicalRisk = parseFloat(document.getElementById('ethical-risk').value);
+            const publicAcceptance = parseFloat(document.getElementById('public-acceptance').value);
+            
+            // 计算三个维度的分数
+            const techScore = calculateTechScore(dataAvailability, processStandardization, sensorDensity);
+            const econScore = calculateEconScore(roiPeriod, laborCost, scaleThreshold);
+            const socialScore = calculateSocialScore(policySupport, ethicalRisk, publicAcceptance);
+            
+            // 移除之前的当前行业点
+            if (currentIndustryPoint) {
+                scene.remove(currentIndustryPoint.mesh);
+                currentIndustryPoint = null;
+            }
+            
+            // 创建新的行业评估点
+            const newPoint = createIndustryPoint(industryName, techScore, econScore, socialScore, true);
+            
+            // 隐藏选中行业信息，显示评估结果
+            document.getElementById('selected-industry-section').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
+            
+            // 更新结果显示
+            updateResultDisplay(techScore, econScore, socialScore, newPoint.decision);
+            
+            // 相机动画到新点
+            animateCameraToPoint(newPoint.mesh.position);
+        }
+        
+        // 更新结果显示
+        function updateResultDisplay(techScore, econScore, socialScore, decision) {
+            const resultSection = document.getElementById('result-section');
+            const resultTitle = document.getElementById('result-title');
+            const resultDescription = document.getElementById('result-description');
+            
+            // 更新分数显示
+            document.getElementById('tech-score').textContent = techScore.toFixed(1);
+            document.getElementById('econ-score').textContent = econScore.toFixed(1);
+            document.getElementById('social-score').textContent = socialScore.toFixed(1);
+            
+            // 设置结果样式和描述
+            resultSection.className = 'result-section';
+            
+            switch (decision) {
+                case 'priority':
+                    resultSection.classList.add('result-priority');
+                    resultTitle.textContent = '✅ 优先布局';
+                    resultDescription.innerHTML = `
+                        <p><strong>建议：</strong>该行业非常适合AI应用，建议优先投入资源进行AI布局。</p>
+                        <p><strong>理由：</strong>三个维度均达到70分以上，技术、经济和社会条件都较为成熟。</p>
+                    `;
+                    break;
+                case 'observe':
+                    resultSection.classList.add('result-observe');
+                    resultTitle.textContent = '⚠️ 观察改进';
+                    resultDescription.innerHTML = `
+                        <p><strong>建议：</strong>该行业AI应用条件一般，建议观察改进后再考虑投入。</p>
+                        <p><strong>理由：</strong>部分维度得分较低，需要针对性改进相关条件。</p>
+                    `;
+                    break;
+                case 'delay':
+                    resultSection.classList.add('result-delay');
+                    resultTitle.textContent = '❌ 暂缓投入';
+                    resultDescription.innerHTML = `
+                        <p><strong>建议：</strong>该行业目前不适合大规模AI应用，建议暂缓投入。</p>
+                        <p><strong>理由：</strong>多个维度得分较低，需要先解决基础问题。</p>
+                    `;
+                    break;
+            }
+            
+            resultSection.style.display = 'block';
+        }
+        
+        // 相机动画到指定点
+        function animateCameraToPoint(targetPosition) {
+            const startPosition = camera.position.clone();
+            const startTarget = controls.target.clone();
+            // 调整相机位置，适应0-10的坐标范围
+            const targetCameraPosition = targetPosition.clone().add(new THREE.Vector3(5, 5, 5));
+            const targetControlsTarget = targetPosition.clone();
+            
+            let startTime = null;
+            const duration = 1500;
+            
+            function animateCamera(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用缓动函数
+                const easeProgress = easeInOutCubic(progress);
+                
+                camera.position.lerpVectors(startPosition, targetCameraPosition, easeProgress);
+                controls.target.lerpVectors(startTarget, targetControlsTarget, easeProgress);
+                controls.update();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateCamera);
+                }
+            }
+            
+            requestAnimationFrame(animateCamera);
+        }
+        
+        // 缓动函数
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        
+        // 窗口大小调整
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html> 

@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Senparc.AI.Interfaces.VectorDB;
 
 namespace Senparc.AI.Kernel.Handlers
 {
@@ -170,83 +171,53 @@ namespace Senparc.AI.Kernel.Handlers
 
             switch (vectorDb.Type)
             {
-                case VectorDB.VectorDBType.AzureAISearch:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.CosmosDBMongoDB:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.CosmosDBNoSQL:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Couchbase:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Elasticsearch:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Chroma:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Milvus:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.MongoDB:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Postgres:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Qdrant:
-                    {
-                        servives.AddQdrantVectorStore(vectorDb.ConnectionString);
-                        break;
-                    }
-                case VectorDB.VectorDBType.Redis:
-                    {
-                        servives.AddRedisVectorStore(vectorDb.ConnectionString);
-                        break;
-                    }
-                case VectorDB.VectorDBType.SqlServer:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.SQLite:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Weaviate:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Faiss:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.InMemory:
+                case VectorDBType.Memory:
                     {
                         servives.AddInMemoryVectorStore();
                         break;
                     }
-                case VectorDB.VectorDBType.JDBC:
+                case VectorDBType.HardDisk:
+                    {
+                        servives.AddInMemoryVectorStore();
+                        break;
+                    }
+                //case VectorDBType.Qdrant:
+                //    {
+                //        servives.AddQdrantVectorStore(vectorDb.ConnectionString);
+                //        break;
+                //    }
+                case VectorDBType.Redis:
+                    {
+                        servives.AddRedisVectorStore(vectorDb.ConnectionString);
+                        break;
+                    }
+                case VectorDBType.Milvus:
+                    {
+                        // servives.AddInMemoryVectorStore();
+                        break;
+                    }
+                case VectorDBType.Chroma:
+                    {
+                        // servives.AddInMemoryVectorStore();
+                        break;
+                    }
+                case VectorDBType.PostgreSQL:
+                    {
+                        // servives.AddInMemoryVectorStore();
+                        break;
+                    }
+                case VectorDBType.Sqlite:
+                    {
+                        // servives.AddInMemoryVectorStore();
+                        break;
+                    }
+                case VectorDBType.SqlServer:
                     {
                         break;
                     }
-                case VectorDB.VectorDBType.Pinecon:
+                case VectorDBType.Qdrant:
                     {
-                        break;
-                    }
-                case VectorDB.VectorDBType.VolatileInMemory:
-                    {
+                        servives.AddQdrantVectorStore(vectorDb.ConnectionString);
                         break;
                     }
                 default:
@@ -268,6 +239,12 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="name"></param>
         /// <param name="vectorStoreRecordDefinition"></param>
         /// <returns></returns>
+        /// <remarks>
+        /// Note: VectorStore instances created in this method are not explicitly disposed.
+        /// The VectorStoreCollection returned may maintain a reference to the VectorStore and require it to remain alive.
+        /// For proper resource management, consider using dependency injection to manage VectorStore lifecycle
+        /// or ensure the collection is disposed when no longer needed.
+        /// </remarks>
         public static VectorStoreCollection<TKey, TRecord> GetVectorCollection<TKey, TRecord>(this IWantToRun iWwantToRun, VectorDB vectorDb, string name, VectorStoreCollectionDefinition? vectorStoreRecordDefinition = null)
              where TKey : notnull
              where TRecord : class
@@ -280,93 +257,53 @@ namespace Senparc.AI.Kernel.Handlers
 
             switch (vectorDb.Type)
             {
-                case VectorDB.VectorDBType.AzureAISearch:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.CosmosDBMongoDB:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.CosmosDBNoSQL:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Couchbase:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Elasticsearch:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Chroma:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Milvus:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.MongoDB:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Postgres:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Qdrant:
-                    {
-                        database = null;
-                        vectorStore = new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true);
-                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-                        break;
-                    }
-                case VectorDB.VectorDBType.Redis:
-                    database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
-                    vectorStore = new RedisVectorStore(database,
-                        new() { StorageType = RedisStorageType.Json });
-
-                    collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-                    break;
-                case VectorDB.VectorDBType.SqlServer:
-                    {
-
-                        break;
-                    }
-                case VectorDB.VectorDBType.SQLite:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.Weaviate:
-                    {
-
-                        break;
-                    }
-                case VectorDB.VectorDBType.Faiss:
-                    {
-                        break;
-                    }
-                case VectorDB.VectorDBType.InMemory:
+                case VectorDBType.Memory:
                     {
                         vectorStore = new InMemoryVectorStore();
                         collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
-                case VectorDB.VectorDBType.JDBC:
+                case VectorDBType.HardDisk:
                     {
                         break;
                     }
-                case VectorDB.VectorDBType.Pinecon:
+                case VectorDBType.Redis:
+                    {
+                        database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
+                        vectorStore = new RedisVectorStore(database,
+                            new() { StorageType = RedisStorageType.Json });
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
+                        break;
+                    }
+                case VectorDBType.Milvus:
                     {
                         break;
                     }
-                case VectorDB.VectorDBType.VolatileInMemory:
+                case VectorDBType.Chroma:
                     {
+                        break;
+                    }
+                case VectorDBType.PostgreSQL:
+                    {
+                        break;
+                    }
+                case VectorDBType.Sqlite:
+                    {
+                        break;
+                    }
+                case VectorDBType.SqlServer:
+                    {
+                        break;
+                    }
+                case VectorDBType.Qdrant:
+                    {
+                        vectorStore = new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true);
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                         break;
                     }
                 default:
+                    vectorStore = new InMemoryVectorStore();
+                    collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
                     break;
             }
 
