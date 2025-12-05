@@ -757,55 +757,33 @@
             }
             
             // 创建两条半径线之间的夹角弧线（必须在两条半径线组成的平面内）
+            // 使用球面线性插值（SLERP）确保弧线在平面内
             const arcRadius = 2.5; // 弧线半径
             const arcPoints = [];
             
             // 计算两个向量之间的夹角（弧度）
             const angleRad = Math.acos(Math.max(-1, Math.min(1, similarity)));
             
-            // 计算两条半径线所在平面的法向量（垂直于这个平面）
-            const cross = new THREE.Vector3().crossVectors(embedding1.clone(), embedding2.clone());
-            const normal = cross.length() > 0.001 ? cross.normalize() : new THREE.Vector3(0, 0, 1);
-            
-            // 计算在平面内的旋转轴：垂直于embedding1，且在平面内
-            // 旋转轴 = embedding1 × normal（这个向量在平面内，垂直于embedding1）
-            let rotationAxis = new THREE.Vector3().crossVectors(embedding1.clone(), normal);
-            
-            // 如果rotationAxis长度太小，说明embedding1和normal平行，需要重新选择
-            if (rotationAxis.length() < 0.001) {
-                // 选择一个不在embedding1方向上的向量
-                let tempVec;
-                if (Math.abs(embedding1.x) < 0.9) {
-                    tempVec = new THREE.Vector3(1, 0, 0);
-                } else if (Math.abs(embedding1.y) < 0.9) {
-                    tempVec = new THREE.Vector3(0, 1, 0);
-                } else {
-                    tempVec = new THREE.Vector3(0, 0, 1);
-                }
-                // 计算在平面内的向量（通过Gram-Schmidt过程）
-                // 从tempVec中减去它在embedding1方向上的投影
-                const proj = embedding1.clone().multiplyScalar(tempVec.dot(embedding1));
-                rotationAxis = tempVec.clone().sub(proj).normalize();
-            } else {
-                rotationAxis.normalize();
-            }
-            
-            // 在embedding1和embedding2所在的平面内创建弧线
-            // 绕rotationAxis旋转embedding1，这样弧线就在平面内
+            // 使用球面线性插值（SLERP）在embedding1和embedding2之间插值
+            // 这确保了弧线在包含这两个向量的平面内
             for (let i = 0; i <= 30; i++) {
                 const t = i / 30;
-                const currentAngle = t * angleRad;
                 
-                // 使用四元数绕rotationAxis旋转embedding1
-                const quaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, currentAngle);
-                const rotatedVector = embedding1.clone().applyQuaternion(quaternion);
+                // 球面线性插值公式
+                // SLERP(v1, v2, t) = (sin((1-t)*θ)/sin(θ)) * v1 + (sin(t*θ)/sin(θ)) * v2
+                const sinTheta = Math.sin(angleRad);
                 
-                // 验证：确保旋转后的向量在平面内（与normal垂直）
-                // const dot = rotatedVector.dot(normal);
-                // console.log(`Point ${i}: dot with normal = ${dot.toFixed(6)}`); // 应该接近0
-                
-                // 将旋转后的向量缩放到弧线半径
-                arcPoints.push(rotatedVector.multiplyScalar(arcRadius));
+                if (sinTheta < 0.001) {
+                    // 如果角度很小（向量几乎平行），使用线性插值
+                    const lerped = embedding1.clone().lerp(embedding2, t);
+                    arcPoints.push(lerped.normalize().multiplyScalar(arcRadius));
+                } else {
+                    // 球面线性插值
+                    const w1 = Math.sin((1 - t) * angleRad) / sinTheta;
+                    const w2 = Math.sin(t * angleRad) / sinTheta;
+                    const slerped = embedding1.clone().multiplyScalar(w1).add(embedding2.clone().multiplyScalar(w2));
+                    arcPoints.push(slerped.normalize().multiplyScalar(arcRadius));
+                }
             }
             
             const arcGeometry = new THREE.BufferGeometry().setFromPoints(arcPoints);
@@ -851,11 +829,12 @@
             createCoordinateAxes();
             createCenterPoint();
             
-            // 模拟查询向量
+            // 模拟查询向量（查询文本也会被转换为embedding并归一化，所以也在单位球面上）
+            // 查询向量代表用户的问题，例如："什么是注意力机制？"
             const queryEmbedding = new THREE.Vector3(0.5, 0.5, 0.7).normalize();
             
-            // 创建查询点
-            const queryPointGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+            // 创建查询点（查询向量也在单位球面上）
+            const queryPointGeometry = new THREE.SphereGeometry(0.25, 16, 16);
             const queryPointMaterial = new THREE.MeshPhongMaterial({ 
                 color: colors.query,
                 emissive: new THREE.Color(colors.query),
@@ -871,6 +850,7 @@
             );
             
             queryPoint.userData.type = 'query';
+            queryPoint.userData.embedding = queryEmbedding;
             scene.add(queryPoint);
             
             // 添加查询标签
@@ -878,11 +858,28 @@
             queryLabelDiv.className = 'label';
             queryLabelDiv.textContent = '查询向量';
             queryLabelDiv.style.color = '#f39c12';
+            queryLabelDiv.style.fontSize = '16px';
+            queryLabelDiv.style.fontWeight = 'bold';
             
             const queryLabel = new THREE.CSS2DObject(queryLabelDiv);
-            queryLabel.position.set(0, 0.4, 0);
+            queryLabel.position.set(0, 0.5, 0);
             queryPoint.add(queryLabel);
             labels.push(queryLabel);
+            
+            // 创建从原点到查询点的半径线（高亮显示）
+            const queryRadiusGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                queryPoint.position.clone()
+            ]);
+            const queryRadiusMaterial = new THREE.LineBasicMaterial({ 
+                color: colors.query,
+                transparent: true,
+                opacity: 0.8,
+                linewidth: 3
+            });
+            const queryRadius = new THREE.Line(queryRadiusGeometry, queryRadiusMaterial);
+            scene.add(queryRadius);
+            connections.push(queryRadius);
             
             // 计算所有chunk与查询的相似度
             const similarities = chunks.map((chunk, index) => {
@@ -894,32 +891,47 @@
             similarities.sort((a, b) => b.similarity - a.similarity);
             const topResults = similarities.slice(0, 3);
             
-            // 高亮Top-3结果
+            // 高亮Top-3结果，并显示查询向量与它们的夹角
             topResults.forEach((result, rank) => {
                 const chunkObj = chunkObjects[result.index];
                 highlightChunk(chunkObj, true);
                 
-                // 创建从查询到结果的连线
-                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-                    queryPoint.position.clone(),
-                    chunkObj.position.clone()
-                ]);
-                const lineMaterial = new THREE.LineBasicMaterial({ 
-                    color: colors.query,
-                    transparent: true,
-                    opacity: 0.6,
-                    linewidth: 2
-                });
-                const line = new THREE.Line(lineGeometry, lineMaterial);
-                scene.add(line);
-                connections.push(line);
+                // 创建从查询向量到结果的弧线（展示夹角）
+                const chunkEmbedding = chunkObj.userData.embedding;
+                const queryChunkAngle = Math.acos(Math.max(-1, Math.min(1, result.similarity)));
+                const arcRadius = 2.0;
+                const arcPoints = [];
+                
+                // 使用球面线性插值创建弧线
+                const sinTheta = Math.sin(queryChunkAngle);
+                if (sinTheta > 0.001) {
+                    for (let i = 0; i <= 20; i++) {
+                        const t = i / 20;
+                        const w1 = Math.sin((1 - t) * queryChunkAngle) / sinTheta;
+                        const w2 = Math.sin(t * queryChunkAngle) / sinTheta;
+                        const slerped = queryEmbedding.clone().multiplyScalar(w1).add(chunkEmbedding.clone().multiplyScalar(w2));
+                        arcPoints.push(slerped.normalize().multiplyScalar(arcRadius));
+                    }
+                    
+                    const arcGeometry = new THREE.BufferGeometry().setFromPoints(arcPoints);
+                    const arcMaterial = new THREE.LineBasicMaterial({ 
+                        color: colors.query,
+                        transparent: true,
+                        opacity: 0.5,
+                        linewidth: 2
+                    });
+                    const arc = new THREE.Line(arcGeometry, arcMaterial);
+                    scene.add(arc);
+                    connections.push(arc);
+                }
                 
                 // 添加排名标签
                 const rankLabelDiv = document.createElement('div');
                 rankLabelDiv.className = 'label';
-                rankLabelDiv.textContent = `#${rank + 1} (${result.similarity.toFixed(2)})`;
+                rankLabelDiv.textContent = `#${rank + 1} 相似度:${result.similarity.toFixed(3)}`;
                 rankLabelDiv.style.color = '#ffcc00';
-                rankLabelDiv.style.fontSize = '16px';
+                rankLabelDiv.style.fontSize = '14px';
+                rankLabelDiv.style.fontWeight = 'bold';
                 
                 const rankLabel = new THREE.CSS2DObject(rankLabelDiv);
                 rankLabel.position.set(0, -0.4, 0);
@@ -931,9 +943,12 @@
             const infoPanel = document.getElementById('step-description');
             infoPanel.innerHTML = `
                 ${stepDescriptions[4]}<br><br>
+                <strong>原理说明：</strong><br>
+                查询文本也会被转换为embedding向量并归一化，因此查询向量也在单位球面上定位一个点。<br>
+                系统计算查询向量与所有知识库chunk向量的cos相似度（夹角），相似度高的chunk被检索出来。<br><br>
                 <strong>Top-3 检索结果:</strong><br>
                 ${topResults.map((r, i) => 
-                    `${i + 1}. Chunk ${r.index + 1}: 相似度 ${r.similarity.toFixed(3)}`
+                    `${i + 1}. ${knowledgeChunks[r.index].title}: 相似度 ${r.similarity.toFixed(3)} (角度: ${(Math.acos(Math.max(-1, Math.min(1, r.similarity))) * 180 / Math.PI).toFixed(1)}°)`
                 ).join('<br>')}
             `;
         }
