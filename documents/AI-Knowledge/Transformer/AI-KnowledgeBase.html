@@ -238,8 +238,8 @@
             <h4>Top-K (选择数量)</h4>
             <div class="slider-container">
                 <span>1</span>
-                <input type="range" min="1" max="8" step="1" value="3" class="slider" id="topk-slider">
-                <span>8</span>
+                <input type="range" min="1" max="12" step="1" value="3" class="slider" id="topk-slider">
+                <span>12</span>
             </div>
             <div id="topk-value">当前值: 3</div>
             <p class="param-description">选择相似度最高的K个chunk用于RAG生成</p>
@@ -318,54 +318,79 @@
         
         // 示例知识库文本块 - 重新设计位置，让一些与查询相关，一些不相关
         // 查询是关于"注意力机制"的，所以相关的chunk应该靠近查询向量
+        // 相关性范围：0.9-0.95（高度相关），0.7-0.85（中等相关），0.3-0.6（低相关），0.0-0.2（不相关）
         const knowledgeChunks = [
             {
                 id: 1,
                 title: "注意力机制",
                 content: "注意力机制允许模型在处理序列时关注不同位置的信息，通过计算查询、键和值之间的相似度来分配权重。",
-                relevance: 0.95  // 高度相关
+                relevance: 0.95  // 高度相关 - 直接相关
             },
             {
                 id: 2,
                 title: "多头注意力",
                 content: "多头注意力机制可以并行处理多个注意力子空间，每个头学习不同的表示，然后将结果拼接起来。",
-                relevance: 0.85  // 高度相关
+                relevance: 0.88  // 高度相关 - 直接相关
             },
             {
                 id: 3,
-                title: "Transformer架构",
-                content: "Transformer模型是一种基于注意力机制的深度学习架构，由编码器和解码器组成，完全摒弃了循环和卷积结构。",
-                relevance: 0.75  // 中等相关
+                title: "自注意力",
+                content: "自注意力机制是注意力机制的一种特殊形式，允许序列中的每个位置关注序列中的所有位置，包括自身。",
+                relevance: 0.82  // 高度相关 - 直接相关
             },
             {
                 id: 4,
-                title: "位置编码",
-                content: "位置编码用于为序列中的每个位置提供位置信息，因为Transformer没有循环结构，需要通过位置编码来理解顺序。",
-                relevance: 0.45  // 低相关
+                title: "Transformer架构",
+                content: "Transformer模型是一种基于注意力机制的深度学习架构，由编码器和解码器组成，完全摒弃了循环和卷积结构。",
+                relevance: 0.75  // 中等相关 - 使用注意力机制
             },
             {
                 id: 5,
-                title: "前馈网络",
-                content: "前馈神经网络是Transformer中的另一个重要组件，通常包含两个线性变换和一个激活函数，用于处理注意力机制的输出。",
-                relevance: 0.40  // 低相关
+                title: "位置编码",
+                content: "位置编码用于为序列中的每个位置提供位置信息，因为Transformer没有循环结构，需要通过位置编码来理解顺序。",
+                relevance: 0.55  // 中等相关 - Transformer相关但非注意力核心
             },
             {
                 id: 6,
-                title: "层归一化",
-                content: "Layer Normalization有助于稳定训练过程，通过对每个样本的特征进行归一化来减少内部协变量偏移。",
-                relevance: 0.25  // 很低相关
+                title: "前馈网络",
+                content: "前馈神经网络是Transformer中的另一个重要组件，通常包含两个线性变换和一个激活函数，用于处理注意力机制的输出。",
+                relevance: 0.45  // 低相关 - Transformer组件但非注意力
             },
             {
                 id: 7,
-                title: "残差连接",
-                content: "残差连接可以缓解深层网络的梯度消失问题，允许梯度直接传播到前面的层，使得训练更深的网络成为可能。",
-                relevance: 0.20  // 很低相关
+                title: "层归一化",
+                content: "Layer Normalization有助于稳定训练过程，通过对每个样本的特征进行归一化来减少内部协变量偏移。",
+                relevance: 0.30  // 低相关 - 通用技术
             },
             {
                 id: 8,
+                title: "残差连接",
+                content: "残差连接可以缓解深层网络的梯度消失问题，允许梯度直接传播到前面的层，使得训练更深的网络成为可能。",
+                relevance: 0.25  // 低相关 - 通用技术
+            },
+            {
+                id: 9,
                 title: "BERT模型",
                 content: "BERT模型使用双向Transformer编码器进行预训练，通过掩码语言模型和下一句预测任务学习语言表示。",
-                relevance: 0.35  // 低相关
+                relevance: 0.40  // 低相关 - 使用Transformer但重点不在注意力
+            },
+            {
+                id: 10,
+                title: "图像分类",
+                content: "图像分类是计算机视觉中的基本任务，通过训练深度神经网络来识别和分类图像中的对象。",
+                relevance: 0.05  // 不相关 - 完全不同领域
+            },
+            {
+                id: 11,
+                title: "自然语言处理",
+                content: "自然语言处理是人工智能的一个分支，致力于让计算机理解和处理人类语言。",
+                relevance: 0.15  // 不相关 - 相关领域但主题不同
+            },
+            {
+                id: 12,
+                title: "强化学习",
+                content: "强化学习是一种机器学习方法，通过与环境交互来学习最优策略，常用于游戏AI和机器人控制。",
+                relevance: 0.02  // 不相关 - 完全不同领域
             }
         ];
         
@@ -603,6 +628,8 @@
             const queryDirection = new THREE.Vector3(1, 0, 0);
             
             // 为每个chunk生成embedding向量，根据相关性分布
+            // 相关性高的chunk应该集中在查询向量附近（夹角小）
+            // 相关性低的chunk应该分散在远离查询向量的位置（夹角大）
             chunks.forEach((chunk, index) => {
                 const chunkData = knowledgeChunks[index];
                 const relevance = chunkData.relevance || 0.5;
@@ -613,8 +640,9 @@
                 // cos(夹角) = 相关性，所以夹角 = arccos(相关性)
                 const angleFromQuery = Math.acos(Math.max(-1, Math.min(1, relevance)));
                 
-                // 在垂直于查询方向的平面上选择一个随机方向
-                // 这样可以确保chunk围绕查询方向分布
+                // 为了更好的可视化效果，让相关性高的chunk更集中
+                // 在垂直于查询方向的平面上选择一个方向
+                // 使用index来确保分布均匀但可预测
                 const randomAngle = (index / knowledgeChunks.length) * Math.PI * 2;
                 
                 // 创建一个垂直于查询方向的向量
@@ -1133,9 +1161,20 @@
                 labels.push(rankLabel);
             });
             
-            // 创建圆锥可视化（从查询向量方向出发）
+            // 创建圆锥可视化（顶点在圆心，沿查询向量方向）
             // 圆锥的半角 = arccos(最小相似度)
-            const minSimilarity = selected.length > 0 ? selected[selected.length - 1].similarity : similarityThreshold;
+            // 如果选中的chunk数量少于topK，使用阈值；否则使用最后一个选中chunk的相似度
+            let minSimilarity;
+            if (selected.length > 0) {
+                minSimilarity = selected[selected.length - 1].similarity;
+            } else {
+                // 如果没有选中的，使用阈值或top-K对应的相似度
+                minSimilarity = similarities.length >= topK ? similarities[topK - 1].similarity : similarityThreshold;
+            }
+            
+            // 确保最小相似度不低于阈值
+            minSimilarity = Math.max(minSimilarity, similarityThreshold);
+            
             const coneAngle = Math.acos(Math.max(-1, Math.min(1, minSimilarity)));
             
             createSelectionCone(queryEmbedding, coneAngle);
@@ -1144,31 +1183,67 @@
             updateRAGInfo(selected, similarities);
         }
         
-        // 创建选择圆锥
+        // 创建选择圆锥（顶点在圆心，沿查询向量方向）
         function createSelectionCone(direction, angle) {
             const sphereRadius = 5;
-            const coneHeight = sphereRadius * 1.2;
+            
+            // 圆锥高度要足够高，确保与球面相交
+            // 圆锥顶点在原点，需要延伸到球面外
+            const coneHeight = sphereRadius * 2.5; // 足够高以覆盖球面
             const coneRadius = Math.tan(angle) * coneHeight;
             
-            // 创建圆锥几何体
+            // 创建圆锥几何体（顶点在底部，所以需要翻转）
             const coneGeometry = new THREE.ConeGeometry(coneRadius, coneHeight, 32, 1, true);
             const coneMaterial = new THREE.MeshPhongMaterial({
                 color: colors.query,
                 transparent: true,
-                opacity: 0.2,
-                side: THREE.DoubleSide
+                opacity: 0.15,
+                side: THREE.DoubleSide,
+                wireframe: false
             });
             
             selectionCone = new THREE.Mesh(coneGeometry, coneMaterial);
             
+            // 圆锥默认是顶点在底部，需要翻转使其顶点在顶部（原点）
+            selectionCone.rotation.x = Math.PI;
+            
             // 将圆锥对齐到查询方向
+            // 先旋转到Y轴正方向，再旋转到查询方向
             const up = new THREE.Vector3(0, 1, 0);
             const quaternion = new THREE.Quaternion().setFromUnitVectors(up, direction);
             selectionCone.applyQuaternion(quaternion);
             
-            // 位置在原点
+            // 位置在原点（顶点在圆心）
             selectionCone.position.set(0, 0, 0);
             scene.add(selectionCone);
+            
+            // 添加圆锥边缘线（更清晰的边界）
+            const edgePoints = [];
+            const segments = 32;
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                const phi = t * Math.PI * 2;
+                const x = Math.cos(phi) * coneRadius;
+                const z = Math.sin(phi) * coneRadius;
+                const y = coneHeight;
+                edgePoints.push(new THREE.Vector3(x, y, z));
+            }
+            
+            // 将边缘点旋转到查询方向
+            edgePoints.forEach(point => {
+                point.applyQuaternion(quaternion);
+            });
+            
+            const edgeGeometry = new THREE.BufferGeometry().setFromPoints(edgePoints);
+            const edgeMaterial = new THREE.LineBasicMaterial({
+                color: colors.query,
+                transparent: true,
+                opacity: 0.6,
+                linewidth: 2
+            });
+            const edgeLine = new THREE.Line(edgeGeometry, edgeMaterial);
+            scene.add(edgeLine);
+            connections.push(edgeLine);
         }
         
         // 更新RAG信息面板
