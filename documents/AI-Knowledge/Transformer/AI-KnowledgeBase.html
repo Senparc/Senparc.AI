@@ -1118,12 +1118,7 @@
         function performRAGSelection() {
             if (!queryEmbedding) return;
             
-            // 移除之前的选择可视化
-            if (selectionCone) {
-                scene.remove(selectionCone);
-                selectionCone = null;
-            }
-            // 移除之前的圆锥边缘线
+            // 移除之前的圆锥边缘线（现在只使用线条，不使用solid圆锥）
             coneEdges.forEach(edge => {
                 scene.remove(edge);
                 const index = connections.indexOf(edge);
@@ -1132,6 +1127,12 @@
                 }
             });
             coneEdges = [];
+            
+            // 如果还有旧的solid圆锥，也清除它
+            if (selectionCone) {
+                scene.remove(selectionCone);
+                selectionCone = null;
+            }
             selectedChunksForRAG.forEach(chunk => {
                 highlightChunk(chunk, false);
             });
@@ -1206,77 +1207,52 @@
             const coneHeight = sphereRadius * 2.5; // 足够高以覆盖球面
             const coneRadius = Math.tan(angle) * coneHeight;
             
-            // 创建圆锥几何体
-            // Three.js的ConeGeometry默认顶点在底部，中心在(0,0,0)
-            // 我们需要顶点在原点，所以需要调整
-            const coneGeometry = new THREE.ConeGeometry(coneRadius, coneHeight, 32, 1, true);
-            const coneMaterial = new THREE.MeshPhongMaterial({
-                color: colors.query,
-                transparent: true,
-                opacity: 0.2,
-                side: THREE.DoubleSide,
-                wireframe: false
-            });
-            
-            selectionCone = new THREE.Mesh(coneGeometry, coneMaterial);
-            
-            // 圆锥默认是顶点在底部，中心在原点
-            // 我们需要将顶点移到原点，所以先向上移动高度的一半
-            selectionCone.position.y = coneHeight / 2;
-            
-            // 然后旋转180度使顶点朝下（指向原点）
-            selectionCone.rotation.x = Math.PI;
-            
-            // 现在圆锥顶点在原点，但方向是-Y轴
-            // 需要旋转到查询向量方向
-            const up = new THREE.Vector3(0, -1, 0); // 当前圆锥指向的方向
-            const quaternion = new THREE.Quaternion().setFromUnitVectors(up, normalizedDirection);
-            selectionCone.applyQuaternion(quaternion);
-            
-            // 位置保持在原点（顶点在圆心）
-            selectionCone.position.set(0, 0, 0);
-            scene.add(selectionCone);
-            
-            // 添加圆锥边缘线（更清晰的边界）
-            // 在圆锥底部的圆周上创建点
-            const edgePoints = [];
+            // 只创建wireframe圆锥，更清晰
+            // 使用线条方式创建圆锥，而不是solid mesh
             const segments = 32;
+            const edgePoints = [];
+            
+            // 创建圆锥底部的圆周点
+            // 圆锥顶点在原点，沿着Y轴正方向延伸
+            // 底部在 y = coneHeight 的位置
             for (let i = 0; i <= segments; i++) {
                 const t = i / segments;
                 const phi = t * Math.PI * 2;
                 
-                // 在圆锥底部圆周上的点（相对于圆锥局部坐标系）
-                // 圆锥底部中心在(0, -coneHeight/2, 0)，半径是coneRadius
+                // 在圆锥底部圆周上的点（局部坐标系）
+                // 圆锥沿着Y轴正方向，顶点在原点，底部在 y = coneHeight
                 const localX = Math.cos(phi) * coneRadius;
                 const localZ = Math.sin(phi) * coneRadius;
-                const localY = -coneHeight / 2; // 底部中心
+                const localY = coneHeight; // 底部在Y轴正方向
                 
-                // 创建从原点到这个点的向量
                 const point = new THREE.Vector3(localX, localY, localZ);
-                
-                // 应用相同的旋转
-                point.applyQuaternion(quaternion);
-                
                 edgePoints.push(point);
             }
             
-            // 创建边缘线（从原点到边缘点）
-            const edgeLines = [];
+            // 计算旋转四元数：从Y轴正方向旋转到查询向量方向
+            const up = new THREE.Vector3(0, 1, 0); // Y轴正方向（圆锥的初始方向）
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(up, normalizedDirection);
+            
+            // 旋转所有边缘点
+            edgePoints.forEach(point => {
+                point.applyQuaternion(quaternion);
+            });
+            
+            // 创建从原点到边缘的线（圆锥的母线）
             for (let i = 0; i < edgePoints.length - 1; i++) {
                 const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(0, 0, 0), // 原点
+                    new THREE.Vector3(0, 0, 0), // 原点（顶点）
                     edgePoints[i]
                 ]);
                 const edgeMaterial = new THREE.LineBasicMaterial({
                     color: colors.query,
                     transparent: true,
-                    opacity: 0.5,
-                    linewidth: 1
+                    opacity: 0.6,
+                    linewidth: 2
                 });
                 const edgeLine = new THREE.Line(lineGeometry, edgeMaterial);
                 scene.add(edgeLine);
                 connections.push(edgeLine);
-                edgeLines.push(edgeLine);
                 coneEdges.push(edgeLine);
             }
             
@@ -1285,13 +1261,16 @@
             const circleMaterial = new THREE.LineBasicMaterial({
                 color: colors.query,
                 transparent: true,
-                opacity: 0.7,
-                linewidth: 2
+                opacity: 0.8,
+                linewidth: 3
             });
             const circleLine = new THREE.Line(circleGeometry, circleMaterial);
             scene.add(circleLine);
             connections.push(circleLine);
             coneEdges.push(circleLine);
+            
+            // 不再创建solid圆锥，只使用wireframe线条
+            selectionCone = null; // 标记为null，因为我们不使用solid圆锥了
         }
         
         // 更新RAG信息面板
