@@ -137,6 +137,73 @@
             font-weight: bold;
             font-size: 18px;
         }
+        
+        #rag-controls {
+            position: absolute;
+            top: 85px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            width: 300px;
+        }
+        
+        .parameter-section {
+            margin-bottom: 15px;
+        }
+        
+        .parameter-section h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .slider {
+            flex-grow: 1;
+            margin: 0 10px;
+        }
+        
+        .param-description {
+            font-size: 12px;
+            margin-top: 5px;
+            line-height: 1.3;
+            color: #aaa;
+        }
+        
+        #query-input-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            width: 300px;
+        }
+        
+        #query-text-input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 3px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        #query-text-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
     </style>
 </head>
 <body>
@@ -155,6 +222,39 @@
     <div id="similarity-panel">
         <h3>相似度信息</h3>
         <div id="similarity-content"></div>
+    </div>
+    
+    <div id="query-input-panel">
+        <h3>查询输入</h3>
+        <p style="font-size: 12px; color: #aaa; margin-top: 5px;">输入查询文本，系统将转换为embedding向量</p>
+        <input type="text" id="query-text-input" placeholder="输入查询文本..." value="什么是注意力机制？">
+        <button class="step-btn" id="convert-query-btn" style="margin-top: 10px; width: 100%;">转换为Embedding</button>
+    </div>
+    
+    <div id="rag-controls">
+        <h3>RAG 参数控制</h3>
+        
+        <div class="parameter-section">
+            <h4>Top-K (选择数量)</h4>
+            <div class="slider-container">
+                <span>1</span>
+                <input type="range" min="1" max="8" step="1" value="3" class="slider" id="topk-slider">
+                <span>8</span>
+            </div>
+            <div id="topk-value">当前值: 3</div>
+            <p class="param-description">选择相似度最高的K个chunk用于RAG生成</p>
+        </div>
+        
+        <div class="parameter-section">
+            <h4>相似度阈值</h4>
+            <div class="slider-container">
+                <span>0</span>
+                <input type="range" min="0" max="1" step="0.05" value="0.5" class="slider" id="threshold-slider">
+                <span>1</span>
+            </div>
+            <div id="threshold-value">当前值: 0.50</div>
+            <p class="param-description">只选择相似度高于此阈值的chunk（可选）</p>
+        </div>
     </div>
     
     <div class="tooltip" id="tooltip"></div>
@@ -194,6 +294,13 @@
         let radiusLines = []; // 存储所有半径线，用于高亮显示
         let highlightedRadius1 = null;
         let highlightedRadius2 = null;
+        let queryEmbedding = null;
+        let queryVector = null;
+        let queryRadius = null;
+        let topK = 3;
+        let similarityThreshold = 0.5;
+        let selectionCone = null;
+        let selectedChunksForRAG = [];
         
         // 颜色定义
         const colors = {
@@ -206,47 +313,59 @@
             query: 0xf39c12        // 橙色 - 查询向量
         };
         
-        // 示例知识库文本块 - 使用更真实的chunk内容
+        // 查询文本（用于RAG演示）
+        const queryText = "什么是注意力机制？";
+        
+        // 示例知识库文本块 - 重新设计位置，让一些与查询相关，一些不相关
+        // 查询是关于"注意力机制"的，所以相关的chunk应该靠近查询向量
         const knowledgeChunks = [
             {
                 id: 1,
-                title: "Transformer架构",
-                content: "Transformer模型是一种基于注意力机制的深度学习架构，由编码器和解码器组成，完全摒弃了循环和卷积结构。"
+                title: "注意力机制",
+                content: "注意力机制允许模型在处理序列时关注不同位置的信息，通过计算查询、键和值之间的相似度来分配权重。",
+                relevance: 0.95  // 高度相关
             },
             {
                 id: 2,
-                title: "注意力机制",
-                content: "注意力机制允许模型在处理序列时关注不同位置的信息，通过计算查询、键和值之间的相似度来分配权重。"
+                title: "多头注意力",
+                content: "多头注意力机制可以并行处理多个注意力子空间，每个头学习不同的表示，然后将结果拼接起来。",
+                relevance: 0.85  // 高度相关
             },
             {
                 id: 3,
-                title: "多头注意力",
-                content: "多头注意力机制可以并行处理多个注意力子空间，每个头学习不同的表示，然后将结果拼接起来。"
+                title: "Transformer架构",
+                content: "Transformer模型是一种基于注意力机制的深度学习架构，由编码器和解码器组成，完全摒弃了循环和卷积结构。",
+                relevance: 0.75  // 中等相关
             },
             {
                 id: 4,
                 title: "位置编码",
-                content: "位置编码用于为序列中的每个位置提供位置信息，因为Transformer没有循环结构，需要通过位置编码来理解顺序。"
+                content: "位置编码用于为序列中的每个位置提供位置信息，因为Transformer没有循环结构，需要通过位置编码来理解顺序。",
+                relevance: 0.45  // 低相关
             },
             {
                 id: 5,
                 title: "前馈网络",
-                content: "前馈神经网络是Transformer中的另一个重要组件，通常包含两个线性变换和一个激活函数，用于处理注意力机制的输出。"
+                content: "前馈神经网络是Transformer中的另一个重要组件，通常包含两个线性变换和一个激活函数，用于处理注意力机制的输出。",
+                relevance: 0.40  // 低相关
             },
             {
                 id: 6,
                 title: "层归一化",
-                content: "Layer Normalization有助于稳定训练过程，通过对每个样本的特征进行归一化来减少内部协变量偏移。"
+                content: "Layer Normalization有助于稳定训练过程，通过对每个样本的特征进行归一化来减少内部协变量偏移。",
+                relevance: 0.25  // 很低相关
             },
             {
                 id: 7,
                 title: "残差连接",
-                content: "残差连接可以缓解深层网络的梯度消失问题，允许梯度直接传播到前面的层，使得训练更深的网络成为可能。"
+                content: "残差连接可以缓解深层网络的梯度消失问题，允许梯度直接传播到前面的层，使得训练更深的网络成为可能。",
+                relevance: 0.20  // 很低相关
             },
             {
                 id: 8,
                 title: "BERT模型",
-                content: "BERT模型使用双向Transformer编码器进行预训练，通过掩码语言模型和下一句预测任务学习语言表示。"
+                content: "BERT模型使用双向Transformer编码器进行预训练，通过掩码语言模型和下一句预测任务学习语言表示。",
+                relevance: 0.35  // 低相关
             }
         ];
         
@@ -255,8 +374,9 @@
             "步骤1: 输入查询文本，系统将文本进行预处理和分块。",
             "步骤2: 将文本块转换为高维向量（Embedding），每个chunk对应一个向量。",
             "步骤3: 将所有向量归一化后分布在单位球面上，展示向量空间分布。",
-            "步骤4: 选择两个chunk，通过它们对应的半径夹角展示cos相似度。",
-            "步骤5: 根据相似度检索最相关的知识库内容。"
+            "步骤4: 输入查询文本，将查询转换为embedding向量并显示在球面上。",
+            "步骤5: 计算查询向量与所有chunk的相似度，根据top-K参数选择最相关的chunk。",
+            "步骤6: 展示检索到的chunk，用于RAG生成答案。"
         ];
         
         // 初始化 Three.js 场景
@@ -326,6 +446,13 @@
                 renderer.domElement.addEventListener('mousemove', onMouseMove);
                 renderer.domElement.addEventListener('click', onClick);
                 
+                // 添加查询转换按钮事件
+                document.getElementById('convert-query-btn').addEventListener('click', function() {
+                    if (currentStep === 3) {
+                        nextStep(); // 自动进入下一步
+                    }
+                });
+                
                 // 创建动画步骤
                 createSteps();
                 
@@ -354,22 +481,28 @@
                 updateDescription(1);
             });
             
-            // 步骤3: 展示Embedding和球面分布
+            // 步骤3: 展示Embedding和球面分布（根据相关性分布）
             steps.push(() => {
                 showEmbeddingsOnSphere();
                 updateDescription(2);
             });
             
-            // 步骤4: 展示相似度计算
+            // 步骤4: 输入查询并转换为embedding向量
             steps.push(() => {
-                enableSimilaritySelection();
+                showQueryInput();
                 updateDescription(3);
             });
             
-            // 步骤5: 展示检索结果
+            // 步骤5: 展示查询向量在球面上，并计算相似度
             steps.push(() => {
-                showRetrievalResults();
+                showQueryEmbedding();
                 updateDescription(4);
+            });
+            
+            // 步骤6: 根据top-K选择chunk并展示RAG结果
+            steps.push(() => {
+                showRAGSelection();
+                updateDescription(5);
             });
         }
         
@@ -438,7 +571,7 @@
             });
         }
         
-        // 步骤3: 展示Embedding和球面分布
+        // 步骤3: 展示Embedding和球面分布（根据相关性分布）
         function showEmbeddingsOnSphere() {
             // 清除之前的chunk对象
             chunkObjects.forEach(chunk => {
@@ -465,19 +598,45 @@
             sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
             scene.add(sphereMesh);
             
-            // 为每个chunk生成随机但稳定的embedding向量（归一化）
+            // 定义查询向量的方向（用于计算相关性位置）
+            // 查询向量将位于 (1, 0, 0) 方向（X轴正方向）
+            const queryDirection = new THREE.Vector3(1, 0, 0);
+            
+            // 为每个chunk生成embedding向量，根据相关性分布
             chunks.forEach((chunk, index) => {
-                // 生成一个在球面上均匀分布的向量
-                const theta = (index / knowledgeChunks.length) * Math.PI * 2; // 方位角
-                const phi = Math.acos(2 * (index / knowledgeChunks.length) - 1); // 极角（均匀分布）
+                const chunkData = knowledgeChunks[index];
+                const relevance = chunkData.relevance || 0.5;
                 
-                // 转换为笛卡尔坐标（归一化向量）
-                const x = Math.sin(phi) * Math.cos(theta);
-                const y = Math.sin(phi) * Math.sin(theta);
-                const z = Math.cos(phi);
+                // 根据相关性计算与查询向量的夹角
+                // 相关性高 -> 夹角小（靠近查询方向）
+                // 相关性低 -> 夹角大（远离查询方向）
+                // cos(夹角) = 相关性，所以夹角 = arccos(相关性)
+                const angleFromQuery = Math.acos(Math.max(-1, Math.min(1, relevance)));
+                
+                // 在垂直于查询方向的平面上选择一个随机方向
+                // 这样可以确保chunk围绕查询方向分布
+                const randomAngle = (index / knowledgeChunks.length) * Math.PI * 2;
+                
+                // 创建一个垂直于查询方向的向量
+                let perpendicular;
+                if (Math.abs(queryDirection.x) < 0.9) {
+                    perpendicular = new THREE.Vector3(1, 0, 0);
+                } else {
+                    perpendicular = new THREE.Vector3(0, 1, 0);
+                }
+                perpendicular.crossVectors(perpendicular, queryDirection).normalize();
+                
+                // 绕查询方向旋转perpendicular向量
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(queryDirection, randomAngle);
+                perpendicular.applyQuaternion(quaternion);
+                
+                // 现在在包含查询方向和perpendicular的平面内，从查询方向旋转angleFromQuery角度
+                const rotationAxis = new THREE.Vector3().crossVectors(queryDirection, perpendicular).normalize();
+                const embeddingQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, angleFromQuery);
+                const embedding = queryDirection.clone().applyQuaternion(embeddingQuaternion);
                 
                 // 存储归一化向量
-                chunk.embedding = new THREE.Vector3(x, y, z);
+                chunk.embedding = embedding.normalize();
                 
                 // 在球面上创建点
                 const pointGeometry = new THREE.SphereGeometry(0.15, 16, 16);
@@ -490,9 +649,9 @@
                 
                 // 位置在球面上
                 point.position.set(
-                    x * sphereRadius,
-                    y * sphereRadius,
-                    z * sphereRadius
+                    chunk.embedding.x * sphereRadius,
+                    chunk.embedding.y * sphereRadius,
+                    chunk.embedding.z * sphereRadius
                 );
                 
                 point.userData.type = 'chunkPoint';
@@ -501,6 +660,7 @@
                 point.userData.title = chunk.title;
                 point.userData.embedding = chunk.embedding;
                 point.userData.chunk = chunk;
+                point.userData.relevance = relevance;
                 
                 scene.add(point);
                 chunkObjects.push(point);
@@ -823,7 +983,212 @@
             `;
         }
         
-        // 步骤5: 展示检索结果
+        // 步骤4: 显示查询输入面板
+        function showQueryInput() {
+            document.getElementById('query-input-panel').style.display = 'block';
+        }
+        
+        // 步骤5: 展示查询向量转换和显示
+        function showQueryEmbedding() {
+            // 确保坐标轴和圆心已创建
+            createCoordinateAxes();
+            createCenterPoint();
+            
+            // 获取查询文本
+            const inputText = document.getElementById('query-text-input').value || queryText;
+            
+            // 模拟查询向量转换（实际中会使用embedding模型）
+            // 查询向量应该在X轴正方向附近（因为相关chunk也在那里）
+            queryEmbedding = new THREE.Vector3(1, 0, 0).normalize();
+            
+            const sphereRadius = 5;
+            
+            // 创建查询向量点（动画显示）
+            const queryPointGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+            const queryPointMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.query,
+                emissive: new THREE.Color(colors.query),
+                emissiveIntensity: 0.8
+            });
+            queryVector = new THREE.Mesh(queryPointGeometry, queryPointMaterial);
+            
+            // 初始位置在原点
+            queryVector.position.set(0, 0, 0);
+            queryVector.userData.type = 'query';
+            queryVector.userData.embedding = queryEmbedding;
+            queryVector.userData.text = inputText;
+            scene.add(queryVector);
+            
+            // 添加查询标签
+            const queryLabelDiv = document.createElement('div');
+            queryLabelDiv.className = 'label';
+            queryLabelDiv.textContent = '查询向量';
+            queryLabelDiv.style.color = '#f39c12';
+            queryLabelDiv.style.fontSize = '16px';
+            queryLabelDiv.style.fontWeight = 'bold';
+            
+            const queryLabel = new THREE.CSS2DObject(queryLabelDiv);
+            queryLabel.position.set(0, 0.5, 0);
+            queryVector.add(queryLabel);
+            labels.push(queryLabel);
+            
+            // 动画：从原点移动到球面
+            animateObjectPosition(queryVector, {
+                x: queryEmbedding.x * sphereRadius,
+                y: queryEmbedding.y * sphereRadius,
+                z: queryEmbedding.z * sphereRadius
+            }, 1500, () => {
+                // 创建从原点到查询点的半径线
+                const queryRadiusGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, 0, 0),
+                    queryVector.position.clone()
+                ]);
+                const queryRadiusMaterial = new THREE.LineBasicMaterial({ 
+                    color: colors.query,
+                    transparent: true,
+                    opacity: 0.8,
+                    linewidth: 3
+                });
+                queryRadius = new THREE.Line(queryRadiusGeometry, queryRadiusMaterial);
+                scene.add(queryRadius);
+                connections.push(queryRadius);
+            });
+        }
+        
+        // 步骤6: 展示RAG选择过程
+        function showRAGSelection() {
+            // 显示RAG控制面板
+            document.getElementById('rag-controls').style.display = 'block';
+            
+            // 设置事件监听器
+            setupRAGControls();
+            
+            // 执行RAG选择
+            performRAGSelection();
+        }
+        
+        // 设置RAG控制事件
+        function setupRAGControls() {
+            const topkSlider = document.getElementById('topk-slider');
+            const thresholdSlider = document.getElementById('threshold-slider');
+            
+            topkSlider.addEventListener('input', function() {
+                topK = parseInt(this.value);
+                document.getElementById('topk-value').textContent = `当前值: ${topK}`;
+                performRAGSelection();
+            });
+            
+            thresholdSlider.addEventListener('input', function() {
+                similarityThreshold = parseFloat(this.value);
+                document.getElementById('threshold-value').textContent = `当前值: ${similarityThreshold.toFixed(2)}`;
+                performRAGSelection();
+            });
+        }
+        
+        // 执行RAG选择
+        function performRAGSelection() {
+            if (!queryEmbedding) return;
+            
+            // 移除之前的选择可视化
+            if (selectionCone) {
+                scene.remove(selectionCone);
+            }
+            selectedChunksForRAG.forEach(chunk => {
+                highlightChunk(chunk, false);
+            });
+            selectedChunksForRAG = [];
+            
+            // 计算所有chunk与查询的相似度
+            const similarities = chunks.map((chunk, index) => {
+                const similarity = queryEmbedding.dot(chunk.embedding);
+                return { index, similarity, chunk };
+            });
+            
+            // 排序
+            similarities.sort((a, b) => b.similarity - a.similarity);
+            
+            // 根据top-K和阈值选择
+            const selected = similarities
+                .filter(s => s.similarity >= similarityThreshold)
+                .slice(0, topK);
+            
+            selectedChunksForRAG = selected.map(s => chunkObjects[s.index]);
+            
+            // 高亮选中的chunk
+            selected.forEach((result, rank) => {
+                const chunkObj = chunkObjects[result.index];
+                highlightChunk(chunkObj, true);
+                
+                // 添加排名标签
+                const rankLabelDiv = document.createElement('div');
+                rankLabelDiv.className = 'label';
+                rankLabelDiv.textContent = `#${rank + 1} (${result.similarity.toFixed(3)})`;
+                rankLabelDiv.style.color = '#ffcc00';
+                rankLabelDiv.style.fontSize = '14px';
+                rankLabelDiv.style.fontWeight = 'bold';
+                
+                const rankLabel = new THREE.CSS2DObject(rankLabelDiv);
+                rankLabel.position.set(0, -0.4, 0);
+                chunkObj.add(rankLabel);
+                labels.push(rankLabel);
+            });
+            
+            // 创建圆锥可视化（从查询向量方向出发）
+            // 圆锥的半角 = arccos(最小相似度)
+            const minSimilarity = selected.length > 0 ? selected[selected.length - 1].similarity : similarityThreshold;
+            const coneAngle = Math.acos(Math.max(-1, Math.min(1, minSimilarity)));
+            
+            createSelectionCone(queryEmbedding, coneAngle);
+            
+            // 更新信息面板
+            updateRAGInfo(selected, similarities);
+        }
+        
+        // 创建选择圆锥
+        function createSelectionCone(direction, angle) {
+            const sphereRadius = 5;
+            const coneHeight = sphereRadius * 1.2;
+            const coneRadius = Math.tan(angle) * coneHeight;
+            
+            // 创建圆锥几何体
+            const coneGeometry = new THREE.ConeGeometry(coneRadius, coneHeight, 32, 1, true);
+            const coneMaterial = new THREE.MeshPhongMaterial({
+                color: colors.query,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.DoubleSide
+            });
+            
+            selectionCone = new THREE.Mesh(coneGeometry, coneMaterial);
+            
+            // 将圆锥对齐到查询方向
+            const up = new THREE.Vector3(0, 1, 0);
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(up, direction);
+            selectionCone.applyQuaternion(quaternion);
+            
+            // 位置在原点
+            selectionCone.position.set(0, 0, 0);
+            scene.add(selectionCone);
+        }
+        
+        // 更新RAG信息面板
+        function updateRAGInfo(selected, allSimilarities) {
+            const infoPanel = document.getElementById('step-description');
+            infoPanel.innerHTML = `
+                ${stepDescriptions[5]}<br><br>
+                <strong>查询:</strong> ${queryVector.userData.text}<br><br>
+                <strong>Top-${topK} 检索结果:</strong><br>
+                ${selected.map((r, i) => 
+                    `${i + 1}. ${knowledgeChunks[r.index].title}: 相似度 ${r.similarity.toFixed(3)} (角度: ${(Math.acos(Math.max(-1, Math.min(1, r.similarity))) * 180 / Math.PI).toFixed(1)}°)`
+                ).join('<br>')}<br><br>
+                <strong>未选中的chunk:</strong><br>
+                ${allSimilarities.slice(topK).map(r => 
+                    `${knowledgeChunks[r.index].title}: ${r.similarity.toFixed(3)}`
+                ).join(', ')}
+            `;
+        }
+        
+        // 旧函数保留（用于兼容）
         function showRetrievalResults() {
             // 确保坐标轴和圆心已创建
             createCoordinateAxes();
@@ -1088,6 +1453,51 @@
             scene.add(directionalLight2);
             
             document.getElementById('similarity-panel').style.display = 'none';
+            document.getElementById('query-input-panel').style.display = 'none';
+            document.getElementById('rag-controls').style.display = 'none';
+            
+            queryEmbedding = null;
+            queryVector = null;
+            queryRadius = null;
+            selectionCone = null;
+            selectedChunksForRAG = [];
+        }
+        
+        // 对象位置动画
+        function animateObjectPosition(obj, targetPos, duration, callback) {
+            const startPos = {
+                x: obj.position.x,
+                y: obj.position.y,
+                z: obj.position.z
+            };
+            
+            let startTime = null;
+            
+            function update(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const easeProgress = easeInOutCubic(progress);
+                
+                if (targetPos.x !== undefined) {
+                    obj.position.x = startPos.x + (targetPos.x - startPos.x) * easeProgress;
+                }
+                if (targetPos.y !== undefined) {
+                    obj.position.y = startPos.y + (targetPos.y - startPos.y) * easeProgress;
+                }
+                if (targetPos.z !== undefined) {
+                    obj.position.z = startPos.z + (targetPos.z - startPos.z) * easeProgress;
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else if (callback) {
+                    callback();
+                }
+            }
+            
+            requestAnimationFrame(update);
         }
         
         // 相机移动动画
