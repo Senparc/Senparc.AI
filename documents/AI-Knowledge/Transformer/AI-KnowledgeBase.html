@@ -189,6 +189,11 @@
         let selectedChunk2 = null;
         let similarityLine = null;
         let similarityArc = null;
+        let axesCreated = false;
+        let centerCreated = false;
+        let radiusLines = []; // 存储所有半径线，用于高亮显示
+        let highlightedRadius1 = null;
+        let highlightedRadius2 = null;
         
         // 颜色定义
         const colors = {
@@ -201,16 +206,48 @@
             query: 0xf39c12        // 橙色 - 查询向量
         };
         
-        // 示例知识库文本块
+        // 示例知识库文本块 - 使用更真实的chunk内容
         const knowledgeChunks = [
-            "Transformer模型是一种基于注意力机制的深度学习架构",
-            "注意力机制允许模型在处理序列时关注不同位置的信息",
-            "多头注意力机制可以并行处理多个注意力子空间",
-            "位置编码用于为序列中的每个位置提供位置信息",
-            "前馈神经网络是Transformer中的另一个重要组件",
-            "Layer Normalization有助于稳定训练过程",
-            "残差连接可以缓解深层网络的梯度消失问题",
-            "BERT模型使用双向Transformer编码器进行预训练"
+            {
+                id: 1,
+                title: "Transformer架构",
+                content: "Transformer模型是一种基于注意力机制的深度学习架构，由编码器和解码器组成，完全摒弃了循环和卷积结构。"
+            },
+            {
+                id: 2,
+                title: "注意力机制",
+                content: "注意力机制允许模型在处理序列时关注不同位置的信息，通过计算查询、键和值之间的相似度来分配权重。"
+            },
+            {
+                id: 3,
+                title: "多头注意力",
+                content: "多头注意力机制可以并行处理多个注意力子空间，每个头学习不同的表示，然后将结果拼接起来。"
+            },
+            {
+                id: 4,
+                title: "位置编码",
+                content: "位置编码用于为序列中的每个位置提供位置信息，因为Transformer没有循环结构，需要通过位置编码来理解顺序。"
+            },
+            {
+                id: 5,
+                title: "前馈网络",
+                content: "前馈神经网络是Transformer中的另一个重要组件，通常包含两个线性变换和一个激活函数，用于处理注意力机制的输出。"
+            },
+            {
+                id: 6,
+                title: "层归一化",
+                content: "Layer Normalization有助于稳定训练过程，通过对每个样本的特征进行归一化来减少内部协变量偏移。"
+            },
+            {
+                id: 7,
+                title: "残差连接",
+                content: "残差连接可以缓解深层网络的梯度消失问题，允许梯度直接传播到前面的层，使得训练更深的网络成为可能。"
+            },
+            {
+                id: 8,
+                title: "BERT模型",
+                content: "BERT模型使用双向Transformer编码器进行预训练，通过掩码语言模型和下一句预测任务学习语言表示。"
+            }
         ];
         
         // 步骤描述
@@ -360,7 +397,7 @@
             chunkObjects.length = 0;
             
             // 创建文本块
-            knowledgeChunks.forEach((text, index) => {
+            knowledgeChunks.forEach((chunkData, index) => {
                 const chunkGeometry = new THREE.BoxGeometry(2, 0.5, 0.2);
                 const chunkMaterial = new THREE.MeshPhongMaterial({ 
                     color: colors.chunk,
@@ -376,21 +413,23 @@
                 
                 chunk.userData.type = 'chunk';
                 chunk.userData.id = index;
-                chunk.userData.text = text;
+                chunk.userData.text = chunkData.content;
+                chunk.userData.title = chunkData.title;
                 
                 scene.add(chunk);
                 chunkObjects.push(chunk);
                 chunks.push({
                     id: index,
                     obj: chunk,
-                    text: text,
+                    text: chunkData.content,
+                    title: chunkData.title,
                     embedding: null
                 });
                 
-                // 添加文本标签（简化显示）
+                // 添加文本标签（显示标题）
                 const labelDiv = document.createElement('div');
                 labelDiv.className = 'chunk-label';
-                labelDiv.textContent = `Chunk ${index + 1}`;
+                labelDiv.textContent = chunkData.title;
                 
                 const label = new THREE.CSS2DObject(labelDiv);
                 label.position.set(0, -0.5, 0);
@@ -407,14 +446,20 @@
             });
             chunkObjects.length = 0;
             
-            // 创建透明球体
+            // 创建坐标轴
+            createCoordinateAxes();
+            
+            // 创建圆心标记
+            createCenterPoint();
+            
+            // 创建wireframe球体
             const sphereRadius = 5;
             const sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 32);
             const sphereMaterial = new THREE.MeshPhongMaterial({ 
                 color: colors.sphere,
                 transparent: true,
-                opacity: 0.2,
-                wireframe: false,
+                opacity: 0.3,
+                wireframe: true,  // 使用wireframe模式
                 side: THREE.DoubleSide
             });
             sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
@@ -453,16 +498,17 @@
                 point.userData.type = 'chunkPoint';
                 point.userData.id = index;
                 point.userData.text = chunk.text;
+                point.userData.title = chunk.title;
                 point.userData.embedding = chunk.embedding;
                 point.userData.chunk = chunk;
                 
                 scene.add(point);
                 chunkObjects.push(point);
                 
-                // 添加标签
+                // 添加标签（显示标题）
                 const labelDiv = document.createElement('div');
                 labelDiv.className = 'chunk-label';
-                labelDiv.textContent = `C${index + 1}`;
+                labelDiv.textContent = chunk.title;
                 
                 const label = new THREE.CSS2DObject(labelDiv);
                 label.position.set(0, 0.3, 0);
@@ -481,16 +527,147 @@
                     linewidth: 1
                 });
                 const line = new THREE.Line(lineGeometry, lineMaterial);
+                line.userData.type = 'radius';
+                line.userData.chunkId = index;
+                line.userData.chunkObj = point;
                 scene.add(line);
                 connections.push(line);
+                radiusLines.push(line);
             });
             
             // 调整相机位置以更好地查看球体
             animateCameraMove({ x: 0, y: 0, z: 18 }, 1000);
         }
         
+        // 创建坐标轴
+        function createCoordinateAxes() {
+            // 如果已经创建，跳过
+            if (axesCreated) return;
+            
+            const axisLength = 6;
+            const axisRadius = 0.05;
+            
+            // X轴 - 红色
+            const xAxisGeometry = new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8);
+            const xAxisMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+            const xAxis = new THREE.Mesh(xAxisGeometry, xAxisMaterial);
+            xAxis.rotation.z = -Math.PI / 2;
+            xAxis.position.x = axisLength / 2;
+            scene.add(xAxis);
+            
+            // X轴箭头
+            const xArrowGeometry = new THREE.ConeGeometry(0.15, 0.4, 8);
+            const xArrow = new THREE.Mesh(xArrowGeometry, xAxisMaterial);
+            xArrow.rotation.z = -Math.PI / 2;
+            xArrow.position.x = axisLength;
+            scene.add(xArrow);
+            
+            // X轴标签
+            const xLabelDiv = document.createElement('div');
+            xLabelDiv.className = 'label';
+            xLabelDiv.textContent = 'X';
+            xLabelDiv.style.color = '#ff0000';
+            xLabelDiv.style.fontSize = '20px';
+            xLabelDiv.style.fontWeight = 'bold';
+            const xLabel = new THREE.CSS2DObject(xLabelDiv);
+            xLabel.position.set(axisLength + 0.5, 0, 0);
+            scene.add(xLabel);
+            labels.push(xLabel);
+            
+            // Y轴 - 绿色
+            const yAxisGeometry = new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8);
+            const yAxisMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+            const yAxis = new THREE.Mesh(yAxisGeometry, yAxisMaterial);
+            yAxis.position.y = axisLength / 2;
+            scene.add(yAxis);
+            
+            // Y轴箭头
+            const yArrowGeometry = new THREE.ConeGeometry(0.15, 0.4, 8);
+            const yArrow = new THREE.Mesh(yArrowGeometry, yAxisMaterial);
+            yArrow.rotation.x = Math.PI;
+            yArrow.position.y = axisLength;
+            scene.add(yArrow);
+            
+            // Y轴标签
+            const yLabelDiv = document.createElement('div');
+            yLabelDiv.className = 'label';
+            yLabelDiv.textContent = 'Y';
+            yLabelDiv.style.color = '#00ff00';
+            yLabelDiv.style.fontSize = '20px';
+            yLabelDiv.style.fontWeight = 'bold';
+            const yLabel = new THREE.CSS2DObject(yLabelDiv);
+            yLabel.position.set(0, axisLength + 0.5, 0);
+            scene.add(yLabel);
+            labels.push(yLabel);
+            
+            // Z轴 - 蓝色
+            const zAxisGeometry = new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8);
+            const zAxisMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+            const zAxis = new THREE.Mesh(zAxisGeometry, zAxisMaterial);
+            zAxis.rotation.x = Math.PI / 2;
+            zAxis.position.z = axisLength / 2;
+            scene.add(zAxis);
+            
+            // Z轴箭头
+            const zArrowGeometry = new THREE.ConeGeometry(0.15, 0.4, 8);
+            const zArrow = new THREE.Mesh(zArrowGeometry, zAxisMaterial);
+            zArrow.rotation.x = -Math.PI / 2;
+            zArrow.position.z = axisLength;
+            scene.add(zArrow);
+            
+            // Z轴标签
+            const zLabelDiv = document.createElement('div');
+            zLabelDiv.className = 'label';
+            zLabelDiv.textContent = 'Z';
+            zLabelDiv.style.color = '#0000ff';
+            zLabelDiv.style.fontSize = '20px';
+            zLabelDiv.style.fontWeight = 'bold';
+            const zLabel = new THREE.CSS2DObject(zLabelDiv);
+            zLabel.position.set(0, 0, axisLength + 0.5);
+            scene.add(zLabel);
+            labels.push(zLabel);
+            
+            axesCreated = true;
+        }
+        
+        // 创建圆心标记
+        function createCenterPoint() {
+            // 如果已经创建，跳过
+            if (centerCreated) return;
+            
+            // 创建圆心球体
+            const centerGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+            const centerMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xffffff,
+                emissive: new THREE.Color(0xffffff),
+                emissiveIntensity: 0.5
+            });
+            const centerPoint = new THREE.Mesh(centerGeometry, centerMaterial);
+            centerPoint.position.set(0, 0, 0);
+            centerPoint.userData.type = 'center';
+            scene.add(centerPoint);
+            
+            // 添加圆心标签
+            const centerLabelDiv = document.createElement('div');
+            centerLabelDiv.className = 'label';
+            centerLabelDiv.textContent = 'O(0,0,0)';
+            centerLabelDiv.style.color = '#ffffff';
+            centerLabelDiv.style.fontSize = '14px';
+            centerLabelDiv.style.fontWeight = 'bold';
+            const centerLabel = new THREE.CSS2DObject(centerLabelDiv);
+            centerLabel.position.set(0, -0.4, 0);
+            centerPoint.add(centerLabel);
+            labels.push(centerLabel);
+            
+            centerCreated = true;
+        }
+        
         // 步骤4: 启用相似度选择
         function enableSimilaritySelection() {
+            // 确保坐标轴和圆心已创建
+            createCoordinateAxes();
+            createCenterPoint();
+            
             document.getElementById('similarity-panel').style.display = 'block';
             
             // 默认选择前两个chunk进行演示
@@ -549,33 +726,86 @@
                 scene.remove(similarityArc);
             }
             
-            // 创建连接两个chunk的线
-            const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-                chunk1.position.clone(),
-                chunk2.position.clone()
-            ]);
-            const lineMaterial = new THREE.LineBasicMaterial({ 
-                color: colors.similarity,
-                transparent: true,
-                opacity: 0.8,
-                linewidth: 3
-            });
-            similarityLine = new THREE.Line(lineGeometry, lineMaterial);
-            scene.add(similarityLine);
+            // 恢复之前高亮的半径线
+            if (highlightedRadius1) {
+                highlightedRadius1.material.color.setHex(colors.embedding);
+                highlightedRadius1.material.opacity = 0.3;
+                highlightedRadius1.material.linewidth = 1;
+            }
+            if (highlightedRadius2) {
+                highlightedRadius2.material.color.setHex(colors.embedding);
+                highlightedRadius2.material.opacity = 0.3;
+                highlightedRadius2.material.linewidth = 1;
+            }
             
-            // 创建角度弧线（在原点附近）
-            const arcRadius = 2;
+            // 找到并高亮显示从原点到两个chunk的半径线
+            const radius1 = radiusLines.find(line => line.userData.chunkId === chunk1.userData.id);
+            const radius2 = radiusLines.find(line => line.userData.chunkId === chunk2.userData.id);
+            
+            if (radius1) {
+                radius1.material.color.setHex(colors.selected);
+                radius1.material.opacity = 1.0;
+                radius1.material.linewidth = 3;
+                highlightedRadius1 = radius1;
+            }
+            
+            if (radius2) {
+                radius2.material.color.setHex(colors.selected);
+                radius2.material.opacity = 1.0;
+                radius2.material.linewidth = 3;
+                highlightedRadius2 = radius2;
+            }
+            
+            // 创建两条半径线之间的夹角弧线（必须在两条半径线组成的平面内）
+            const arcRadius = 2.5; // 弧线半径
             const arcPoints = [];
-            const startAngle = Math.atan2(embedding1.y, embedding1.x);
-            const endAngle = Math.atan2(embedding2.y, embedding2.x);
             
-            // 创建2D弧线（在XY平面上投影）
+            // 计算两个向量之间的夹角（弧度）
+            const angleRad = Math.acos(Math.max(-1, Math.min(1, similarity)));
+            
+            // 计算两条半径线所在平面的法向量（垂直于这个平面）
+            const cross = new THREE.Vector3().crossVectors(embedding1.clone(), embedding2.clone());
+            const normal = cross.length() > 0.001 ? cross.normalize() : new THREE.Vector3(0, 0, 1);
+            
+            // 计算在平面内的旋转轴：垂直于embedding1，且在平面内
+            // 旋转轴 = embedding1 × normal（这个向量在平面内，垂直于embedding1）
+            let rotationAxis = new THREE.Vector3().crossVectors(embedding1.clone(), normal);
+            
+            // 如果rotationAxis长度太小，说明embedding1和normal平行，需要重新选择
+            if (rotationAxis.length() < 0.001) {
+                // 选择一个不在embedding1方向上的向量
+                let tempVec;
+                if (Math.abs(embedding1.x) < 0.9) {
+                    tempVec = new THREE.Vector3(1, 0, 0);
+                } else if (Math.abs(embedding1.y) < 0.9) {
+                    tempVec = new THREE.Vector3(0, 1, 0);
+                } else {
+                    tempVec = new THREE.Vector3(0, 0, 1);
+                }
+                // 计算在平面内的向量（通过Gram-Schmidt过程）
+                // 从tempVec中减去它在embedding1方向上的投影
+                const proj = embedding1.clone().multiplyScalar(tempVec.dot(embedding1));
+                rotationAxis = tempVec.clone().sub(proj).normalize();
+            } else {
+                rotationAxis.normalize();
+            }
+            
+            // 在embedding1和embedding2所在的平面内创建弧线
+            // 绕rotationAxis旋转embedding1，这样弧线就在平面内
             for (let i = 0; i <= 30; i++) {
                 const t = i / 30;
-                const angle = startAngle + (endAngle - startAngle) * t;
-                const x = Math.cos(angle) * arcRadius;
-                const y = Math.sin(angle) * arcRadius;
-                arcPoints.push(new THREE.Vector3(x, y, 0));
+                const currentAngle = t * angleRad;
+                
+                // 使用四元数绕rotationAxis旋转embedding1
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, currentAngle);
+                const rotatedVector = embedding1.clone().applyQuaternion(quaternion);
+                
+                // 验证：确保旋转后的向量在平面内（与normal垂直）
+                // const dot = rotatedVector.dot(normal);
+                // console.log(`Point ${i}: dot with normal = ${dot.toFixed(6)}`); // 应该接近0
+                
+                // 将旋转后的向量缩放到弧线半径
+                arcPoints.push(rotatedVector.multiplyScalar(arcRadius));
             }
             
             const arcGeometry = new THREE.BufferGeometry().setFromPoints(arcPoints);
@@ -583,7 +813,7 @@
                 color: colors.selected,
                 transparent: true,
                 opacity: 0.9,
-                linewidth: 2
+                linewidth: 3
             });
             similarityArc = new THREE.Line(arcGeometry, arcMaterial);
             scene.add(similarityArc);
@@ -597,12 +827,12 @@
             const panel = document.getElementById('similarity-content');
             panel.innerHTML = `
                 <div class="similarity-item">
-                    <div><strong>Chunk ${chunk1.userData.id + 1}</strong></div>
-                    <div style="font-size: 12px; color: #aaa; margin-top: 5px;">${chunk1.userData.text.substring(0, 50)}...</div>
+                    <div><strong>${chunk1.userData.title || `Chunk ${chunk1.userData.id + 1}`}</strong></div>
+                    <div style="font-size: 12px; color: #aaa; margin-top: 5px;">${chunk1.userData.text.substring(0, 60)}...</div>
                 </div>
                 <div class="similarity-item">
-                    <div><strong>Chunk ${chunk2.userData.id + 1}</strong></div>
-                    <div style="font-size: 12px; color: #aaa; margin-top: 5px;">${chunk2.userData.text.substring(0, 50)}...</div>
+                    <div><strong>${chunk2.userData.title || `Chunk ${chunk2.userData.id + 1}`}</strong></div>
+                    <div style="font-size: 12px; color: #aaa; margin-top: 5px;">${chunk2.userData.text.substring(0, 60)}...</div>
                 </div>
                 <div class="similarity-item" style="text-align: center; margin-top: 15px;">
                     <div style="font-size: 14px; margin-bottom: 5px;">Cos 相似度</div>
@@ -617,6 +847,10 @@
         
         // 步骤5: 展示检索结果
         function showRetrievalResults() {
+            // 确保坐标轴和圆心已创建
+            createCoordinateAxes();
+            createCenterPoint();
+            
             // 模拟查询向量
             const queryEmbedding = new THREE.Vector3(0.5, 0.5, 0.7).normalize();
             
@@ -723,8 +957,8 @@
                     document.body.style.cursor = 'pointer';
                     
                     tooltip.innerHTML = `
-                        <strong>Chunk ${obj.userData.id + 1}</strong><br>
-                        ${obj.userData.text}<br>
+                        <strong>${obj.userData.title || `Chunk ${obj.userData.id + 1}`}</strong><br>
+                        ${obj.userData.text.substring(0, 80)}${obj.userData.text.length > 80 ? '...' : ''}<br>
                         <small>点击选择进行相似度比较</small>
                     `;
                     
@@ -752,8 +986,23 @@
                         // 重置选择
                         if (selectedChunk1) highlightChunk(selectedChunk1, false);
                         if (selectedChunk2) highlightChunk(selectedChunk2, false);
+                        
+                        // 恢复半径线样式
+                        if (highlightedRadius1) {
+                            highlightedRadius1.material.color.setHex(colors.embedding);
+                            highlightedRadius1.material.opacity = 0.3;
+                            highlightedRadius1.material.linewidth = 1;
+                        }
+                        if (highlightedRadius2) {
+                            highlightedRadius2.material.color.setHex(colors.embedding);
+                            highlightedRadius2.material.opacity = 0.3;
+                            highlightedRadius2.material.linewidth = 1;
+                        }
+                        
                         selectedChunk1 = null;
                         selectedChunk2 = null;
+                        highlightedRadius1 = null;
+                        highlightedRadius2 = null;
                         if (similarityLine) scene.remove(similarityLine);
                         if (similarityArc) scene.remove(similarityArc);
                         document.getElementById('similarity-content').innerHTML = '';
@@ -805,6 +1054,11 @@
             similarityLine = null;
             similarityArc = null;
             sphereMesh = null;
+            axesCreated = false;
+            centerCreated = false;
+            radiusLines = [];
+            highlightedRadius1 = null;
+            highlightedRadius2 = null;
             
             // 重新添加光源
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
