@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 知识库流程可视化</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #canvas { 
+            width: 100%; 
+            height: 100%;
+            position: fixed;
+        }
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            max-width: 400px;
+            font-size: 16px;
+        }
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .step-btn {
+            margin: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+        .step-btn:hover {
+            background: #2980b9;
+        }
+        .step-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .label {
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 5px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 3px;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        .chunk-label {
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 5px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 3px;
+            font-size: 12px;
+            pointer-events: none;
+            max-width: 150px;
+            word-wrap: break-word;
+        }
+        #copyright {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        #copyright a {
+            pointer-events: auto;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            max-width: 300px;
+        }
+        
+        .chunk-point {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .chunk-point:hover {
+            transform: scale(1.2);
+        }
+        
+        .chunk-point.selected {
+            box-shadow: 0 0 15px 5px rgba(255, 255, 0, 0.8);
+        }
+        
+        #similarity-panel {
+            position: absolute;
+            top: 85px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            width: 300px;
+        }
+        
+        .similarity-item {
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        
+        .similarity-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="info">
+        <h2>AI 知识库流程可视化</h2>
+        <p id="step-description">欢迎来到AI知识库流程可视化！点击"开始"按钮开始演示。</p>
+    </div>
+    <div id="controls">
+        <button class="step-btn" id="start-btn">开始</button>
+        <button class="step-btn" id="prev-btn" disabled>上一步</button>
+        <button class="step-btn" id="next-btn" disabled>下一步</button>
+        <button class="step-btn" id="reset-btn">重置</button>
+    </div>
+    
+    <div id="similarity-panel">
+        <h3>相似度信息</h3>
+        <div id="similarity-content"></div>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+
+    <!-- Add copyright information at the end of the body -->
+    <div id="copyright">
+        <span>© Senparc</span>
+        <span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documents/AI-Knowledge/Transformer" target="_blank" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">GitHub Documentation</a></span>
+    </div>
+
+    <!-- 改为CDN引用 -->
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/CSS2DRenderer.js"></script>
+    <script>
+        // 错误处理
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript错误:', e.message);
+            alert('发生错误: ' + e.message + '\n请检查控制台获取详细信息');
+        });
+
+        // Three.js 初始化和场景设置
+        let scene, camera, renderer, labelRenderer, controls;
+        let currentStep = 0;
+        const steps = [];
+        const chunks = [];
+        const chunkObjects = [];
+        const labels = [];
+        const connections = [];
+        let sphereMesh = null;
+        let selectedChunk1 = null;
+        let selectedChunk2 = null;
+        let similarityLine = null;
+        let similarityArc = null;
+        
+        // 颜色定义
+        const colors = {
+            input: 0x3498db,        // 蓝色 - 输入文本
+            chunk: 0x2ecc71,        // 绿色 - 文本块
+            embedding: 0x9b59b6,   // 紫色 - Embedding向量
+            sphere: 0x34495e,      // 深蓝灰色 - 球体
+            selected: 0xffcc00,    // 黄色 - 选中的chunk
+            similarity: 0xe74c3c,  // 红色 - 相似度连线
+            query: 0xf39c12        // 橙色 - 查询向量
+        };
+        
+        // 示例知识库文本块
+        const knowledgeChunks = [
+            "Transformer模型是一种基于注意力机制的深度学习架构",
+            "注意力机制允许模型在处理序列时关注不同位置的信息",
+            "多头注意力机制可以并行处理多个注意力子空间",
+            "位置编码用于为序列中的每个位置提供位置信息",
+            "前馈神经网络是Transformer中的另一个重要组件",
+            "Layer Normalization有助于稳定训练过程",
+            "残差连接可以缓解深层网络的梯度消失问题",
+            "BERT模型使用双向Transformer编码器进行预训练"
+        ];
+        
+        // 步骤描述
+        const stepDescriptions = [
+            "步骤1: 输入查询文本，系统将文本进行预处理和分块。",
+            "步骤2: 将文本块转换为高维向量（Embedding），每个chunk对应一个向量。",
+            "步骤3: 将所有向量归一化后分布在单位球面上，展示向量空间分布。",
+            "步骤4: 选择两个chunk，通过它们对应的半径夹角展示cos相似度。",
+            "步骤5: 根据相似度检索最相关的知识库内容。"
+        ];
+        
+        // 初始化 Three.js 场景
+        function init() {
+            if (typeof THREE === 'undefined') {
+                console.error('错误: Three.js未加载!');
+                alert('Three.js库未正确加载，请检查网络连接或引用路径');
+                return;
+            }
+            
+            try {
+                // 创建场景
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x121212);
+                
+                // 创建相机
+                camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.set(0, 0, 15);
+                
+                // 创建渲染器
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.getElementById('canvas').appendChild(renderer.domElement);
+                
+                // 创建CSS2D渲染器用于标签
+                labelRenderer = new THREE.CSS2DRenderer();
+                labelRenderer.setSize(window.innerWidth, window.innerHeight);
+                labelRenderer.domElement.style.position = 'absolute';
+                labelRenderer.domElement.style.top = '0px';
+                labelRenderer.domElement.style.pointerEvents = 'none';
+                document.getElementById('canvas').appendChild(labelRenderer.domElement);
+                
+                // 添加控制
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.1;
+                
+                // 添加光源
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+                scene.add(ambientLight);
+                
+                const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight1.position.set(1, 1, 1);
+                scene.add(directionalLight1);
+                
+                const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+                directionalLight2.position.set(-1, -1, -1);
+                scene.add(directionalLight2);
+                
+                // 初始化射线投射器和鼠标向量
+                raycaster = new THREE.Raycaster();
+                mouse = new THREE.Vector2();
+                
+                // 初始化tooltip
+                tooltip = document.getElementById('tooltip');
+                
+                // 窗口大小调整
+                window.addEventListener('resize', onWindowResize, false);
+                
+                // 设置按钮事件
+                document.getElementById('start-btn').addEventListener('click', startDemo);
+                document.getElementById('prev-btn').addEventListener('click', prevStep);
+                document.getElementById('next-btn').addEventListener('click', nextStep);
+                document.getElementById('reset-btn').addEventListener('click', resetDemo);
+                
+                // 添加鼠标事件
+                renderer.domElement.addEventListener('mousemove', onMouseMove);
+                renderer.domElement.addEventListener('click', onClick);
+                
+                // 创建动画步骤
+                createSteps();
+                
+                // 开始渲染循环
+                animate();
+                
+                console.log('Three.js初始化成功');
+            } catch (error) {
+                console.error('初始化Three.js时出错:', error);
+                alert('初始化三维场景时发生错误，请检查控制台获取详情');
+            }
+        }
+        
+        // 创建所有动画步骤
+        function createSteps() {
+            // 步骤1: 展示输入文本和分块
+            steps.push(() => {
+                clearScene();
+                showInputText();
+                updateDescription(0);
+            });
+            
+            // 步骤2: 展示文本分块
+            steps.push(() => {
+                showChunks();
+                updateDescription(1);
+            });
+            
+            // 步骤3: 展示Embedding和球面分布
+            steps.push(() => {
+                showEmbeddingsOnSphere();
+                updateDescription(2);
+            });
+            
+            // 步骤4: 展示相似度计算
+            steps.push(() => {
+                enableSimilaritySelection();
+                updateDescription(3);
+            });
+            
+            // 步骤5: 展示检索结果
+            steps.push(() => {
+                showRetrievalResults();
+                updateDescription(4);
+            });
+        }
+        
+        // 步骤1: 展示输入文本
+        function showInputText() {
+            const queryText = "什么是注意力机制？";
+            
+            // 创建输入文本标签
+            const inputLabelDiv = document.createElement('div');
+            inputLabelDiv.className = 'label';
+            inputLabelDiv.textContent = `查询: ${queryText}`;
+            inputLabelDiv.style.fontSize = '18px';
+            inputLabelDiv.style.fontWeight = 'bold';
+            inputLabelDiv.style.color = '#3498db';
+            
+            const inputLabel = new THREE.CSS2DObject(inputLabelDiv);
+            inputLabel.position.set(0, 8, 0);
+            scene.add(inputLabel);
+            labels.push(inputLabel);
+        }
+        
+        // 步骤2: 展示文本分块
+        function showChunks() {
+            chunks.length = 0;
+            chunkObjects.length = 0;
+            
+            // 创建文本块
+            knowledgeChunks.forEach((text, index) => {
+                const chunkGeometry = new THREE.BoxGeometry(2, 0.5, 0.2);
+                const chunkMaterial = new THREE.MeshPhongMaterial({ 
+                    color: colors.chunk,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const chunk = new THREE.Mesh(chunkGeometry, chunkMaterial);
+                
+                // 水平排列
+                chunk.position.x = (index - (knowledgeChunks.length - 1) / 2) * 2.5;
+                chunk.position.y = 5;
+                chunk.position.z = 0;
+                
+                chunk.userData.type = 'chunk';
+                chunk.userData.id = index;
+                chunk.userData.text = text;
+                
+                scene.add(chunk);
+                chunkObjects.push(chunk);
+                chunks.push({
+                    id: index,
+                    obj: chunk,
+                    text: text,
+                    embedding: null
+                });
+                
+                // 添加文本标签（简化显示）
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'chunk-label';
+                labelDiv.textContent = `Chunk ${index + 1}`;
+                
+                const label = new THREE.CSS2DObject(labelDiv);
+                label.position.set(0, -0.5, 0);
+                chunk.add(label);
+                labels.push(label);
+            });
+        }
+        
+        // 步骤3: 展示Embedding和球面分布
+        function showEmbeddingsOnSphere() {
+            // 清除之前的chunk对象
+            chunkObjects.forEach(chunk => {
+                scene.remove(chunk);
+            });
+            chunkObjects.length = 0;
+            
+            // 创建透明球体
+            const sphereRadius = 5;
+            const sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 32);
+            const sphereMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.sphere,
+                transparent: true,
+                opacity: 0.2,
+                wireframe: false,
+                side: THREE.DoubleSide
+            });
+            sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            scene.add(sphereMesh);
+            
+            // 为每个chunk生成随机但稳定的embedding向量（归一化）
+            chunks.forEach((chunk, index) => {
+                // 生成一个在球面上均匀分布的向量
+                const theta = (index / knowledgeChunks.length) * Math.PI * 2; // 方位角
+                const phi = Math.acos(2 * (index / knowledgeChunks.length) - 1); // 极角（均匀分布）
+                
+                // 转换为笛卡尔坐标（归一化向量）
+                const x = Math.sin(phi) * Math.cos(theta);
+                const y = Math.sin(phi) * Math.sin(theta);
+                const z = Math.cos(phi);
+                
+                // 存储归一化向量
+                chunk.embedding = new THREE.Vector3(x, y, z);
+                
+                // 在球面上创建点
+                const pointGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+                const pointMaterial = new THREE.MeshPhongMaterial({ 
+                    color: colors.embedding,
+                    emissive: new THREE.Color(colors.embedding),
+                    emissiveIntensity: 0.3
+                });
+                const point = new THREE.Mesh(pointGeometry, pointMaterial);
+                
+                // 位置在球面上
+                point.position.set(
+                    x * sphereRadius,
+                    y * sphereRadius,
+                    z * sphereRadius
+                );
+                
+                point.userData.type = 'chunkPoint';
+                point.userData.id = index;
+                point.userData.text = chunk.text;
+                point.userData.embedding = chunk.embedding;
+                point.userData.chunk = chunk;
+                
+                scene.add(point);
+                chunkObjects.push(point);
+                
+                // 添加标签
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'chunk-label';
+                labelDiv.textContent = `C${index + 1}`;
+                
+                const label = new THREE.CSS2DObject(labelDiv);
+                label.position.set(0, 0.3, 0);
+                point.add(label);
+                labels.push(label);
+                
+                // 创建从原点到点的线（半径）
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, 0, 0),
+                    point.position.clone()
+                ]);
+                const lineMaterial = new THREE.LineBasicMaterial({ 
+                    color: colors.embedding,
+                    transparent: true,
+                    opacity: 0.3,
+                    linewidth: 1
+                });
+                const line = new THREE.Line(lineGeometry, lineMaterial);
+                scene.add(line);
+                connections.push(line);
+            });
+            
+            // 调整相机位置以更好地查看球体
+            animateCameraMove({ x: 0, y: 0, z: 18 }, 1000);
+        }
+        
+        // 步骤4: 启用相似度选择
+        function enableSimilaritySelection() {
+            document.getElementById('similarity-panel').style.display = 'block';
+            
+            // 默认选择前两个chunk进行演示
+            if (chunkObjects.length >= 2) {
+                selectChunkForSimilarity(chunkObjects[0], 0);
+                setTimeout(() => {
+                    selectChunkForSimilarity(chunkObjects[1], 1);
+                }, 500);
+            }
+        }
+        
+        // 选择chunk进行相似度计算
+        function selectChunkForSimilarity(chunkObj, selectionIndex) {
+            if (selectionIndex === 0) {
+                selectedChunk1 = chunkObj;
+                highlightChunk(chunkObj, true);
+            } else if (selectionIndex === 1) {
+                selectedChunk2 = chunkObj;
+                highlightChunk(chunkObj, true);
+                
+                // 计算并显示相似度
+                if (selectedChunk1 && selectedChunk2) {
+                    showSimilarity(selectedChunk1, selectedChunk2);
+                }
+            }
+        }
+        
+        // 高亮chunk
+        function highlightChunk(chunkObj, highlight) {
+            if (highlight) {
+                chunkObj.material.emissive = new THREE.Color(colors.selected);
+                chunkObj.material.emissiveIntensity = 0.8;
+                chunkObj.scale.setScalar(1.5);
+            } else {
+                chunkObj.material.emissive = new THREE.Color(colors.embedding);
+                chunkObj.material.emissiveIntensity = 0.3;
+                chunkObj.scale.setScalar(1.0);
+            }
+        }
+        
+        // 显示相似度
+        function showSimilarity(chunk1, chunk2) {
+            // 计算cos相似度（归一化向量的点积）
+            const embedding1 = chunk1.userData.embedding;
+            const embedding2 = chunk2.userData.embedding;
+            const similarity = embedding1.dot(embedding2); // cos相似度
+            
+            // 计算角度（弧度转角度）
+            const angle = Math.acos(Math.max(-1, Math.min(1, similarity))) * 180 / Math.PI;
+            
+            // 移除之前的相似度显示
+            if (similarityLine) {
+                scene.remove(similarityLine);
+            }
+            if (similarityArc) {
+                scene.remove(similarityArc);
+            }
+            
+            // 创建连接两个chunk的线
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                chunk1.position.clone(),
+                chunk2.position.clone()
+            ]);
+            const lineMaterial = new THREE.LineBasicMaterial({ 
+                color: colors.similarity,
+                transparent: true,
+                opacity: 0.8,
+                linewidth: 3
+            });
+            similarityLine = new THREE.Line(lineGeometry, lineMaterial);
+            scene.add(similarityLine);
+            
+            // 创建角度弧线（在原点附近）
+            const arcRadius = 2;
+            const arcPoints = [];
+            const startAngle = Math.atan2(embedding1.y, embedding1.x);
+            const endAngle = Math.atan2(embedding2.y, embedding2.x);
+            
+            // 创建2D弧线（在XY平面上投影）
+            for (let i = 0; i <= 30; i++) {
+                const t = i / 30;
+                const angle = startAngle + (endAngle - startAngle) * t;
+                const x = Math.cos(angle) * arcRadius;
+                const y = Math.sin(angle) * arcRadius;
+                arcPoints.push(new THREE.Vector3(x, y, 0));
+            }
+            
+            const arcGeometry = new THREE.BufferGeometry().setFromPoints(arcPoints);
+            const arcMaterial = new THREE.LineBasicMaterial({ 
+                color: colors.selected,
+                transparent: true,
+                opacity: 0.9,
+                linewidth: 2
+            });
+            similarityArc = new THREE.Line(arcGeometry, arcMaterial);
+            scene.add(similarityArc);
+            
+            // 更新相似度面板
+            updateSimilarityPanel(chunk1, chunk2, similarity, angle);
+        }
+        
+        // 更新相似度面板
+        function updateSimilarityPanel(chunk1, chunk2, similarity, angle) {
+            const panel = document.getElementById('similarity-content');
+            panel.innerHTML = `
+                <div class="similarity-item">
+                    <div><strong>Chunk ${chunk1.userData.id + 1}</strong></div>
+                    <div style="font-size: 12px; color: #aaa; margin-top: 5px;">${chunk1.userData.text.substring(0, 50)}...</div>
+                </div>
+                <div class="similarity-item">
+                    <div><strong>Chunk ${chunk2.userData.id + 1}</strong></div>
+                    <div style="font-size: 12px; color: #aaa; margin-top: 5px;">${chunk2.userData.text.substring(0, 50)}...</div>
+                </div>
+                <div class="similarity-item" style="text-align: center; margin-top: 15px;">
+                    <div style="font-size: 14px; margin-bottom: 5px;">Cos 相似度</div>
+                    <div class="similarity-value">${similarity.toFixed(3)}</div>
+                    <div style="font-size: 14px; margin-top: 5px;">角度: ${angle.toFixed(1)}°</div>
+                    <div style="font-size: 12px; color: #aaa; margin-top: 5px;">
+                        ${similarity > 0.8 ? '高度相似' : similarity > 0.5 ? '中等相似' : '低相似度'}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 步骤5: 展示检索结果
+        function showRetrievalResults() {
+            // 模拟查询向量
+            const queryEmbedding = new THREE.Vector3(0.5, 0.5, 0.7).normalize();
+            
+            // 创建查询点
+            const queryPointGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+            const queryPointMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.query,
+                emissive: new THREE.Color(colors.query),
+                emissiveIntensity: 0.8
+            });
+            const queryPoint = new THREE.Mesh(queryPointGeometry, queryPointMaterial);
+            
+            const sphereRadius = 5;
+            queryPoint.position.set(
+                queryEmbedding.x * sphereRadius,
+                queryEmbedding.y * sphereRadius,
+                queryEmbedding.z * sphereRadius
+            );
+            
+            queryPoint.userData.type = 'query';
+            scene.add(queryPoint);
+            
+            // 添加查询标签
+            const queryLabelDiv = document.createElement('div');
+            queryLabelDiv.className = 'label';
+            queryLabelDiv.textContent = '查询向量';
+            queryLabelDiv.style.color = '#f39c12';
+            
+            const queryLabel = new THREE.CSS2DObject(queryLabelDiv);
+            queryLabel.position.set(0, 0.4, 0);
+            queryPoint.add(queryLabel);
+            labels.push(queryLabel);
+            
+            // 计算所有chunk与查询的相似度
+            const similarities = chunks.map((chunk, index) => {
+                const similarity = queryEmbedding.dot(chunk.embedding);
+                return { index, similarity, chunk };
+            });
+            
+            // 排序并选择Top-3
+            similarities.sort((a, b) => b.similarity - a.similarity);
+            const topResults = similarities.slice(0, 3);
+            
+            // 高亮Top-3结果
+            topResults.forEach((result, rank) => {
+                const chunkObj = chunkObjects[result.index];
+                highlightChunk(chunkObj, true);
+                
+                // 创建从查询到结果的连线
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    queryPoint.position.clone(),
+                    chunkObj.position.clone()
+                ]);
+                const lineMaterial = new THREE.LineBasicMaterial({ 
+                    color: colors.query,
+                    transparent: true,
+                    opacity: 0.6,
+                    linewidth: 2
+                });
+                const line = new THREE.Line(lineGeometry, lineMaterial);
+                scene.add(line);
+                connections.push(line);
+                
+                // 添加排名标签
+                const rankLabelDiv = document.createElement('div');
+                rankLabelDiv.className = 'label';
+                rankLabelDiv.textContent = `#${rank + 1} (${result.similarity.toFixed(2)})`;
+                rankLabelDiv.style.color = '#ffcc00';
+                rankLabelDiv.style.fontSize = '16px';
+                
+                const rankLabel = new THREE.CSS2DObject(rankLabelDiv);
+                rankLabel.position.set(0, -0.4, 0);
+                chunkObj.add(rankLabel);
+                labels.push(rankLabel);
+            });
+            
+            // 更新信息面板
+            const infoPanel = document.getElementById('step-description');
+            infoPanel.innerHTML = `
+                ${stepDescriptions[4]}<br><br>
+                <strong>Top-3 检索结果:</strong><br>
+                ${topResults.map((r, i) => 
+                    `${i + 1}. Chunk ${r.index + 1}: 相似度 ${r.similarity.toFixed(3)}`
+                ).join('<br>')}
+            `;
+        }
+        
+        // 鼠标移动事件
+        function onMouseMove(event) {
+            event.preventDefault();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            tooltip.style.display = 'none';
+            document.body.style.cursor = 'default';
+            
+            if (intersects.length > 0) {
+                const obj = intersects[0].object;
+                
+                if (obj.userData && obj.userData.type === 'chunkPoint') {
+                    document.body.style.cursor = 'pointer';
+                    
+                    tooltip.innerHTML = `
+                        <strong>Chunk ${obj.userData.id + 1}</strong><br>
+                        ${obj.userData.text}<br>
+                        <small>点击选择进行相似度比较</small>
+                    `;
+                    
+                    tooltip.style.left = `${event.clientX + 10}px`;
+                    tooltip.style.top = `${event.clientY + 10}px`;
+                    tooltip.style.display = 'block';
+                }
+            }
+        }
+        
+        // 鼠标点击事件
+        function onClick(event) {
+            if (currentStep !== 3) return; // 只在步骤4生效
+            
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            if (intersects.length > 0) {
+                const obj = intersects[0].object;
+                
+                if (obj.userData && obj.userData.type === 'chunkPoint') {
+                    if (!selectedChunk1) {
+                        selectChunkForSimilarity(obj, 0);
+                    } else if (!selectedChunk2 && obj !== selectedChunk1) {
+                        selectChunkForSimilarity(obj, 1);
+                    } else {
+                        // 重置选择
+                        if (selectedChunk1) highlightChunk(selectedChunk1, false);
+                        if (selectedChunk2) highlightChunk(selectedChunk2, false);
+                        selectedChunk1 = null;
+                        selectedChunk2 = null;
+                        if (similarityLine) scene.remove(similarityLine);
+                        if (similarityArc) scene.remove(similarityArc);
+                        document.getElementById('similarity-content').innerHTML = '';
+                        selectChunkForSimilarity(obj, 0);
+                    }
+                }
+            }
+        }
+        
+        // 其他辅助函数
+        function updateDescription(stepIndex) {
+            document.getElementById('step-description').textContent = stepDescriptions[stepIndex];
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // 清理场景
+        function clearScene() {
+            while(scene.children.length > 0) { 
+                const obj = scene.children[0];
+                function removeAllChildren(object) {
+                    while(object.children.length > 0) {
+                        removeAllChildren(object.children[0]);
+                        object.remove(object.children[0]);
+                    }
+                }
+                removeAllChildren(obj);
+                scene.remove(obj); 
+            }
+            
+            chunks.length = 0;
+            chunkObjects.length = 0;
+            connections.length = 0;
+            labels.length = 0;
+            selectedChunk1 = null;
+            selectedChunk2 = null;
+            similarityLine = null;
+            similarityArc = null;
+            sphereMesh = null;
+            
+            // 重新添加光源
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight1.position.set(1, 1, 1);
+            scene.add(directionalLight1);
+            
+            const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+            directionalLight2.position.set(-1, -1, -1);
+            scene.add(directionalLight2);
+            
+            document.getElementById('similarity-panel').style.display = 'none';
+        }
+        
+        // 相机移动动画
+        function animateCameraMove(targetPos, duration) {
+            const startPos = {
+                x: camera.position.x,
+                y: camera.position.y,
+                z: camera.position.z
+            };
+            
+            let startTime = null;
+            
+            function update(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const easeProgress = easeInOutCubic(progress);
+                
+                if (targetPos.x !== undefined) {
+                    camera.position.x = startPos.x + (targetPos.x - startPos.x) * easeProgress;
+                }
+                if (targetPos.y !== undefined) {
+                    camera.position.y = startPos.y + (targetPos.y - startPos.y) * easeProgress;
+                }
+                if (targetPos.z !== undefined) {
+                    camera.position.z = startPos.z + (targetPos.z - startPos.z) * easeProgress;
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+        
+        // 缓动函数
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        
+        // 开始演示
+        function startDemo() {
+            currentStep = 0;
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+            steps[currentStep]();
+        }
+        
+        // 下一步
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                steps[currentStep]();
+                document.getElementById('prev-btn').disabled = false;
+                if (currentStep === steps.length - 1) {
+                    document.getElementById('next-btn').disabled = true;
+                }
+            }
+        }
+        
+        // 上一步
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                clearScene();
+                for (let i = 0; i <= currentStep; i++) {
+                    steps[i]();
+                }
+                if (currentStep === 0) {
+                    document.getElementById('prev-btn').disabled = true;
+                }
+                document.getElementById('next-btn').disabled = false;
+            }
+        }
+        
+        // 重置演示
+        function resetDemo() {
+            currentStep = -1;
+            clearScene();
+            camera.position.set(0, 0, 15);
+            controls.target.set(0, 0, 0);
+            controls.update();
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('prev-btn').disabled = true;
+            document.getElementById('next-btn').disabled = true;
+            document.getElementById('step-description').textContent = 
+                '欢迎来到AI知识库流程可视化！点击"开始"按钮开始演示。';
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
