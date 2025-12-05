@@ -238,8 +238,8 @@
             <h4>Top-K (选择数量)</h4>
             <div class="slider-container">
                 <span>1</span>
-                <input type="range" min="1" max="12" step="1" value="3" class="slider" id="topk-slider">
-                <span>12</span>
+                <input type="range" min="1" max="13" step="1" value="3" class="slider" id="topk-slider">
+                <span>13</span>
             </div>
             <div id="topk-value">当前值: 3</div>
             <p class="param-description">选择相似度最高的K个chunk用于RAG生成</p>
@@ -392,6 +392,12 @@
                 title: "强化学习",
                 content: "强化学习是一种机器学习方法，通过与环境交互来学习最优策略，常用于游戏AI和机器人控制。",
                 relevance: 0.02  // 不相关 - 完全不同领域
+            },
+            {
+                id: 13,
+                title: "波函数",
+                content: "波函数是量子力学中描述粒子状态的数学函数，用于计算粒子在空间中的概率分布和量子态演化。",
+                relevance: -0.05  // 完全不相关 - 量子物理领域，与注意力机制完全无关
             }
         ];
         
@@ -639,7 +645,19 @@
                 // 相关性高 -> 夹角小（靠近查询方向）
                 // 相关性低 -> 夹角大（远离查询方向）
                 // cos(夹角) = 相关性，所以夹角 = arccos(相关性)
-                const angleFromQuery = Math.acos(Math.max(-1, Math.min(1, relevance)));
+                // 如果相关性为负值，说明完全不相关，应该放在查询向量的反方向
+                let angleFromQuery;
+                let useOppositeDirection = false;
+                
+                if (relevance < 0) {
+                    // 负相关性：放在查询向量的反方向（接近180度）
+                    // 使用绝对值计算角度，然后放在反方向
+                    const absRelevance = Math.abs(relevance);
+                    angleFromQuery = Math.acos(Math.max(-1, Math.min(1, Math.max(absRelevance, 0.1)))); // 至少10度
+                    useOppositeDirection = true;
+                } else {
+                    angleFromQuery = Math.acos(Math.max(-1, Math.min(1, relevance)));
+                }
                 
                 // 为了更好的可视化效果，让相关性高的chunk更集中
                 // 在垂直于查询方向的平面上选择一个方向
@@ -661,8 +679,18 @@
                 
                 // 现在在包含查询方向和perpendicular的平面内，从查询方向旋转angleFromQuery角度
                 const rotationAxis = new THREE.Vector3().crossVectors(queryDirection, perpendicular).normalize();
+                
+                // 如果是负相关性，需要从反方向开始旋转
+                let startDirection = queryDirection.clone();
+                if (useOppositeDirection) {
+                    // 从查询向量的反方向开始
+                    startDirection.multiplyScalar(-1);
+                    // 角度应该是从反方向到目标位置的角度
+                    angleFromQuery = Math.PI - angleFromQuery;
+                }
+                
                 const embeddingQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, angleFromQuery);
-                const embedding = queryDirection.clone().applyQuaternion(embeddingQuaternion);
+                const embedding = startDirection.clone().applyQuaternion(embeddingQuaternion);
                 
                 // 存储归一化向量
                 chunk.embedding = embedding.normalize();
