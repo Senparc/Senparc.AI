@@ -609,17 +609,20 @@
             createCoordinateAxes();
             createCenterPoint();
             
-            // 创建wireframe球体（白色线条，更醒目）
+            // 创建wireframe球体（白色细线条，不遮挡后面元素）
             const sphereRadius = 5;
+            // 保持原有的分段数，使用LineSegments创建更细的线条
             const sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 32);
-            const sphereMaterial = new THREE.MeshPhongMaterial({ 
+            
+            // 使用LineSegments创建细线条网格，而不是wireframe mesh
+            const edges = new THREE.EdgesGeometry(sphereGeometry);
+            const sphereMaterial = new THREE.LineBasicMaterial({ 
                 color: 0xffffff,  // 白色
                 transparent: true,
-                opacity: 0.8,  // 提高不透明度，使线条更清晰
-                wireframe: true,  // 使用wireframe模式
-                side: THREE.DoubleSide
+                opacity: 0.3,  // 降低不透明度，使线条更透明
+                linewidth: 1  // 虽然WebGL可能不支持，但设置一下
             });
-            sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            sphereMesh = new THREE.LineSegments(edges, sphereMaterial);
             scene.add(sphereMesh);
             
             // 定义查询向量的方向（用于计算相关性位置）
