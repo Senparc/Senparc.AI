@@ -709,6 +709,7 @@
         function animateChunkToSphere(chunkObj, startPos, targetPos, chunk, chunkData, index, sphereRadius, duration) {
             let startTime = null;
             const delay = index * 50; // 每个chunk延迟50ms，形成连续动画效果
+            let hasTransformed = false; // 标记是否已经转换过
             
             function animate(timestamp) {
                 if (!startTime) startTime = timestamp;
@@ -725,19 +726,23 @@
                 // 使用缓动函数
                 const easeProgress = easeInOutCubic(progress);
                 
+                // 获取当前对象（可能是chunkObj或已经转换的point）
+                let currentObj = chunkObj;
+                if (chunkObjects[index] && chunkObjects[index] !== chunkObj) {
+                    currentObj = chunkObjects[index];
+                }
+                
                 // 插值位置
-                chunkObj.position.lerpVectors(startPos, targetPos, easeProgress);
+                currentObj.position.lerpVectors(startPos, targetPos, easeProgress);
                 
                 // 在动画进行到一半时，开始改变形状（从方块变成圆点）
-                if (progress > 0.5) {
+                if (progress > 0.5 && !hasTransformed) {
                     const morphProgress = (progress - 0.5) * 2; // 0到1
                     
-                    // 缩放：从1缩放到0.15（圆点大小）
-                    const scale = 1 - morphProgress * 0.85;
-                    chunkObj.scale.set(scale, scale, scale);
-                    
-                    // 改变形状：从方块变成圆点
-                    if (morphProgress > 0.3 && chunkObj.userData.type === 'chunk') {
+                    // 改变形状：从方块变成圆点（只在第一次时执行）
+                    if (morphProgress > 0.3 && currentObj.userData.type === 'chunk') {
+                        hasTransformed = true;
+                        
                         // 创建圆点几何体
                         const pointGeometry = new THREE.SphereGeometry(0.15, 16, 16);
                         const pointMaterial = new THREE.MeshPhongMaterial({ 
@@ -748,8 +753,8 @@
                         const point = new THREE.Mesh(pointGeometry, pointMaterial);
                         
                         // 复制位置和旋转
-                        point.position.copy(chunkObj.position);
-                        point.rotation.copy(chunkObj.rotation);
+                        point.position.copy(currentObj.position);
+                        point.rotation.copy(currentObj.rotation);
                         
                         // 复制用户数据
                         point.userData.type = 'chunkPoint';
@@ -760,27 +765,41 @@
                         point.userData.chunk = chunk;
                         point.userData.relevance = chunkData.relevance;
                         
-                        // 复制标签（重新创建，因为CSS2DObject没有clone方法）
-                        chunkObj.children.forEach(child => {
-                            if (child instanceof THREE.CSS2DObject) {
-                                const labelDiv = document.createElement('div');
-                                labelDiv.className = 'chunk-label';
-                                labelDiv.textContent = chunk.title;
-                                
-                                const newLabel = new THREE.CSS2DObject(labelDiv);
-                                newLabel.position.set(0, 0.3, 0);
-                                point.add(newLabel);
-                                labels.push(newLabel);
+                        // 创建新标签（只创建一次）
+                        const labelDiv = document.createElement('div');
+                        labelDiv.className = 'chunk-label';
+                        labelDiv.textContent = chunk.title;
+                        
+                        const newLabel = new THREE.CSS2DObject(labelDiv);
+                        newLabel.position.set(0, 0.3, 0);
+                        point.add(newLabel);
+                        labels.push(newLabel);
+                        
+                        // 清理旧对象的所有子元素（包括标签）
+                        function removeAllChildren(object) {
+                            while(object.children.length > 0) {
+                                const child = object.children[0];
+                                // 如果是CSS2DObject标签，从labels数组中移除
+                                if (child instanceof THREE.CSS2DObject) {
+                                    const labelIndex = labels.indexOf(child);
+                                    if (labelIndex > -1) {
+                                        labels.splice(labelIndex, 1);
+                                    }
+                                }
+                                removeAllChildren(child);
+                                object.remove(child);
                             }
-                        });
+                        }
+                        removeAllChildren(currentObj);
                         
                         // 移除旧对象，添加新对象
-                        scene.remove(chunkObj);
+                        scene.remove(currentObj);
                         scene.add(point);
                         
                         // 更新数组引用
                         chunkObjects[index] = point;
                         chunk.obj = point;
+                        currentObj = point;
                         
                         // 创建从原点到点的线（半径）
                         const lineGeometry = new THREE.BufferGeometry().setFromPoints([
@@ -800,6 +819,10 @@
                         scene.add(line);
                         connections.push(line);
                         radiusLines.push(line);
+                    } else if (currentObj.userData.type === 'chunk') {
+                        // 缩放：从1缩放到0.15（圆点大小）
+                        const scale = 1 - morphProgress * 0.85;
+                        currentObj.scale.set(scale, scale, scale);
                     }
                 }
                 
@@ -807,8 +830,9 @@
                     requestAnimationFrame(animate);
                 } else {
                     // 动画完成，确保最终状态正确
-                    if (chunkObj.userData.type === 'chunk') {
-                        // 如果还是方块，强制转换为圆点
+                    const finalObj = chunkObjects[index];
+                    if (finalObj && finalObj.userData.type === 'chunk') {
+                        // 如果还是方块，强制转换为圆点（这种情况不应该发生，但作为保险）
                         const pointGeometry = new THREE.SphereGeometry(0.15, 16, 16);
                         const pointMaterial = new THREE.MeshPhongMaterial({ 
                             color: colors.embedding,
@@ -826,7 +850,23 @@
                         point.userData.chunk = chunk;
                         point.userData.relevance = chunkData.relevance;
                         
-                        // 重新创建标签
+                        // 清理旧对象
+                        function removeAllChildren(object) {
+                            while(object.children.length > 0) {
+                                const child = object.children[0];
+                                if (child instanceof THREE.CSS2DObject) {
+                                    const labelIndex = labels.indexOf(child);
+                                    if (labelIndex > -1) {
+                                        labels.splice(labelIndex, 1);
+                                    }
+                                }
+                                removeAllChildren(child);
+                                object.remove(child);
+                            }
+                        }
+                        removeAllChildren(finalObj);
+                        
+                        // 创建新标签
                         const labelDiv = document.createElement('div');
                         labelDiv.className = 'chunk-label';
                         labelDiv.textContent = chunk.title;
@@ -836,7 +876,7 @@
                         point.add(newLabel);
                         labels.push(newLabel);
                         
-                        scene.remove(chunkObj);
+                        scene.remove(finalObj);
                         scene.add(point);
                         chunkObjects[index] = point;
                         chunk.obj = point;
