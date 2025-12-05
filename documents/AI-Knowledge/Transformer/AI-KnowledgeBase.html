@@ -605,25 +605,17 @@
         
         // 步骤3: 展示Embedding和球面分布（根据相关性分布）
         function showEmbeddingsOnSphere() {
-            // 清除之前的chunk对象
-            chunkObjects.forEach(chunk => {
-                scene.remove(chunk);
-            });
-            chunkObjects.length = 0;
-            
-            // 创建坐标轴
+            // 先创建坐标轴和球面
             createCoordinateAxes();
-            
-            // 创建圆心标记
             createCenterPoint();
             
-            // 创建wireframe球体
+            // 创建wireframe球体（白色线条，更醒目）
             const sphereRadius = 5;
             const sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 32);
             const sphereMaterial = new THREE.MeshPhongMaterial({ 
-                color: colors.sphere,
+                color: 0xffffff,  // 白色
                 transparent: true,
-                opacity: 0.3,
+                opacity: 0.8,  // 提高不透明度，使线条更清晰
                 wireframe: true,  // 使用wireframe模式
                 side: THREE.DoubleSide
             });
@@ -634,33 +626,23 @@
             // 查询向量将位于 (1, 0, 0) 方向（X轴正方向）
             const queryDirection = new THREE.Vector3(1, 0, 0);
             
-            // 为每个chunk生成embedding向量，根据相关性分布
-            // 相关性高的chunk应该集中在查询向量附近（夹角小）
-            // 相关性低的chunk应该分散在远离查询向量的位置（夹角大）
+            // 计算每个chunk的目标位置（在球面上）
+            const targetPositions = [];
             chunks.forEach((chunk, index) => {
                 const chunkData = knowledgeChunks[index];
                 const relevance = chunkData.relevance || 0.5;
                 
-                // 根据相关性计算与查询向量的夹角
-                // 相关性高 -> 夹角小（靠近查询方向）
-                // 相关性低 -> 夹角大（远离查询方向）
-                // cos(夹角) = 相关性，所以夹角 = arccos(相关性)
-                // 如果相关性为负值，说明完全不相关，应该放在查询向量的反方向
+                // 根据相关性计算embedding向量
                 let embedding;
                 
                 if (relevance < 0) {
                     // 负相关性：直接放在查询向量的反方向（180度）
-                    // 使用绝对值较大的负值，确保在球的另一侧
                     const absRelevance = Math.abs(relevance);
                     
-                    // 如果相关性接近-1，直接放在反方向
                     if (absRelevance > 0.8) {
-                        // 完全反方向：直接取查询向量的负方向
                         embedding = queryDirection.clone().multiplyScalar(-1);
                     } else {
-                        // 稍微偏离反方向，但仍在另一侧
                         const angleFromOpposite = Math.acos(Math.max(-1, Math.min(1, 1 - absRelevance)));
-                        // 在垂直于查询方向的平面上选择一个方向
                         let perpendicular;
                         if (Math.abs(queryDirection.x) < 0.9) {
                             perpendicular = new THREE.Vector3(1, 0, 0);
@@ -669,7 +651,6 @@
                         }
                         perpendicular.crossVectors(perpendicular, queryDirection).normalize();
                         
-                        // 从反方向旋转一个小角度
                         const rotationAxis = new THREE.Vector3().crossVectors(queryDirection.clone().multiplyScalar(-1), perpendicular).normalize();
                         const embeddingQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, angleFromOpposite);
                         embedding = queryDirection.clone().multiplyScalar(-1).applyQuaternion(embeddingQuaternion);
@@ -677,13 +658,8 @@
                 } else {
                     // 正相关性：正常计算
                     const angleFromQuery = Math.acos(Math.max(-1, Math.min(1, relevance)));
-                    
-                    // 为了更好的可视化效果，让相关性高的chunk更集中
-                    // 在垂直于查询方向的平面上选择一个方向
-                    // 使用index来确保分布均匀但可预测
                     const randomAngle = (index / knowledgeChunks.length) * Math.PI * 2;
                     
-                    // 创建一个垂直于查询方向的向量
                     let perpendicular;
                     if (Math.abs(queryDirection.x) < 0.9) {
                         perpendicular = new THREE.Vector3(1, 0, 0);
@@ -692,11 +668,9 @@
                     }
                     perpendicular.crossVectors(perpendicular, queryDirection).normalize();
                     
-                    // 绕查询方向旋转perpendicular向量
                     const quaternion = new THREE.Quaternion().setFromAxisAngle(queryDirection, randomAngle);
                     perpendicular.applyQuaternion(quaternion);
                     
-                    // 现在在包含查询方向和perpendicular的平面内，从查询方向旋转angleFromQuery角度
                     const rotationAxis = new THREE.Vector3().crossVectors(queryDirection, perpendicular).normalize();
                     const embeddingQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, angleFromQuery);
                     embedding = queryDirection.clone().applyQuaternion(embeddingQuaternion);
@@ -705,65 +679,191 @@
                 // 存储归一化向量
                 chunk.embedding = embedding.normalize();
                 
-                // 在球面上创建点
-                const pointGeometry = new THREE.SphereGeometry(0.15, 16, 16);
-                const pointMaterial = new THREE.MeshPhongMaterial({ 
-                    color: colors.embedding,
-                    emissive: new THREE.Color(colors.embedding),
-                    emissiveIntensity: 0.3
-                });
-                const point = new THREE.Mesh(pointGeometry, pointMaterial);
-                
-                // 位置在球面上
-                point.position.set(
+                // 计算目标位置（在球面上）
+                const targetPos = new THREE.Vector3(
                     chunk.embedding.x * sphereRadius,
                     chunk.embedding.y * sphereRadius,
                     chunk.embedding.z * sphereRadius
                 );
+                targetPositions.push(targetPos);
+            });
+            
+            // 动画：将chunk从当前位置移动到球面上，并变成圆点
+            chunkObjects.forEach((chunkObj, index) => {
+                const targetPos = targetPositions[index];
+                const chunk = chunks[index];
+                const chunkData = knowledgeChunks[index];
                 
-                point.userData.type = 'chunkPoint';
-                point.userData.id = index;
-                point.userData.text = chunk.text;
-                point.userData.title = chunk.title;
-                point.userData.embedding = chunk.embedding;
-                point.userData.chunk = chunk;
-                point.userData.relevance = relevance;
+                // 保存原始位置
+                const startPos = chunkObj.position.clone();
                 
-                scene.add(point);
-                chunkObjects.push(point);
-                
-                // 添加标签（显示标题）
-                const labelDiv = document.createElement('div');
-                labelDiv.className = 'chunk-label';
-                labelDiv.textContent = chunk.title;
-                
-                const label = new THREE.CSS2DObject(labelDiv);
-                label.position.set(0, 0.3, 0);
-                point.add(label);
-                labels.push(label);
-                
-                // 创建从原点到点的线（半径）
-                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(0, 0, 0),
-                    point.position.clone()
-                ]);
-                const lineMaterial = new THREE.LineBasicMaterial({ 
-                    color: colors.embedding,
-                    transparent: true,
-                    opacity: 0.3,
-                    linewidth: 1
-                });
-                const line = new THREE.Line(lineGeometry, lineMaterial);
-                line.userData.type = 'radius';
-                line.userData.chunkId = index;
-                line.userData.chunkObj = point;
-                scene.add(line);
-                connections.push(line);
-                radiusLines.push(line);
+                // 动画移动chunk到目标位置
+                animateChunkToSphere(chunkObj, startPos, targetPos, chunk, chunkData, index, sphereRadius, 1500);
             });
             
             // 调整相机位置以更好地查看球体
             animateCameraMove({ x: 0, y: 0, z: 18 }, 1000);
+        }
+        
+        // 动画：将chunk移动到球面并变成圆点
+        function animateChunkToSphere(chunkObj, startPos, targetPos, chunk, chunkData, index, sphereRadius, duration) {
+            let startTime = null;
+            const delay = index * 50; // 每个chunk延迟50ms，形成连续动画效果
+            
+            function animate(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                
+                if (elapsed < delay) {
+                    requestAnimationFrame(animate);
+                    return;
+                }
+                
+                const actualElapsed = elapsed - delay;
+                const progress = Math.min(actualElapsed / duration, 1);
+                
+                // 使用缓动函数
+                const easeProgress = easeInOutCubic(progress);
+                
+                // 插值位置
+                chunkObj.position.lerpVectors(startPos, targetPos, easeProgress);
+                
+                // 在动画进行到一半时，开始改变形状（从方块变成圆点）
+                if (progress > 0.5) {
+                    const morphProgress = (progress - 0.5) * 2; // 0到1
+                    
+                    // 缩放：从1缩放到0.15（圆点大小）
+                    const scale = 1 - morphProgress * 0.85;
+                    chunkObj.scale.set(scale, scale, scale);
+                    
+                    // 改变形状：从方块变成圆点
+                    if (morphProgress > 0.3 && chunkObj.userData.type === 'chunk') {
+                        // 创建圆点几何体
+                        const pointGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+                        const pointMaterial = new THREE.MeshPhongMaterial({ 
+                            color: colors.embedding,
+                            emissive: new THREE.Color(colors.embedding),
+                            emissiveIntensity: 0.3
+                        });
+                        const point = new THREE.Mesh(pointGeometry, pointMaterial);
+                        
+                        // 复制位置和旋转
+                        point.position.copy(chunkObj.position);
+                        point.rotation.copy(chunkObj.rotation);
+                        
+                        // 复制用户数据
+                        point.userData.type = 'chunkPoint';
+                        point.userData.id = index;
+                        point.userData.text = chunk.text;
+                        point.userData.title = chunk.title;
+                        point.userData.embedding = chunk.embedding;
+                        point.userData.chunk = chunk;
+                        point.userData.relevance = chunkData.relevance;
+                        
+                        // 复制标签（重新创建，因为CSS2DObject没有clone方法）
+                        chunkObj.children.forEach(child => {
+                            if (child instanceof THREE.CSS2DObject) {
+                                const labelDiv = document.createElement('div');
+                                labelDiv.className = 'chunk-label';
+                                labelDiv.textContent = chunk.title;
+                                
+                                const newLabel = new THREE.CSS2DObject(labelDiv);
+                                newLabel.position.set(0, 0.3, 0);
+                                point.add(newLabel);
+                                labels.push(newLabel);
+                            }
+                        });
+                        
+                        // 移除旧对象，添加新对象
+                        scene.remove(chunkObj);
+                        scene.add(point);
+                        
+                        // 更新数组引用
+                        chunkObjects[index] = point;
+                        chunk.obj = point;
+                        
+                        // 创建从原点到点的线（半径）
+                        const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                            new THREE.Vector3(0, 0, 0),
+                            point.position.clone()
+                        ]);
+                        const lineMaterial = new THREE.LineBasicMaterial({ 
+                            color: colors.embedding,
+                            transparent: true,
+                            opacity: 0.3,
+                            linewidth: 1
+                        });
+                        const line = new THREE.Line(lineGeometry, lineMaterial);
+                        line.userData.type = 'radius';
+                        line.userData.chunkId = index;
+                        line.userData.chunkObj = point;
+                        scene.add(line);
+                        connections.push(line);
+                        radiusLines.push(line);
+                    }
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // 动画完成，确保最终状态正确
+                    if (chunkObj.userData.type === 'chunk') {
+                        // 如果还是方块，强制转换为圆点
+                        const pointGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+                        const pointMaterial = new THREE.MeshPhongMaterial({ 
+                            color: colors.embedding,
+                            emissive: new THREE.Color(colors.embedding),
+                            emissiveIntensity: 0.3
+                        });
+                        const point = new THREE.Mesh(pointGeometry, pointMaterial);
+                        point.position.copy(targetPos);
+                        
+                        point.userData.type = 'chunkPoint';
+                        point.userData.id = index;
+                        point.userData.text = chunk.text;
+                        point.userData.title = chunk.title;
+                        point.userData.embedding = chunk.embedding;
+                        point.userData.chunk = chunk;
+                        point.userData.relevance = chunkData.relevance;
+                        
+                        // 重新创建标签
+                        const labelDiv = document.createElement('div');
+                        labelDiv.className = 'chunk-label';
+                        labelDiv.textContent = chunk.title;
+                        
+                        const newLabel = new THREE.CSS2DObject(labelDiv);
+                        newLabel.position.set(0, 0.3, 0);
+                        point.add(newLabel);
+                        labels.push(newLabel);
+                        
+                        scene.remove(chunkObj);
+                        scene.add(point);
+                        chunkObjects[index] = point;
+                        chunk.obj = point;
+                        
+                        // 创建半径线
+                        const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                            new THREE.Vector3(0, 0, 0),
+                            targetPos.clone()
+                        ]);
+                        const lineMaterial = new THREE.LineBasicMaterial({ 
+                            color: colors.embedding,
+                            transparent: true,
+                            opacity: 0.3,
+                            linewidth: 1
+                        });
+                        const line = new THREE.Line(lineGeometry, lineMaterial);
+                        line.userData.type = 'radius';
+                        line.userData.chunkId = index;
+                        line.userData.chunkObj = point;
+                        scene.add(line);
+                        connections.push(line);
+                        radiusLines.push(line);
+                    }
+                }
+            }
+            
+            requestAnimationFrame(animate);
         }
         
         // 创建坐标轴
