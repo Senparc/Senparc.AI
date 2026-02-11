@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-    
+
 namespace Senparc.AI.Entities
 {
     public class PromptConfigParameter
     {
         public int? MaxTokens { get; set; }
+
+        public int? MaxCompletionTokens => MaxTokens;
 
         public double? Temperature { get; set; }
 

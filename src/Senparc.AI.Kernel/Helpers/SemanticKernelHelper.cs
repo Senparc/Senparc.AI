@@ -173,7 +173,9 @@ namespace Senparc.AI.Kernel.Helpers
                     MaxTokens = maxTokens,
                     PresencePenalty = presencePenalty,
                     FrequencyPenalty = frequencyPenalty,
-                    StopSequences = stopSequences
+                    StopSequences = stopSequences,
+                     
+                  
                 },
             };
 
