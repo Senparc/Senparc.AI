@@ -174,8 +174,6 @@ namespace Senparc.AI.Kernel.Helpers
                     PresencePenalty = presencePenalty,
                     FrequencyPenalty = frequencyPenalty,
                     StopSequences = stopSequences,
-                     
-                  
                 },
             };
 

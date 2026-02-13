@@ -1,13 +1,14 @@
-﻿using System.Text;
+﻿using DefaultNamespace;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
-using Senparc.CO2NET.Extensions;
 using Senparc.AI.Kernel.Handlers;
 using Senparc.AI.Kernel.Helpers;
-using DefaultNamespace;
 using Senparc.AI.Samples.Consoles.Samples.Plugins;
+using Senparc.CO2NET.Extensions;
+using System.Text;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {
@@ -23,7 +24,6 @@ namespace Senparc.AI.Samples.Consoles.Samples
             this._serviceProvider = serviceProvider;
             _aiHandler = aiHandler;
             _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
-
         }
 
         public async Task RunAsync()
