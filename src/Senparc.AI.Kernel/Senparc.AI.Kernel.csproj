@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.26.0-preview.1</Version>
+		<Version>0.26.1-preview.1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>12.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -61,6 +61,7 @@
 			[2025-06-02] v0.25.0 Upgrade for vector database, support for InMemory; update Sample for Embedding and RAG
 			[2025-06-05] v0.25.1 Update basic Senparc.AI library
 			[2025-11-03] v0.26.0-preview.1 Start to support Microsoft Agent Framework
+			[2026-02-13] v0.26.1-preview.1 Upgrade Embedding support
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
@@ -78,19 +79,19 @@
 		<None Include="KernelConfigExtensions\KernelConfigExtensions.Function.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-preview.251028.1" />
-		<PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.5.0" />
-		<PackageReference Include="Microsoft.SemanticKernel" Version="1.54.0" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.54.0-preview" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.54.0-preview" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.54.0-alpha" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.54.0-preview" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Redis" Version="1.54.0-preview" />
+		<PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-preview.260209.1" />
+		<PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.7.0" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.70.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.70.0-preview" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.70.0-preview" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.70.0-alpha" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.70.0-preview" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Redis" Version="1.70.0-preview" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
-		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.54.0-alpha" />
+		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.70.0-alpha" />
 		<!--<PackageReference Include="Ollama" Version="1.6.1" />-->
 		<!--<PackageReference Include="OllamaSharp" Version="2.0.13" />-->
-		<PackageReference Include="Senparc.CO2NET" Version="3.1.3" />
+		<PackageReference Include="Senparc.CO2NET" Version="3.1.5" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />
