@@ -373,10 +373,20 @@ namespace Senparc.AI.Kernel.Helpers
                 _ => throw new SenparcAiException($"GetEmbedding 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
-            var base64 = Convert.ToBase64String( Encoding.UTF8.GetBytes( text ));
-            var embeddingResult = await embeddingService.GenerateEmbeddingAsync(text, _kernel);
+            //var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
+            try
+            {
+                var embeddingResult = await embeddingService.GenerateEmbeddingAsync(text, _kernel);
 
-            return embeddingResult;
+                return embeddingResult;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Senparc.AIKernel Embedding 出错：");
+                Console.WriteLine(ex);
+                throw;
+            }
+
 
         }
 
@@ -439,7 +449,7 @@ namespace Senparc.AI.Kernel.Helpers
                     AiPlatform.AzureOpenAI => memoryBuilder.WithTextEmbeddingGeneration(
                            (loggerFactory, httpClient) =>
                            {
-                               return new  AzureOpenAITextEmbeddingGenerationService(
+                               return new AzureOpenAITextEmbeddingGenerationService(
                                     deploymentName: azureDeployName,
                                     endpoint: senparcAiSetting.Endpoint,
                                     apiKey: senparcAiSetting.ApiKey,
