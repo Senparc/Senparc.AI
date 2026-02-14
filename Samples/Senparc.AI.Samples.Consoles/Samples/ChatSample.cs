@@ -88,7 +88,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //var remoteResponse = await huggingFaceRemote.CompleteAsync(Input);
             // modelName: "gpt-4-32k"*/
 
-            var setting = (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;//也可以留空，将自动获取
+            var setting = Senparc.AI.Config.SenparcAiSetting;//也可以留空，将自动获取
 
             var iWantToRun = _semanticAiHandler.ChatConfig(parameter,
                                 userId: "Jeffrey",
