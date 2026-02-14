@@ -152,30 +152,10 @@ namespace Senparc.AI.Interfaces
         public bool IsOpenAiKeysSetted { get; }
 
 
-        public ModelName ModelName => AiPlatform switch
-        {
-            AiPlatform.OpenAI => OpenAIKeys.ModelName,
-            AiPlatform.AzureOpenAI => AzureOpenAIKeys.ModelName,
-            AiPlatform.NeuCharAI => NeuCharAIKeys.ModelName,
-            AiPlatform.HuggingFace => HuggingFaceKeys.ModelName,
-            AiPlatform.FastAPI => FastAPIKeys.ModelName,
-            AiPlatform.Ollama => OllamaKeys.ModelName,
-            AiPlatform.DeepSeek => DeepSeekKeys.ModelName,
-            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 ModelName 输出")
-        };
+        public ModelName ModelName { get; }
 
 #pragma warning disable CS8603 // 可能返回 null 引用。
-        public string DeploymentName => AiPlatform switch
-        {
-            AiPlatform.AzureOpenAI => AzureOpenAIKeys.DeploymentName,
-            AiPlatform.OpenAI => null,
-            AiPlatform.NeuCharAI => null,
-            AiPlatform.HuggingFace => null,
-            AiPlatform.FastAPI => null,
-            AiPlatform.Ollama => null,
-            AiPlatform.DeepSeek => null,
-            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 DeploymentName 输出")
-        };
+        public string DeploymentName { get; }
 #pragma warning restore CS8603 // 可能返回 null 引用。
 
     }
@@ -216,5 +196,5 @@ namespace Senparc.AI.Interfaces
     //    Default = InMemory,
     //}
 
-  
+
 }

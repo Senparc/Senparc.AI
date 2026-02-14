@@ -24,15 +24,15 @@ namespace Senparc.AI.Interfaces
     /// </summary>
     public enum VectorDBType
     {
-        Memory,
-        HardDisk,
-        Redis,
-        Milvus,
-        Chroma,
-        PostgreSQL,
-        Sqlite,
-        SqlServer,
-        Qdrant,
+        Memory = 0,
+        HardDisk = 1,
+        Redis = 2,
+        Milvus = 3,
+        Chroma = 4,
+        PostgreSQL = 5,
+        Sqlite = 6,
+        SqlServer = 7,
+        Qdrant = 8,
         Default = Memory,
     }
 }
