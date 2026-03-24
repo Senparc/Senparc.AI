@@ -58,6 +58,7 @@ Console.WriteLine("[3] 执行 Embedding 任务（RAG）");
 Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI 或 AzureOpenAI）");
 Console.WriteLine("[5] Planner 任务计划");
 Console.WriteLine("[6] PluginFromObject 测试");
+Console.WriteLine("[7] STT（Speach to Text）测试");
 Console.WriteLine();
 
 var index = Console.ReadLine();
