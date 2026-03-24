@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.26.2</Version>
+		<Version>0.28.0</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>12.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -63,6 +63,7 @@
 			[2025-11-03] v0.26.0-preview.1 Start to support Microsoft Agent Framework
 			[2026-02-13] v0.26.1-preview.1 Upgrade Embedding support
 			[2026-02-14] v0.26.2 Update for SenparcAISetting
+			[2026-03-24] v0.28.0 Add ConfigAudioToText method for Speech-to-Text (Whisper); Add ConfigTextToAudio method for Text-to-Speech (tts-1/tts-1-hd); Support STT and TTS in KernelConfigExtensions
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

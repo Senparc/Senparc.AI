@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.6.1-preivew.1</Version>
+		<Version>0.7.1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI.Agents</AssemblyName>
@@ -33,6 +33,7 @@
 			[2025-05-25] v0.5.6 Support IOrchestrator for CreateAiTeam() method
 			[2025-11-03] v0.6.0-preview.1 Start to support Microsoft Agent Framework
 			[2026-02-14] v0.6.1 Update for SenparcAISetting
+			[2026-03-24] v0.7.1 Update dependencies for STT and TTS support
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Agents</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
