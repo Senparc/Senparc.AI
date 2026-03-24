@@ -46,5 +46,15 @@ namespace Senparc.AI.Entities.Keys
         /// 图生文 模型名称
         /// </summary>
         public string ImageToText { get; set; }
+
+        /// <summary>
+        /// 文本转语音 模型名称
+        /// </summary>
+        public string TextToSpeech { get; set; }
+
+        /// <summary>
+        /// 语音转文本 模型名称（Whisper）
+        /// </summary>
+        public string SpeechToText { get; set; }
     }
 }

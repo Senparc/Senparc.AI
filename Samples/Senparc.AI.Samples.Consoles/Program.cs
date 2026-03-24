@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
@@ -28,6 +28,7 @@ services.AddTransient<EmbeddingSample>();
 services.AddTransient<DallESample>();
 services.AddTransient<PlanSample>();
 services.AddTransient<PluginFromObjectSample>();
+services.AddTransient<SttSample>();
 
 services.AddScoped<IAiHandler, SemanticAiHandler>(s =>
 {
@@ -140,6 +141,13 @@ switch (index)
             //Function Sample
             var functionSample = serviceProvider.GetRequiredService<PluginFromObjectSample>();
             await functionSample.RunAsync();
+        }
+        break;
+    case "7":
+        {
+            //STT Sample
+            var sttSample = serviceProvider.GetRequiredService<SttSample>();
+            await sttSample.RunAsync();
         }
         break;
     case "0":
