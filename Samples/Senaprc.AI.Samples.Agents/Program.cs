@@ -5,16 +5,17 @@ using AutoGen.Core;
 using AutoGen.Mistral;
 using AutoGen.SemanticKernel;
 using AutoGen.SemanticKernel.Extension;
+using Google.Rpc;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Plugins.Web;
 using Microsoft.SemanticKernel.Plugins.Web.Bing;
+using Senparc.AI;
 using Senparc.AI.Agents;
 using Senparc.AI.Agents.AgentExtensions;
 using Senparc.AI.Agents.AgentUtility;
-using Senparc.AI;
 using Senparc.AI.Entities;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
@@ -40,7 +41,6 @@ var services = new ServiceCollection();
 
 services.AddSenparcGlobalServices(config)
         .AddSenparcAI(config);
-
 
 Console.WriteLine("完成 ServiceCollection 和 ConfigurationBuilder 初始化");
 #endregion

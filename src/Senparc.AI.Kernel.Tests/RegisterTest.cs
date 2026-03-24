@@ -14,9 +14,9 @@ namespace Senparc.AI.Kernel.Tests
             var settings = Senparc.AI.Config.SenparcAiSetting;
             Assert.IsNotNull(settings);
             Assert.IsInstanceOfType(settings, typeof(SenparcAiSetting));
-            Assert.AreEqual(settings,Senparc.AI.Kernel.Config.SenparcAiSetting);
+            Assert.AreEqual(settings, Senparc.AI.Kernel.Config.SenparcAiSetting);
 
-            //TODO: ²âÊÔ NeuChar ½Ó¿Ú
+            //TODO: æµ‹è¯• NeuChar æ¥å£
             Assert.AreEqual(AiPlatform.AzureOpenAI, settings.AiPlatform);
             Assert.AreEqual(true, settings.UseAzureOpenAI);
             Assert.AreEqual(false, settings.UseNeuCharAI);
@@ -33,12 +33,16 @@ namespace Senparc.AI.Kernel.Tests
         public void ItemsTest()
         {
             var settings = Senparc.AI.Config.SenparcAiSetting as SenparcAiSetting;
+
+            // ä¿®å¤ CS8602: ç¡®ä¿ settings ä¸ä¸ºç©º
+            Assert.IsNotNull(settings);
+
             Assert.AreEqual(3, settings.Items.Count);
 
             var dalle3Setting = settings.Items["AzureDallE3"];
 
             Assert.IsNotNull(dalle3Setting);
-            Assert.AreEqual(settings["AzureDallE3"], dalle3Setting);//Á½ÖÖ»ñÈ¡·½Ê½Í¨ÓÃ
+            Assert.AreEqual(settings["AzureDallE3"], dalle3Setting);//ç´¢å¼•å™¨è·å–æ–¹å¼é€šè¿‡
             Assert.AreEqual("2022-12-01", dalle3Setting.AzureOpenAIApiVersion);
 
             var neucharAISetting = settings["MyNeuCharAI"].NeuCharAIKeys;

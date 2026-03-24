@@ -107,6 +107,10 @@ namespace Senparc.AI.Kernel.Handlers
                     //Console.WriteLine($"[调试]GetDeploymentName：{modelNameStr} / {GetDeploymentName(modelNameStr)}");
                     //Console.WriteLine($"[调试]{senparcAiSetting.AiPlatform}-{senparcAiSetting.AzureOpenAIKeys.DeploymentName}-{senparcAiSetting.AzureOpenAIKeys.AzureEndpoint}\r\n{senparcAiSetting.AzureOpenAIKeys.ModelName.ToJson(true)}");
                     break;
+                case AI.ConfigModel.SpeechToText:
+                    modelNameStr = modelName.SpeechToText ?? "whisper"; // 默认使用 whisper
+                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigAudioToText(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
+                    break;
                 default:
                     throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel);
             }
