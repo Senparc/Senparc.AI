@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.SemanticKernel.Embeddings;
@@ -344,6 +344,52 @@ namespace Senparc.AI.Kernel.Helpers
                     httpClient: _httpClient),
 
                 _ => throw new SenparcAiException($"ConfigAudioToText 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+            };
+
+            return kernelBuilder;
+        }
+
+        /// <summary>
+        /// 设置 TTS 文本转语音接口
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="kernelBuilder"></param>
+        /// <param name="modelId">模型名称，默认为 tts，其他支持 tts-hd 等</param>
+        /// <param name="senparcAiSetting"></param>
+        /// <param name="deploymentName">Azure 部署名称</param>
+        /// <returns></returns>
+        /// <exception cref="SenparcAiException"></exception>
+        public IKernelBuilder ConfigTextToAudio(string userId, IKernelBuilder? kernelBuilder = null, string modelId = null, ISenparcAiSetting senparcAiSetting = null, string deploymentName = null)
+        {
+            senparcAiSetting ??= this.AiSetting;
+            modelId ??= "tts"; // 默认使用 tts 模型
+
+            var serviceId = GetServiceId(userId, "text-to-audio");
+            var aiPlatForm = senparcAiSetting.AiPlatform;
+
+            kernelBuilder ??= Microsoft.SemanticKernel.Kernel.CreateBuilder();
+
+            _ = aiPlatForm switch
+            {
+                AiPlatform.OpenAI => kernelBuilder.AddOpenAITextToAudio(
+                    modelId: modelId,
+                    apiKey: senparcAiSetting.ApiKey,
+                    orgId: senparcAiSetting.OrganizationId,
+                    httpClient: _httpClient),
+
+                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToAudio(
+                    deploymentName: deploymentName ?? modelId,
+                    endpoint: senparcAiSetting.Endpoint,
+                    apiKey: senparcAiSetting.ApiKey,
+                    httpClient: _httpClient),
+
+                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToAudio(
+                    deploymentName: deploymentName ?? modelId,
+                    endpoint: senparcAiSetting.Endpoint,
+                    apiKey: senparcAiSetting.ApiKey,
+                    httpClient: _httpClient),
+
+                _ => throw new SenparcAiException($"ConfigTextToAudio 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 
             return kernelBuilder;
