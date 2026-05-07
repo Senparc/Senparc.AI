@@ -1,47 +1,32 @@
-﻿using Microsoft.SemanticKernel;
-using Senparc.AI.Exceptions;
+using Microsoft.SemanticKernel;
 using Senparc.AI.Interfaces;
-using System;
-using System.Collections.Generic;
 
-namespace Senparc.AI.Kernel.Entities
+namespace Senparc.AI.Kernel.Entities;
+
+public class SenparcAiArguments : IAiContext
 {
-    public class SenparcAiArguments : IAiContext<KernelArguments>
+    public KernelArguments KernelArguments { get; set; } = new();
+
+    public IDictionary<string, object?> Context
     {
-   
-        private KernelArguments? _kernelArguments { get; set; }
-
-
-        public KernelArguments KernelArguments
+        get => KernelArguments;
+        set
         {
-            get => _kernelArguments ??= new KernelArguments();
-            set => _kernelArguments = value;
-        }
-
-        /// <summary>
-        /// <inheritdoc/>>
-        /// </summary>
-        public IDictionary<string, object?> Context
-        {
-            get => KernelArguments;
-            set
+            var args = new KernelArguments();
+            foreach (var item in value)
             {
-                if (value is not Microsoft.SemanticKernel.KernelArguments)
-                {
-                    throw new SenparcAiException("Context 类型必须为 IDictionary<string, object?>");
-                }
-                KernelArguments = (KernelArguments)value;
+                args[item.Key] = item.Value;
             }
+            KernelArguments = args;
         }
+    }
 
-        public SenparcAiArguments() : this(null)
-        {
-        }
+    public SenparcAiArguments()
+    {
+    }
 
-        public SenparcAiArguments(KernelArguments subContext)
-        {
-            KernelArguments = subContext;
-        }
-
+    public SenparcAiArguments(KernelArguments kernelArguments)
+    {
+        KernelArguments = kernelArguments;
     }
 }

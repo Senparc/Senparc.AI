@@ -1,20 +1,8 @@
-﻿namespace Senparc.AI.Kernel
+using Senparc.AI.Interfaces;
+
+namespace Senparc.AI.Kernel;
+
+public static class Config
 {
-    /// <summary>
-    /// Senparc.AI 配置
-    /// </summary>
-    public static class Config
-    {
-        /// <summary>
-        /// 当前配置
-        /// </summary>
-        public static SenparcAiSetting SenparcAiSetting
-            => (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;
-
-        static Config()
-        {
-            Senparc.AI.Config.SenparcAiSetting ??= new SenparcAiSetting();
-        }
-
-    }
+    public static ISenparcAiSetting? SenparcAiSetting { get; set; }
 }

@@ -16,7 +16,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using static Qdrant.Client.Grpc.MaxOptimizationThreads.Types;
 
 namespace Senparc.AI.Samples.Consoles.Samples
 {

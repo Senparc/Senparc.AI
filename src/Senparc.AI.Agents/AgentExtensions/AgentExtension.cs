@@ -1,9 +1,5 @@
-﻿using AutoGen;
 using AutoGen.Core;
-using AutoGen.OpenAI;
 using AutoGen.SemanticKernel;
-using System;
-using System.Collections.Generic;
 
 namespace Senparc.AI.Agents.AgentExtensions;
 
@@ -11,11 +7,7 @@ public static class AgentExtension
 {
     public static MiddlewareAgent<SemanticKernelAgent> RegisterTextMessageConnector(this SemanticKernelAgent agent, SemanticKernelChatMessageContentConnector? connector = null)
     {
-        if (connector == null)
-        {
-            connector = new SemanticKernelChatMessageContentConnector();
-        }
-
+        connector ??= new SemanticKernelChatMessageContentConnector();
         return agent.RegisterMiddleware(connector);
     }
 
@@ -23,15 +15,10 @@ public static class AgentExtension
         where TAgent : IAgent
         where IPrintMessageMiddleware : IStreamingMiddleware, IMiddleware
     {
-        //IPrintMessageMiddleware middleware = new IPrintMessageMiddleware();
-        //printMessageMiddleware ??= new IPrintMessageMiddleware();
-
-        MiddlewareAgent<TAgent> middlewareAgent = new MiddlewareAgent<TAgent>(agent);
+        var middlewareAgent = new MiddlewareAgent<TAgent>(agent.Agent);
         middlewareAgent.Use(printMessageMiddleware);
         return middlewareAgent;
     }
-
-    #region 快速构建 Graph 扩展方法
 
     public static GraphConnector ConnectFrom<TFromAgent>(this Graph graph, TFromAgent fromAgent) where TFromAgent : IAgent
     {
@@ -44,7 +31,7 @@ public static class AgentExtension
     {
         var fromGraph = graphEnd.GraphConnector;
         var newFromGraph = fromGraph with { FromAgent = fromAgent };
-        fromGraph.AddAgent(fromAgent);
+        newFromGraph.AddAgent(fromAgent);
         return newFromGraph;
     }
 
@@ -64,7 +51,6 @@ public static class AgentExtension
     {
         fromGraph.Graph.AddTransition(Transition.Create(fromGraph.FromAgent, to));
         fromGraph.Graph.AddTransition(Transition.Create(to, fromGraph.FromAgent));
-
         fromGraph.AddAgent(to);
         return new GraphConnectorEnd(fromGraph);
     }
@@ -74,64 +60,19 @@ public static class AgentExtension
         return TwoWay(fromGraph.GraphConnector, to);
     }
 
-
-    #endregion
-
-    #region AI Team 构造
-
-    /// <summary>
-    /// 创建 AITeam 对象（GroupChat）
-    /// </summary>
-    /// <typeparam name="TFromAgent"></typeparam>
-    /// <param name="graphConnector"></param>
-    /// <param name="adminAgent"></param>
-    /// <returns></returns>
-    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, TFromAgent adminAgent) 
-        where TFromAgent : IAgent
+    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, TFromAgent adminAgent) where TFromAgent : IAgent
     {
-        var aiTeam = new GroupChat(
-            members: graphConnector.Agents.Values,
-            admin: adminAgent,
-            workflow: graphConnector.Graph);
-        return aiTeam;
+        return new GroupChat(graphConnector.Agents.Values, adminAgent, graphConnector.Graph);
     }
 
-    /// <summary>
-    /// 创建 AITeam 对象（GroupChat）
-    /// </summary>
-    /// <typeparam name="TFromAgent"></typeparam>
-    /// <param name="graphConnector"></param>
-    /// <param name="adminAgent"></param>
-    /// <param name="orchestrator"></param>
-    /// <returns></returns>
     [Obsolete("请使用方法 CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, IOrchestrator orchestrator)")]
-    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, TFromAgent adminAgent,  IOrchestrator orchestrator)
-        where TFromAgent : IAgent
+    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, TFromAgent adminAgent, IOrchestrator orchestrator) where TFromAgent : IAgent
     {
-        var aiTeam = new GroupChat(
-            members: graphConnector.Agents.Values,
-            orchestrator: orchestrator//,
-           /* workflow: graphConnector.Graph*/);
-        return aiTeam;
+        return new GroupChat(graphConnector.Agents.Values, adminAgent, graphConnector.Graph, orchestrator);
     }
 
-    /// <summary>
-    /// 创建 AITeam 对象（GroupChat）
-    /// </summary>
-    /// <typeparam name="TFromAgent"></typeparam>
-    /// <param name="graphConnector"></param>
-    /// <param name="orchestrator"></param>
-    /// <returns></returns>
-    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, IOrchestrator orchestrator)
-        where TFromAgent : IAgent
+    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, IOrchestrator orchestrator) where TFromAgent : IAgent
     {
-        var aiTeam = new GroupChat(
-            members: graphConnector.Agents.Values,
-            orchestrator: orchestrator//,
-           /* workflow: graphConnector.Graph*/);
-        return aiTeam;
+        return new GroupChat(graphConnector.Agents.Values, workflow: graphConnector.Graph, orchestrator: orchestrator);
     }
-
-    #endregion
 }
-

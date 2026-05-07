@@ -1,134 +1,79 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Services;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
 using Senparc.AI.Kernel.Helpers;
+using Microsoft.SemanticKernel.AudioToText;
+using Microsoft.SemanticKernel.TextToImage;
 
-namespace Senparc.AI.Kernel.Handlers
+namespace Senparc.AI.Kernel.Handlers;
+
+public class IWantTo
 {
-    public class IWantTo
+    public ConcurrentDictionary<string, object> TempStore { get; set; } = new();
+    public IKernelBuilder KernelBuilder { get; set; } = Microsoft.SemanticKernel.Kernel.CreateBuilder();
+    public SemanticAiHandler SemanticAiHandler { get; set; }
+    public SemanticKernelHelper SemanticKernelHelper => SemanticAiHandler.SemanticKernelHelper;
+    public ISenparcAiSetting SenparcAiSetting { get; set; }
+    public string UserId { get; set; } = string.Empty;
+    public string ModelName { get; set; } = string.Empty;
+
+    public IWantTo(SemanticAiHandler handler, ISenparcAiSetting? senparcAiSetting)
     {
-        /// <summary>
-        /// 暂存信息
-        /// </summary>
-        public ConcurrentDictionary<string, object> TempStore { get; set; } = new ConcurrentDictionary<string, object>();
-        public IKernelBuilder KernelBuilder { get; set; }
-        //public KernelConfig KernelConfig { get; set; }
-        public SemanticKernelHelper SemanticKernelHelper { get; set; }
-        public SemanticAiHandler SemanticAiHandler { get; set; }
+        SemanticAiHandler = handler;
+        SenparcAiSetting = senparcAiSetting ?? handler.SenparcAiSetting;
+    }
+}
 
-        private ISenparcAiSetting _senparcAiSetting;
-        public ISenparcAiSetting SenparcAiSetting
-        {
-            get
-            {
-                _senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
-                return _senparcAiSetting;
-            }
-            set => _senparcAiSetting = value;
-        }
+public class IWantToConfig
+{
+    public IWantTo IWantTo { get; set; }
+    public string UserId { get; set; } = string.Empty;
+    public string ModelName { get; set; } = string.Empty;
 
-        public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
+    public IWantToConfig(IWantTo iWantTo)
+    {
+        IWantTo = iWantTo;
+    }
+}
 
-        public string UserId { get; set; }
-        public string ModelName { get; set; }
+public class IWantToBuild
+{
+    public IWantToConfig IWantToConfig { get; set; }
 
-        public IWantTo() { }
+    public IWantToBuild(IWantToConfig iWantToConfig)
+    {
+        IWantToConfig = iWantToConfig;
+    }
+}
 
-        //public IWantTo(KernelConfig kernelConfig)
-        //{
-        //    KernelConfig = kernelConfig;
-        //}
+public class IWantToRun
+{
+    public IWantToBuild IWantToBuild { get; set; }
+    public SenparcAiArguments StoredAiArguments { get; set; } = new();
+    public PromptConfigParameter? PromptConfigParameter { get; set; }
+    public List<KernelFunction> Functions { get; set; } = [];
+    public SemanticKernelHelper SemanticKernelHelper => IWantToBuild.IWantToConfig.IWantTo.SemanticKernelHelper;
+    public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
 
-        public IWantTo(SemanticAiHandler handler, ISenparcAiSetting senparcAiSetting)
-        {
-            SemanticAiHandler = handler;
-            SemanticKernelHelper = handler.SemanticKernelHelper;
-            SenparcAiSetting = senparcAiSetting ?? SemanticKernelHelper.AiSetting ?? Senparc.AI.Config.SenparcAiSetting;
-        }
-
-
-        //public IWantTo Config(string userId, string modelName)
-        //{
-        //    UserId = userId;
-        //    ModelName = modelName;
-        //    return this;
-        //}
+    public IWantToRun(IWantToBuild iWantToBuild)
+    {
+        IWantToBuild = iWantToBuild;
     }
 
-    public class IWantToConfig
+    public T GetRequiredService<T>(string? name = null) where T : class
     {
-        public IWantTo IWantTo { get; set; }
-        public string UserId { get; set; }
-        public string ModelName { get; set; }
-
-        public SemanticAiHandler SemanticAiHandler => IWantTo.SemanticAiHandler;
-        public SemanticKernelHelper SemanticKernelHelper => IWantTo.SemanticKernelHelper;
-        public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
-
-        public IWantToConfig(IWantTo iWantTo)
+        if (typeof(T) == typeof(ITextToImageService))
         {
-            IWantTo = iWantTo;
-        }
-    }
-
-    public class IWantToBuild
-    {
-        public IWantToConfig IWantToConfig { get; set; }
-
-        public SemanticAiHandler SemanticAiHandler => IWantToConfig.IWantTo.SemanticAiHandler;
-        public SemanticKernelHelper SemanticKernelHelper => IWantToConfig.IWantTo.SemanticKernelHelper;
-        public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
-
-        public IWantToBuild(IWantToConfig iWantToConfig)
-        {
-            IWantToConfig = iWantToConfig;
-        }
-    }
-
-    public class IWantToRun
-    {
-        public IWantToBuild IWantToBuild { get; set; }
-        //public KernelFunction KernelFunction { get; set; }
-        public SenparcAiArguments StoredAiArguments { get; set; }
-        public PromptConfigParameter PromptConfigParameter { get; set; }
-
-        public List<KernelFunction> Functions { get; set; }
-
-        public SemanticAiHandler SemanticAiHandler => IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-        public SemanticKernelHelper SemanticKernelHelper => IWantToBuild.IWantToConfig.IWantTo.SemanticKernelHelper;
-        public Microsoft.SemanticKernel.Kernel Kernel => SemanticKernelHelper.GetKernel();
-        public IWantToRun(IWantToBuild iWantToBuild)
-        {
-            IWantToBuild = iWantToBuild;
-            StoredAiArguments = new SenparcAiArguments();
-            Functions = new List<KernelFunction>();
+            return (T)(object)new CompatTextToImageService();
         }
 
-        /// <summary>
-        /// Kernel.GetService<T>(name);
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public T GetRequiredService<T>(string? name = null)
-            where T : class, IAIService
+        if (typeof(T) == typeof(IAudioToTextService))
         {
-            return Kernel.GetRequiredService<T>(name);
+            return (T)(object)new CompatAudioToTextService();
         }
 
-        /// <summary>
-        /// 获取当前类型的所有服务
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public IEnumerable<T> GetAllServices<T>()
-           where T : class, IAIService
-        {
-            return Kernel.GetAllServices<T>();
-        }
+        throw new NotSupportedException($"Compat service not supported: {typeof(T).FullName}");
     }
 }

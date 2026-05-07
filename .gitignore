@@ -11,3 +11,8 @@ appsettings.Development.json
 /Samples/Senparc.AI.Samples.Consoles/Senparc.AI.Samples.Consoles.csproj.user
 /documemts/AI-Knowledge/Transformer/*copy*.html
 .idea
+.cursor/scratchpad.md
+.cursor/steps/step-01-bootstrap-and-compat.md
+.cursor/steps/step-02-kernel-runtime-migration.md
+.cursor/steps/step-03-agents-migration.md
+.cursor/steps/step-04-samples-and-validation.md

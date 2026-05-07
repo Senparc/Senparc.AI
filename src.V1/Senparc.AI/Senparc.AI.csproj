@@ -1,0 +1,82 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Version>0.24.5</Version>
+		<Nullable>enable</Nullable>
+		<LangVersion>10.0</LangVersion>
+		<AssemblyName>Senparc.AI</AssemblyName>
+		<RootNamespace>Senparc.AI</RootNamespace>
+		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
+		<Description>
+			Senparc.AI 核心模块，提供一系列 Senparc.AI 产品基础接口
+			https://github.com/Senparc/Senparc.AI
+		</Description>
+		<Copyright>Senparc Copyright © 2004~2026</Copyright>
+		<PackageTags>
+			Senparc,AI,Kernel,C#,AIGC,GenAI,AGI,LLM,SemanticKernel
+		</PackageTags>
+		<Authors>Jeffrey Su</Authors>
+		<Owners>Senparc</Owners>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<ProjectUrl>https://github.com/Senparc/Senparc.AI</ProjectUrl>
+		<Title>Senparc.AI.dll</Title>
+		<Summary>Senparc.AI 核心模块</Summary>
+		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI</PackageProjectUrl>
+		<PackageIcon>icon.jpg</PackageIcon>
+		<PackageReleaseNotes>
+			v0.1.0 创世
+			v0.2.0 添加 NeuChar OpenAI
+			v0.3.1 同步最新版本 Semantic Kernel，完善 Prompt 运行方法
+			v0.4.0 支持外部 ISenparcAiSetting 输入到模型配置过程
+			v0.5.0 适配 Semantic Kernel 1.0.0-beta2
+			v0.6.0 优化 Plugin 等通用接口
+			v0.6.5 AiPlatform.NeuCharOpenAI 枚举更名为 AiPlatform.NeuCharAI
+			v0.7.0 支持 Senparc.AI.Kernel 1.0.1
+			v0.8.0 重构 IWantToRun，实现自定义 SenparcAISetting 输入
+			v0.9.0 重构 SenparcAiSetting，支持多模型配置
+			v0.10.0 添加 FastAPI 模型选项
+			v0.10.1 提供 SenparcAiSetting.Endpoint 属性
+			v0.11.0 重构 ModelName 获取方式，可根据模型平台自动获取 ModelName 和 DepolymentName
+			v0.12.0 完善 SemanticAiHandler.ChatAsync() 方法，提供指定保留 N 条历史记录的能力
+			v0.13.0 完善流式输出
+			v0.14.0 完善模型识别
+			v0.15.0 添加 HttpClient 日志功能，完善内容输出机制
+			v0.15.1 升级到 SK 最新版本（v1.7.1）
+			v0.15.2 添加 RedirectingHttpMessageHandler
+			v0.16.0
+			1、添加 SenparcKernelAiResult&lt;T$gt; 类型
+			2、重命名 IAiResult.Output 为 OutputString
+			v0.16.1 将 ISenparcAiSetting.ModelName、DeploymentName 从属性改为 public
+			v0.16.2 增加 Agents 项目输入为空时，异常捕获
+			v0.16.3 优化 SenparcAiSettingBase
+			v0.17.0-beta1 升级 CO2NET
+			[2024-11-19] v0.18.0 Update CO2NET, reframe for Aspire
+			[2025-01-19] v0.19.0-beta1 Update Senparc.AI.Agents; Fixed some namespace spelling errors
+			[2025-01-19] v0.20.0-beta1 Update Senparc.AI.Agents; Fixed some namespace spelling errors
+			[2025-01-21] v0.21.0-beta1 Support for DeepSeek
+			[2025-02-02] v0.22.0 Upgrade support for Ollama, finished test for DeepSeek-r1 and nomic-embed-text:v1.5
+			[2025-06-05] v0.24.1 Update VectorDBType values
+			[2025-11-01] v0.24.4 Combine VectorDBType from different projects
+			[2026-02-14] v0.24.5 Update for SenparcAISetting
+		</PackageReleaseNotes>
+		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
+		<Configurations>Debug;Release;Test</Configurations>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+		<OutputPath>..\..\BuildOutPut\</OutputPath>
+		<DocumentationFile>..\..\BuildOutPut\netstandard2.1\Senparc.AI.xml</DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="appsettings.schema.json">
+			<Pack>true</Pack>
+			<PackagePath>contentFiles/any/any</PackagePath>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+		<PackageReference Include="Senparc.CO2NET" Version="3.1.5" />
+	</ItemGroup>
+</Project>
