@@ -1,0 +1,15 @@
+﻿<Project Sdk="MSTest.Sdk/4.0.1">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Senparc.AI.Agents\Senparc.AI.Agents.csproj" />
+    <ProjectReference Include="..\Senparc.AI.Tests\Senparc.AI.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

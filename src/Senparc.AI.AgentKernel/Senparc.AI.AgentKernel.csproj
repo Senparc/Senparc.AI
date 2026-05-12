@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
+		<PackageReference Include="Azure.AI.Projects" Version="2.1.0-beta.1" />
+		<PackageReference Include="Azure.Identity" Version="1.21.0" />
+		<PackageReference Include="Microsoft.Agents.AI" Version="1.5.0" />
+		<PackageReference Include="Microsoft.Agents.AI.Foundry" Version="1.4.0" />
+		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.5.0" />
+		<PackageReference Include="Microsoft.Extensions.AI" Version="10.5.2" />
+		<PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />
+		<!--<PackageReference Include="OllamaSharp" Version="5.4.25" />-->
+
+		<!-- "We’re using this because at the time of writing, the Microsoft Agent Framework doesn’t ship with its own vector store connector."
+		https://jamiemaguire.net/index.php/2026/02/21/microsoft-agent-framework-adding-rag-to-your-ai-agent-using-textsearchprovider-and-in-memory-vector-store/#:~:text=We%E2%80%99re%20using%20this%20because%20at,its%20own%20vector%20store%20connector.-->
+		<!--<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.70.0-preview" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.70.0-preview" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.70.0-alpha" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.70.0-preview" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Redis" Version="1.70.0-preview" />
+		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.70.0-alpha" />-->
+		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
+	</ItemGroup>
+
+</Project>
