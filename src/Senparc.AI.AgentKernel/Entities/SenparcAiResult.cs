@@ -151,9 +151,10 @@ namespace Senparc.AI.AgentKernel
     public class SenparcKernelAiResult<T> : SenparcAiResult<FunctionResultContent>, IAiResult
         where T : class
     {
-        public T? Output => Result.Result as T;
+        public T? Output => Result.RawRepresentation as T;
 
-        public FunctionResultContent /*SKContext*/ Result { get; set; }
+        //public FunctionResultContent /*SKContext*/ Result { get; set; }
+        public AgentResponse /*SKContext*/ Result { get; set; }
         public IAsyncEnumerable<AgentResponseUpdate>? /*SKContext*/ StreamResult { get; set; }
 
         public SenparcKernelAiResult(IWantToRun iWwantToRun, string? inputContent)

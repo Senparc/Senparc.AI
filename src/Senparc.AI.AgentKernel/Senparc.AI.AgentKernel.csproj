@@ -7,6 +7,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="KernelConfigExtensions\KernelConfigExtensions.Function.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="KernelConfigExtensions\KernelConfigExtensions.Function.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />
 	</ItemGroup>
 

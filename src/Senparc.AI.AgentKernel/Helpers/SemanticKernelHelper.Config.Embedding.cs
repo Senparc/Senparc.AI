@@ -35,10 +35,10 @@ namespace Senparc.AI.AgentKernel.Helpers
 
             // var kernelBuilder = Microsoft.SemanticKernel.Kernel.Builder;
             // 以上方法已经被SK标注为 Obsolete, 修改为SK推荐的方法
-            kernelBuilder ??= Kernels.AIKernelBuilder.CreateBuilder();
+            kernelBuilder ??= Kernels.AIKernelBuilder.CreateBuilder(ConfigModel.TextEmbedding);
 
             // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
-            object _ = aiPlatForm switch
+            kernelBuilder.EmbeddingClient = aiPlatForm switch
             {
                 AiPlatform.OpenAI => kernelBuilder.AddOpenAIEmbedding(
                     apiKey: senparcAiSetting.ApiKey,

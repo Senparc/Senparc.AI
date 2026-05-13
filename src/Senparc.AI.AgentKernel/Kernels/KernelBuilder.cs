@@ -7,7 +7,13 @@ namespace Senparc.AI.AgentKernel.Kernels
 {
     public interface IAIKernelBuilder
     {
+        ConfigModel ConfigModel { get; set; }
+        object ChatClient { get; set; }
+        object EmbeddingClient { get; set; }
+        IServiceProvider ServiceProvider { get; set; }
+        IServiceCollection Services { get; set; }
 
+        AiKernel Build();
     }
 
     public class AIKernelBuilder : IAIKernelBuilder
@@ -16,14 +22,27 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         public IServiceProvider ServiceProvider { get; set; }
 
-        public static AIKernelBuilder CreateBuilder()
+        public object ChatClient { get; set; }
+
+        public object EmbeddingClient { get; set; }
+
+        public ConfigModel ConfigModel { get; set; }
+
+        public AIKernelBuilder(ConfigModel configModel = ConfigModel.Unknown)
         {
-            return new AIKernelBuilder();
+            ConfigModel = configModel;
         }
 
-        public void Build()
+        public static AIKernelBuilder CreateBuilder(ConfigModel configModel = ConfigModel.Unknown)
+        {
+            return new AIKernelBuilder(configModel);
+        }
+
+        public AiKernel Build()
         {
             ServiceProvider = Services.BuildServiceProvider();
+            AiKernel aiKernel = new AiKernel(ServiceProvider,ConfigModel, ChatClient, EmbeddingClient);
+            return aiKernel;
         }
     }
 }

@@ -45,9 +45,9 @@ namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
 
         #region Generate Embedding
 
-        public static Task GenerateOpenAIEmbeddingAsync(List<string> content) { 
-        
-        }
+        //public static Task GenerateOpenAIEmbeddingAsync(List<string> content) { 
+        //return new 
+        //}
 
         #endregion
     }

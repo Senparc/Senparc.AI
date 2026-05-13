@@ -25,11 +25,11 @@ namespace Senparc.AI.AgentKernel.Helpers
     /// </summary>
     public partial class SemanticKernelHelper
     {
-        public ISemanticTextMemory? SemanticTextMemory { get; set; }
+        //public ISemanticTextMemory? SemanticTextMemory { get; set; }
 
-        private Microsoft.SemanticKernel.Kernel _kernel { get; set; }
+        private AiKernel _kernel { get; set; }
 
-        internal IAIKernelBuilder KernelBuilder { get; set; } = Microsoft.SemanticKernel.Kernel.CreateBuilder();
+        internal IAIKernelBuilder KernelBuilder { get; set; } = Kernels.AIKernelBuilder.CreateBuilder();
 
         public ISenparcAiSetting AiSetting { get; private set; }
 
