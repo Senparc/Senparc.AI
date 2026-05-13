@@ -34,7 +34,7 @@ namespace Senparc.AI.AgentKernel.Handlers
     {
         #region 初始化
 
-        public static IWantToConfig IWantTo(this SemanticAiHandler handler, ISenparcAiSetting senparcAiSetting = null)
+        public static IWantToConfig IWantTo(this AgentAiHandler handler, ISenparcAiSetting senparcAiSetting = null)
         {
             var iWantTo = new IWantToConfig(new IWantTo(handler, senparcAiSetting));
             return iWantTo;

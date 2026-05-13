@@ -23,7 +23,7 @@ namespace Senparc.AI.AgentKernel.Helpers
     /// <summary>
     /// SemanticKernel 帮助类
     /// </summary>
-    public partial class SemanticKernelHelper
+    public partial class AgentKernelHelper
     {
         //public ISemanticTextMemory? SemanticTextMemory { get; set; }
 
@@ -46,7 +46,7 @@ namespace Senparc.AI.AgentKernel.Helpers
         /// <param name="loggerFactory"></param>
         /// <param name="httpClient">为 null 时，自动使用 <see cref="LoggingHttpMessageHandler"/> 构建 <see cref="HttpClient" /></param>
         /// <param name="enableLog">是否开启 <paramref name="httpClient"/> 的日志（仅在 <paramref name="httpClient"/> 为 null 时，会自动构建 <see cref="LoggingHttpMessageHandler"/> 时生效。</param>
-        public SemanticKernelHelper(ISenparcAiSetting? aiSetting = null, ILoggerFactory? loggerFactory = null, HttpClient httpClient = null, bool enableLog = false)
+        public AgentKernelHelper(ISenparcAiSetting? aiSetting = null, ILoggerFactory? loggerFactory = null, HttpClient httpClient = null, bool enableLog = false)
         {
             AiSetting = aiSetting ?? Senparc.AI.Config.SenparcAiSetting;
             this.loggerFactory = loggerFactory;

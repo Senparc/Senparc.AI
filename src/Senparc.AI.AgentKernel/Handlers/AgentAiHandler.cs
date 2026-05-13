@@ -24,12 +24,12 @@ namespace Senparc.AI.AgentKernel
     /// <summary>
     /// SenmanticKernel 处理器
     /// </summary>
-    public class SemanticAiHandler : IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiArguments>
+    public class AgentAiHandler : IAiHandler<SenparcAiRequest, SenparcAiResult, SenparcAiArguments>
     {
         private readonly ILoggerFactory loggerFactory;
 
-        public SemanticKernelHelper SemanticKernelHelper { get; set; }
-        private AiKernel _kernel => SemanticKernelHelper.GetKernel();
+        public AgentKernelHelper AgentKernelHelper { get; set; }
+        private AiKernel _kernel => AgentKernelHelper.GetKernel();
 
         /// <summary>
         /// 
@@ -39,9 +39,9 @@ namespace Senparc.AI.AgentKernel
         /// <param name="loggerFactory"></param>
         /// <param name="httpClient">为 null 时，自动使用 <see cref="LoggingHttpMessageHandler"/> 构建 <see cref="HttpClient" /></param>
         /// <param name="enableLog">是否开启 <paramref name="httpClient"/> 的日志（仅在 <paramref name="httpClient"/> 为 null 时，会自动构建 <see cref="LoggingHttpMessageHandler"/> 时生效。</param>
-        public SemanticAiHandler(ISenparcAiSetting senparcAiSetting, SemanticKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null, HttpClient httpClient = null, bool enableLog = false)
+        public AgentAiHandler(ISenparcAiSetting senparcAiSetting, AgentKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null, HttpClient httpClient = null, bool enableLog = false)
         {
-            SemanticKernelHelper = semanticAiHelper ?? new SemanticKernelHelper(senparcAiSetting, loggerFactory, httpClient, enableLog);
+            AgentKernelHelper = semanticAiHelper ?? new AgentKernelHelper(senparcAiSetting, loggerFactory, httpClient, enableLog);
             this.loggerFactory = loggerFactory;
         }
 

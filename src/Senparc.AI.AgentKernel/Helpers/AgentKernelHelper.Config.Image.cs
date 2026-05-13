@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Senparc.AI.AgentKernel.Helpers
 {
-    public partial class SemanticKernelHelper
+    public partial class AgentKernelHelper
     {
 
         /// <summary>

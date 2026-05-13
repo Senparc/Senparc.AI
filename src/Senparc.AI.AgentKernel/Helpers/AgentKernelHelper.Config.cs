@@ -25,7 +25,7 @@ using Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions;
 namespace Senparc.AI.AgentKernel.Helpers
 {
 
-    public partial class SemanticKernelHelper
+    public partial class AgentKernelHelper
     {
         /* Config* 方法规则：
         1. 相关方法为较底层的调用方法，会直接使用 Semantic Kernel 等模块接口

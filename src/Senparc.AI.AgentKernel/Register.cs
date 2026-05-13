@@ -52,7 +52,7 @@ namespace Senparc.AI.AgentKernel
                 Senparc.AI.Config.SenparcAiSetting = senparcAiSetting;
             }
             services.AddScoped<ISenparcAiSetting>(s => Config.SenparcAiSetting);
-            services.AddScoped<IAiHandler, SemanticAiHandler>();
+            services.AddScoped<IAiHandler, AgentAiHandler>();
 
             return services;
         }

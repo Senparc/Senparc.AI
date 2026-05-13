@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.AgentKernel.Tests.BaseSupport;
 
-namespace Senparc.AI.Kernel.Tests
+namespace Senparc.AI.AgentKernel.Tests
 {
     [TestClass]
     public class RegisterTest : KernelTestBase
@@ -13,7 +13,7 @@ namespace Senparc.AI.Kernel.Tests
             var settings = Senparc.AI.Config.SenparcAiSetting;
             Assert.IsNotNull(settings);
             Assert.IsInstanceOfType(settings, typeof(SenparcAiSetting));
-            Assert.AreEqual(settings, Senparc.AI.Kernel.Config.SenparcAiSetting);
+            Assert.AreEqual(settings, Senparc.AI.AgentKernel.Config.SenparcAiSetting);
 
             //TODO: 测试 NeuChar 接口
             Assert.AreEqual(AiPlatform.AzureOpenAI, settings.AiPlatform);

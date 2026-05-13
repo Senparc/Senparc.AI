@@ -28,7 +28,7 @@ namespace Senparc.AI.AgentKernel.Tests.BaseSupport
 
         static Action<ServiceCollection> serviceAction = services =>
         {
-            services.AddScoped<IAiHandler, SemanticAiHandler>();
+            services.AddScoped<IAiHandler, AgentAiHandler>();
         };
 
         public KernelTestBase() : base(RegisterAction, getSenparcAiSettingFunc, serviceAction)
