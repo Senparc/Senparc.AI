@@ -44,8 +44,8 @@ namespace Senparc.AI.AgentKernel.Kernels
 
             this.ChatClientAgent = ChatClient switch
             {
-                ChatClient c => c.AsAIAgent(),
-                OllamaChatClient c => c.AsAIAgent(),
+                ChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief","SenparcAgent"),
+                OllamaChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief","SenparcAgent"),
                 _ => throw new Exception("Unsupported ChatClient type")
             };
         }
@@ -79,6 +79,18 @@ namespace Senparc.AI.AgentKernel.Kernels
 
             //TODO: Session 统一管理
             var result = await ChatClientAgent.RunAsync<T>(prompt);
+            return result;
+        }
+
+        public async Task<AgentResponse> RunAsync(string prompt)
+        {
+            if (ConfigModel != ConfigModel.Chat)
+            {
+                throw new Exception("RunAsync is only supported for Chat ConfigModel");
+            }
+
+            //TODO: Session 统一管理
+            var result = await ChatClientAgent.RunAsync(prompt);
             return result;
         }
 

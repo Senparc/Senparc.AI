@@ -13,7 +13,7 @@ namespace Senparc.AI.Kernel.Handlers
 
 #pragma warning disable SKEXP0001
 
-        [Obsolete("Please use new methods", true)]
+        [Obsolete("Please use new methods")]
         public static IWantToRun MemorySaveInformation(this IWantToRun iWantToRun,
             string modelName,
             string collection,
@@ -37,7 +37,7 @@ namespace Senparc.AI.Kernel.Handlers
             return iWantToRun;
         }
 
-        [Obsolete("Please use new methods", true)]
+        [Obsolete("Please use new methods")]
         public static IWantToRun MemorySaveReference(this IWantToRun iWantToRun,
                string modelName,
                string collection,
@@ -80,7 +80,7 @@ namespace Senparc.AI.Kernel.Handlers
         /// <param name="cancel">Cancellation token</param>
         /// <returns>Memories found</returns>
         /// <returns></returns>
-        [Obsolete("Please use new methods", true)]
+        [Obsolete("Please use new methods")]
         public static async Task<SenparcAiResult_MemoryQuery> MemorySearchAsync(this IWantToRun iWantToRun,
             string modelName,
             string memoryCollectionName,

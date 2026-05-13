@@ -17,8 +17,8 @@ namespace Senparc.AI.AgentKernel.Handlers
         public ConcurrentDictionary<string, object> TempStore { get; set; } = new ConcurrentDictionary<string, object>();
         public IAIKernelBuilder KernelBuilder { get; set; }
         //public KernelConfig KernelConfig { get; set; }
-        public AgentKernelHelper SemanticKernelHelper { get; set; }
-        public AgentAiHandler SemanticAiHandler { get; set; }
+        public AgentKernelHelper AgentKernelHelper { get; set; }
+        public AgentAiHandler AgentAiHandler { get; set; }
 
         private ISenparcAiSetting _senparcAiSetting;
         public ISenparcAiSetting SenparcAiSetting
@@ -31,7 +31,7 @@ namespace Senparc.AI.AgentKernel.Handlers
             set => _senparcAiSetting = value;
         }
 
-        public AiKernel Kernel => SemanticKernelHelper.GetKernel();
+        public AiKernel Kernel => AgentKernelHelper.GetKernel();
 
         public string UserId { get; set; }
         public string ModelName { get; set; }
@@ -45,9 +45,9 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         public IWantTo(AgentAiHandler handler, ISenparcAiSetting senparcAiSetting)
         {
-            SemanticAiHandler = handler;
-            SemanticKernelHelper = handler.AgentKernelHelper;
-            SenparcAiSetting = senparcAiSetting ?? SemanticKernelHelper.AiSetting ?? Senparc.AI.Config.SenparcAiSetting;
+            AgentAiHandler = handler;
+            AgentKernelHelper = handler.AgentKernelHelper;
+            SenparcAiSetting = senparcAiSetting ?? AgentKernelHelper.AiSetting ?? Senparc.AI.Config.SenparcAiSetting;
         }
 
 
@@ -65,8 +65,8 @@ namespace Senparc.AI.AgentKernel.Handlers
         public string UserId { get; set; }
         public string ModelName { get; set; }
 
-        public AgentAiHandler SemanticAiHandler => IWantTo.SemanticAiHandler;
-        public AgentKernelHelper SemanticKernelHelper => IWantTo.SemanticKernelHelper;
+        public AgentAiHandler SemanticAiHandler => IWantTo.AgentAiHandler;
+        public AgentKernelHelper SemanticKernelHelper => IWantTo.AgentKernelHelper;
         public AiKernel Kernel => SemanticKernelHelper.GetKernel();
 
         public IWantToConfig(IWantTo iWantTo)
@@ -79,8 +79,8 @@ namespace Senparc.AI.AgentKernel.Handlers
     {
         public IWantToConfig IWantToConfig { get; set; }
 
-        public AgentAiHandler SemanticAiHandler => IWantToConfig.IWantTo.SemanticAiHandler;
-        public AgentKernelHelper SemanticKernelHelper => IWantToConfig.IWantTo.SemanticKernelHelper;
+        public AgentAiHandler SemanticAiHandler => IWantToConfig.IWantTo.AgentAiHandler;
+        public AgentKernelHelper SemanticKernelHelper => IWantToConfig.IWantTo.AgentKernelHelper;
         public AiKernel Kernel => SemanticKernelHelper.GetKernel();
 
         public IWantToBuild(IWantToConfig iWantToConfig)
@@ -98,8 +98,8 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         public List<AIFunction> Functions { get; set; }
 
-        public AgentAiHandler SemanticAiHandler => IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-        public AgentKernelHelper SemanticKernelHelper => IWantToBuild.IWantToConfig.IWantTo.SemanticKernelHelper;
+        public AgentAiHandler SemanticAiHandler => IWantToBuild.IWantToConfig.IWantTo.AgentAiHandler;
+        public AgentKernelHelper SemanticKernelHelper => IWantToBuild.IWantToConfig.IWantTo.AgentKernelHelper;
         public AiKernel Kernel => SemanticKernelHelper.GetKernel();
         public IWantToRun(IWantToBuild iWantToBuild)
         {

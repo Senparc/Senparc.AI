@@ -17,7 +17,7 @@ namespace Senparc.AI.AgentKernel.IWantToExtensions
         //    kernel.RunAsync(aIFunction, kernelArguments).Wait();
         //}
 
-        public static async Task<AgentResponse<string>> Run(this IWantToRun iWantToRun, string prompt)
+        public static async Task<AgentResponse> Run(this IWantToRun iWantToRun, string prompt)
         {
             AiKernel? kernel = iWantToRun.Kernel;
             return await kernel.RunAsync<string>(prompt);

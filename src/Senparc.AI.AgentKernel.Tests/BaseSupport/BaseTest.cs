@@ -53,6 +53,7 @@ namespace Senparc.AI.Tests
 
             Console.WriteLine("appsettingFileName: "+ appsettingFileName);
 
+
             configBuilder.AddJsonFile(appsettingFileName, false, false);
             var config = configBuilder.Build();
             serviceCollection.AddSenparcGlobalServices(config);
@@ -70,6 +71,10 @@ namespace Senparc.AI.Tests
             serviceCollection.AddMemoryCache();//使用内存缓存
 
             serviceCollection.AddSenparcAI(config, _senparcAiSetting);
+
+            Console.WriteLine("current AiPlatform: " + Senparc.AI.Config.SenparcAiSetting.AiPlatform);
+            Console.WriteLine("current ModelName: " + Senparc.AI.Config.SenparcAiSetting.ModelName.Chat);
+
 
             serviceProvider = serviceCollection.BuildServiceProvider();
         }

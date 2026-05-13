@@ -84,17 +84,17 @@ namespace Senparc.AI.AgentKernel.Handlers
             {
                 case AI.ConfigModel.Chat:
                     modelNameStr = modelName.Chat;
-                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigChat(userId, modelNameStr, senparcAiSetting,
+                    kernelBuilder = iWantTo.AgentKernelHelper.ConfigChat(userId, modelNameStr, senparcAiSetting,
                     existedKernelBuilder, GetDeploymentName(modelNameStr));
                     break;
                 case AI.ConfigModel.TextCompletion:
                     modelNameStr = modelName.TextCompletion;
-                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting,
+                    kernelBuilder = iWantTo.AgentKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting,
                     existedKernelBuilder, GetDeploymentName(modelNameStr));
                     break;
                 case AI.ConfigModel.TextEmbedding:
                     modelNameStr = modelName.Embedding;
-                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
+                    kernelBuilder = iWantTo.AgentKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
                     break;
                 //case AI.ConfigModel.TextToImage:
                 //    modelNameStr = modelName.TextToImage;
@@ -317,7 +317,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         public static IWantToRun BuildKernel(this IWantToConfig iWantToConfig, Action<IAIKernelBuilder>? kernelBuilderAction = null)
         {
             var iWantTo = iWantToConfig.IWantTo;
-            var handler = iWantTo.SemanticKernelHelper;
+            var handler = iWantTo.AgentKernelHelper;
             handler.BuildKernel(iWantTo.KernelBuilder, kernelBuilderAction);
 
             return new IWantToRun(new IWantToBuild(iWantToConfig));
