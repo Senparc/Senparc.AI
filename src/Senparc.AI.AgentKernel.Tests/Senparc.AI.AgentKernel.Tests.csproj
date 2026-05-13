@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Senparc.AI.AgentKernel\Senparc.AI.AgentKernel.csproj" />
     <ProjectReference Include="..\Senparc.AI.Agents\Senparc.AI.Agents.csproj" />
     <ProjectReference Include="..\Senparc.AI.Tests\Senparc.AI.Tests.csproj" />
   </ItemGroup>

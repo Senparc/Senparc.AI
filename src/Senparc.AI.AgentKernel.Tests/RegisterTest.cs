@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Senparc.AI.Kernel.Tests.BaseSupport;
-using Senparc.AI.Tests;
+using Senparc.AI.AgentKernel.Tests.BaseSupport;
 
 namespace Senparc.AI.Kernel.Tests
 {

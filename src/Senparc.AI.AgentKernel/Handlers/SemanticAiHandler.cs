@@ -57,130 +57,130 @@ namespace Senparc.AI.AgentKernel
             //TODO:未正式启用
 
             //TODO:此方法暂时还不能用
+            throw  new Exception("尚未实现");
+            //var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, senparcAiSetting: senparcAiSetting);
+            //var kernel = kernelBuilder.Build();
+            //// KernelResult result = await kernel.RunAsync(input: request.RequestContent!, pipeline: request.FunctionPipeline);
 
-            var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, senparcAiSetting: senparcAiSetting);
-            var kernel = kernelBuilder.Build();
-            // KernelResult result = await kernel.RunAsync(input: request.RequestContent!, pipeline: request.FunctionPipeline);
-
-            var result = new SenparcKernelAiResult(request.IWantToRun, request.RequestContent);
-            return result;
+            //var result = new SenparcKernelAiResult(request.IWantToRun, request.RequestContent);
+            //return result;
         }
 
-        /// <summary>
-        /// 配置 Chat 参数
-        /// </summary>
-        /// <param name="promptConfigParameter"></param>
-        /// <param name="userId"></param>
-        /// <param name="modelName"></param>
-        /// <param name="chatSystemMessage">System Message，仅在 <paramref name="promptTemplate"/> 为 null 时有效，否则会被忽略</param>
-        /// <param name="promptTemplate">完整的 Prompt，一般会包含 System Message，设置后 <paramref name="chatSystemMessage"/> 参数会被忽略</param>
-        /// <param name="senparcAiSetting"></param>
-        /// <returns></returns>
-        public IWantToRun ChatConfig(PromptConfigParameter promptConfigParameter,
-            string userId,
-            int maxHistoryStore,
-            ModelName modelName = null,
-            string chatSystemMessage = null,
-            string promptTemplate = null,
-            ISenparcAiSetting senparcAiSetting = null,
-            Action<IAIKernelBuilder> kernelBuilderAction = null,
-            string humanId = "User", string robotId = "Assistant", string hisgoryArgName = "history", string humanInputArgName = "human_input")
-        {
-            //promptTemplate ??= DefaultSetting.GetPromptForChat(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE, humanId, robotId, hisgoryArgName, humanInputArgName);
+        ///// <summary>
+        ///// 配置 Chat 参数
+        ///// </summary>
+        ///// <param name="promptConfigParameter"></param>
+        ///// <param name="userId"></param>
+        ///// <param name="modelName"></param>
+        ///// <param name="chatSystemMessage">System Message，仅在 <paramref name="promptTemplate"/> 为 null 时有效，否则会被忽略</param>
+        ///// <param name="promptTemplate">完整的 Prompt，一般会包含 System Message，设置后 <paramref name="chatSystemMessage"/> 参数会被忽略</param>
+        ///// <param name="senparcAiSetting"></param>
+        ///// <returns></returns>
+        //public IWantToRun ChatConfig(PromptConfigParameter promptConfigParameter,
+        //    string userId,
+        //    int maxHistoryStore,
+        //    ModelName modelName = null,
+        //    string chatSystemMessage = null,
+        //    string promptTemplate = null,
+        //    ISenparcAiSetting senparcAiSetting = null,
+        //    Action<IAIKernelBuilder> kernelBuilderAction = null,
+        //    string humanId = "User", string robotId = "Assistant", string hisgoryArgName = "history", string humanInputArgName = "human_input")
+        //{
+        //    //promptTemplate ??= DefaultSetting.GetPromptForChat(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE, humanId, robotId, hisgoryArgName, humanInputArgName);
 
-            var iWantToConfig = this.IWantTo(senparcAiSetting)
-                .ConfigModel(ConfigModel.Chat, userId, modelName);
+        //    var iWantToConfig = this.IWantTo(senparcAiSetting)
+        //        .ConfigModel(ConfigModel.Chat, userId, modelName);
 
-            //需要在 iWantToConfig.BuildKernel() 之前运行
-            kernelBuilderAction?.Invoke(iWantToConfig.IWantTo.KernelBuilder);
+        //    //需要在 iWantToConfig.BuildKernel() 之前运行
+        //    kernelBuilderAction?.Invoke(iWantToConfig.IWantTo.KernelBuilder);
 
-            var iWanToRun = iWantToConfig.BuildKernel()
-                .CreateFunctionFromPrompt(chatSystemMessage, promptConfigParameter)
-                .iWantToRun;
+        //    var iWanToRun = iWantToConfig.BuildKernel()
+        //        .CreateFunctionFromPrompt(chatSystemMessage, promptConfigParameter)
+        //        .iWantToRun;
 
-            var iWantTo = iWantToConfig.IWantTo;
-            iWantTo.TempStore["MaxHistoryCount"] = maxHistoryStore;
+        //    var iWantTo = iWantToConfig.IWantTo;
+        //    iWantTo.TempStore["MaxHistoryCount"] = maxHistoryStore;
 
-            var chatHistory = new ChatHistory();
-            chatHistory.AddSystemMessage(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE);
+        //    var chatHistory = new ChatHistory();
+        //    chatHistory.AddSystemMessage(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE);
 
-            iWanToRun.StoredAiArguments.KernelArguments.Set(hisgoryArgName, chatHistory);
+        //    iWanToRun.StoredAiArguments.KernelArguments.Set(hisgoryArgName, chatHistory);
 
-            return iWanToRun;
-        }
+        //    return iWanToRun;
+        //}
 
-        /// <summary>
-        /// 获取聊天结果
-        /// </summary>
-        /// <param name="iWantToRun"></param>
-        /// <param name="input">本次聊天内容</param>
-        /// <param name="keepHistoryCount">需要保留的聊天记录条数（建议为 5-20 条）</param>
-        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
-        /// <returns></returns>
-        public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string input,
-        Action<AgentResponseUpdate> inStreamItemProceessing = null,
-        string humanId = "User", string robotId = "Assistant", string historyArgName = "history", string humanInputArgName = "human_input",
-        PromptConfigParameter? parameter = null)
-        {
-            //var function = iWantToRun.Kernel.Plugins.GetSemanticFunction("Chat");
-            //request.FunctionPipeline = new[] { function };
+        ///// <summary>
+        ///// 获取聊天结果
+        ///// </summary>
+        ///// <param name="iWantToRun"></param>
+        ///// <param name="input">本次聊天内容</param>
+        ///// <param name="keepHistoryCount">需要保留的聊天记录条数（建议为 5-20 条）</param>
+        ///// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
+        ///// <returns></returns>
+        //public async Task<SenparcAiResult> ChatAsync(IWantToRun iWantToRun, string input,
+        //Action<AgentResponseUpdate> inStreamItemProceessing = null,
+        //string humanId = "User", string robotId = "Assistant", string historyArgName = "history", string humanInputArgName = "human_input",
+        //PromptConfigParameter? parameter = null)
+        //{
+        //    //var function = iWantToRun.Kernel.Plugins.GetSemanticFunction("Chat");
+        //    //request.FunctionPipeline = new[] { function };
 
-            var request = iWantToRun.CreateRequest(true);
+        //    var request = iWantToRun.CreateRequest(true);
 
-            //历史记录
-            //初始化对话历史（可选）
-            ChatHistory chatHistory;
-            if (!request.GetStoredArguments(historyArgName, out var hiistoryObj))
-            {
-                //request.SetStoredContext(historyArgName, "");
-                request.SetStoredContext(historyArgName, new ChatHistory());
-                chatHistory = new ChatHistory();
-                request.SetStoredContext(humanInputArgName, chatHistory);
-            }
-            else
-            {
-                chatHistory = hiistoryObj as ChatHistory;
+        //    //历史记录
+        //    //初始化对话历史（可选）
+        //    ChatHistory chatHistory;
+        //    if (!request.GetStoredArguments(historyArgName, out var hiistoryObj))
+        //    {
+        //        //request.SetStoredContext(historyArgName, "");
+        //        request.SetStoredContext(historyArgName, new ChatHistory());
+        //        chatHistory = new ChatHistory();
+        //        request.SetStoredContext(humanInputArgName, chatHistory);
+        //    }
+        //    else
+        //    {
+        //        chatHistory = hiistoryObj as ChatHistory;
 
-            }
+        //    }
 
-            var newRequest = request with { RequestContent = "" };
+        //    var newRequest = request with { RequestContent = "" };
 
-            //运行
+        //    //运行
 
-            SenparcKernelAiResult<string>? aiResult = null;
-            List<IContentItem> visionResult = await ChatHelper.TryGetImagesBase64FromContent(Senparc.CO2NET.SenparcDI.GetServiceProvider(), input);
-            aiResult = await iWantToRun.RunChatVisionAsync(newRequest, chatHistory, visionResult, parameter, inStreamItemProceessing);
-            //            if (visionResult.Exists(z => z.Type == ContentType.Image))
-            //            {
-            //                aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
-            //            }
-            //            else
-            //            {
-            //                aiResult = await iWantToRun.RunAsync(newRequest, inStreamItemProceessing);
-            //            }
+        //    SenparcKernelAiResult<string>? aiResult = null;
+        //    List<IContentItem> visionResult = await ChatHelper.TryGetImagesBase64FromContent(Senparc.CO2NET.SenparcDI.GetServiceProvider(), input);
+        //    aiResult = await iWantToRun.RunChatVisionAsync(newRequest, chatHistory, visionResult, parameter, inStreamItemProceessing);
+        //    //            if (visionResult.Exists(z => z.Type == ContentType.Image))
+        //    //            {
+        //    //                aiResult = await iWantToRun.RunVisionAsync(newRequest, chatHistory, visionResult, inStreamItemProceessing);
+        //    //            }
+        //    //            else
+        //    //            {
+        //    //                aiResult = await iWantToRun.RunAsync(newRequest, inStreamItemProceessing);
+        //    //            }
 
-            //判断最大历史记录数
-            var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
+        //    //判断最大历史记录数
+        //    var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
 
-            //清理对话历史记录条数
-            if (chatHistory != null &&
-                iWantTo.TempStore.TryGetValue("MaxHistoryCount", out object maxHistoryCountObj) &&
-                (maxHistoryCountObj is int maxHistoryCount))
-            {
+        //    //清理对话历史记录条数
+        //    if (chatHistory != null &&
+        //        iWantTo.TempStore.TryGetValue("MaxHistoryCount", out object maxHistoryCountObj) &&
+        //        (maxHistoryCountObj is int maxHistoryCount))
+        //    {
 
-                this.RemoveHistory(chatHistory, maxHistoryCount - 1);
-            }
+        //        this.RemoveHistory(chatHistory, maxHistoryCount - 1);
+        //    }
 
-            aiResult.SetLastFunctionResultContent();
-            //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
-            chatHistory.AddAssistantMessage(aiResult.OutputString);
+        //    aiResult.SetLastFunctionResultContent();
+        //    //newHistory = newHistory + $"\n{humanId}: {input}\n{robotId}: {aiResult.OutputString}";
+        //    chatHistory.AddAssistantMessage(aiResult.OutputString);
 
-            //记录对话历史（可选）
-            //request.SetStoredContext(historyArgName, newHistory);
-            request.SetStoredContext(historyArgName, chatHistory);
+        //    //记录对话历史（可选）
+        //    //request.SetStoredContext(historyArgName, newHistory);
+        //    request.SetStoredContext(historyArgName, chatHistory);
 
-            return aiResult;
-        }
+        //    return aiResult;
+        //}
 
         /// <summary>
         /// 保留指定条数的历史记录

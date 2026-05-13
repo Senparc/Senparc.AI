@@ -127,74 +127,74 @@ namespace Senparc.AI.AgentKernel.Helpers
 
         #region RequestSettings
 
-        /// <summary>
-        /// 根据不同的 AiPlatform 类型生成不同的 ExecutionSettings 对象
-        /// </summary>
-        /// <param name="temperature"></param>
-        /// <param name="topP"></param>
-        /// <param name="maxTokens"></param>
-        /// <param name="presencePenalty"></param>
-        /// <param name="frequencyPenalty"></param>
-        /// <param name="stopSequences"></param>
-        /// <param name="senparcAiSetting"></param>
-        /// <returns></returns>
-        public PromptExecutionSettings GetExecutionSetting(ISenparcAiSetting senparcAiSetting, double temperature = default, double topP = default, int? maxTokens = default, double presencePenalty = default, double frequencyPenalty = default, IList<string>? stopSequences = default)
-        {
-            senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
+        ///// <summary>
+        ///// 根据不同的 AiPlatform 类型生成不同的 ExecutionSettings 对象
+        ///// </summary>
+        ///// <param name="temperature"></param>
+        ///// <param name="topP"></param>
+        ///// <param name="maxTokens"></param>
+        ///// <param name="presencePenalty"></param>
+        ///// <param name="frequencyPenalty"></param>
+        ///// <param name="stopSequences"></param>
+        ///// <param name="senparcAiSetting"></param>
+        ///// <returns></returns>
+        //public PromptExecutionSettings GetExecutionSetting(ISenparcAiSetting senparcAiSetting, double temperature = default, double topP = default, int? maxTokens = default, double presencePenalty = default, double frequencyPenalty = default, IList<string>? stopSequences = default)
+        //{
+        //    senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
 
-            if (senparcAiSetting == null)
-            {
-                throw new SenparcAiException("全局未设置 Senparc.AI.Config.SenparcAiSetting，请在参数中提供相关配置！");
-            }
+        //    if (senparcAiSetting == null)
+        //    {
+        //        throw new SenparcAiException("全局未设置 Senparc.AI.Config.SenparcAiSetting，请在参数中提供相关配置！");
+        //    }
 
-            var aiPlatForm = senparcAiSetting.AiPlatform;
+        //    var aiPlatForm = senparcAiSetting.AiPlatform;
 
-            var promptExecutiongSetting = aiPlatForm switch
-            {
-                //AiPlatform.OpenAI => new OpenAIPromptExecutionSettings()
-                //{
-                //    Temperature = temperature,
-                //    TopP = topP,
-                //    MaxTokens = maxTokens,
-                //    PresencePenalty = presencePenalty,
-                //    FrequencyPenalty = frequencyPenalty,
-                //    StopSequences = stopSequences
-                //},
-                //AiPlatform.AzureOpenAI =>
-                //AiPlatform.NeuCharAI => 
-                //AiPlatform.HuggingFace => 
-                _ => new OpenAIPromptExecutionSettings()
-                {
-                    Temperature = temperature,
-                    TopP = topP,
-                    MaxTokens = maxTokens,
-                    PresencePenalty = presencePenalty,
-                    FrequencyPenalty = frequencyPenalty,
-                    StopSequences = stopSequences,
-                },
-            };
+        //    var promptExecutiongSetting = aiPlatForm switch
+        //    {
+        //        //AiPlatform.OpenAI => new OpenAIPromptExecutionSettings()
+        //        //{
+        //        //    Temperature = temperature,
+        //        //    TopP = topP,
+        //        //    MaxTokens = maxTokens,
+        //        //    PresencePenalty = presencePenalty,
+        //        //    FrequencyPenalty = frequencyPenalty,
+        //        //    StopSequences = stopSequences
+        //        //},
+        //        //AiPlatform.AzureOpenAI =>
+        //        //AiPlatform.NeuCharAI => 
+        //        //AiPlatform.HuggingFace => 
+        //        _ => new OpenAIPromptExecutionSettings()
+        //        {
+        //            Temperature = temperature,
+        //            TopP = topP,
+        //            MaxTokens = maxTokens,
+        //            PresencePenalty = presencePenalty,
+        //            FrequencyPenalty = frequencyPenalty,
+        //            StopSequences = stopSequences,
+        //        },
+        //    };
 
-            return promptExecutiongSetting;
-        }
+        //    return promptExecutiongSetting;
+        //}
 
-        /// <summary>
-        /// 根据不同的 AiPlatform 类型生成不同的 ExecutionSettings 对象
-        /// </summary>
-        /// <param name="promptConfigParameter"></param>
-        /// <param name="senparcAiSetting"></param>
-        /// <returns></returns>
-        public PromptExecutionSettings GetExecutionSetting(PromptConfigParameter promptConfigParameter, ISenparcAiSetting senparcAiSetting)
-        {
-            return GetExecutionSetting(
-                   senparcAiSetting: senparcAiSetting,
-                   temperature: promptConfigParameter.Temperature ?? default,
-                   topP: promptConfigParameter.TopP ?? default,
-                   maxTokens: promptConfigParameter.MaxTokens,
-                   presencePenalty: promptConfigParameter.PresencePenalty ?? default,
-                   frequencyPenalty: promptConfigParameter.FrequencyPenalty ?? default,
-                   stopSequences: promptConfigParameter.StopSequences
-                    );
-        }
+        ///// <summary>
+        ///// 根据不同的 AiPlatform 类型生成不同的 ExecutionSettings 对象
+        ///// </summary>
+        ///// <param name="promptConfigParameter"></param>
+        ///// <param name="senparcAiSetting"></param>
+        ///// <returns></returns>
+        //public PromptExecutionSettings GetExecutionSetting(PromptConfigParameter promptConfigParameter, ISenparcAiSetting senparcAiSetting)
+        //{
+        //    return GetExecutionSetting(
+        //           senparcAiSetting: senparcAiSetting,
+        //           temperature: promptConfigParameter.Temperature ?? default,
+        //           topP: promptConfigParameter.TopP ?? default,
+        //           maxTokens: promptConfigParameter.MaxTokens,
+        //           presencePenalty: promptConfigParameter.PresencePenalty ?? default,
+        //           frequencyPenalty: promptConfigParameter.FrequencyPenalty ?? default,
+        //           stopSequences: promptConfigParameter.StopSequences
+        //            );
+        //}
 
         #endregion
     }

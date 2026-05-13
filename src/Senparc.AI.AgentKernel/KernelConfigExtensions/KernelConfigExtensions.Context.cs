@@ -1,5 +1,6 @@
 ﻿using Microsoft.SemanticKernel;
 using Senparc.AI.AgentKernel.Handlers;
+using Senparc.AI.AgentKernel.Kernels;
 using System;
 using System.Collections.Generic;
 using System.Text;
