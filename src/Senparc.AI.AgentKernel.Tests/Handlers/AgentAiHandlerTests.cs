@@ -76,9 +76,47 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
 
                 Console.WriteLine($"[{i}]结果：{result.Result.Text}（Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount}）");
 
+                if (i == 1)
+                {
+                    Assert.Contains("盐水鸭", result.Result.Text, "The response should contain '盐水鸭' for the first prompt.");
+                }
+
                 i++;
             }
         }
+
+
+        [TestMethod]
+        public async Task ConversationTestWithDefaultSession()
+        {
+            AgentAiHandler agentAiHandler = new AgentAiHandler(_senparcAiSetting);
+
+            var prompts = new[] { "苏州特产有哪些（请您说三个）？", "南京的呢？", "北京的呢？用英文" };
+            var i = 0;
+            AgentSession agentSession = null;
+
+            var iWantToRun = agentAiHandler.IWantTo()
+                      .ConfigModel(ConfigModel.Chat, "Jeffrey")
+                      .BuildKernel(); //同一个对象，自带 Session
+
+            foreach (var prompt in prompts)
+            {
+                agentSession ??= iWantToRun.Kernel.AgentSession;
+                Console.WriteLine("AgentSession is null:" + (agentSession == null));
+
+                var result = await iWantToRun.RunAsync(prompt, agentSession);
+
+                Console.WriteLine($"[{i}]结果：{result.Result.Text}（Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount}）");
+
+                if (i==1)
+                {
+                    Assert.DoesNotContain("盐水鸭", result.Result.Text, "The response should contain '盐水鸭' for the first prompt.");
+                }
+
+                i++;
+            }
+        }
+
 
         [TestMethod]
         public async Task ConversationTestWithoutSession()
@@ -100,6 +138,11 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
                 var result = await iWantToRun.RunAsync(prompt, agentSession);
 
                 Console.WriteLine($"[{i}]结果：{result.Result.Text}（Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount}）");
+
+                if (i == 1)
+                {
+                    Assert.DoesNotContain("盐水鸭", result.Result.Text, "The response should contain '盐水鸭' for the first prompt.");
+                }
 
                 i++;
             }

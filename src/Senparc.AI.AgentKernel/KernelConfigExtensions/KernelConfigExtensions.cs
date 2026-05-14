@@ -324,19 +324,29 @@ namespace Senparc.AI.AgentKernel.Handlers
             return new IWantToRun(new IWantToBuild(iWantToConfig));
         }
 
+        public static async Task<IWantToRun> BuildKernelAsync(this IWantToConfig iWantToConfig, bool createAgentession = false, Action<IAIKernelBuilder>? kernelBuilderAction = null)
+        {
+            if (createAgentession)
+            {
+                return await BuildKernelWithAgentSessionAsync(iWantToConfig, kernelBuilderAction);
+            }
+            else
+            {
+                return BuildKernel(iWantToConfig, kernelBuilderAction);
+            }
+        }
+
         public static async Task<IWantToRun> BuildKernelWithAgentSessionAsync(this IWantToConfig iWantToConfig, Action<IAIKernelBuilder>? kernelBuilderAction = null, AgentSession agentSession = null)
         {
-            var iWantTo = iWantToConfig.IWantTo;
-            var handler = iWantTo.AgentKernelHelper;
-            var aiKernel = handler.BuildKernel(iWantTo.KernelBuilder, kernelBuilderAction);
+            var iWantToRun = BuildKernel(iWantToConfig, kernelBuilderAction);
 
-            if (aiKernel.ChatClientAgent != null)
+            if (iWantToRun.Kernel.ChatClientAgent != null)
             {
-                agentSession ??= await aiKernel.ChatClientAgent.CreateSessionAsync();
-                aiKernel.SetAgentSessionAsync(agentSession);
+                agentSession ??= await iWantToRun.Kernel.ChatClientAgent.CreateSessionAsync();
+                await iWantToRun.Kernel.SetAgentSessionAsync(agentSession);
             }
 
-            return new IWantToRun(new IWantToBuild(iWantToConfig));
+            return iWantToRun;
         }
 
         //#pragma warning disable SKEXP0052
