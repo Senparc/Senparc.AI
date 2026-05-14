@@ -39,8 +39,9 @@ namespace Senparc.AI.AgentKernel
         /// <param name="loggerFactory"></param>
         /// <param name="httpClient">为 null 时，自动使用 <see cref="LoggingHttpMessageHandler"/> 构建 <see cref="HttpClient" /></param>
         /// <param name="enableLog">是否开启 <paramref name="httpClient"/> 的日志（仅在 <paramref name="httpClient"/> 为 null 时，会自动构建 <see cref="LoggingHttpMessageHandler"/> 时生效。</param>
-        public AgentAiHandler(ISenparcAiSetting senparcAiSetting, AgentKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null, HttpClient httpClient = null, bool enableLog = false)
+        public AgentAiHandler(ISenparcAiSetting senparcAiSetting = null, AgentKernelHelper? semanticAiHelper = null, ILoggerFactory loggerFactory = null, HttpClient httpClient = null, bool enableLog = false)
         {
+            senparcAiSetting ??= Senparc.AI.Config.SenparcAiSetting;
             AgentKernelHelper = semanticAiHelper ?? new AgentKernelHelper(senparcAiSetting, loggerFactory, httpClient, enableLog);
             this.loggerFactory = loggerFactory;
         }
@@ -57,7 +58,7 @@ namespace Senparc.AI.AgentKernel
             //TODO:未正式启用
 
             //TODO:此方法暂时还不能用
-            throw  new Exception("尚未实现");
+            throw new Exception("尚未实现");
             //var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, senparcAiSetting: senparcAiSetting);
             //var kernel = kernelBuilder.Build();
             //// KernelResult result = await kernel.RunAsync(input: request.RequestContent!, pipeline: request.FunctionPipeline);

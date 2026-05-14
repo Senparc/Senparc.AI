@@ -14,10 +14,13 @@ namespace Senparc.AI.AgentKernel.Kernels
         IServiceCollection Services { get; set; }
 
         AiKernel Build();
+        void ManageSession(bool enableSession);
     }
 
     public class AIKernelBuilder : IAIKernelBuilder
     {
+        private bool EnableSession { get; set; } = true;
+
         public IServiceCollection Services { get; set; } = new ServiceCollection();
 
         public IServiceProvider ServiceProvider { get; set; }
@@ -41,8 +44,14 @@ namespace Senparc.AI.AgentKernel.Kernels
         public AiKernel Build()
         {
             ServiceProvider = Services.BuildServiceProvider();
-            AiKernel aiKernel = new AiKernel(ServiceProvider,ConfigModel, ChatClient, EmbeddingClient);
+            AiKernel aiKernel = new AiKernel(ServiceProvider, ConfigModel, ChatClient, EmbeddingClient, EnableSession);
+            
             return aiKernel;
+        }
+
+        public void ManageSession(bool enableSession)
+        {
+            EnableSession = enableSession;
         }
     }
 }

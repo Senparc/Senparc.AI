@@ -32,6 +32,7 @@ namespace Senparc.AI.AgentKernel.Handlers
     /// </summary>
     public static partial class KernelConfigExtension
     {
+
         #region 初始化
 
         public static IWantToConfig IWantTo(this AgentAiHandler handler, ISenparcAiSetting senparcAiSetting = null)
@@ -116,6 +117,11 @@ namespace Senparc.AI.AgentKernel.Handlers
             return iWantToConfig;
         }
 
+        public static IWantToConfig ManageSession(this IWantToConfig iWantToConfig, bool enableSession)
+        {
+            iWantToConfig.ManageSession(enableSession);
+            return iWantToConfig;
+        }
 
         ///// <summary>
         ///// 添加 TextCompletion 配置
@@ -482,6 +488,22 @@ namespace Senparc.AI.AgentKernel.Handlers
         #endregion
 
         #region 运行
+
+        /// <summary>
+        /// 运行
+        /// </summary>
+        /// <param name="iWanToRun"></param>
+        /// <returns></returns>
+        public static async Task<SenparcKernelAiResult> RunAsync(this IWantToRun iWanToRun, string prompt, AgentSession agentSession = null)
+        {
+            var result = await iWanToRun.Kernel.RunAsync(prompt, agentSession);
+            var finalResult = new SenparcKernelAiResult(iWanToRun, inputContent: prompt)
+            {
+                OutputString = result.Text,
+                Result = result
+            };
+            return finalResult;
+        }
 
         /// <summary>
         /// 运行

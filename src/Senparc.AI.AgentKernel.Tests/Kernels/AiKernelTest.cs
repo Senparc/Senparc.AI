@@ -27,9 +27,10 @@ namespace Senparc.AI.AgentKernel.Tests.Kernels
                         .ConfigModel(ConfigModel.Chat, "Jeffrey")
                         .BuildKernel();
 
-            var result = await iWantToRun.Kernel.RunAsync("Hello, how are you?");
+            var result = await iWantToRun.Kernel.RunAsync("给我介绍一下苏州园林");
             Assert.IsTrue(result.CreatedAt.Value.UtcDateTime > DateTime.UtcNow.AddMinutes(-5), "Result should be created within the last 5 minutes.");
             Console.WriteLine($"Result: {result.Text}");
+            Console.WriteLine("Usage:" + result.Usage.ToJson(true));
         }
     }
 }

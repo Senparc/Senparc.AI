@@ -19,18 +19,24 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         public object EmbeddingGenerator { get; set; }
 
-        public AiKernel(IServiceProvider serviceProvider, ConfigModel configModel, object chatClient, object embeddingModel)
+        public bool EnableSession { get; set; } = true;
+
+        public AgentSession AgentSession { get; set; }
+        public bool AgentInited { get; set; }
+
+        public AiKernel(IServiceProvider serviceProvider, ConfigModel configModel, object chatClient, object embeddingModel, bool enableSession)
         {
             this.ServiceProvider = serviceProvider;
             this.ChatClient = chatClient;
             this.ConfigModel = configModel;
             this.EmbeddingClient = embeddingModel;
 
-            this.CreateAIAgent();
+            this.CreateAIAgent().GetAwaiter().GetResult();
             this.CreateEmbeddingGenerator();
+            EnableSession = enableSession;
         }
 
-        private void CreateAIAgent()
+        private async Task CreateAIAgent()
         {
             if (ConfigModel == ConfigModel.Unknown)
             {
@@ -44,10 +50,15 @@ namespace Senparc.AI.AgentKernel.Kernels
 
             this.ChatClientAgent = ChatClient switch
             {
-                ChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief","SenparcAgent"),
-                OllamaChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief","SenparcAgent"),
+                ChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief", "SenparcAgent"),
+                OllamaChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief", "SenparcAgent"),
                 _ => throw new Exception("Unsupported ChatClient type")
             };
+
+            if (EnableSession)
+            {
+                AgentSession = await this.ChatClientAgent.CreateSessionAsync();
+            }
         }
 
         private void CreateEmbeddingGenerator()
@@ -70,7 +81,7 @@ namespace Senparc.AI.AgentKernel.Kernels
             };
         }
 
-        public async Task<AgentResponse<T>> RunAsync<T>(string prompt)
+        public async Task<AgentResponse<T>> RunAsync<T>(string prompt, AgentSession agentSession = null)
         {
             if (ConfigModel != ConfigModel.Chat)
             {
@@ -78,11 +89,11 @@ namespace Senparc.AI.AgentKernel.Kernels
             }
 
             //TODO: Session 统一管理
-            var result = await ChatClientAgent.RunAsync<T>(prompt);
+            var result = await ChatClientAgent.RunAsync<T>(prompt, agentSession);
             return result;
         }
 
-        public async Task<AgentResponse> RunAsync(string prompt)
+        public async Task<AgentResponse> RunAsync(string prompt, AgentSession agentSession = null)
         {
             if (ConfigModel != ConfigModel.Chat)
             {
@@ -90,7 +101,7 @@ namespace Senparc.AI.AgentKernel.Kernels
             }
 
             //TODO: Session 统一管理
-            var result = await ChatClientAgent.RunAsync(prompt);
+            var result = await ChatClientAgent.RunAsync(prompt, agentSession);
             return result;
         }
 
