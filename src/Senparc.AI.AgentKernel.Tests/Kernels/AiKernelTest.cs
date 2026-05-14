@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Senparc.AI.AgentKernel.Handlers;
 using Senparc.CO2NET.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Senparc.AI.AgentKernel.Tests.Kernels
 {
@@ -31,6 +32,7 @@ namespace Senparc.AI.AgentKernel.Tests.Kernels
             Assert.IsTrue(result.CreatedAt.Value.UtcDateTime > DateTime.UtcNow.AddMinutes(-5), "Result should be created within the last 5 minutes.");
             Console.WriteLine($"Result: {result.Text}");
             Console.WriteLine("Usage:" + result.Usage.ToJson(true));
+
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Senparc.AI.AgentKernel.Entities
             get => KernelArguments;
             set
             {
-                if (value is not Kernels.KernelArguments)
+                if (value is not Microsoft.SemanticKernel.KernelArguments)
                 {
                     throw new SenparcAiException("Context 类型必须为 IDictionary<string, object?>");
                 }

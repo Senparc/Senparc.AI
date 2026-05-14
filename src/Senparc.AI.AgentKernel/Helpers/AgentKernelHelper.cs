@@ -93,7 +93,7 @@ namespace Senparc.AI.AgentKernel.Helpers
                 return _kernel;
             }
 
-            return BuildKernel(KernelBuilder, kernelBuilderAction);
+            return  BuildKernel(KernelBuilder, kernelBuilderAction);
         }
 
 

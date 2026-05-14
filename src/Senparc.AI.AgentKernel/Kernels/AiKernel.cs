@@ -2,6 +2,7 @@
 using Microsoft.Extensions.AI;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
+using Senparc.AI.AgentKernel.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,46 +20,64 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         public object EmbeddingGenerator { get; set; }
 
-        public bool EnableSession { get; set; } = true;
+        public AgentSession? AgentSession { get; set; }
 
-        public AgentSession AgentSession { get; set; }
         public bool AgentInited { get; set; }
 
-        public AiKernel(IServiceProvider serviceProvider, ConfigModel configModel, object chatClient, object embeddingModel, bool enableSession)
+        public AiKernel(IServiceProvider serviceProvider, ConfigModel configModel, object chatClient, object embeddingModel)
         {
             this.ServiceProvider = serviceProvider;
             this.ChatClient = chatClient;
             this.ConfigModel = configModel;
             this.EmbeddingClient = embeddingModel;
 
-            this.CreateAIAgent().GetAwaiter().GetResult();
+            this.CreateAIAgent();
             this.CreateEmbeddingGenerator();
-            EnableSession = enableSession;
         }
 
-        private async Task CreateAIAgent()
+        //TODO:Set Agent information
+
+        internal void CreateAIAgent()
         {
-            if (ConfigModel == ConfigModel.Unknown)
+            try
             {
-                throw new Exception("ConfigModel is required to create AIAgent");
+                if (ConfigModel == ConfigModel.Unknown)
+                {
+                    throw new Exception("ConfigModel is required to create AIAgent");
+                }
+
+                if (ConfigModel != ConfigModel.Chat || ChatClient == null)
+                {
+                    return;
+                }
+
+                this.ChatClientAgent = ChatClient switch
+                {
+                    ChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief", "SenparcAgent"),
+                    OllamaChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief", "SenparcAgent"),
+                    _ => throw new Exception("Unsupported ChatClient type")
+                };
+
+                AgentInited = true;
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
 
-            if (ConfigModel != ConfigModel.Chat || ChatClient == null)
-            {
-                return;
-            }
+        }
 
-            this.ChatClientAgent = ChatClient switch
-            {
-                ChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief", "SenparcAgent"),
-                OllamaChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief", "SenparcAgent"),
-                _ => throw new Exception("Unsupported ChatClient type")
-            };
-
-            if (EnableSession)
-            {
-                AgentSession = await this.ChatClientAgent.CreateSessionAsync();
-            }
+        /// <summary>
+        /// Set AgentSesssion
+        /// </summary>
+        /// <param name="session">use default method to create AgentSession if set null</param>
+        /// <returns></returns>
+        public async Task<AgentSession> SetAgentSessionAsync(AgentSession session)
+        {
+            AgentSession newSession = session ?? await ChatClientAgent.CreateSessionAsync();
+            this.AgentSession = newSession;
+            return newSession;
         }
 
         private void CreateEmbeddingGenerator()
@@ -89,7 +108,8 @@ namespace Senparc.AI.AgentKernel.Kernels
             }
 
             //TODO: Session 统一管理
-            var result = await ChatClientAgent.RunAsync<T>(prompt, agentSession);
+            var session = agentSession ??= this.AgentSession;
+            var result = await ChatClientAgent.RunAsync<T>(prompt, session);
             return result;
         }
 
@@ -100,8 +120,9 @@ namespace Senparc.AI.AgentKernel.Kernels
                 throw new Exception("RunAsync is only supported for Chat ConfigModel");
             }
 
-            //TODO: Session 统一管理
-            var result = await ChatClientAgent.RunAsync(prompt, agentSession);
+            var session = agentSession ??= this.AgentSession;
+
+            var result = await ChatClientAgent.RunAsync(prompt, session);
             return result;
         }
 

@@ -81,6 +81,7 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         public AgentAiHandler SemanticAiHandler => IWantToConfig.IWantTo.AgentAiHandler;
         public AgentKernelHelper SemanticKernelHelper => IWantToConfig.IWantTo.AgentKernelHelper;
+
         public AiKernel Kernel => SemanticKernelHelper.GetKernel();
 
         public IWantToBuild(IWantToConfig iWantToConfig)
@@ -104,7 +105,6 @@ namespace Senparc.AI.AgentKernel.Handlers
         public IWantToRun(IWantToBuild iWantToBuild)
         {
             IWantToBuild = iWantToBuild;
-            StoredAiArguments = new SenparcAiArguments();
             Functions = new List<AIFunction>();
         }
 

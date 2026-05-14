@@ -10,6 +10,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.VectorData;
+using Microsoft.SemanticKernel;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Helpers;
 using Senparc.AI.AgentKernel.Kernels;
@@ -114,12 +115,6 @@ namespace Senparc.AI.AgentKernel.Handlers
             iWantTo.KernelBuilder = kernelBuilder; //进行 Config 必须提供 Kernel
             iWantTo.UserId = userId;
             iWantTo.ModelName = modelNameStr;
-            return iWantToConfig;
-        }
-
-        public static IWantToConfig ManageSession(this IWantToConfig iWantToConfig, bool enableSession)
-        {
-            iWantToConfig.ManageSession(enableSession);
             return iWantToConfig;
         }
 
@@ -325,6 +320,21 @@ namespace Senparc.AI.AgentKernel.Handlers
             var iWantTo = iWantToConfig.IWantTo;
             var handler = iWantTo.AgentKernelHelper;
             handler.BuildKernel(iWantTo.KernelBuilder, kernelBuilderAction);
+
+            return new IWantToRun(new IWantToBuild(iWantToConfig));
+        }
+
+        public static async Task<IWantToRun> BuildKernelWithAgentSessionAsync(this IWantToConfig iWantToConfig, Action<IAIKernelBuilder>? kernelBuilderAction = null, AgentSession agentSession = null)
+        {
+            var iWantTo = iWantToConfig.IWantTo;
+            var handler = iWantTo.AgentKernelHelper;
+            var aiKernel = handler.BuildKernel(iWantTo.KernelBuilder, kernelBuilderAction);
+
+            if (aiKernel.ChatClientAgent != null)
+            {
+                agentSession ??= await aiKernel.ChatClientAgent.CreateSessionAsync();
+                aiKernel.SetAgentSessionAsync(agentSession);
+            }
 
             return new IWantToRun(new IWantToBuild(iWantToConfig));
         }

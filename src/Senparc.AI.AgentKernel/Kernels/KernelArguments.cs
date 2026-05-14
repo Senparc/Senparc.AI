@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Senparc.AI.AgentKernel.Kernels
 {
-    public class KernelArguments : Dictionary<string, object?>, IDictionary<string, object?>
-    {
-    }
+    //public class KernelArguments : Dictionary<string, object?>, IDictionary<string, object?>
+    //{
+    //}
 }

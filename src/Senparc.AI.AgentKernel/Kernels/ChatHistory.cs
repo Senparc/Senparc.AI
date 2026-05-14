@@ -7,7 +7,6 @@ namespace Senparc.AI.AgentKernel.Kernels
 {
     public class ChatHistory : List<ChatMessage>
     {
-
         public void Add(ChatRole chatRole, string message)
         {
             base.Add(new ChatMessage(chatRole, message));
