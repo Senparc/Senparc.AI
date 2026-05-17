@@ -27,6 +27,7 @@
 		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.5.0" />
 		<PackageReference Include="Microsoft.Extensions.AI" Version="10.5.2" />
 		<PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />
+		<PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.6.0" />
 		<!--<PackageReference Include="OllamaSharp" Version="5.4.25" />-->
 
 		<!-- "We’re using this because at the time of writing, the Microsoft Agent Framework doesn’t ship with its own vector store connector."
