@@ -11,7 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using static System.Net.Mime.MediaTypeNames;
+using Senparc.AI.AgentKernel.KernelConfigExtensions;
 
 namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
 {
@@ -20,6 +20,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
 
     public class TextSearchDocument
     {
+        //public string SourceId { get; set; } = string.Empty;
         public ulong SourceId { get; set; } = 0;
         public string SourceName { get; set; } = string.Empty;
         public string SourceLink { get; set; } = string.Empty;
@@ -28,19 +29,31 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
 
     public class TextSearchRecord
     {
+       // public string SourceId { get; set; } = string.Empty;
+        [VectorStoreKey]
         public ulong SourceId { get; set; } = 0;
+        [VectorStoreData(IsIndexed = true)]
         public string SourceName { get; set; } = string.Empty;
+        [VectorStoreData(IsFullTextIndexed = true)]
         public string SourceLink { get; set; } = string.Empty;
+        [VectorStoreData(IsFullTextIndexed = true)]
         public string Text { get; set; } = string.Empty;
-        public string Embedding { get; set; } = string.Empty;
+        [VectorStoreVector(dimensions: 3072 /*根据模型调整，例如 text-embedding-ada-002 为 1536，Large 为 3072*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
+        public ReadOnlyMemory<float>? Embedding { get; set; } = null;
     }
 
 
     public class TextSearchStore
     {
-        private readonly VectorStoreCollection<string, TextSearchRecord> _collection;
-        public TextSearchStore(VectorStore vectorStore, string collectionName, int dimensions,IEmbeddingGenerator embeddingGenerator)
+        private readonly VectorStoreCollection<ulong, TextSearchRecord> _collection;
+
+        public IWantToRun WantToRun { get; }
+
+        public TextSearchStore(IWantToRun wantToRun, VectorStore vectorStore)
         {
+            WantToRun = wantToRun;
+            var kernel = WantToRun.Kernel;
+
             var definition = new VectorStoreCollectionDefinition
             {
                 Properties =
@@ -49,11 +62,10 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
                 new VectorStoreDataProperty("SourceName", typeof(string)),
                 new VectorStoreDataProperty("SourceLink", typeof(string)),
                 new VectorStoreDataProperty("Text", typeof(string)),
-                new VectorStoreVectorProperty("Embedding", typeof(string), dimensions),
+                new VectorStoreVectorProperty("Embedding", typeof(string), kernel.EmbeddingDimensions),
             ],
-                 EmbeddingGenerator = embeddingGenerator
             };
-            _collection = vectorStore.GetCollection<string, TextSearchRecord>(collectionName, definition);
+            _collection = vectorStore.GetCollection<ulong, TextSearchRecord>(kernel.EmbeddingCollectionName/*, definition*/);
         }
 
         public async Task UpsertDocumentsAsync(IEnumerable<TextSearchDocument> documents)
@@ -67,7 +79,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
                     SourceName = doc.SourceName,
                     SourceLink = doc.SourceLink,
                     Text = doc.Text,
-                    Embedding = doc.Text
+                    Embedding = await WantToRun.GetEmbeddingAsync(doc.Text)
                 };
                 await _collection.UpsertAsync(record);
             }
@@ -96,21 +108,21 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
         {
             yield return new TextSearchDocument
             {
-                SourceId = (ulong)1,
+                SourceId =1,// "NCF-1",
                 SourceName = "NeuCharFramework (NCF) - Overview",
                 SourceLink = "https://doc.ncf.pub/",
                 Text = "NeuCharFramework (NCF) is an AI-enabled, out-of-the-box modular development framework. It provides quick setup with templates and one-click installation, integrates basic AI capabilities for easier AI application development, and emphasizes modular design and extensibility."
             };
             yield return new TextSearchDocument
             {
-                SourceId = (ulong)2,
+                SourceId =2,// "NCF-2",
                 SourceName = "Get Started - NCF",
                 SourceLink = "https://doc.ncf.pub/start/start-develop/get-ncf-template.html",
                 Text = "The Get Started guide provides framework templates and a one-click installation experience to quickly bootstrap projects based on NCF, with step-by-step instructions for obtaining and using the project templates."
             };
             yield return new TextSearchDocument
             {
-                SourceId = (ulong)3,
+                SourceId = 3,//"NCF-3",
                 SourceName = "About NCF - Project Introduction",
                 SourceLink = "https://doc.ncf.pub/start/instruction/about-ncf.html",
                 Text = "NCF highlights: modular design, multi-database support (SQL Server, MySQL, SQLite, PostgreSQL, Oracle, DM), high performance, DDD patterns, Dapr microservice support, backward compatibility for different deployment modes, and maintained community support by the Senparc developer community."
@@ -136,12 +148,14 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
             }
 
             [TestMethod]
-            public async Task InMemoryTest()
+            public async Task EmbeddingTest()
             {
                 // Search Configuration Options
                 TextSearchProviderOptions textSearchOptions = new()
                 {
                     SearchTime = TextSearchProviderOptions.TextSearchBehavior.BeforeAIInvoke,
+                    CitationsPrompt = "Always cite sources at the end of your response using the format: " +
+                          "**Source:** [SourceName](SourceLink)",
                     RecentMessageMemoryLimit = 6,
                 };
 
@@ -167,7 +181,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
                 VectorStore vectorStore = iWantToRun.GetVectorStore(_senparcAiSetting.VectorDB);
 
                 // Initialize the TextSearchStore with the vector store and embedding configuration
-                _textSearchStore = new TextSearchStore(vectorStore, aiKernel.EmbeddingCollectionName, aiKernel.EmbeddingDimensions,aiKernel.EmbeddingGenerator);
+                _textSearchStore = new TextSearchStore(iWantToRun, vectorStore);
 
                 await _textSearchStore.UpsertDocumentsAsync(TextSearchStore.GetSampleDocuments());
 

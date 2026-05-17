@@ -47,7 +47,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="AutoGen" Version="0.2.3" />
-		<PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-preview.260209.1" />
+		<PackageReference Include="Microsoft.Agents.AI" Version="1.6.1" />
 		<ProjectReference Include="..\Senparc.AI.Kernel\Senparc.AI.Kernel.csproj" />
 	</ItemGroup>
 </Project>

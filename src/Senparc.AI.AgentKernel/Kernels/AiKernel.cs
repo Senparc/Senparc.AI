@@ -25,7 +25,7 @@ namespace Senparc.AI.AgentKernel.Kernels
         public ISenparcAiSetting SenparcAiSetting { get; }
         public ChatClientAgent ChatClientAgent { get; set; }
 
-        public IEmbeddingGenerator EmbeddingGenerator { get; set; }
+        public IEmbeddingGenerator EmbeddingGenerator { get; set; }//IEmbeddingGenerator<string, Embedding<float>>
 
         public AgentSession? AgentSession { get; set; }
 

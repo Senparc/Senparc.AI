@@ -96,8 +96,8 @@ namespace Senparc.AI.AgentKernel.Handlers
                     break;
                 case AI.ConfigModel.TextCompletion:
                     modelNameStr = modelName.TextCompletion;
-                    kernelBuilder = iWantTo.AgentKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting,
-                    existedKernelBuilder, GetDeploymentName(modelNameStr));
+                    kernelBuilder = iWantTo.AgentKernelHelper.ConfigChat(userId, modelNameStr, senparcAiSetting,
+                    existedKernelBuilder, GetDeploymentName(modelNameStr));//TODO:Update or Merge
                     break;
                 case AI.ConfigModel.TextEmbedding:
                     modelNameStr = modelName.Embedding;
