@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.AI;
+using Microsoft.Extensions.VectorData;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Helpers;
 using Senparc.AI.AgentKernel.Kernels;
@@ -107,6 +108,7 @@ namespace Senparc.AI.AgentKernel.Handlers
             IWantToBuild = iWantToBuild;
             Functions = new List<AIFunction>();
         }
+
 
         /// <summary>
         /// Kernel.GetService<T>(name);

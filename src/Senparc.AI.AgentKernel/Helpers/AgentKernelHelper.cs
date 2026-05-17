@@ -1,19 +1,20 @@
+using Microsoft.Agents.AI;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel;
+using Senparc.AI.AgentKernel.HttpMessageHandlers;
+using Senparc.AI.AgentKernel.Kernels;
+using Senparc.AI.Entities;
+using Senparc.AI.Entities.Keys;
+using Senparc.AI.Exceptions;
+using Senparc.AI.Interfaces;
+using Senparc.CO2NET;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel;
-using Senparc.AI.Entities;
-using Senparc.AI.Entities.Keys;
-using Senparc.AI.Exceptions;
-using Senparc.AI.Interfaces;
-using Senparc.AI.AgentKernel.HttpMessageHandlers;
-using Senparc.CO2NET;
-using Senparc.AI.AgentKernel.Kernels;
 
 // Memory functionality is experimental
 #pragma warning disable SKEXP0003, SKEXP0011, SKEXP0052, SKEXP0020
@@ -86,14 +87,14 @@ namespace Senparc.AI.AgentKernel.Helpers
         /// <param name="kernelBuilderAction"><see cref="KernelBuilder"/> 在进行 <see cref="AIKernelBuilder.Build()"/> 之前需要插入的操作</param>
         /// <param name="refresh" default="false">是否需要刷新kernel</param>
         /// <returns></returns>
-        public AiKernel GetKernel(Action<IAIKernelBuilder>? kernelBuilderAction = null, bool refresh = false)
+        public AiKernel GetKernel(ChatClientAgentOptions chatClientAgentOptions = null, Action<IAIKernelBuilder>? kernelBuilderAction = null, bool refresh = false)
         {
             if (_kernel != null && !refresh)
             {
                 return _kernel;
             }
 
-            return  BuildKernel(KernelBuilder, kernelBuilderAction);
+            return  BuildKernel(KernelBuilder, chatClientAgentOptions, kernelBuilderAction);
         }
 
 
@@ -103,7 +104,7 @@ namespace Senparc.AI.AgentKernel.Helpers
         /// <param name="kernelBuilder"></param>
         /// <param name="kernelBuilderAction"></param>
         /// <returns></returns>
-        public AiKernel BuildKernel(IAIKernelBuilder kernelBuilder, Action<IAIKernelBuilder>? kernelBuilderAction = null)
+        public AiKernel BuildKernel(IAIKernelBuilder kernelBuilder, ChatClientAgentOptions chatClientAgentOptions = null, Action<IAIKernelBuilder>? kernelBuilderAction = null)
         {
             kernelBuilderAction?.Invoke(kernelBuilder);
 
@@ -112,7 +113,7 @@ namespace Senparc.AI.AgentKernel.Helpers
                 kernelBuilder.Services.AddSingleton(loggerFactory);
             }
 
-            _kernel = kernelBuilder.Build();
+            _kernel = kernelBuilder.Build(AiSetting, chatClientAgentOptions);
             return _kernel;
         }
 

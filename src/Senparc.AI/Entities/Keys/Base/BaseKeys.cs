@@ -38,6 +38,11 @@ namespace Senparc.AI.Entities.Keys
         public string Embedding { get; set; }
 
         /// <summary>
+        /// Embedding 维数
+        /// </summary>
+        public int? EmbeddingDimensions { get; set; }
+
+        /// <summary>
         /// 文生图 模型名称
         /// </summary>
         public string TextToImage { get; set; }

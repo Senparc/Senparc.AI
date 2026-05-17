@@ -11,6 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.InMemory;
+using Microsoft.SemanticKernel.Connectors.Qdrant;
+using Microsoft.SemanticKernel.Connectors.Redis;
+using Qdrant.Client;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Helpers;
 using Senparc.AI.AgentKernel.Kernels;
@@ -19,6 +23,7 @@ using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
 using Senparc.CO2NET.Extensions;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -118,14 +123,13 @@ namespace Senparc.AI.AgentKernel.Handlers
             return iWantToConfig;
         }
 
-        public static IWantToConfig ConfigTextEmbeddingModel(this IWantToConfig iWantToConfig, string userId, string collectionName, int embeddingDimensions, ModelName modelName = null,
+        public static IWantToConfig ConfigTextEmbeddingModel(this IWantToConfig iWantToConfig, string userId, string collectionName, ModelName modelName = null,
            ISenparcAiSetting? senparcAiSetting = null, string deploymentName = null)
         {
             iWantToConfig.ConfigModel(AI.ConfigModel.TextEmbedding, userId, modelName, senparcAiSetting, deploymentName);
 
             var kernelBuilder = iWantToConfig.IWantTo.KernelBuilder;
             kernelBuilder.EmbeddingCollectionName = collectionName;
-            kernelBuilder.EmbeddingDimensions = embeddingDimensions;
 
             return iWantToConfig;
         }
@@ -168,85 +172,41 @@ namespace Senparc.AI.AgentKernel.Handlers
         #region Vector Database
 
         /// <summary>
-        /// Config Vector Database
+        /// Get VectorStore
         /// </summary>
-        /// <param name="iWantToConfig"></param>
+        /// <param name="iWantToRun"></param>
         /// <param name="vectorDb"></param>
         /// <returns></returns>
-        //public static IWantToConfig ConfigVectorStore(this IWantToConfig iWantToConfig, VectorDB vectorDb
-        ///*ISenparcAiSetting? senparcAiSetting = null*/)
-        //{
+        /// <exception cref="Exception"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static VectorStore GetVectorStore(this IWantToRun iWantToRun, VectorDB vectorDb)
+        {
+            var embeddingGenerator = iWantToRun.Kernel.EmbeddingGenerator;
 
-        //    var kb = iWantToConfig.SemanticKernelHelper.KernelBuilder;
+            VectorStore vectorStore = vectorDb.Type switch
+            {
+                VectorDBType.Memory => new InMemoryVectorStore(new() { EmbeddingGenerator = embeddingGenerator }),
+                VectorDBType.HardDisk => throw new Exception("HardDisk VectorStore is Not Supported"),
+                VectorDBType.Redis => new RedisVectorStore(ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase(),
+                            new() { StorageType = RedisStorageType.Json }),
+                VectorDBType.Milvus => throw new Exception("Milvus VectorStore is Not Supported"),
+                VectorDBType.Chroma => throw new Exception("Chroma VectorStore is Not Supported"),
+                VectorDBType.PostgreSQL => throw new Exception("PostgreSQL VectorStore is Not Supported"),
+                VectorDBType.Sqlite => throw new Exception("Sqlite VectorStore is Not Supported"),
+                VectorDBType.SqlServer => throw new Exception("SqlServer VectorStore is Not Supported"),
+                VectorDBType.Qdrant => new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true),
+                _ => throw new ArgumentOutOfRangeException(nameof(vectorDb.Type), $"Unsupported VectorDB type: {vectorDb.Type}")
+            };
 
-        //    var servives = kb.Services;
-
-        //    switch (vectorDb.Type)
-        //    {
-        //        case VectorDBType.Memory:
-        //            {
-        //                servives.AddInMemoryVectorStore();
-        //                break;
-        //            }
-        //        case VectorDBType.HardDisk:
-        //            {
-        //                servives.AddInMemoryVectorStore();
-        //                break;
-        //            }
-        //        //case VectorDBType.Qdrant:
-        //        //    {
-        //        //        servives.AddQdrantVectorStore(vectorDb.ConnectionString);
-        //        //        break;
-        //        //    }
-        //        case VectorDBType.Redis:
-        //            {
-        //                servives.AddRedisVectorStore(vectorDb.ConnectionString);
-        //                break;
-        //            }
-        //        case VectorDBType.Milvus:
-        //            {
-        //                // servives.AddInMemoryVectorStore();
-        //                break;
-        //            }
-        //        case VectorDBType.Chroma:
-        //            {
-        //                // servives.AddInMemoryVectorStore();
-        //                break;
-        //            }
-        //        case VectorDBType.PostgreSQL:
-        //            {
-        //                // servives.AddInMemoryVectorStore();
-        //                break;
-        //            }
-        //        case VectorDBType.Sqlite:
-        //            {
-        //                // servives.AddInMemoryVectorStore();
-        //                break;
-        //            }
-        //        case VectorDBType.SqlServer:
-        //            {
-        //                break;
-        //            }
-        //        case VectorDBType.Qdrant:
-        //            {
-        //                servives.AddQdrantVectorStore(vectorDb.ConnectionString);
-        //                break;
-        //            }
-        //        default:
-        //            {
-        //                throw new ArgumentOutOfRangeException(nameof(vectorDb.Type), $"Unsupported VectorDB type: {vectorDb.Type}");
-        //            }
-        //    }
-
-        //    return iWantToConfig;
-        //}
+            return vectorStore;
+        }
 
         /// <summary>
         /// Get Vector Collection
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TRecord"></typeparam>
-        /// <param name="iWwantToRun"></param>
+        /// <param name="iWantToRun"></param>
         /// <param name="vectorDb"></param>
         /// <param name="name"></param>
         /// <param name="vectorStoreRecordDefinition"></param>
@@ -257,100 +217,94 @@ namespace Senparc.AI.AgentKernel.Handlers
         /// For proper resource management, consider using dependency injection to manage VectorStore lifecycle
         /// or ensure the collection is disposed when no longer needed.
         /// </remarks>
-        //public static VectorStoreCollection<TKey, TRecord> GetVectorCollection<TKey, TRecord>(this IWantToRun iWwantToRun, VectorDB vectorDb, string name, VectorStoreCollectionDefinition? vectorStoreRecordDefinition = null)
-        //     where TKey : notnull
-        //     where TRecord : class
-        //{
-        //    IDatabase database;
-        //    VectorStore vectorStore;
-        //    VectorStoreCollection<TKey, TRecord> collection = null;
+        public static VectorStoreCollection<TKey, TRecord> GetVectorCollection<TKey, TRecord>(this IWantToRun iWantToRun, VectorDB vectorDb, string name, VectorStoreCollectionDefinition? vectorStoreRecordDefinition = null)
+             where TKey : notnull
+             where TRecord : class
+        {
+            IDatabase database;
+            VectorStore vectorStore = iWantToRun.GetVectorStore(vectorDb);
+            VectorStoreCollection<TKey, TRecord> collection = null;
 
-        //    //TODO: If the logic becomes overly complex in the future, different combinations can be considered to be separated into different libraries
+            //TODO: If the logic becomes overly complex in the future, different combinations can be considered to be separated into different libraries
 
-        //    switch (vectorDb.Type)
-        //    {
-        //        case VectorDBType.Memory:
-        //            {
-        //                vectorStore = new InMemoryVectorStore();
-        //                collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-        //                break;
-        //            }
-        //        case VectorDBType.HardDisk:
-        //            {
-        //                break;
-        //            }
-        //        case VectorDBType.Redis:
-        //            {
-        //                database = ConnectionMultiplexer.Connect(vectorDb.ConnectionString).GetDatabase();
-        //                vectorStore = new RedisVectorStore(database,
-        //                    new() { StorageType = RedisStorageType.Json });
-        //                collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-        //                break;
-        //            }
-        //        case VectorDBType.Milvus:
-        //            {
-        //                break;
-        //            }
-        //        case VectorDBType.Chroma:
-        //            {
-        //                break;
-        //            }
-        //        case VectorDBType.PostgreSQL:
-        //            {
-        //                break;
-        //            }
-        //        case VectorDBType.Sqlite:
-        //            {
-        //                break;
-        //            }
-        //        case VectorDBType.SqlServer:
-        //            {
-        //                break;
-        //            }
-        //        case VectorDBType.Qdrant:
-        //            {
-        //                vectorStore = new QdrantVectorStore(new QdrantClient(vectorDb.ConnectionString), ownsClient: true);
-        //                collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-        //                break;
-        //            }
-        //        default:
-        //            vectorStore = new InMemoryVectorStore();
-        //            collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
-        //            break;
-        //    }
+            switch (vectorDb.Type)
+            {
+                case VectorDBType.Memory:
+                    {
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
+                        break;
+                    }
+                case VectorDBType.HardDisk:
+                    {
+                        break;
+                    }
+                case VectorDBType.Redis:
+                    {
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
+                        break;
+                    }
+                case VectorDBType.Milvus:
+                    {
+                        break;
+                    }
+                case VectorDBType.Chroma:
+                    {
+                        break;
+                    }
+                case VectorDBType.PostgreSQL:
+                    {
+                        break;
+                    }
+                case VectorDBType.Sqlite:
+                    {
+                        break;
+                    }
+                case VectorDBType.SqlServer:
+                    {
+                        break;
+                    }
+                case VectorDBType.Qdrant:
+                    {
+                        collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
+                        break;
+                    }
+                default:
+                    collection = vectorStore.GetCollection<TKey, TRecord>(name, vectorStoreRecordDefinition);
+                    break;
+            }
 
-        //    return collection;
-        //}
+            return collection;
+        }
 
 
         #endregion
 
         #region Build Kernel
 
-        public static IWantToRun BuildKernel(this IWantToConfig iWantToConfig, Action<IAIKernelBuilder>? kernelBuilderAction = null)
+        public static IWantToRun BuildKernel(this IWantToConfig iWantToConfig, ChatClientAgentOptions chatClientAgentOptions = null, Action<IAIKernelBuilder>? kernelBuilderAction = null)
         {
             var iWantTo = iWantToConfig.IWantTo;
             var handler = iWantTo.AgentKernelHelper;
-            handler.BuildKernel(iWantTo.KernelBuilder, kernelBuilderAction);
+            handler.BuildKernel(iWantTo.KernelBuilder, chatClientAgentOptions, kernelBuilderAction);
 
             return new IWantToRun(new IWantToBuild(iWantToConfig));
         }
 
-        public static async Task<IWantToRun> BuildKernelAsync(this IWantToConfig iWantToConfig, bool createAgentession = false, Action<IAIKernelBuilder>? kernelBuilderAction = null)
+        public static async Task<IWantToRun> BuildKernelAsync(this IWantToConfig iWantToConfig, ChatClientAgentOptions chatClientAgentOptions = null, bool createAgentSession = false, Action<IAIKernelBuilder>? kernelBuilderAction = null)
         {
-            if (createAgentession)
+            if (createAgentSession)
             {
-                return await BuildKernelWithAgentSessionAsync(iWantToConfig, kernelBuilderAction);
+                return await BuildKernelWithAgentSessionAsync(iWantToConfig, chatClientAgentOptions, kernelBuilderAction);
             }
             else
             {
-                return BuildKernel(iWantToConfig, kernelBuilderAction);
+                return BuildKernel(iWantToConfig, chatClientAgentOptions, kernelBuilderAction);
             }
         }
 
-        public static async Task<IWantToRun> BuildKernelWithAgentSessionAsync(this IWantToConfig iWantToConfig, Action<IAIKernelBuilder>? kernelBuilderAction = null, AgentSession agentSession = null)
+        public static async Task<IWantToRun> BuildKernelWithAgentSessionAsync(this IWantToConfig iWantToConfig, ChatClientAgentOptions chatClientAgentOptions = null, Action<IAIKernelBuilder>? kernelBuilderAction = null, AgentSession agentSession = null)
         {
-            var iWantToRun = BuildKernel(iWantToConfig, kernelBuilderAction);
+            var iWantToRun = BuildKernel(iWantToConfig, chatClientAgentOptions, kernelBuilderAction);
 
             if (iWantToRun.Kernel.ChatClientAgent != null)
             {

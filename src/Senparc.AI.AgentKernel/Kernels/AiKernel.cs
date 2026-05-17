@@ -3,6 +3,8 @@ using Microsoft.Extensions.AI;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
 using Senparc.AI.AgentKernel.Handlers;
+using Senparc.AI.Entities.Keys;
+using Senparc.AI.Interfaces;
 using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
@@ -12,29 +14,34 @@ namespace Senparc.AI.AgentKernel.Kernels
 {
     public class AiKernel
     {
-        public ConfigModel ConfigModel { get; set; }
+        public ConfigModel[] ConfigModels { get; set; }
         public object ChatClient { get; set; }//TODO:进行一次封装
         public object EmbeddingClient { get; set; }
         public string EmbeddingCollectionName { get; }
+        public ChatClientAgentOptions ChatClientAgentOptions { get; set; }
+        public ModelName ModelName { get; }
         public int EmbeddingDimensions { get; }
         public IServiceProvider ServiceProvider { get; set; }
-
+        public ISenparcAiSetting SenparcAiSetting { get; }
         public ChatClientAgent ChatClientAgent { get; set; }
 
-        public object EmbeddingGenerator { get; set; }
+        public IEmbeddingGenerator EmbeddingGenerator { get; set; }
 
         public AgentSession? AgentSession { get; set; }
 
         public bool AgentInited { get; set; }
 
-        public AiKernel(IServiceProvider serviceProvider, ConfigModel configModel, object chatClient, object embeddingClient,string embeddingCollectionName, int embeddingDimensions)
+        public AiKernel(IServiceProvider serviceProvider, ISenparcAiSetting senparcAiSetting, ConfigModel[] configModels, object chatClient, object embeddingClient, string embeddingCollectionName, ChatClientAgentOptions chatClientAgentOptions)
         {
             this.ServiceProvider = serviceProvider;
+            this.SenparcAiSetting = senparcAiSetting;
             this.ChatClient = chatClient;
-            this.ConfigModel = configModel;
+            this.ConfigModels = configModels;
             this.EmbeddingClient = embeddingClient;
             this.EmbeddingCollectionName = embeddingCollectionName;
-            this.EmbeddingDimensions = embeddingDimensions;
+            this.ChatClientAgentOptions = chatClientAgentOptions;
+            this.ModelName = senparcAiSetting.ModelName;
+            this.EmbeddingDimensions = ModelName.EmbeddingDimensions ?? 0;
             this.CreateAIAgent();
             this.CreateEmbeddingGenerator();
         }
@@ -45,22 +52,29 @@ namespace Senparc.AI.AgentKernel.Kernels
         {
             try
             {
-                if (ConfigModel == ConfigModel.Unknown)
+                if (ConfigModels==null || ConfigModels.Length==0)
                 {
                     throw new Exception("ConfigModel is required to create AIAgent");
                 }
 
-                if (ConfigModel != ConfigModel.Chat || ChatClient == null)
+                if (!ConfigModels.Contains(ConfigModel.Chat))
                 {
                     return;
                 }
 
+                ChatClientAgentOptions ??= new ChatClientAgentOptions() {
+                    Id = $"SenparcAIAgent-{Guid.NewGuid().ToString("n")}",
+                    Name = "SenparcAgent",
+                    Description = "You are a friendly assistant. Keep your answers brief"
+                };
+
                 this.ChatClientAgent = ChatClient switch
                 {
-                    ChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief", "SenparcAgent"),
-                    OllamaChatClient c => c.AsAIAgent("You are a friendly assistant. Keep your answers brief", "SenparcAgent"),
+                    ChatClient c => c.AsAIAgent(ChatClientAgentOptions),
+                    OllamaChatClient c => c.AsAIAgent(ChatClientAgentOptions),
                     _ => throw new Exception("Unsupported ChatClient type")
                 };
+
 
                 AgentInited = true;
             }
@@ -86,12 +100,12 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         private void CreateEmbeddingGenerator()
         {
-            if (ConfigModel == ConfigModel.Unknown)
+            if (ConfigModels == null || ConfigModels.Length == 0)
             {
-                throw new Exception("ConfigModel is required to create EmbeddingGenerator");
+                throw new Exception("ConfigModel is required to create AIAgent");
             }
 
-            if (ConfigModel != ConfigModel.TextEmbedding || EmbeddingClient == null)
+            if (!ConfigModels.Contains(ConfigModel.TextEmbedding))
             {
                 return;
             }
@@ -101,7 +115,7 @@ namespace Senparc.AI.AgentKernel.Kernels
                 throw new Exception("EmbeddingCollectionName is required to create EmbeddingGenerator");
             }
 
-            if (EmbeddingDimensions==0)
+            if (EmbeddingDimensions == 0)
             {
                 throw new Exception("EmbeddingDimensions is required to create EmbeddingGenerator");
             }
@@ -116,7 +130,7 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         public async Task<AgentResponse<T>> RunAsync<T>(string prompt, AgentSession agentSession = null)
         {
-            if (ConfigModel != ConfigModel.Chat)
+            if (!ConfigModels.Contains(ConfigModel.Chat))
             {
                 throw new Exception("RunAsync is only supported for Chat ConfigModel");
             }
@@ -129,7 +143,7 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         public async Task<AgentResponse> RunAsync(string prompt, AgentSession agentSession = null)
         {
-            if (ConfigModel != ConfigModel.Chat)
+            if (!ConfigModels.Contains(ConfigModel.Chat))
             {
                 throw new Exception("RunAsync is only supported for Chat ConfigModel");
             }
