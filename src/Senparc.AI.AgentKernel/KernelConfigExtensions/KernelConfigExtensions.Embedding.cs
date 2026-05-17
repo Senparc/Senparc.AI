@@ -34,17 +34,21 @@ namespace Senparc.AI.AgentKernel.KernelConfigExtensions
                     throw new Exception("Embedding Generator is not configured. Please configure it in the KernelConfig.");
                 }
 
-                
-
-                var embeddingResult = embeddingGenerator switch 
+                ReadOnlyMemory<float>? embeddingResult = null;
+                if (embeddingGenerator is OllamaEmbeddingGenerator g)
                 {
-                    OllamaEmbeddingGenerator g => (await g.GenerateAsync(new[] { text }, embeddingGenerationOptions as Microsoft.Extensions.AI.EmbeddingGenerationOptions, cancellationToken)).FirstOrDefault()?.Vector,
-                    IEmbeddingGenerator<string, Embedding<float>> g => (await g.GenerateAsync(text,/* embeddingGenerationOptions as OpenAI.Embeddings.EmbeddingGenerationOptions, cancellationToken*/)).Vector,
+                    embeddingResult = (await g.GenerateAsync(new[] { text }, embeddingGenerationOptions as Microsoft.Extensions.AI.EmbeddingGenerationOptions, cancellationToken)).FirstOrDefault()?.Vector;
+                }
+                else if (embeddingGenerator is IEmbeddingGenerator<string, Embedding<float>> g2)
+                {
+                    embeddingResult = (await g2.GenerateAsync(text/* embeddingGenerationOptions as OpenAI.Embeddings.EmbeddingGenerationOptions, cancellationToken*/)).Vector;
+                }
+                else { 
+                throw new Exception("Unsupported Embedding Generator type. Please use OllamaEmbeddingGenerator or IEmbeddingGenerator<string, Embedding<float>>.");
+                }
 
-                    _ => throw new Exception("Unsupported embedding generator type.")
-                };
 
-                return embeddingResult;
+                    return embeddingResult;
             }
             catch (Exception ex)
             {
@@ -56,4 +60,4 @@ namespace Senparc.AI.AgentKernel.KernelConfigExtensions
 
         }
     }
-}   
+}

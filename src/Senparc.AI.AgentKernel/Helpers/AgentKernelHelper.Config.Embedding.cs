@@ -46,7 +46,7 @@ namespace Senparc.AI.AgentKernel.Helpers
                     modelName: modelName),
 
                 AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAIEmbedding(
-                    endpoint: new Uri(senparcAiSetting.NeuCharEndpoint),
+                    endpoint: new Uri(senparcAiSetting.AzureEndpoint),
                     credential: new System.ClientModel.ApiKeyCredential(senparcAiSetting.ApiKey),
                     options: new Azure.AI.OpenAI.AzureOpenAIClientOptions(),
                     azureDeploymentName : deploymentName),
