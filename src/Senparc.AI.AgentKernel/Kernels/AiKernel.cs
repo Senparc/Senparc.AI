@@ -3,6 +3,7 @@ using Microsoft.Extensions.AI;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
 using Senparc.AI.AgentKernel.Handlers;
+using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +15,8 @@ namespace Senparc.AI.AgentKernel.Kernels
         public ConfigModel ConfigModel { get; set; }
         public object ChatClient { get; set; }//TODO:进行一次封装
         public object EmbeddingClient { get; set; }
+        public string EmbeddingCollectionName { get; }
+        public int EmbeddingDimensions { get; }
         public IServiceProvider ServiceProvider { get; set; }
 
         public ChatClientAgent ChatClientAgent { get; set; }
@@ -24,13 +27,14 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         public bool AgentInited { get; set; }
 
-        public AiKernel(IServiceProvider serviceProvider, ConfigModel configModel, object chatClient, object embeddingModel)
+        public AiKernel(IServiceProvider serviceProvider, ConfigModel configModel, object chatClient, object embeddingClient,string embeddingCollectionName, int embeddingDimensions)
         {
             this.ServiceProvider = serviceProvider;
             this.ChatClient = chatClient;
             this.ConfigModel = configModel;
-            this.EmbeddingClient = embeddingModel;
-
+            this.EmbeddingClient = embeddingClient;
+            this.EmbeddingCollectionName = embeddingCollectionName;
+            this.EmbeddingDimensions = embeddingDimensions;
             this.CreateAIAgent();
             this.CreateEmbeddingGenerator();
         }
@@ -92,9 +96,19 @@ namespace Senparc.AI.AgentKernel.Kernels
                 return;
             }
 
+            if (EmbeddingCollectionName.IsNullOrEmpty())
+            {
+                throw new Exception("EmbeddingCollectionName is required to create EmbeddingGenerator");
+            }
+
+            if (EmbeddingDimensions==0)
+            {
+                throw new Exception("EmbeddingDimensions is required to create EmbeddingGenerator");
+            }
+
             this.EmbeddingGenerator = EmbeddingClient switch
             {
-                EmbeddingClient c => c.AsIEmbeddingGenerator(),//TODO: add defaultModelDimensions
+                EmbeddingClient c => c.AsIEmbeddingGenerator(EmbeddingDimensions),//TODO: add defaultModelDimensions
                 OllamaEmbeddingGenerator c => c,
                 _ => throw new Exception("Unsupported EmbeddingClient type")
             };

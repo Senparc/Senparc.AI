@@ -118,6 +118,18 @@ namespace Senparc.AI.AgentKernel.Handlers
             return iWantToConfig;
         }
 
+        public static IWantToConfig ConfigTextEmbeddingModel(this IWantToConfig iWantToConfig, string userId, string collectionName, int embeddingDimensions, ModelName modelName = null,
+           ISenparcAiSetting? senparcAiSetting = null, string deploymentName = null)
+        {
+            iWantToConfig.ConfigModel(AI.ConfigModel.TextEmbedding, userId, modelName, senparcAiSetting, deploymentName);
+
+            var kernelBuilder = iWantToConfig.IWantTo.KernelBuilder;
+            kernelBuilder.EmbeddingCollectionName = collectionName;
+            kernelBuilder.EmbeddingDimensions = embeddingDimensions;
+
+            return iWantToConfig;
+        }
+
         ///// <summary>
         ///// 添加 TextCompletion 配置
         ///// </summary>

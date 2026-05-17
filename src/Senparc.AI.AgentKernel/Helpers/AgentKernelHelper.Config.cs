@@ -18,6 +18,9 @@ using Senparc.AI.AgentKernel.Kernels;
 using System.ClientModel;
 using Azure.AI.OpenAI;
 using Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions;
+using Microsoft.SemanticKernel.Memory;
+using Microsoft.SemanticKernel.Connectors.Ollama;
+using Microsoft.SemanticKernel.Embeddings;
 
 // Memory functionality is experimental
 #pragma warning disable SKEXP0003, SKEXP0011, SKEXP0052, SKEXP0020, SKEXP0012, SKEXP0001
@@ -116,190 +119,190 @@ namespace Senparc.AI.AgentKernel.Helpers
 
 
 
-        /*
-
-             #region Memory 相关
-
-             ISemanticTextMemory _textMemory = null;//TODO:适配多重不同的请求
-
-             /// <summary>
-             /// 尝试获取 ISemanticTextMemory 对象
-             /// </summary>
-             /// <returns></returns>
-             /// <exception cref="SenparcAiException">当 ISemanticTextMemory 未设置时抛出</exception>
-             public ISemanticTextMemory? TryGetMemory()
-             {
-                 if (_textMemory == null)
-                 {
-                     throw new SenparcAiException("_textMemory 未设置！");
-                 }
-                 return _textMemory;
-             }
-
-             /// <summary>
-             /// 获取 ISemanticTextMemory 对象
-             /// </summary>
-             /// <returns></returns>
-             //[Obsolete("该方法已被SK放弃，原文为：Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]
-             [Obsolete]
-             public ISemanticTextMemory? GetMemory(string modelName, ISenparcAiSetting senparcAiSetting,
-                 IAIKernelBuilder? kernelBuilder, string azureDeployName = null, ITextEmbeddingGenerationService textEmbeddingGeneration = null)
-             {
-                 if (_textMemory == null)
-                 {
-                     senparcAiSetting ??= this.AiSetting;
-                     var aiPlatForm = senparcAiSetting.AiPlatform;
-
-                     var memoryBuilder = new MemoryBuilder();
-                     memoryBuilder.WithHttpClient(_httpClient);
 
 
+        #region Memory 相关
 
-                     _ = aiPlatForm switch
-                     {
-                         AiPlatform.OpenAI => memoryBuilder.WithTextEmbeddingGeneration(
-                                (loggerFactory, httpClient) =>
-                                {
-                                    return new OpenAITextEmbeddingGenerationService(
-                                         apiKey: senparcAiSetting.ApiKey,
-                                         httpClient: _httpClient,
-                                         modelId: modelName,
-                                         loggerFactory: loggerFactory
-                                    );
-                                }
-                          ),
+        ISemanticTextMemory _textMemory = null;//TODO:适配多重不同的请求
 
-                         //memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(
-                         //    modelId: modelName,
-                         //    apiKey: senparcAiSetting.ApiKey,
-                         //    orgId: senparcAiSetting.OrganizationId,
-                         //    httpClient: _httpClient),
-                         AiPlatform.AzureOpenAI => memoryBuilder.WithTextEmbeddingGeneration(
-                                (loggerFactory, httpClient) =>
-                                {
-                                    return new AzureOpenAITextEmbeddingGenerationService(
-                                         deploymentName: azureDeployName,
-                                         endpoint: senparcAiSetting.Endpoint,
-                                         apiKey: senparcAiSetting.ApiKey,
-                                         httpClient: _httpClient,
-                                         modelId: modelName,
-                                         loggerFactory: loggerFactory
-                                    );
-                                }
-                         ),
+        /// <summary>
+        /// 尝试获取 ISemanticTextMemory 对象
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="SenparcAiException">当 ISemanticTextMemory 未设置时抛出</exception>
+        public ISemanticTextMemory? TryGetMemory()
+        {
+            if (_textMemory == null)
+            {
+                throw new SenparcAiException("_textMemory 未设置！");
+            }
+            return _textMemory;
+        }
 
-                         AiPlatform.HuggingFace => memoryBuilder.WithTextEmbeddingGeneration(
-                             (loggerFactory, httpClient) =>
-                             {
-                                 return new AzureOpenAITextEmbeddingGenerationService(
-                                      deploymentName: azureDeployName,
-                                      endpoint: senparcAiSetting.Endpoint,
-                                      apiKey: senparcAiSetting.ApiKey,
-                                      httpClient: _httpClient,
-                                      modelId: modelName,
-                                      loggerFactory: loggerFactory
-                                 );
-                             }),
+        /// <summary>
+        /// 获取 ISemanticTextMemory 对象
+        /// </summary>
+        /// <returns></returns>
+        //[Obsolete("该方法已被SK放弃，原文为：Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]
+        //[Obsolete]
+        //public ISemanticTextMemory? GetMemory(string modelName, ISenparcAiSetting senparcAiSetting,
+        //    IAIKernelBuilder? kernelBuilder, string azureDeployName = null, ITextEmbeddingGenerationService textEmbeddingGeneration = null)
+        //{
+        //    if (_textMemory == null)
+        //    {
+        //        senparcAiSetting ??= this.AiSetting;
+        //        var aiPlatForm = senparcAiSetting.AiPlatform;
 
-                         AiPlatform.Ollama => memoryBuilder.WithTextEmbeddingGeneration((loggerFactory, httpClient) =>
-                         {
-                             return new OllamaTextEmbeddingGenerationService(
-                                  endpoint: new Uri(senparcAiSetting.Endpoint),
-                                  modelId: modelName,
-                                  loggerFactory: loggerFactory
-                             );
-                         }),
-
-                         _ => throw new SenparcAiException($"GetMemory 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
-                     };
+        //        var memoryBuilder = new MemoryBuilder();
+        //        memoryBuilder.WithHttpClient(_httpClient);
 
 
-                     memoryBuilder.WithMemoryStore(new VolatileMemoryStore());
-                     //.WithMemoryStore(new AzureAISearchMemoryStore(senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey))
 
-                     _textMemory = memoryBuilder.Build();
-                 }
+        //        _ = aiPlatForm switch
+        //        {
+        //            AiPlatform.OpenAI => memoryBuilder.WithTextEmbeddingGeneration(
+        //                   (loggerFactory, httpClient) =>
+        //                   {
+        //                       return new OpenAITextEmbeddingGenerationService(
+        //                            apiKey: senparcAiSetting.ApiKey,
+        //                            httpClient: _httpClient,
+        //                            modelId: modelName,
+        //                            loggerFactory: loggerFactory
+        //                       );
+        //                   }
+        //             ),
 
+        //            //memoryBuilder.WithAzureOpenAITextEmbeddingGeneration(
+        //            //    modelId: modelName,
+        //            //    apiKey: senparcAiSetting.ApiKey,
+        //            //    orgId: senparcAiSetting.OrganizationId,
+        //            //    httpClient: _httpClient),
+        //            AiPlatform.AzureOpenAI => memoryBuilder.WithTextEmbeddingGeneration(
+        //                   (loggerFactory, httpClient) =>
+        //                   {
+        //                       return new AzureOpenAITextEmbeddingGenerationService(
+        //                            deploymentName: azureDeployName,
+        //                            endpoint: senparcAiSetting.Endpoint,
+        //                            apiKey: senparcAiSetting.ApiKey,
+        //                            httpClient: _httpClient,
+        //                            modelId: modelName,
+        //                            loggerFactory: loggerFactory
+        //                       );
+        //                   }
+        //            ),
 
-                 return _textMemory;
-             }
+        //            AiPlatform.HuggingFace => memoryBuilder.WithTextEmbeddingGeneration(
+        //                (loggerFactory, httpClient) =>
+        //                {
+        //                    return new AzureOpenAITextEmbeddingGenerationService(
+        //                         deploymentName: azureDeployName,
+        //                         endpoint: senparcAiSetting.Endpoint,
+        //                         apiKey: senparcAiSetting.ApiKey,
+        //                         httpClient: _httpClient,
+        //                         modelId: modelName,
+        //                         loggerFactory: loggerFactory
+        //                    );
+        //                }),
 
-                /// <summary>
-             /// Save some information into the semantic memory, keeping only a reference to the source information.
-             /// </summary>
-             /// <param name="memory">ISemanticTextMemory 对象</param>
-             /// <param name="collection">Collection where to save the information</param>
-             /// <param name="text">Information to save</param>
-             /// <param name="externalId">Unique identifier, e.g. URL or GUID to the original source</param>
-             /// <param name="externalSourceName">Name of the external service, e.g. "MSTeams", "GitHub", "WebSite", "Outlook IMAP", etc.</param>
-             /// <param name="description">Optional description</param>
-             /// <param name="additionalMetadata"></param>
-             /// <param name="kernel">Kernel</param>
-             /// <param name="cancel">Cancellation token</param>
-             /// <returns></returns>
-             public async Task MemorySaveReferenceAsync(ISemanticTextMemory memory,
-                 string collection,
-                 string text,
-                 string externalId,
-                 string externalSourceName,
-                 string? description = null,
-                 string? additionalMetadata = null,
-                 Microsoft.SemanticKernel.Kernel? kernel = null,
-                 CancellationToken cancel = default)
-             {
-                 await memory.SaveReferenceAsync(collection, text, externalId, externalSourceName, description,
-                     additionalMetadata, kernel ?? GetKernel(), cancel);
-             }
+        //            AiPlatform.Ollama => memoryBuilder.WithTextEmbeddingGeneration((loggerFactory, httpClient) =>
+        //            {
+        //                return new OllamaTextEmbeddingGenerationService(
+        //                     endpoint: new Uri(senparcAiSetting.Endpoint),
+        //                     modelId: modelName,
+        //                     loggerFactory: loggerFactory
+        //                );
+        //            }),
 
-             /// <summary>
-             /// Save some information into the semantic memory, keeping a copy of the source information.
-             /// </summary>
-             /// <param name="memory">ISemanticTextMemory 对象</param>
-             /// <param name="collection">Collection where to save the information</param>
-             /// <param name="id">Unique identifier</param>
-             /// <param name="text">Information to save</param>
-             /// <param name="description">Optional description</param>
-             /// <param name="additionalMetadata"></param>
-             /// <param name="kernel">Kernel</param>
-             /// <param name="cancel">Cancellation token</param>        /// <returns></returns>
-             public async Task MemorySaveInformationAsync(ISemanticTextMemory memory,
-                 string collection,
-                 string text,
-                 string id,
-                 string? description = null,
-                 string? additionalMetadata = null,
-                 Microsoft.SemanticKernel.Kernel? kernel = null,
-                 CancellationToken cancel = default)
-             {
-                 await memory.SaveInformationAsync(collection, text, id, description, additionalMetadata, kernel ?? GetKernel(), cancel);
-             }
-
-             /// <summary>
-             /// 添加 Memory 操作
-             /// </summary>
-             /// <param name="task"></param>
-             public void AddMemory(Task task)
-             {
-                 _memoryExecuteList.Add(task);
-             }
-
-             /// <summary>
-             /// 执行 Memory 操作，并等待
-             /// </summary>
-             public void ExecuteMemory()
-             {
-                 foreach (var task in _memoryExecuteList)
-                 {
-                     Task.Run(() => task);
-                 }
-
-                 Task.WaitAll(_memoryExecuteList.ToArray());
-                 _memoryExecuteList.Clear();
-             }
+        //            _ => throw new SenparcAiException($"GetMemory 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+        //        };
 
 
-             #endregion
-        */
+        //        memoryBuilder.WithMemoryStore(new VolatileMemoryStore());
+        //        //.WithMemoryStore(new AzureAISearchMemoryStore(senparcAiSetting.AzureEndpoint, senparcAiSetting.ApiKey))
+
+        //        _textMemory = memoryBuilder.Build();
+        //    }
+
+
+        //    return _textMemory;
+        //}
+
+        /// <summary>
+        /// Save some information into the semantic memory, keeping only a reference to the source information.
+        /// </summary>
+        /// <param name="memory">ISemanticTextMemory 对象</param>
+        /// <param name="collection">Collection where to save the information</param>
+        /// <param name="text">Information to save</param>
+        /// <param name="externalId">Unique identifier, e.g. URL or GUID to the original source</param>
+        /// <param name="externalSourceName">Name of the external service, e.g. "MSTeams", "GitHub", "WebSite", "Outlook IMAP", etc.</param>
+        /// <param name="description">Optional description</param>
+        /// <param name="additionalMetadata"></param>
+        /// <param name="kernel">Kernel</param>
+        /// <param name="cancel">Cancellation token</param>
+        /// <returns></returns>
+        public async Task MemorySaveReferenceAsync(ISemanticTextMemory memory,
+            string collection,
+            string text,
+            string externalId,
+            string externalSourceName,
+            string? description = null,
+            string? additionalMetadata = null,
+            Microsoft.SemanticKernel.Kernel? kernel = null,
+            CancellationToken cancel = default)
+        {
+            await memory.SaveReferenceAsync(collection, text, externalId, externalSourceName, description,
+                additionalMetadata, kernel ?? GetKernel(), cancel);
+        }
+
+        /// <summary>
+        /// Save some information into the semantic memory, keeping a copy of the source information.
+        /// </summary>
+        /// <param name="memory">ISemanticTextMemory 对象</param>
+        /// <param name="collection">Collection where to save the information</param>
+        /// <param name="id">Unique identifier</param>
+        /// <param name="text">Information to save</param>
+        /// <param name="description">Optional description</param>
+        /// <param name="additionalMetadata"></param>
+        /// <param name="kernel">Kernel</param>
+        /// <param name="cancel">Cancellation token</param>        /// <returns></returns>
+        public async Task MemorySaveInformationAsync(ISemanticTextMemory memory,
+            string collection,
+            string text,
+            string id,
+            string? description = null,
+            string? additionalMetadata = null,
+            Microsoft.SemanticKernel.Kernel? kernel = null,
+            CancellationToken cancel = default)
+        {
+            await memory.SaveInformationAsync(collection, text, id, description, additionalMetadata, kernel ?? GetKernel(), cancel);
+        }
+
+        /// <summary>
+        /// 添加 Memory 操作
+        /// </summary>
+        /// <param name="task"></param>
+        public void AddMemory(Task task)
+        {
+            _memoryExecuteList.Add(task);
+        }
+
+        /// <summary>
+        /// 执行 Memory 操作，并等待
+        /// </summary>
+        public void ExecuteMemory()
+        {
+            foreach (var task in _memoryExecuteList)
+            {
+                Task.Run(() => task);
+            }
+
+            Task.WaitAll(_memoryExecuteList.ToArray());
+            _memoryExecuteList.Clear();
+        }
+
+
+        #endregion
+
 
 
         #endregion

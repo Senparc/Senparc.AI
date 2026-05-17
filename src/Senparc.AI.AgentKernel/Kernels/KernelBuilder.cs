@@ -12,6 +12,8 @@ namespace Senparc.AI.AgentKernel.Kernels
         object EmbeddingClient { get; set; }
         IServiceProvider ServiceProvider { get; set; }
         IServiceCollection Services { get; set; }
+        string EmbeddingCollectionName { get; set; }
+        int EmbeddingDimensions { get; set; }
 
         AiKernel Build();
     }
@@ -27,6 +29,8 @@ namespace Senparc.AI.AgentKernel.Kernels
         public object EmbeddingClient { get; set; }
 
         public ConfigModel ConfigModel { get; set; }
+        public string EmbeddingCollectionName { get; set; }
+        public int EmbeddingDimensions { get; set; }
 
         public AIKernelBuilder(ConfigModel configModel = ConfigModel.Unknown)
         {

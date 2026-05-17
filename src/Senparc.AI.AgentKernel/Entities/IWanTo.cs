@@ -67,7 +67,7 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         public AgentAiHandler SemanticAiHandler => IWantTo.AgentAiHandler;
         public AgentKernelHelper SemanticKernelHelper => IWantTo.AgentKernelHelper;
-        public AiKernel Kernel => SemanticKernelHelper.GetKernel();
+        //public AiKernel Kernel => SemanticKernelHelper.GetKernel();
 
         public IWantToConfig(IWantTo iWantTo)
         {
