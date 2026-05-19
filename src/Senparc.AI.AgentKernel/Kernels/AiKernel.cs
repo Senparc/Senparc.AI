@@ -1,5 +1,6 @@
 ﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using OllamaSharp;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
 using Senparc.AI.AgentKernel.Handlers;
@@ -71,7 +72,7 @@ namespace Senparc.AI.AgentKernel.Kernels
                 this.ChatClientAgent = ChatClient switch
                 {
                     ChatClient c => c.AsAIAgent(ChatClientAgentOptions),
-                    OllamaChatClient c => c.AsAIAgent(ChatClientAgentOptions),
+                    OllamaApiClient c => c.AsAIAgent(ChatClientAgentOptions),
                     _ => throw new Exception("Unsupported ChatClient type")
                 };
 
@@ -123,7 +124,7 @@ namespace Senparc.AI.AgentKernel.Kernels
             this.EmbeddingGenerator = EmbeddingClient switch
             {
                 EmbeddingClient c => c.AsIEmbeddingGenerator(EmbeddingDimensions),//TODO: add defaultModelDimensions
-                OllamaEmbeddingGenerator c => c,
+                OllamaApiClient c => c,
                 _ => throw new Exception("Unsupported EmbeddingClient type")
             };
         }

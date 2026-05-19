@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
+using OllamaSharp;
 using OpenAI.Embeddings;
 using Senparc.AI.AgentKernel.Handlers;
 using Senparc.AI.Exceptions;
@@ -22,9 +23,8 @@ namespace Senparc.AI.AgentKernel.KernelConfigExtensions
         /// <param name="azureDeployName"></param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
-        public static async Task<ReadOnlyMemory<float>?> GetEmbeddingAsync(this IWantToRun iWantToRun, string text, object embeddingGenerationOptions = null, CancellationToken cancellationToken = default)
+        public static async Task<ReadOnlyMemory<float>> GetEmbeddingAsync(this IWantToRun iWantToRun, string text, object embeddingGenerationOptions = null, CancellationToken cancellationToken = default)
         {
-
             try
             {
                 var aiKernel = iWantToRun.Kernel;
@@ -35,20 +35,34 @@ namespace Senparc.AI.AgentKernel.KernelConfigExtensions
                 }
 
                 ReadOnlyMemory<float>? embeddingResult = null;
-                if (embeddingGenerator is OllamaEmbeddingGenerator g)
-                {
-                    embeddingResult = (await g.GenerateAsync(new[] { text }, embeddingGenerationOptions as Microsoft.Extensions.AI.EmbeddingGenerationOptions, cancellationToken)).FirstOrDefault()?.Vector;
-                }
-                else if (embeddingGenerator is IEmbeddingGenerator<string, Embedding<float>> g2)
+                //if (embeddingGenerator is OllamaSharp OllamaEmbeddingGenerator g)
+                //{
+                //    embeddingResult = (await g.GenerateAsync(new[] { text }, embeddingGenerationOptions as Microsoft.Extensions.AI.EmbeddingGenerationOptions, cancellationToken)).FirstOrDefault()?.Vector;
+                //}
+                //else 
+                if (embeddingGenerator is IEmbeddingGenerator<string, Embedding<float>> g2)
                 {
                     embeddingResult = (await g2.GenerateAsync(text/* embeddingGenerationOptions as OpenAI.Embeddings.EmbeddingGenerationOptions, cancellationToken*/)).Vector;
                 }
-                else { 
-                throw new Exception("Unsupported Embedding Generator type. Please use OllamaEmbeddingGenerator or IEmbeddingGenerator<string, Embedding<float>>.");
+                else if (aiKernel.SenparcAiSetting.AiPlatform == AiPlatform.Ollama &&
+                    aiKernel.EmbeddingClient is OllamaApiClient ollamaClient)
+                {
+                    ReadOnlyMemory<float> result = new ReadOnlyMemory<float>();
+
+                    var embeddings = (await ollamaClient.EmbedAsync(text, cancellationToken)).Embeddings;
+
+                    if (embeddings != null && embeddings.Count > 0)
+                    {
+                        result = new ReadOnlyMemory<float>(embeddings[0]);
+                    }
+                    embeddingResult = result;
+                    //embeddingResult = (await (embeddingGenerator as OllamaEmbeddingGenerator).GenerateAsync(new[] { text }, embeddingGenerationOptions as OllamaEmbeddingGenerationOptions, cancellationToken)).FirstOrDefault()?.Vector;
                 }
-
-
-                    return embeddingResult;
+                else
+                {
+                    throw new Exception("Unsupported Embedding Generator type. Please use OllamaEmbeddingGenerator or IEmbeddingGenerator<string, Embedding<float>>.");
+                }
+                return embeddingResult ?? ReadOnlyMemory<float>.Empty;
             }
             catch (Exception ex)
             {

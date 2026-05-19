@@ -1,6 +1,7 @@
 ﻿using Azure.AI.OpenAI;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using OllamaSharp;
 using OpenAI;
 using OpenAI.Chat;
 using System;
@@ -31,7 +32,7 @@ namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
 
         public static IChatClient AddOllamaChatCompletion(this IAIKernelBuilder kernelBuilder, string endpoint, string modelName)
         {
-            return new OllamaChatClient(endpoint, modelName);
+            return new OllamaApiClient(endpoint, modelName);
         }
 
         public static ChatClient AddHggingFaceChatCompletion(this IAIKernelBuilder kernelBuilder, Uri endpoint, ApiKeyCredential credential, AzureOpenAIClientOptions options, string deploymentName)

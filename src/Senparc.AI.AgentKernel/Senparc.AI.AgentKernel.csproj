@@ -5,15 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <Compile Remove="KernelConfigExtensions\KernelConfigExtensions.Function.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="KernelConfigExtensions\KernelConfigExtensions.Function.cs" />
-	</ItemGroup>
-
+	
 	<ItemGroup>
 		<ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />
 	</ItemGroup>
@@ -26,7 +18,7 @@
 		<PackageReference Include="Microsoft.Agents.AI.Foundry" Version="1.6.1-preview.260514.1" />
 		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.6.1" />
 		<PackageReference Include="Microsoft.Extensions.AI" Version="10.6.0" />
-		<PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />
+		<!--<PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />-->
 		<PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.6.0" />
 		<!--<PackageReference Include="OllamaSharp" Version="5.4.25" />-->
 
@@ -37,7 +29,8 @@
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.76.0-alpha" />
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.74.0-preview" />
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Redis" Version="1.74.1-preview" />
-		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.76.0-alpha" />
+		<!--<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.76.0-alpha" />-->
+		<PackageReference Include="OllamaSharp" Version="5.4.25" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
 	</ItemGroup>
 

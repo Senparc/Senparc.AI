@@ -30,16 +30,16 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
     public class TextSearchRecord
     {
        // public string SourceId { get; set; } = string.Empty;
-        [VectorStoreKey]
+        //[VectorStoreKey]
         public ulong SourceId { get; set; } = 0;
-        [VectorStoreData(IsIndexed = true)]
+        //[VectorStoreData(IsIndexed = true)]
         public string SourceName { get; set; } = string.Empty;
-        [VectorStoreData(IsFullTextIndexed = true)]
+        //[VectorStoreData(IsFullTextIndexed = true)]
         public string SourceLink { get; set; } = string.Empty;
-        [VectorStoreData(IsFullTextIndexed = true)]
+        //[VectorStoreData(IsFullTextIndexed = true)]
         public string Text { get; set; } = string.Empty;
-        [VectorStoreVector(dimensions: 3072 /*根据模型调整，例如 text-embedding-ada-002 为 1536，Large 为 3072*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
-        public ReadOnlyMemory<float>? Embedding { get; set; } = null;
+        //[VectorStoreVector(dimensions: 3072 /*根据模型调整，例如 text-embedding-ada-002 为 1536，Large 为 3072*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
+        public ReadOnlyMemory<float> Embedding { get; set; } = null;
     }
 
 
@@ -47,12 +47,12 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
     {
         private readonly VectorStoreCollection<ulong, TextSearchRecord> _collection;
 
-        public IWantToRun WantToRun { get; }
+        public IWantToRun IWantToRun { get; }
 
-        public TextSearchStore(IWantToRun wantToRun, VectorStore vectorStore)
+        public TextSearchStore(IWantToRun iWantToRun, VectorStore vectorStore)
         {
-            WantToRun = wantToRun;
-            var kernel = WantToRun.Kernel;
+            IWantToRun = iWantToRun;
+            var kernel = IWantToRun.Kernel;
 
             var definition = new VectorStoreCollectionDefinition
             {
@@ -62,10 +62,11 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
                 new VectorStoreDataProperty("SourceName", typeof(string)),
                 new VectorStoreDataProperty("SourceLink", typeof(string)),
                 new VectorStoreDataProperty("Text", typeof(string)),
-                new VectorStoreVectorProperty("Embedding", typeof(string), kernel.EmbeddingDimensions),
+                new VectorStoreVectorProperty("Embedding", typeof(ReadOnlyMemory<float>), kernel.EmbeddingDimensions),
             ],
+                 EmbeddingGenerator = kernel.EmbeddingGenerator
             };
-            _collection = vectorStore.GetCollection<ulong, TextSearchRecord>(kernel.EmbeddingCollectionName/*, definition*/);
+            _collection = vectorStore.GetCollection<ulong, TextSearchRecord>(kernel.EmbeddingCollectionName, definition);
         }
 
         public async Task UpsertDocumentsAsync(IEnumerable<TextSearchDocument> documents)
@@ -79,7 +80,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
                     SourceName = doc.SourceName,
                     SourceLink = doc.SourceLink,
                     Text = doc.Text,
-                    Embedding = await WantToRun.GetEmbeddingAsync(doc.Text)
+                    Embedding = await IWantToRun.GetEmbeddingAsync(doc.Text)
                 };
                 await _collection.UpsertAsync(record);
             }

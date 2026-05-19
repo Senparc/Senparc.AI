@@ -1,6 +1,7 @@
 ﻿using Azure.AI.OpenAI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
+using OllamaSharp;
 using OpenAI;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
@@ -35,10 +36,10 @@ namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
             return AddAzureOpenAIEmbedding(kernelBuilder, endpoint, credential, options, modelName);
         }
 
-        public static OllamaEmbeddingGenerator AddOllamaEmbedding(this IAIKernelBuilder kernelBuilder,
+        public static OllamaApiClient AddOllamaEmbedding(this IAIKernelBuilder kernelBuilder,
        string endpoint, string modelName)
         {
-            return new OllamaEmbeddingGenerator(endpoint, modelName);
+            return new OllamaApiClient(endpoint, modelName);
         }
 
         #endregion
