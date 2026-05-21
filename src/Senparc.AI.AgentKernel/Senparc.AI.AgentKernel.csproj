@@ -1,11 +1,47 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
+		<Version>0.1.0-preview.1</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<LangVersion>13.0</LangVersion>
+		<AssemblyName>Senparc.AI.AgentKernel</AssemblyName>
+		<RootNamespace>Senparc.AI.AgentKernel</RootNamespace>
+		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
+		<Description>
+			Senparc.AI AgentKernel 模块，基于 Microsoft Agent Framework，提供 Senparc.AI 标准接口实现，支持 Chat、Embedding、向量存储等能力
+		</Description>
+		<Copyright>Senparc Copyright © 2004~2026</Copyright>
+		<PackageTags>
+			Senparc,AI,AgentKernel,Agent,Microsoft.Agents.AI,C#,AIGC,GenAI,AGI,LLM,SemanticKernel
+		</PackageTags>
+		<Authors>Jeffrey Su</Authors>
+		<Owners>Senparc</Owners>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<ProjectUrl>https://github.com/Senparc/Senparc.AI</ProjectUrl>
+		<Title>Senparc.AI.AgentKernel.dll</Title>
+		<Summary>Senparc.AI AgentKernel 模块</Summary>
+		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI</PackageProjectUrl>
+		<PackageIcon>icon.jpg</PackageIcon>
+		<PackageReleaseNotes>
+			v0.1.0-preview.1 创世，基于 Microsoft Agent Framework，提供 AgentAiHandler、AgentKernelHelper 及 Embedding / 向量存储支持
+		</PackageReleaseNotes>
+		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
+		<Configurations>Debug;Release;Test</Configurations>
+		<NoWarn>SKEXP0001;SKEXP0010;SKEXP0050;SKEXP0070</NoWarn>
 	</PropertyGroup>
-	
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0|AnyCPU'">
+		<OutputPath>..\..\BuildOutPut\</OutputPath>
+		<DocumentationFile>..\..\BuildOutPut\net10.0\Senparc.AI.AgentKernel.xml</DocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />
 	</ItemGroup>
@@ -22,7 +58,7 @@
 		<PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.1.0" />
 		<!--<PackageReference Include="OllamaSharp" Version="5.4.25" />-->
 
-		<!-- "We’re using this because at the time of writing, the Microsoft Agent Framework doesn’t ship with its own vector store connector."
+		<!-- "We're using this because at the time of writing, the Microsoft Agent Framework doesn't ship with its own vector store connector."
 		https://jamiemaguire.net/index.php/2026/02/21/microsoft-agent-framework-adding-rag-to-your-ai-agent-using-textsearchprovider-and-in-memory-vector-store/#:~:text=We%E2%80%99re%20using%20this%20because%20at,its%20own%20vector%20store%20connector.-->
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.74.0-preview" />
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.74.0-preview" />
