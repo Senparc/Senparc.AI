@@ -17,3 +17,4 @@ appsettings.Development.json
 .cursor/steps/step-03-agents-migration.md
 .cursor/steps/step-04-samples-and-validation.md
 **/SenparcTraceLog/
+Samples/Senparc.AI.Samples.Consoles/TTS-Output-*
