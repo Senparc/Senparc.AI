@@ -32,6 +32,11 @@ namespace Senparc.AI.AgentKernel.HttpMessageHandlers
         /// <returns></returns>
         public DelegatingHandler Build()
         {
+            if (_handlers.Count == 0)
+            {
+                throw new InvalidOperationException("At least one HttpMessageHandler must be registered before calling Build().");
+            }
+
             DelegatingHandler wrapper = new ConcreteHttpMessageHandler();
             DelegatingHandler current = wrapper;
             HttpMessageHandler last = _handlers.Last();
