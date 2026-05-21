@@ -19,7 +19,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
         public void CreateTest()
         {
             var setting = Senparc.AI.Config.SenparcAiSetting;
-            var agentAiHandler = new AgentAiHandler(setting);
+            var agentAiHandler = new AgentAiHandler();
             Assert.AreSame(setting, agentAiHandler.AgentKernelHelper.AiSetting);
         }
 
@@ -65,7 +65,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
             AgentSession agentSession = null;
             foreach (var prompt in prompts)
             {
-                var iWantToRun =await agentAiHandler.IWantTo()
+                var iWantToRun = await agentAiHandler.IWantTo()
                            .ConfigModel(ConfigModel.Chat, "Jeffrey")
                            .BuildKernelWithAgentSessionAsync();
 
@@ -108,7 +108,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
 
                 Console.WriteLine($"[{i}]结果：{result.Result.Text}（Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount}）");
 
-                if (i==1)
+                if (i == 1)
                 {
                     Assert.DoesNotContain("盐水鸭", result.Result.Text, "The response should contain '盐水鸭' for the first prompt.");
                 }
@@ -126,6 +126,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
             var prompts = new[] { "苏州特产有哪些（请您说三个）？", "南京的呢？", "北京的呢？用英文" };
             var i = 0;
             AgentSession agentSession = null;
+
             foreach (var prompt in prompts)
             {
                 var iWantToRun = agentAiHandler.IWantTo()

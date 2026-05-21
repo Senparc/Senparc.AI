@@ -49,7 +49,7 @@ namespace Senparc.AI.AgentKernel.Helpers
                     deploymentName: deploymentName
                 ),
                 AiPlatform.NeuCharAI => kernelBuilder.AddNeuCharAIChatCompletion(
-                    new Uri(senparcAiSetting.AzureEndpoint),
+                    new Uri(senparcAiSetting.NeuCharEndpoint),
                     new ApiKeyCredential(senparcAiSetting.ApiKey),
                     new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
                     deploymentName: deploymentName

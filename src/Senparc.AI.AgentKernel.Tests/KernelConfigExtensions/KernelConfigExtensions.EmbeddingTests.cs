@@ -29,7 +29,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
 
     public class TextSearchRecord
     {
-       // public string SourceId { get; set; } = string.Empty;
+        // public string SourceId { get; set; } = string.Empty;
         //[VectorStoreKey]
         public ulong SourceId { get; set; } = 0;
         //[VectorStoreData(IsIndexed = true)]
@@ -64,7 +64,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
                 new VectorStoreDataProperty("Text", typeof(string)),
                 new VectorStoreVectorProperty("Embedding", typeof(ReadOnlyMemory<float>), kernel.EmbeddingDimensions),
             ],
-                 EmbeddingGenerator = kernel.EmbeddingGenerator
+                EmbeddingGenerator = kernel.EmbeddingGenerator
             };
             _collection = vectorStore.GetCollection<ulong, TextSearchRecord>(kernel.EmbeddingCollectionName, definition);
         }
@@ -109,14 +109,14 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
         {
             yield return new TextSearchDocument
             {
-                SourceId =1,// "NCF-1",
+                SourceId = 1,// "NCF-1",
                 SourceName = "NeuCharFramework (NCF) - Overview",
                 SourceLink = "https://doc.ncf.pub/",
                 Text = "NeuCharFramework (NCF) is an AI-enabled, out-of-the-box modular development framework. It provides quick setup with templates and one-click installation, integrates basic AI capabilities for easier AI application development, and emphasizes modular design and extensibility."
             };
             yield return new TextSearchDocument
             {
-                SourceId =2,// "NCF-2",
+                SourceId = 2,// "NCF-2",
                 SourceName = "Get Started - NCF",
                 SourceLink = "https://doc.ncf.pub/start/start-develop/get-ncf-template.html",
                 Text = "The Get Started guide provides framework templates and a one-click installation experience to quickly bootstrap projects based on NCF, with step-by-step instructions for obtaining and using the project templates."
@@ -135,6 +135,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
         {
             private TextSearchStore _textSearchStore;
 
+
             private async Task<IEnumerable<TextSearchProvider.TextSearchResult>> SearchAdapter(
                string text, CancellationToken ct)
             {
@@ -149,6 +150,22 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
             }
 
             [TestMethod]
+            public async Task EmbeddingStoreTest()
+            {
+                AgentAiHandler agentAiHandler = new AgentAiHandler(_senparcAiSetting);
+                var iWantToRun =
+                        agentAiHandler.IWantTo()
+                        .ConfigTextEmbeddingModel("Jeffrey", "EmbeddingTest-520")
+                        .BuildKernel();
+
+                var result = await iWantToRun.GetEmbeddingAsync("Senparc");
+
+                Assert.AreEqual(_senparcAiSetting.ModelName.EmbeddingDimensions, result.Length);
+                Console.WriteLine(result.ToJson(true));
+                Console.WriteLine(result.ToArray().ToJson(true));
+            }
+
+            [TestMethod]
             public async Task EmbeddingTest()
             {
                 // Search Configuration Options
@@ -160,7 +177,8 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
                     RecentMessageMemoryLimit = 6,
                 };
 
-                var chatOptions = new ChatClientAgentOptions() {
+                var chatOptions = new ChatClientAgentOptions()
+                {
                     ChatOptions = new()
                     {
                         Instructions = "You are a helpful support specialist. Answer questions using the provided context and cite the source document when available."
@@ -185,6 +203,8 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
                 _textSearchStore = new TextSearchStore(iWantToRun, vectorStore);
 
                 await _textSearchStore.UpsertDocumentsAsync(TextSearchStore.GetSampleDocuments());
+
+                Console.WriteLine("Embedding Store Finished");
 
 
                 var searchResults = await _textSearchStore.SearchAsync("What is NCF?", 2, default(CancellationToken));

@@ -10,7 +10,7 @@ public class AgentKernelHelperTests:KernelTestBase
     public void CreateTest()
     {
         var setting = Senparc.AI.Config.SenparcAiSetting;
-        var agentKernelHelper= new AgentKernelHelper(setting);
+        var agentKernelHelper= new AgentKernelHelper();
         Assert.AreSame(setting, agentKernelHelper.AiSetting);
     }
 }

@@ -81,15 +81,15 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Agents.AI" Version="1.6.1" />
-		<PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.6.0" />
-		<PackageReference Include="Microsoft.SemanticKernel" Version="1.76.0" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.76.0-preview" />
+		<PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.1.0" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.74.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.74.0-preview" />
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.74.0-preview" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.76.0-alpha" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.74.0-alpha" />
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.74.0-preview" />
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Redis" Version="1.74.1-preview" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
-		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.76.0-alpha" />
+		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.74.0-alpha" />
 		<!--<PackageReference Include="Ollama" Version="1.6.1" />-->
 		<!--<PackageReference Include="OllamaSharp" Version="2.0.13" />-->
 		<PackageReference Include="Senparc.CO2NET" Version="3.1.5" />
