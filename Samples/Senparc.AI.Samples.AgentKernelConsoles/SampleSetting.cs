@@ -1,5 +1,5 @@
-using Senparc.AI.AgentKernel;
 using Senparc.AI.Interfaces;
+using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Samples.AgentKernelConsoles;
 
@@ -8,10 +8,7 @@ public class SampleSetting
     internal static string CurrentSettingKey { get; set; } = "Default";
     internal static bool EnableHttpClientLog { get; set; }
 
-    internal static ISenparcAiSetting CurrentSetting =>
-        CurrentSettingKey == "Default"
-            ? Senparc.AI.Config.SenparcAiSetting
-            : ((SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting)[CurrentSettingKey];
+    internal static ISenparcAiSetting CurrentSetting => ModelSettingCatalog.Resolve(CurrentSettingKey);
 
     private enum SettingItems
     {
@@ -65,22 +62,21 @@ public class SampleSetting
 
     private static void ChooseModel()
     {
-        var settings = new Dictionary<string, ISenparcAiSetting>
-        {
-            ["Default"] = Senparc.AI.Config.SenparcAiSetting
-        };
+        Console.WriteLine("[请选择模型配置]");
+        Console.WriteLine("说明：Default 使用 appsettings 中的 AiPlatform；其余项为各 *Keys 基础配置或 Items 子集。");
+        Console.WriteLine();
 
-        if (Senparc.AI.Config.SenparcAiSetting is SenparcAiSetting aiSetting)
+        var choices = ModelSettingCatalog.GetChoices();
+        var labels = choices.Select(c => c.Label).ToArray();
+        var chosen = SampleHelper.ChooseItems(labels);
+        CurrentSettingKey = choices[chosen].Key;
+
+        var resolved = CurrentSetting;
+        Console.WriteLine($"[调试] 当前模型配置：{CurrentSettingKey} - {resolved.AiPlatform} - {resolved.Endpoint}");
+        var chatModel = resolved.ModelName?.Chat;
+        if (!chatModel.IsNullOrEmpty())
         {
-            foreach (var item in aiSetting.Items ?? [])
-            {
-                settings[item.Key] = item.Value;
-            }
+            Console.WriteLine($"[调试] Chat 模型：{chatModel}");
         }
-
-        var keys = settings.Keys.ToArray();
-        var chosen = SampleHelper.ChooseItems(keys);
-        CurrentSettingKey = keys[chosen];
-        Console.WriteLine($"[调试] 当前模型配置：{CurrentSettingKey} - {CurrentSetting.AiPlatform}");
     }
 }
