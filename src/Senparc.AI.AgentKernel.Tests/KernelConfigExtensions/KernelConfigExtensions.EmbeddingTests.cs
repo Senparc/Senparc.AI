@@ -155,7 +155,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
                 AgentAiHandler agentAiHandler = new AgentAiHandler(_senparcAiSetting);
                 var iWantToRun =
                         agentAiHandler.IWantTo()
-                        .ConfigTextEmbeddingModel("Jeffrey", "EmbeddingTest-520")
+                        .ConfigTextEmbeddingModel("Jeffrey", "EmbeddingTest")
                         .BuildKernel();
 
                 var result = await iWantToRun.GetEmbeddingAsync("Senparc");
