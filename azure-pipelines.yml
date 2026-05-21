@@ -114,6 +114,26 @@ steps:
     publishFeedCredentials: 'nuget-jeffrey-full-key'
   continueOnError: true
   condition: succeededOrFailed()
+
+- task: NuGetCommand@2
+  displayName: Senparc.AI.AgentKernel -V0
+  inputs:
+    command: push
+    packagesToPush: '**/Senparc.AI.AgentKernel.*.nupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'nuget-jeffrey-full-key'
+  continueOnError: true
+  condition: succeededOrFailed()
+
+- task: NuGetCommand@2
+  displayName: 'Senparc.AI.AgentKernel -V0 - Symbol'
+  inputs:
+    command: push
+    packagesToPush: '**/Senparc.AI.AgentKernel.*.snupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'nuget-jeffrey-full-key'
+  continueOnError: true
+  condition: succeededOrFailed()
   
   # 系统模块 结束
 

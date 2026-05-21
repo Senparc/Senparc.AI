@@ -7,20 +7,7 @@ public class SampleSetting
     internal static string CurrentSettingKey { get; set; } = "Default";
     internal static bool EnableHttpClientLog { get; set; } = false;
 
-    internal static ISenparcAiSetting CurrentSetting
-    {
-        get
-        {
-            if (CurrentSettingKey == "Default")
-            {
-                return Senparc.AI.Config.SenparcAiSetting;
-            }
-            else
-            {
-                return ((SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting)[CurrentSettingKey];
-            }
-        }
-    }
+    internal static ISenparcAiSetting CurrentSetting => ModelSettingCatalog.Resolve(CurrentSettingKey);
 
 
     private enum SettingItems
@@ -126,23 +113,15 @@ public class SampleSetting
 
     private void ChooseModel()
     {
-        Dictionary<string, ISenparcAiSetting> settings = new();
-        settings["Default"] = Senparc.AI.Config.SenparcAiSetting;
+        Console.WriteLine("说明：Default 使用 appsettings 中的 AiPlatform；其余项为各 *Keys 基础配置或 Items 子集。");
+        Console.WriteLine();
 
-        if (Senparc.AI.Config.SenparcAiSetting is SenparcAiSetting aiSetting)
-        {
-            foreach (var item in aiSetting.Items ?? new System.Collections.Concurrent.ConcurrentDictionary<string, SenparcAiSetting>())
-            {
-                settings[item.Key] = item.Value;
-            }
-        }
+        var choices = ModelSettingCatalog.GetChoices();
+        var labels = choices.Select(c => c.Label).ToArray();
+        var chosen = SampleHelper.ChooseItems(labels);
+        CurrentSettingKey = choices[chosen].Key;
 
-        var keys = settings.Keys.ToArray();
-
-        var choosen = SampleHelper.ChooseItems(keys);
-
-        var choosenKey = keys[choosen];
-        CurrentSettingKey = choosenKey;
-        Console.WriteLine($"当前已选中模型配置：{choosenKey}：{CurrentSetting.AiPlatform}");
+        var resolved = CurrentSetting;
+        Console.WriteLine($"当前已选中模型配置：{CurrentSettingKey} - {resolved.AiPlatform} - {resolved.Endpoint}");
     }
 }
