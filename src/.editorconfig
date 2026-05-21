@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# IDE0058: 永远不会使用表达式值
+dotnet_diagnostic.IDE0058.severity = none
