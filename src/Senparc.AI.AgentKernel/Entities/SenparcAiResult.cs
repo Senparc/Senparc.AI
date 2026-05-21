@@ -63,8 +63,15 @@ namespace Senparc.AI.AgentKernel
         /// <param name="functionResultContent"></param>
         public void SetLastFunctionResultContent(FunctionResultContent functionResultContent = null)
         {
-            LastFunctionResultContent = functionResultContent ??
-                    (IWantToRun.StoredAiArguments.Context["history"] as ChatMessage)
+            if (functionResultContent != null)
+            {
+                LastFunctionResultContent = functionResultContent;
+                return;
+            }
+
+            IWantToRun.StoredAiArguments.Context.TryGetValue("history", out var history);
+
+            LastFunctionResultContent = (history as ChatMessage)
                         ?.Contents
                         ?.LastOrDefault(z => z is FunctionResultContent) as FunctionResultContent;
         }
