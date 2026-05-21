@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Senparc.AI.AgentKernel.KernelConfigExtensions
 {
-    public partial class KernelConfigExtensions
+    public static partial class KernelConfigExtensions
     {
         /// <summary>
         /// Get Embedding Result

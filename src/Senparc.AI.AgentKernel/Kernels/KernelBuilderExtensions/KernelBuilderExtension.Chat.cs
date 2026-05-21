@@ -35,7 +35,7 @@ namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
             return new OllamaApiClient(endpoint, modelName);
         }
 
-        public static ChatClient AddHggingFaceChatCompletion(this IAIKernelBuilder kernelBuilder, Uri endpoint, ApiKeyCredential credential, AzureOpenAIClientOptions options, string deploymentName)
+        public static ChatClient AddHuggingFaceChatCompletion(this IAIKernelBuilder kernelBuilder, Uri endpoint, ApiKeyCredential credential, AzureOpenAIClientOptions options, string deploymentName)
         {
             return kernelBuilder.AddAzureOpenAIChatCompletion(endpoint, credential, options, deploymentName);
         }

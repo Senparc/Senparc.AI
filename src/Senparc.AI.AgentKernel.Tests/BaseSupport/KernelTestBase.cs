@@ -22,7 +22,7 @@ namespace Senparc.AI.AgentKernel.Tests.BaseSupport
         static Func<IConfigurationRoot, SenparcAiSetting> getSenparcAiSettingFunc = config =>
         {
             var senparcAiSetting = new SenparcAiSetting() { IsDebug = true };
-            config.GetSection("SenparcAiSetting").Bind(_senparcAiSetting);
+            config.GetSection("SenparcAiSetting").Bind(senparcAiSetting);
             return senparcAiSetting;
         };
 
