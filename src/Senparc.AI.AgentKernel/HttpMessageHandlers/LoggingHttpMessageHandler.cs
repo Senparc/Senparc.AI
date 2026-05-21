@@ -57,11 +57,8 @@ namespace Senparc.AI.AgentKernel.HttpMessageHandlers
             Log($"Request: {request.Method} {request.RequestUri}");
             if (EnableLog && request.Content != null)
             {
-                var contentStream = await request.Content.ReadAsStreamAsync();
-                contentStream.Seek(0, SeekOrigin.Begin);
-                using var streamReader = new StreamReader(contentStream);
-                var requestBody = await streamReader.ReadToEndAsync();
-                contentStream.Seek(0, SeekOrigin.Begin); // 重置流位置 
+                await request.Content.LoadIntoBufferAsync();
+                var requestBody = await request.Content.ReadAsStringAsync();
 
                 Log($"Request Body: {requestBody}");
             }
@@ -72,23 +69,9 @@ namespace Senparc.AI.AgentKernel.HttpMessageHandlers
 
             if (EnableLog && response.Content != null)
             {
-                // 缓冲响应内容  
                 await response.Content.LoadIntoBufferAsync();
-
-                var contentStream = await response.Content.ReadAsStreamAsync();
-                string responseBody;
-                var streamReader = new StreamReader(contentStream);
-                responseBody = await streamReader.ReadToEndAsync();
+                var responseBody = await response.Content.ReadAsStringAsync();
                 Log($"Response Body: {responseBody}");
-
-                // 创建一个新的 MemoryStream，以防止 ObjectDisposedException  
-                contentStream.Seek(0, SeekOrigin.Begin);
-                var memoryStream = new MemoryStream();
-                await contentStream.CopyToAsync(memoryStream);
-                memoryStream.Seek(0, SeekOrigin.Begin);
-
-                response.Content = new StreamContent(memoryStream);
-                await response.Content.LoadIntoBufferAsync();
             }
 
             return response;
