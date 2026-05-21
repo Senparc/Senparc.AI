@@ -23,11 +23,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Senparc.AI.Agents", "Senpar
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 src", "01 src", "{85962C3A-3F83-41FD-98FC-B86F5178540A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senparc.AI.AgentKernel", "Senparc.AI.AgentKernel\Senparc.AI.AgentKernel.csproj", "{C2CD7F27-431D-442D-A601-5C85EDD8E9EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Senparc.AI.AgentKernel", "Senparc.AI.AgentKernel\Senparc.AI.AgentKernel.csproj", "{C2CD7F27-431D-442D-A601-5C85EDD8E9EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senparc.AI.AgentKernel.Tests", "Senparc.AI.AgentKernel.Tests\Senparc.AI.AgentKernel.Tests.csproj", "{AA24C8F0-9621-4250-974E-8D01E2E2BB5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Senparc.AI.AgentKernel.Tests", "Senparc.AI.AgentKernel.Tests\Senparc.AI.AgentKernel.Tests.csproj", "{AA24C8F0-9621-4250-974E-8D01E2E2BB5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senparc.AI.Samples.AgentKernelConsoles", "..\Samples\Senparc.AI.Samples.AgentKernelConsoles\Senparc.AI.Samples.AgentKernelConsoles.csproj", "{2F4F0AF4-A78F-4037-85D5-F6C3BC22BA24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Senparc.AI.Samples.AgentKernelConsoles", "..\Samples\Senparc.AI.Samples.AgentKernelConsoles\Senparc.AI.Samples.AgentKernelConsoles.csproj", "{2F4F0AF4-A78F-4037-85D5-F6C3BC22BA24}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7F839CC1-1174-4F79-991A-911844D433F0}"
 	ProjectSection(SolutionItems) = preProject
