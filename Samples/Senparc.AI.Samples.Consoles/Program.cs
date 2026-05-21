@@ -29,6 +29,7 @@ services.AddTransient<DallESample>();
 services.AddTransient<PlanSample>();
 services.AddTransient<PluginFromObjectSample>();
 services.AddTransient<SttSample>();
+services.AddTransient<TtsSample>();
 
 services.AddScoped<IAiHandler, SemanticAiHandler>(s =>
 {
@@ -60,6 +61,7 @@ Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI 或 AzureOpenAI）")
 Console.WriteLine("[5] Planner 任务计划");
 Console.WriteLine("[6] PluginFromObject 测试");
 Console.WriteLine("[7] STT（Speach to Text）测试");
+Console.WriteLine("[8] TTS（Text to Speech）测试");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -148,6 +150,13 @@ switch (index)
             //STT Sample
             var sttSample = serviceProvider.GetRequiredService<SttSample>();
             await sttSample.RunAsync();
+        }
+        break;
+    case "8":
+        {
+            //TTS Sample
+            var ttsSample = serviceProvider.GetRequiredService<TtsSample>();
+            await ttsSample.RunAsync();
         }
         break;
     case "0":

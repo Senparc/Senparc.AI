@@ -111,6 +111,10 @@ namespace Senparc.AI.Kernel.Handlers
                     modelNameStr = modelName.SpeechToText ?? "whisper"; // 默认使用 whisper
                     kernelBuilder = iWantTo.SemanticKernelHelper.ConfigAudioToText(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
                     break;
+                case AI.ConfigModel.TextToSpeech:
+                    modelNameStr = modelName.TextToSpeech ?? "tts"; // 默认使用 tts
+                    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigTextToAudio(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
+                    break;
                 default:
                     throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel);
             }
