@@ -47,7 +47,7 @@ public class EmbeddingRagSample
 
         async Task<IEnumerable<TextSearchProvider.TextSearchResult>> SearchAdapter(string text, CancellationToken ct)
         {
-            var searchResults = await _textSearchStore!.SearchAsync(text, 2, ct);
+            var searchResults = await _textSearchStore!.SearchAsync(text, 5, ct);
             return searchResults.Select(r => new TextSearchProvider.TextSearchResult
             {
                 SourceName = r.SourceName,
@@ -66,10 +66,10 @@ public class EmbeddingRagSample
             AIContextProviders = [new TextSearchProvider(SearchAdapter, textSearchOptions)]
         };
 
-        var iWantToRun = agentHandler.IWantTo(setting)
+        var iWantToRun = await agentHandler.IWantTo(setting)
             .ConfigModel(ConfigModel.Chat, UserId)
             .ConfigTextEmbeddingModel(UserId, CollectionName)
-            .BuildKernel(chatOptions);
+            .BuildKernelWithAgentSessionAsync(chatOptions);
 
         var vectorStore = iWantToRun.GetVectorStore(setting.VectorDB);
         _textSearchStore = new TextSearchStore(iWantToRun, vectorStore);
