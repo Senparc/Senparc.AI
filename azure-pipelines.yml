@@ -26,6 +26,23 @@ variables:
     value: 'https://api.nuget.org/v3/index.json'
 
 steps:
+# ✅ 固定 .NET SDK 版本（Solution 含 netstandard2.1 / net8.0 / net10.0 项目）
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK 8'
+  inputs:
+    version: '8.x'
+    packageType: 'sdk'
+    performMultiLevelLookup: true
+    includePreviewVersions: true
+
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK 10'
+  inputs:
+    version: '10.x'
+    packageType: 'sdk'
+    performMultiLevelLookup: true
+    includePreviewVersions: true
+
 # 🟢 缓存 NuGet 及依赖项
 - task: Cache@2
   inputs:
