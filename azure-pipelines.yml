@@ -26,7 +26,15 @@ variables:
     value: 'https://api.nuget.org/v3/index.json'
 
 steps:
-# ✅ 固定 .NET SDK 版本（Solution 含 netstandard2.1 / net8.0 / net10.0 项目）
+# ✅ 固定 .NET SDK 版本（Solution 含 netstandard2.1 / net8.0 / net10.0 项目；SDK 10 可编译全部 TFM）
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK 10'
+  inputs:
+    version: '10.0.x'
+    packageType: 'sdk'
+    performMultiLevelLookup: true
+    includePreviewVersions: true
+
 - task: UseDotNet@2
   displayName: 'Use .NET SDK 8'
   inputs:
@@ -35,13 +43,13 @@ steps:
     performMultiLevelLookup: true
     includePreviewVersions: true
 
-- task: UseDotNet@2
-  displayName: 'Use .NET SDK 10'
-  inputs:
-    version: '10.x'
-    packageType: 'sdk'
-    performMultiLevelLookup: true
-    includePreviewVersions: true
+- script: |
+    echo "=== Installed SDKs ==="
+    dotnet --list-sdks
+    echo "=== Active SDK (global.json) ==="
+    dotnet --version
+    dotnet --list-sdks | findstr /R /C:"10\." >nul || (echo ##[error].NET 10 SDK 未安装，无法编译 net10.0 项目。请检查 UseDotNet 任务或 Agent 网络。 && exit 1)
+  displayName: 'Verify .NET 10 SDK'
 
 # 🟢 缓存 NuGet 及依赖项
 - task: Cache@2
@@ -86,23 +94,20 @@ steps:
     dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
   displayName: 'Add NuGet Source'
 
-# ✅ 恢复 NuGet 依赖（使用缓存）
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '**/Senparc.AI.sln'
-
+# ✅ 恢复 NuGet 依赖（dotnet restore 会按 global.json 使用 SDK 10，避免 nuget.exe + MSBuild 误用 SDK 8）
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet --list-sdks '
+  displayName: 'dotnet restore'
   inputs:
-    command: custom
-    custom: '--list-sdks '
+    command: restore
+    projects: '**/Senparc.AI.sln'
+    arguments: '--verbosity detailed'
 
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
     command: build
     projects: '**/Senparc.AI.sln'
-    arguments: '--configuration Release'
+    arguments: '--configuration Release --no-restore'
   continueOnError: true
 
 # 自动发现并推送 Senparc.AI.* 的 .nupkg / .snupkg（--skip-duplicate）
