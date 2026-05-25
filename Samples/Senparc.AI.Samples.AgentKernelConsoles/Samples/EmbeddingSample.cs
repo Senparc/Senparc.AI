@@ -42,8 +42,8 @@ public class EmbeddingSample
             .ConfigTextEmbeddingModel(UserId, CollectionName)
             .BuildKernel();
 
-        var vectorStore = iWantToRun.GetVectorStore(setting.VectorDB);
-        var store = new TextSearchStore(iWantToRun, vectorStore);
+        //var vectorStore = iWantToRun.GetVectorStore(setting.VectorDB);
+        var store = iWantToRun.CreateTextSearchStore();
 
         var id = 1ul;
         while (true)
