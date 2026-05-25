@@ -14,6 +14,7 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.InMemory;
 using Microsoft.SemanticKernel.Connectors.Qdrant;
 using Microsoft.SemanticKernel.Connectors.Redis;
+using Microsoft.SemanticKernel.Data;
 using Qdrant.Client;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Helpers;
@@ -29,6 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Qdrant.Client.Grpc.BinaryQuantizationQueryEncoding.Types;
 using static Senparc.AI.Interfaces.VectorDB;
 
 namespace Senparc.AI.AgentKernel.Handlers
@@ -276,6 +278,13 @@ namespace Senparc.AI.AgentKernel.Handlers
             return collection;
         }
 
+        public static TextSearchStore CreateTextSearchStore(this IWantToRun iWantToRun) 
+        {
+            var setting = iWantToRun.SemanticKernelHelper.AiSetting;
+            var vectorStore = iWantToRun.GetVectorStore(setting.VectorDB);
+            var store = new TextSearchStore(iWantToRun, vectorStore);
+            return store;
+        }
 
         #endregion
 

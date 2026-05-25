@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>0.1.0</Version>
+		<Version>0.1.1</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>13.0</LangVersion>
@@ -32,6 +32,7 @@
 			3、AgentSession 多轮对话；BuildKernelAsync / BuildKernelWithAgentSessionAsync
 			4、EmbeddingDimensions、向量存储（InMemory / Qdrant / Redis 等）
 			5、修复 HttpMessageHandler 链、日志流式读取及 HuggingFace 扩展命名
+			[2026-05-25] v0.1.1 添加 TextSearchStore
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
@@ -74,5 +75,7 @@
 		<PackageReference Include="OllamaSharp" Version="5.4.25" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
 	</ItemGroup>
+
+
 
 </Project>
