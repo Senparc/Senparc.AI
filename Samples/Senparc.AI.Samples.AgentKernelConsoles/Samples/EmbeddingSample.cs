@@ -3,7 +3,6 @@ using Senparc.AI.AgentKernel;
 using Senparc.AI.AgentKernel.Handlers;
 using Senparc.AI.AgentKernel.KernelConfigExtensions;
 using Senparc.AI.Interfaces;
-using Senparc.AI.Samples.AgentKernelConsoles.Samples.Support;
 using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;

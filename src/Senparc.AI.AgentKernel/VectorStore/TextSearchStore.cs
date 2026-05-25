@@ -13,6 +13,7 @@ public class TextSearchDocument
     public string SourceName { get; set; } = string.Empty;
     public string SourceLink { get; set; } = string.Empty;
     public string Text { get; set; } = string.Empty;
+    public double? Score { get; set; }
 }
 
 public class TextSearchRecord
@@ -50,9 +51,12 @@ public class TextSearchStore
         _collection = vectorStore.GetCollection<ulong, TextSearchRecord>(kernel.EmbeddingCollectionName, definition);
     }
 
-    public async Task UpsertDocumentsAsync(IEnumerable<TextSearchDocument> documents)
+    public async Task UpsertDocumentsAsync(IEnumerable<TextSearchDocument> documents, IWantToRun iWantToRun = null)
     {
+        iWantToRun ??= IWantToRun;
+
         await _collection.EnsureCollectionExistsAsync();
+
         foreach (var doc in documents)
         {
             var record = new TextSearchRecord
@@ -61,7 +65,7 @@ public class TextSearchStore
                 SourceName = doc.SourceName,
                 SourceLink = doc.SourceLink,
                 Text = doc.Text,
-                Embedding = await IWantToRun.GetEmbeddingAsync(doc.Text)
+                Embedding = await iWantToRun.GetEmbeddingAsync(doc.Text)
             };
             await _collection.UpsertAsync(record);
         }
@@ -78,7 +82,8 @@ public class TextSearchStore
                 SourceId = result.Record.SourceId,
                 SourceName = result.Record.SourceName,
                 SourceLink = result.Record.SourceLink,
-                Text = result.Record.Text
+                Text = result.Record.Text,
+                Score = result.Score
             });
         }
         return documents;
