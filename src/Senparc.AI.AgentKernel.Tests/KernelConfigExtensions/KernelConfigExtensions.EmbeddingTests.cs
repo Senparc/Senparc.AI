@@ -11,7 +11,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Senparc.AI.AgentKernel.KernelConfigExtensions;
 
 namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
 {

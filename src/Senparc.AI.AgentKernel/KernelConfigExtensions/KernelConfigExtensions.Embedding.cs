@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 
-namespace Senparc.AI.AgentKernel.KernelConfigExtensions
+namespace Senparc.AI.AgentKernel.Handlers
 {
     public static partial class KernelConfigExtensions
     {

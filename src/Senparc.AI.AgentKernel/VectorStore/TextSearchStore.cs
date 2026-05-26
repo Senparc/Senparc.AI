@@ -1,6 +1,5 @@
 using Microsoft.Extensions.VectorData;
 using Senparc.AI.AgentKernel.Handlers;
-using Senparc.AI.AgentKernel.KernelConfigExtensions;
 
 namespace Senparc.AI.AgentKernel;
 
