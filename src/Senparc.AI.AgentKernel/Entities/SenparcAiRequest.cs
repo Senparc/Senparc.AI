@@ -10,6 +10,7 @@ using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Handlers;
 using Microsoft.Extensions.AI;
 using Senparc.AI.AgentKernel.Kernels;
+using Microsoft.Agents.AI;
 
 namespace Senparc.AI.AgentKernel
 {
@@ -61,22 +62,26 @@ namespace Senparc.AI.AgentKernel
         ///// </summary>
         //public bool StoreContext => AiContext.StoreToContainer;
 
-        public SenparcAiRequest(IWantToRun iWantToRun, string userId, string requestContent,PromptConfigParameter parameterConfig, params AIFunction[] pipeline)
+        public AgentSession AgentSession { get; set; }
+
+        public SenparcAiRequest(IWantToRun iWantToRun, string userId, string requestContent,PromptConfigParameter parameterConfig,AgentSession session, params AIFunction[] pipeline)
         {
             IWantToRun = iWantToRun;
             UserId = userId;
             RequestContent = requestContent;
             ParameterConfig = parameterConfig;
             TempAiArguments = new SenparcAiArguments();
+            AgentSession = session;
             FunctionPipeline = pipeline;
         }
 
-        public SenparcAiRequest(IWantToRun iWantToRun, string userId, KernelArguments contextVariables, PromptConfigParameter parameterConfig, params AIFunction[] pipeline)
+        public SenparcAiRequest(IWantToRun iWantToRun, string userId, KernelArguments contextVariables, PromptConfigParameter parameterConfig, AgentSession session, params AIFunction[] pipeline)
         {
             IWantToRun = iWantToRun;
             UserId = userId;
             ParameterConfig = parameterConfig;
             TempAiArguments = new SenparcAiArguments(contextVariables);
+            AgentSession = session;
             FunctionPipeline = pipeline;
         }
 

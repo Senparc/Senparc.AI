@@ -143,18 +143,18 @@ namespace Senparc.AI.AgentKernel
         }
     }
 
-    public class SenparcKernelAiResult : SenparcKernelAiResult<string>, IAiResult
-    {
-        public SenparcKernelAiResult(IWantToRun iWwantToRun, string? inputContent)
-             : base(iWwantToRun, inputContent)
-        {
-        }
+    //public class SenparcKernelAiResult : SenparcKernelAiResult<string>, IAiResult
+    //{
+    //    public SenparcKernelAiResult(IWantToRun iWwantToRun, string? inputContent)
+    //         : base(iWwantToRun, inputContent)
+    //    {
+    //    }
 
-        public SenparcKernelAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
-           : base(iWwantToRun, inputContext)
-        {
-        }
-    }
+    //    public SenparcKernelAiResult(IWantToRun iWwantToRun, IAiContext inputContext)
+    //       : base(iWwantToRun, inputContext)
+    //    {
+    //    }
+    //}
 
     public class SenparcKernelAiResult<T> : SenparcAiResult<FunctionResultContent>, IAiResult
         where T : class

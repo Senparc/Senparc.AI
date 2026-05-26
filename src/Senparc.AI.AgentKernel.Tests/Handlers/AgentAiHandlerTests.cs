@@ -3,7 +3,6 @@ using Microsoft.Testing.Platform.Extensions.TestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.AgentKernel.Handlers;
 using Senparc.AI.AgentKernel.Helpers;
-using Senparc.AI.AgentKernel.KernelConfigExtensions;
 using Senparc.AI.AgentKernel.Tests.BaseSupport;
 using Senparc.CO2NET.Extensions;
 using System;
@@ -34,7 +33,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
                         .ConfigModel(ConfigModel.Chat, "Jeffrey")
                         .BuildKernel();
 
-            var result = await iWantToRun.RunAsync("Hello, how are you ? ");
+            var result = await iWantToRun.RunChatAsync("Hello, how are you ? ");
             Assert.IsTrue(result.Result.CreatedAt.Value.UtcDateTime > DateTime.UtcNow.AddMinutes(-5), "Result should be created within the last 5 minutes.");
             Assert.IsTrue(result.Result.Usage.TotalTokenCount > 0);
             Console.WriteLine($"Result: {result.Result.Text}");
@@ -49,7 +48,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
                          .IWantTo()
                          .ConfigModel(ConfigModel.Chat, "Jeffrey")
                          .BuildKernel()
-                         .RunAsync("余弦相似度在AI训练和RAG过程中，如何被使用到了？每50个字换一行。 ");
+                         .RunChatAsync("余弦相似度在AI训练和RAG过程中，如何被使用到了？每50个字换一行。 ");
 
             Assert.IsTrue(result.Result.Text.Length > 0);
             Console.WriteLine(result.Result.Text);
@@ -72,7 +71,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
                 agentSession ??= iWantToRun.Kernel.AgentSession;
                 Console.WriteLine("AgentSession is null:" + (agentSession == null));
 
-                var result = await iWantToRun.RunAsync(prompt, agentSession);
+                var result = await iWantToRun.RunChatAsync(prompt, agentSession);
 
                 Console.WriteLine($"[{i}]结果：{result.Result.Text}（Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount}）");
 
@@ -104,7 +103,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
                 agentSession ??= iWantToRun.Kernel.AgentSession;
                 Console.WriteLine("AgentSession is null:" + (agentSession == null));
 
-                var result = await iWantToRun.RunAsync(prompt, agentSession);
+                var result = await iWantToRun.RunChatAsync(prompt, agentSession);
 
                 Console.WriteLine($"[{i}]结果：{result.Result.Text}（Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount}）");
 
@@ -136,7 +135,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
                 agentSession ??= iWantToRun.Kernel.AgentSession;
                 Console.WriteLine("AgentSession is null:" + (agentSession == null));
 
-                var result = await iWantToRun.RunAsync(prompt, agentSession);
+                var result = await iWantToRun.RunChatAsync(prompt, agentSession);
 
                 Console.WriteLine($"[{i}]结果：{result.Result.Text}（Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount}）");
 

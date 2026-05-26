@@ -115,7 +115,7 @@ public class ChatSample
                     agentSession = iWantToRun.Kernel.AgentSession;//实际为 null
                 }
 
-                var result = await iWantToRun.RunAsync(input, agentSession);
+                var result = await iWantToRun.RunChatAsync(input, agentSession);
                 Console.WriteLine(result.Result.Text);
                 Console.WriteLine($"[调试] Tokens — input: {result.Result.Usage?.InputTokenCount}, output: {result.Result.Usage?.OutputTokenCount}, total: {result.Result.Usage?.TotalTokenCount}");
             }

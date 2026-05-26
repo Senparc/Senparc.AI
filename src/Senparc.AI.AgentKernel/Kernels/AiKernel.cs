@@ -10,6 +10,7 @@ using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace Senparc.AI.AgentKernel.Kernels
 {
@@ -53,7 +54,7 @@ namespace Senparc.AI.AgentKernel.Kernels
         {
             try
             {
-                if (ConfigModels==null || ConfigModels.Length==0)
+                if (ConfigModels == null || ConfigModels.Length == 0)
                 {
                     throw new Exception("ConfigModel is required to create AIAgent");
                 }
@@ -63,7 +64,8 @@ namespace Senparc.AI.AgentKernel.Kernels
                     return;
                 }
 
-                ChatClientAgentOptions ??= new ChatClientAgentOptions() {
+                ChatClientAgentOptions ??= new ChatClientAgentOptions()
+                {
                     Id = $"SenparcAIAgent-{Guid.NewGuid().ToString("n")}",
                     Name = "SenparcAgent",
                     Description = "You are a friendly assistant. Keep your answers brief"
@@ -129,30 +131,73 @@ namespace Senparc.AI.AgentKernel.Kernels
             };
         }
 
-        public async Task<AgentResponse<T>> RunAsync<T>(string prompt, AgentSession agentSession = null)
+        //public async Task<AgentResponse<T>> RunChatAsync<T>(string prompt, AgentSession? agentSession = null)
+        //{
+        //    EnsureChatConfigModel();
+        //    //TODO: Session 统一管理
+        //    var session = agentSession ??= AgentSession;
+        //    var result = await ChatClientAgent.RunAsync<T>(prompt, session);
+        //    return result;
+        //}
+
+        //public async Task<AgentResponse> RunChatAsync(string prompt, AgentSession? agentSession = null)
+        //{
+        //    EnsureChatConfigModel();
+        //    var session = agentSession ??= AgentSession;
+        //    return await ChatClientAgent.RunAsync(prompt, session);
+        //}
+
+        //public async Task<AgentResponse> RunChatAsync(AgentSession agentSession = null, ChatClientAgentRunOptions? options = null, CancellationToken cancellationToken = default)
+        //{
+        //    EnsureChatConfigModel();
+        //    var session = agentSession ??= AgentSession;
+        //    return await ChatClientAgent.RunAsync(session, options, cancellationToken);
+        //}
+
+        //public async Task<AgentResponse> RunChatAsync(IEnumerable<Microsoft.Extensions.AI.ChatMessage> messages, AgentSession? agentSession = null, ChatClientAgentRunOptions? options = null, CancellationToken cancellationToken = default)
+        //{
+        //    EnsureChatConfigModel();
+        //    var session = agentSession ??= AgentSession;
+        //    return await ChatClientAgent.RunAsync(messages, session, options, cancellationToken);
+        //}
+
+        ///// <summary>
+        ///// 流式运行 Agent（MAF <see cref="ChatClientAgent.RunStreamingAsync"/>）
+        ///// </summary>
+        //public IAsyncEnumerable<AgentResponseUpdate> RunChatStreamingAsync(string prompt, AgentSession? agentSession = null, ChatClientAgentRunOptions? options = null, CancellationToken cancellationToken = default)
+        //{
+        //    EnsureChatConfigModel();
+        //    var session = agentSession ?? AgentSession;
+        //    return ChatClientAgent.RunStreamingAsync(prompt, session, options, cancellationToken);
+        //}
+
+        //public IAsyncEnumerable<AgentResponseUpdate> RunChatStreamingAsync(AgentSession? agentSession = null, ChatClientAgentRunOptions? options = null, CancellationToken cancellationToken = default)
+        //{
+        //    EnsureChatConfigModel();
+        //    var session = agentSession ?? AgentSession;
+        //    return ChatClientAgent.RunStreamingAsync(session, options, cancellationToken);
+        //}
+
+        //public IAsyncEnumerable<AgentResponseUpdate> RunChatStreamingAsync(IEnumerable<Microsoft.Extensions.AI.ChatMessage> messages, AgentSession? agentSession = null, ChatClientAgentRunOptions? options = null, CancellationToken cancellationToken = default)
+        //{
+        //    EnsureChatConfigModel();
+        //    var session = agentSession ?? AgentSession;
+        //    return ChatClientAgent.RunStreamingAsync(messages, session, options, cancellationToken);
+        //}
+
+        //public IAsyncEnumerable<AgentResponseUpdate> RunChatStreamingAsync(Microsoft.Extensions.AI.ChatMessage message, AgentSession? agentSession = null, ChatClientAgentRunOptions? options = null, CancellationToken cancellationToken = default)
+        //{
+        //    EnsureChatConfigModel();
+        //    var session = agentSession ?? AgentSession;
+        //    return ChatClientAgent.RunStreamingAsync(message, session, options, cancellationToken);
+        //}
+
+        private void EnsureChatConfigModel()
         {
             if (!ConfigModels.Contains(ConfigModel.Chat))
             {
-                throw new Exception("RunAsync is only supported for Chat ConfigModel");
+                throw new Exception("Run is only supported for Chat ConfigModel");
             }
-
-            //TODO: Session 统一管理
-            var session = agentSession ??= this.AgentSession;
-            var result = await ChatClientAgent.RunAsync<T>(prompt, session);
-            return result;
-        }
-
-        public async Task<AgentResponse> RunAsync(string prompt, AgentSession agentSession = null)
-        {
-            if (!ConfigModels.Contains(ConfigModel.Chat))
-            {
-                throw new Exception("RunAsync is only supported for Chat ConfigModel");
-            }
-
-            var session = agentSession ??= this.AgentSession;
-
-            var result = await ChatClientAgent.RunAsync(prompt, session);
-            return result;
         }
 
         //public async Task<AgentResponse<T>> RunAsync<T>(AIFunction function, KernelArguments kernelArguments = null)
@@ -163,9 +208,19 @@ namespace Senparc.AI.AgentKernel.Kernels
         //    }
         //}
 
-        internal async Task<AgentResponse?> InvokeAsync(string prompt)
+        internal async Task<AgentResponse?> InvokeChatAsync(string prompt, AgentSession session = null)
         {
-            return await ChatClientAgent.RunAsync(prompt);
+            return await ChatClientAgent.RunAsync(prompt, session);
+        }
+
+        internal async Task<AgentResponse<T>> InvokeChatAsync<T>(string prompt, AgentSession session = null)
+        {
+            return await ChatClientAgent.RunAsync<T>(prompt, session);
+        }
+
+        internal IAsyncEnumerable<AgentResponseUpdate> InvokeChatStreamingAsync(string prompt, AgentSession session = null)
+        {
+            return ChatClientAgent.RunStreamingAsync(prompt, session);
         }
     }
 }
