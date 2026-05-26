@@ -57,7 +57,7 @@ public class CompletionSample
             Console.WriteLine("回复：");
             try
             {
-                var result = await iWantToRun.RunAsync(prompt);
+                var result = await iWantToRun.RunChatAsync(prompt);
                 Console.WriteLine(result.Result.Text);
                 Console.WriteLine($"[调试] Tokens — total: {result.Result.Usage?.TotalTokenCount}");
             }

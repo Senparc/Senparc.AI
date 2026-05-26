@@ -96,7 +96,7 @@ public class EmbeddingRagSample
             Console.WriteLine("机器：");
             try
             {
-                var result = await iWantToRun.RunAsync(input, session);
+                var result = await iWantToRun.RunChatAsync(input, session);
                 Console.WriteLine(result.Result.Text);
                 Console.WriteLine($"[调试] Tokens — total: {result.Result.Usage?.TotalTokenCount}");
             }

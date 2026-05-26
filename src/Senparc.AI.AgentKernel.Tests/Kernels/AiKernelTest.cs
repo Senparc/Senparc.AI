@@ -21,12 +21,13 @@ namespace Senparc.AI.AgentKernel.Tests.Kernels
         [TestMethod]
         public async Task RunTest()
         {
-            var result =await  new AgentAiHandler(_senparcAiSetting)
+            var response =await  new AgentAiHandler(_senparcAiSetting)
                                         .IWantTo()
                                         .ConfigModel(ConfigModel.Chat, "Jeffrey")
-                                        .BuildKernel().Kernel
-                                        .RunAsync("你是一个助理负责回答我的问题，每行最多10个字。给我介绍一下苏州园林");
+                                        .BuildKernel()
+                                        .RunChatAsync("你是一个助理负责回答我的问题，每行最多10个字。给我介绍一下苏州园林");
 
+            var result = response.Result;
 
             Assert.IsTrue(result.CreatedAt.Value.UtcDateTime > DateTime.UtcNow.AddMinutes(-5), "Result should be created within the last 5 minutes.");
 
