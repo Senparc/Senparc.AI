@@ -129,7 +129,7 @@ public class ChatSample
                 var result = await iWantToRun.RunChatAsync(input, agentSession, updateFun);
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine();
-                //Console.WriteLine($"[调试] Tokens — input: {result.Result.Usage?.InputTokenCount}, output: {result.Result.Usage?.OutputTokenCount}, total: {result.Result.Usage?.TotalTokenCount}");
+                Console.WriteLine($"[调试] Tokens — input: {result.Result.Usage?.InputTokenCount}, output: {result.Result.Usage?.OutputTokenCount}, total: {result.Result.Usage?.TotalTokenCount}");
             }
             catch (Exception ex)
             {

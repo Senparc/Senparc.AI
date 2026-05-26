@@ -76,10 +76,14 @@ public class IWantToRunExtensionRunChatTests : KernelTestBase
         var messages = new[] { new ChatMessage(ChatRole.User, RunChatTestHelper.ShortPrompt) };
         StringBuilder sb = new();
 
+        List<AgentResponseUpdate> list = new();
         await iWantToRun.RunChatAsync(RunChatTestHelper.ShortPrompt, null, update => {
             sb.AppendLine($"{sb.Length.ToString("000")} {update.Role} {update.Text}  / {update.FinishReason} {update.RawRepresentation}");
             Assert.IsNotNull(update);
+            list.Add(update);
         });
+
+        var s = list.Where(z => z.FinishReason == ChatFinishReason.Stop);
 
         Assert.IsTrue(sb.Length > 0);
         Console.WriteLine(sb.ToString());
