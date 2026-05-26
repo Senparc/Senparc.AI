@@ -115,8 +115,20 @@ public class ChatSample
                     agentSession = iWantToRun.Kernel.AgentSession;//实际为 null
                 }
 
-                var result = await iWantToRun.RunChatAsync(input, agentSession);
-                Console.WriteLine(result.Result.Text);
+                Action changeColor = () =>
+                {
+                    Console.ForegroundColor = Console.ForegroundColor == ConsoleColor.DarkYellow ? ConsoleColor.White : ConsoleColor.DarkYellow;
+                };
+
+                Action<AgentResponseUpdate> updateFun = update =>
+                {
+                    changeColor();
+                    Console.Write(update.Text);
+                };
+
+                var result = await iWantToRun.RunChatAsync(input, agentSession, updateFun);
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine();
                 Console.WriteLine($"[调试] Tokens — input: {result.Result.Usage?.InputTokenCount}, output: {result.Result.Usage?.OutputTokenCount}, total: {result.Result.Usage?.TotalTokenCount}");
             }
             catch (Exception ex)

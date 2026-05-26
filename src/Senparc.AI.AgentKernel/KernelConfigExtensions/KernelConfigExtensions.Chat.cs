@@ -1,8 +1,10 @@
 ﻿using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Handlers;
 using Senparc.AI.Exceptions;
 using Senparc.CO2NET.Extensions;
+using Senparc.CO2NET.Trace;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -113,7 +115,8 @@ namespace Senparc.AI.AgentKernel.Handlers
             {
                 var stringResult = new StringBuilder();
 
-                result.StreamResult = kernel.InvokeChatStreamingAsync(prompt,session);
+                result.StreamResult = kernel.InvokeChatStreamingAsync(prompt, session);
+                UsageContent usageContent = null;
 
                 if (result.StreamResult != null)
                 {
@@ -121,10 +124,33 @@ namespace Senparc.AI.AgentKernel.Handlers
                     {
                         stringResult.Append(item);
                         inStreamItemProceessing?.Invoke(item);//执行流
+
+                        try
+                        {
+                            if (item.Contents?.FirstOrDefault(z => z is Microsoft.Extensions.AI.UsageContent)
+                                is Microsoft.Extensions.AI.UsageContent usage)
+                            {
+                                usageContent = usage;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            SenparcTrace.BaseExceptionLog(ex);
+                        }
                     }
                 }
 
                 result.OutputString = stringResult.ToString();
+
+                List<ChatMessage> history = new List<ChatMessage>();
+                session?.TryGetInMemoryChatHistory(out history);
+                result.Result = new AgentResponse(history)
+                {
+                    Usage = usageContent?.Details,
+                };
+
+                //result.Result = await result.StreamResult.ToAgentResponseAsync();
+                //Console.WriteLine(result.Result.Text);
             }
 
             /* Semantic Kernel 时代方法，已经启弃用）
@@ -236,9 +262,9 @@ namespace Senparc.AI.AgentKernel.Handlers
                 result.OutputString = stringResult.ToString();
             }
             */
-                    //result.LastException = botAnswer.LastException;
+            //result.LastException = botAnswer.LastException;
 
-                    return result;
+            return result;
         }
 
 

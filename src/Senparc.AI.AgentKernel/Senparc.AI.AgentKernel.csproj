@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>0.1.1.3</Version>
+		<Version>0.1.2.1</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>13.0</LangVersion>
@@ -33,6 +33,7 @@
 			4、EmbeddingDimensions、向量存储（InMemory / Qdrant / Redis 等）
 			5、修复 HttpMessageHandler 链、日志流式读取及 HuggingFace 扩展命名
 			[2026-05-25] v0.1.1 添加 TextSearchStore
+			[2026-05-26] v0.1.2 open Streaming Chat mode for AgentKernel
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
