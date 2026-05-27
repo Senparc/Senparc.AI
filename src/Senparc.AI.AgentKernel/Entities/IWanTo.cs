@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.AI;
+﻿using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Helpers;
@@ -65,6 +66,8 @@ namespace Senparc.AI.AgentKernel.Handlers
         public IWantTo IWantTo { get; set; }
         public string UserId { get; set; }
         public string ModelName { get; set; }
+
+        public ChatClientAgentOptions ChatClientAgentOptions { get; set; }
 
         public AgentAiHandler SemanticAiHandler => IWantTo.AgentAiHandler;
         public AgentKernelHelper SemanticKernelHelper => IWantTo.AgentKernelHelper;

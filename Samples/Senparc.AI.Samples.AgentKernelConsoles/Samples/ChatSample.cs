@@ -76,8 +76,8 @@ public class ChatSample
         if (sessionMode == SessionMode.Shared)
         {
             sharedRun = await agentHandler.IWantTo(SampleSetting.CurrentSetting)
-                .ConfigModel(ConfigModel.Chat, userId)
-                .BuildKernelWithAgentSessionAsync(chatOptions);
+                .ConfigChatModel(userId, chatOptions)
+                .BuildKernelWithAgentSessionAsync();
             agentSession = sharedRun.Kernel.AgentSession;
             Console.WriteLine($"[调试] AgentSession 已创建：{agentSession != null}");
         }

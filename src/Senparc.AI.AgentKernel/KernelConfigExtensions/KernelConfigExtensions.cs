@@ -136,6 +136,15 @@ namespace Senparc.AI.AgentKernel.Handlers
             return iWantToConfig;
         }
 
+        public static IWantToConfig ConfigChatModel(this IWantToConfig iWantToConfig, string userId, ChatClientAgentOptions options, ModelName modelName = null,
+           ISenparcAiSetting? senparcAiSetting = null, string deploymentName = null)
+        {
+            iWantToConfig.ConfigModel(AI.ConfigModel.Chat, userId, modelName, senparcAiSetting, deploymentName);
+            iWantToConfig.ChatClientAgentOptions = options;
+
+            return iWantToConfig;
+        }
+
         ///// <summary>
         ///// 添加 TextCompletion 配置
         ///// </summary>
@@ -292,6 +301,8 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         public static IWantToRun BuildKernel(this IWantToConfig iWantToConfig, ChatClientAgentOptions chatClientAgentOptions = null, Action<IAIKernelBuilder>? kernelBuilderAction = null)
         {
+            chatClientAgentOptions ??= iWantToConfig.ChatClientAgentOptions;
+
             var iWantTo = iWantToConfig.IWantTo;
             var handler = iWantTo.AgentKernelHelper;
             handler.BuildKernel(iWantTo.KernelBuilder, chatClientAgentOptions, kernelBuilderAction);
@@ -301,6 +312,8 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         public static async Task<IWantToRun> BuildKernelAsync(this IWantToConfig iWantToConfig, ChatClientAgentOptions chatClientAgentOptions = null, bool createAgentSession = false, Action<IAIKernelBuilder>? kernelBuilderAction = null)
         {
+            chatClientAgentOptions ??= iWantToConfig.ChatClientAgentOptions;
+
             if (createAgentSession)
             {
                 return await BuildKernelWithAgentSessionAsync(iWantToConfig, chatClientAgentOptions, kernelBuilderAction);
@@ -313,6 +326,7 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         public static async Task<IWantToRun> BuildKernelWithAgentSessionAsync(this IWantToConfig iWantToConfig, ChatClientAgentOptions chatClientAgentOptions = null, Action<IAIKernelBuilder>? kernelBuilderAction = null, AgentSession agentSession = null)
         {
+            chatClientAgentOptions ??= iWantToConfig.ChatClientAgentOptions;
             var iWantToRun = BuildKernel(iWantToConfig, chatClientAgentOptions, kernelBuilderAction);
 
             if (iWantToRun.Kernel.ChatClientAgent != null)
