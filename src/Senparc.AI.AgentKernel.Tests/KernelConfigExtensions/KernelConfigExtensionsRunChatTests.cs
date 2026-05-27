@@ -85,7 +85,7 @@ public class KernelConfigExtensionsRunChatTests : KernelTestBase
 
         var result = await iWantToRun.RunChatAsync(request, item =>
         {
-            sb.AppendLine(item.ToJson());
+            sb.AppendLine(item.Text);
         });
 
         Assert.IsTrue(sb.Length > 0);
@@ -108,7 +108,7 @@ public class KernelConfigExtensionsRunChatTests : KernelTestBase
 
         var result = await iWantToRun.RunChatAsync(RunChatTestHelper.ShortPrompt, null, item =>
         {
-            sb.AppendLine(item.ToJson());
+            sb.AppendLine(item.Text);
         });
 
         Assert.IsTrue(sb.Length > 0);

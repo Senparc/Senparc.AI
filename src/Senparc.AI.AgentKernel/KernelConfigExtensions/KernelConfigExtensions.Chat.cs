@@ -152,6 +152,9 @@ namespace Senparc.AI.AgentKernel.Handlers
                 //result.Result = await result.StreamResult.ToAgentResponseAsync();
                 //Console.WriteLine(result.Result.Text);
             }
+            result.InputContent = prompt;
+
+            #region MyRegion
 
             /* Semantic Kernel 时代方法，已经启弃用）
             if (tempArguments != null && tempArguments.Count() != 0)
@@ -263,6 +266,7 @@ namespace Senparc.AI.AgentKernel.Handlers
             }
             */
             //result.LastException = botAnswer.LastException;
+            #endregion
 
             return result;
         }
