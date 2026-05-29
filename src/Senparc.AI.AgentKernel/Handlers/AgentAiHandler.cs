@@ -105,7 +105,7 @@ namespace Senparc.AI.AgentKernel
         //    var chatHistory = new ChatHistory();
         //    chatHistory.AddSystemMessage(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE);
 
-        //    iWanToRun.StoredAiArguments.KernelArguments.Set(hisgoryArgName, chatHistory);
+        //    iWanToRun.StoredAiArguments.AgentKernelArguments.Set(hisgoryArgName, chatHistory);
 
         //    return iWanToRun;
         //}

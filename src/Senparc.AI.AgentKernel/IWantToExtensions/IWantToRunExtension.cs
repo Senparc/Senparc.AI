@@ -11,7 +11,7 @@ namespace Senparc.AI.AgentKernel.IWantToExtensions
 {
     public static class IWantToRunExtension
     {
-        //public static IWantToRun Run(this IWantToRun iWantToRun, AIFunction aIFunction, KernelArguments kernelArguments = null)
+        //public static IWantToRun Run(this IWantToRun iWantToRun, AIFunction aIFunction, AgentKernelArguments kernelArguments = null)
         //{
         //    AiKernel? kernel = iWantToRun.Kernel;
         //    kernel.RunAsync(aIFunction, kernelArguments).Wait();

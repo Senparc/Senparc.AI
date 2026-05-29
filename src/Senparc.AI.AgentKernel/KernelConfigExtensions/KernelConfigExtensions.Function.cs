@@ -124,7 +124,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //    //var history = "";
         //    var history = new ChatHistory();
             
-        //    aiContext.KernelArguments.Set(serviceId, history);
+        //    aiContext.AgentKernelArguments.Set(serviceId, history);
 
         //    //iWantToRun.KernelFunction = chatFunction;
         //    iWantToRun.StoredAiArguments = aiContext;

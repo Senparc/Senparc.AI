@@ -407,7 +407,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
-        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, KernelArguments arguments, AgentSession agentSession = null,
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, AgentKernelArguments arguments, AgentSession agentSession = null,
             bool useAllRegisteredFunctions = false, params AIFunction[] pipeline)
         {
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
@@ -429,7 +429,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         /// <param name="contextVariables"></param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
-        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, KernelArguments contextVariables, AgentSession agentSession, params AIFunction[] pipeline)
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, AgentKernelArguments contextVariables, AgentSession agentSession, params AIFunction[] pipeline)
         {
             return CreateRequest(iWantToRun, contextVariables, agentSession, false, pipeline);
         }

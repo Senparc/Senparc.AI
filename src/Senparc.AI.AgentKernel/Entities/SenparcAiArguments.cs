@@ -7,41 +7,43 @@ using System.Collections.Generic;
 
 namespace Senparc.AI.AgentKernel.Entities
 {
-    public class SenparcAiArguments : IAiContext<KernelArguments>
+    public class SenparcAiArguments : IAiContext<AgentKernelArguments>
     {
    
-        private KernelArguments? _kernelArguments { get; set; }
+        private AgentKernelArguments? _kernelArguments { get; set; }
 
 
-        public KernelArguments KernelArguments
+        public AgentKernelArguments AgentKernelArguments
         {
-            get => _kernelArguments ??= new KernelArguments();
+            get => _kernelArguments ??= new AgentKernelArguments();
             set => _kernelArguments = value;
         }
 
         /// <summary>
         /// <inheritdoc/>>
         /// </summary>
-        public IDictionary<string, object?> Context
+        public ISenparcKernelArguments /*IDictionary<string, object?>*/ Context
         {
-            get => KernelArguments;
+            get => AgentKernelArguments;
             set
             {
-                if (value is not Microsoft.SemanticKernel.KernelArguments)
+                if (value is not Senparc.AI.AgentKernel.Entities.AgentKernelArguments)
                 {
-                    throw new SenparcAiException("Context 类型必须为 IDictionary<string, object?>");
+                    throw new SenparcAiException("Context 类型必须为 ISenparcKernelArguments");
                 }
-                KernelArguments = (KernelArguments)value;
+                AgentKernelArguments = (AgentKernelArguments)value;
             }
         }
+
+        IDictionary<string, object?> IAiContext.Context { get => Context; set => throw new NotImplementedException(); }
 
         public SenparcAiArguments() : this(null)
         {
         }
 
-        public SenparcAiArguments(KernelArguments subContext)
+        public SenparcAiArguments(AgentKernelArguments subContext)
         {
-            KernelArguments = subContext;
+            AgentKernelArguments = subContext;
         }
 
     }

@@ -199,7 +199,7 @@ namespace Senparc.AI.AgentKernel.Kernels
             }
         }
 
-        //public async Task<AgentResponse<T>> RunAsync<T>(AIFunction function, KernelArguments kernelArguments = null)
+        //public async Task<AgentResponse<T>> RunAsync<T>(AIFunction function, AgentKernelArguments kernelArguments = null)
         //{
         //    if (ConfigModel != ConfigModel.Chat)
         //    {

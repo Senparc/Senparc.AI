@@ -67,7 +67,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// 运行，兼容 Streamming
+        /// 运行，兼容 Streamming（RunChat 统一入口）
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
@@ -84,6 +84,10 @@ namespace Senparc.AI.AgentKernel.Handlers
             //var function = iWanToRun.KernelFunction;
 
             var prompt = request.RequestContent;
+
+            //替换参数
+            prompt = request.ReplacePrompt();
+
             var session = request.AgentSession;
             var functionPipline = request.FunctionPipeline;
             //var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
@@ -91,8 +95,8 @@ namespace Senparc.AI.AgentKernel.Handlers
             //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
 
             iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
-            var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
-            var tempArguments = request.TempAiArguments?.KernelArguments;
+            var storedArguments = iWanToRun.StoredAiArguments.AgentKernelArguments;
+            var tempArguments = request.TempAiArguments?.AgentKernelArguments;
 
             AgentResponse agentResponse = null;
             var result = new SenparcKernelAiResult<T>(iWanToRun, inputContent: null);
@@ -332,8 +336,8 @@ namespace Senparc.AI.AgentKernel.Handlers
         //    //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
 
         //    iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
-        //    var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
-        //    var tempArguments = request.TempAiArguments?.KernelArguments;
+        //    var storedArguments = iWanToRun.StoredAiArguments.AgentKernelArguments;
+        //    var tempArguments = request.TempAiArguments?.AgentKernelArguments;
 
         //    FunctionResult? functionResult = null;
         //    var result = new SenparcKernelAiResult<T>(iWanToRun, inputContent: null);
@@ -447,8 +451,8 @@ namespace Senparc.AI.AgentKernel.Handlers
         //    //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
 
         //    iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
-        //    var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
-        //    var tempArguments = request.TempAiArguments?.KernelArguments;
+        //    var storedArguments = iWanToRun.StoredAiArguments.AgentKernelArguments;
+        //    var tempArguments = request.TempAiArguments?.AgentKernelArguments;
 
         //    FunctionResult? functionResult = null;
         //    var result = new SenparcKernelAiResult<T>(iWanToRun, inputContent: null);
