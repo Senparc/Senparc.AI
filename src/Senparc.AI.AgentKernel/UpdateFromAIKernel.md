@@ -2,5 +2,5 @@
 
 ## Name Changes
 
-SemanticAiHandler -> AgentAiHandler
-SemanticKernelHelper -> AgentKernelHelper
+AgentAiHandler -> AgentAiHandler
+AgentKernelHelper -> AgentKernelHelper

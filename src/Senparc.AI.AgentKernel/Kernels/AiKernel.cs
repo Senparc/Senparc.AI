@@ -78,7 +78,6 @@ namespace Senparc.AI.AgentKernel.Kernels
                     _ => throw new Exception("Unsupported ChatClient type")
                 };
 
-
                 AgentInited = true;
             }
             catch (Exception)
@@ -210,17 +209,17 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         internal async Task<AgentResponse?> InvokeChatAsync(string prompt, AgentSession session = null)
         {
-            return await ChatClientAgent.RunAsync(prompt, session);
+            return await ChatClientAgent.RunAsync(prompt, session ?? AgentSession);
         }
 
         internal async Task<AgentResponse<T>> InvokeChatAsync<T>(string prompt, AgentSession session = null)
         {
-            return await ChatClientAgent.RunAsync<T>(prompt, session);
+            return await ChatClientAgent.RunAsync<T>(prompt, session ?? AgentSession);
         }
 
         internal IAsyncEnumerable<AgentResponseUpdate> InvokeChatStreamingAsync(string prompt, AgentSession session = null)
         {
-            return ChatClientAgent.RunStreamingAsync(prompt, session);
+            return ChatClientAgent.RunStreamingAsync(prompt, session ?? AgentSession);
         }
     }
 }

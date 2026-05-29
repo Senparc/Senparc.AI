@@ -18,7 +18,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         /// <returns>SK context</returns>
         public static (IWantToRun iWantToRun, KernelArguments arguments) CreateNewArguments(this IWantToRun iWantToRun)
         {
-            //var helper = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticKernelHelper;
+            //var helper = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.AgentKernelHelper;
             //var kernel = helper.GetKernel();
             var context = new KernelArguments();// kernel.CreateNewContext();
             return (iWantToRun, context);

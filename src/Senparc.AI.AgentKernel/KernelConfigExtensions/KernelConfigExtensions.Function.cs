@@ -96,7 +96,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //    promptConfigPara ??= new PromptConfigParameter();
 
         //    var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
-        //    var helper = iWantToRun.SemanticKernelHelper;
+        //    var helper = iWantToRun.AgentKernelHelper;
         //    var kernel = iWantToRun.Kernel;
 
         //    senparcAiSetting ??= iWantTo.SenparcAiSetting;
@@ -173,7 +173,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //    senparcAiSetting ??= iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting;
 
         //    PromptExecutionSettings executionSettings = iWantToRun
-        //        .SemanticKernelHelper.GetExecutionSetting(
+        //        .AgentKernelHelper.GetExecutionSetting(
         //            senparcAiSetting: senparcAiSetting,
         //             maxTokens: maxTokens,
         //             temperature: temperature,

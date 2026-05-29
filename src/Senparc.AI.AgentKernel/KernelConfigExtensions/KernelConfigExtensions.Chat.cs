@@ -2,17 +2,33 @@
 using Microsoft.Extensions.AI;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Handlers;
+using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.CO2NET.Extensions;
 using Senparc.CO2NET.Trace;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Senparc.AI.AgentKernel.Handlers
 {
-    public partial class KernelConfigExtensions
+    public static partial class KernelConfigExtensions
     {
+        #region 配置
+
+        public static ChatClientAgentOptions CreateChatClientAgentOptions(this IWantToConfig iWantToConfig,   string agentName, string systemMessage, ChatOptions chatOptions = null)
+        {
+            var options = new ChatClientAgentOptions()
+            {
+                Name = agentName,
+                ChatOptions = chatOptions
+            };
+
+            return options;
+        }
+
+        #endregion
 
         #region 运行
 
@@ -63,7 +79,7 @@ namespace Senparc.AI.AgentKernel.Handlers
             where T : class
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
-            var helper = iWanToRun.SemanticKernelHelper;
+            var helper = iWanToRun.AgentKernelHelper;
             var kernel = helper.GetKernel();
             //var function = iWanToRun.KernelFunction;
 
@@ -305,7 +321,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //{
         //    var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
 
-        //    var helper = iWanToRun.SemanticKernelHelper;
+        //    var helper = iWanToRun.AgentKernelHelper;
         //    var kernel = helper.GetKernel();
         //    //var function = iWanToRun.KernelFunction;
 
@@ -424,7 +440,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //{
         //    var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
 
-        //    var helper = iWanToRun.SemanticKernelHelper;
+        //    var helper = iWanToRun.AgentKernelHelper;
         //    var kernel = helper.GetKernel();
         //    //var function = iWanToRun.KernelFunction;
 
