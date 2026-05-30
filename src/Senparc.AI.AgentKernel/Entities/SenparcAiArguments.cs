@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Senparc.AI.AgentKernel.Entities
 {
-    public class SenparcAiArguments : IAiContext<AgentKernelArguments>
+    public class SenparcAiArguments : IAiAgentContext<AgentKernelArguments>
     {
    
         private AgentKernelArguments? _kernelArguments { get; set; }
@@ -19,6 +19,11 @@ namespace Senparc.AI.AgentKernel.Entities
             set => _kernelArguments = value;
         }
 
+        public AgentKernelArguments KernelArguments {
+            get => AgentKernelArguments;
+            set => AgentKernelArguments = value;
+        }
+        
         /// <summary>
         /// <inheritdoc/>>
         /// </summary>
