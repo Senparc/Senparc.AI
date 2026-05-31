@@ -58,9 +58,10 @@
 		<PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
 		<PackageReference Include="Azure.AI.Projects" Version="2.1.0-beta.2" />
 		<PackageReference Include="Azure.Identity" Version="1.21.0" />
-		<PackageReference Include="Microsoft.Agents.AI" Version="1.6.1" />
-		<PackageReference Include="Microsoft.Agents.AI.Foundry" Version="1.6.1-preview.260514.1" />
-		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.6.1" />
+		<PackageReference Include="Microsoft.Agents.AI" Version="1.8.0" />
+		<PackageReference Include="Microsoft.Agents.AI.Foundry" Version="1.8.0-preview.260528.1" />
+		<PackageReference Include="Microsoft.Agents.AI.Hosting.A2A.AspNetCore" Version="1.8.0-preview.260528.1" />
+		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.8.0" />
 		<PackageReference Include="Microsoft.Extensions.AI" Version="10.5.1" />
 		<!--<PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />-->
 		<PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.1.0" />
