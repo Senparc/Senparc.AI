@@ -62,6 +62,7 @@
 		<PackageReference Include="Microsoft.Agents.AI.Foundry" Version="1.8.0-preview.260528.1" />
 		<PackageReference Include="Microsoft.Agents.AI.Hosting.A2A.AspNetCore" Version="1.8.0-preview.260528.1" />
 		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.8.0" />
+		<PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.8.0" />
 		<PackageReference Include="Microsoft.Extensions.AI" Version="10.5.1" />
 		<!--<PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />-->
 		<PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.1.0" />
