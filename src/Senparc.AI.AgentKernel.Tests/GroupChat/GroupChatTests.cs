@@ -22,13 +22,12 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             var aiHandlerStudentA = new AgentAiHandler(KernelTestBase._senparcAiSetting);
             var aiHandlerStudentB = new AgentAiHandler(KernelTestBase._senparcAiSetting);
 
-
-            var iWRManager = await aiHandlerTeacher.IWantTo().ConfigChatModel("Manager", new ChatClientAgentOptions()
+            var iWRManager = await aiHandlerManager.IWantTo().ConfigChatModel("Manager", new ChatClientAgentOptions()
             {
-                Name = "Teacher",
+                Name = "群主",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是管理员，负责协调所有对话，并且决定终止对话",
+                    Instructions = "你是群主，负责协调所有对话，并且决定何时终止对话",
                     MaxOutputTokens = 1000
                 }
             }).BuildKernelWithAgentSessionAsync();
@@ -43,7 +42,7 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
                 }
             }).BuildKernelWithAgentSessionAsync();
 
-            var iWRStudentA= await aiHandlerTeacher.IWantTo().ConfigChatModel("StudentA", new ChatClientAgentOptions()
+            var iWRStudentA= await aiHandlerStudentA.IWantTo().ConfigChatModel("StudentA", new ChatClientAgentOptions()
             {
                 Name = "StudentA",
                 ChatOptions = new ChatOptions()
@@ -53,7 +52,7 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
                 }
             }).BuildKernelWithAgentSessionAsync();
 
-            var iWRStudentB = await aiHandlerTeacher.IWantTo().ConfigChatModel("StudentB", new ChatClientAgentOptions()
+            var iWRStudentB = await aiHandlerStudentB.IWantTo().ConfigChatModel("StudentB", new ChatClientAgentOptions()
             {
                 Name = "StudentB",
                 ChatOptions = new ChatOptions()
@@ -68,7 +67,10 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
 #pragma warning disable IDE0059 // 不需要赋值
 #pragma warning disable MAAIW001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             Workflow workflow = new MagenticWorkflowBuilder(iWRManager.Kernel.ChatClientAgent)
-                .AddParticipants([iWRTeacher.Kernel.ChatClientAgent, iWRStudentA.Kernel.ChatClientAgent, iWRStudentB.Kernel.ChatClientAgent])
+                .AddParticipants([
+                        iWRTeacher.Kernel.ChatClientAgent, 
+                        iWRStudentA.Kernel.ChatClientAgent, 
+                        iWRStudentB.Kernel.ChatClientAgent])
                 .WithName("Home work")
                 .WithDescription("老师负责出一个题，学生分别答题，最后老师评分。")
                 .RequirePlanSignoff(false)
@@ -77,7 +79,10 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
                 .WithMaxResets(2)
                 .Build();
 
-            var taskPrompt = "老师出一个鸡兔同笼的数学题，让学生回答";
+            var taskPrompt = @"请按照如下过程解决问题：
+1. 请 Teacher 老师出一个鸡兔同笼的数学题，数字可以随机定义
+2. 让所有学生 Students 分别回答
+3. 最后并由老师对学生的回答进行评分";
 
             await using StreamingRun run = await InProcessExecution.RunStreamingAsync(workflow, new List<ChatMessage> { new(ChatRole.User, taskPrompt) });
 
