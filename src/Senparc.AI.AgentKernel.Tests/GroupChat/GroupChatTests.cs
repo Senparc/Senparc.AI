@@ -8,6 +8,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.AgentKernel.Handlers;
 using Senparc.AI.AgentKernel.Tests.BaseSupport;
+using Senparc.CO2NET.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,28 +26,29 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             var aiHandlerStudentA = new AgentAiHandler(KernelTestBase._senparcAiSetting);
             var aiHandlerStudentB = new AgentAiHandler(KernelTestBase._senparcAiSetting);
 
-            var iWRManager = await aiHandlerManager.IWantTo().ConfigChatModel("Jeffrey", new ChatClientAgentOptions()
+            var iWRManager = await aiHandlerManager.IWantTo().ConfigChatModel("Jeffrey-1", new ChatClientAgentOptions()
             {
-                Name = "群主",
+                Name = "MagenticManager",
+                Description= "你是一位 Orchestrator，负责协调不同人讲话，并完成任务，每一轮需要有不同的人来发言",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是群主，负责协调所有对话，在一个智能体发言完毕后，再决定下一个发言的智能体，并且决定何时终止对话",
+                    Instructions = "你是一位 Orchestrator，负责协调所有对话，在一个智能体发言完毕后，再决定下一个发言的智能体，并且决定何时终止对话。请注意：next_speaker 必须和上一个发言人不同！",
                     MaxOutputTokens = 1000
                 }
             }).BuildKernelWithAgentSessionAsync();
 
 
-            var iWRTeacher = await aiHandlerTeacher.IWantTo().ConfigChatModel("Jeffrey", new ChatClientAgentOptions()
+            var iWRTeacher = await aiHandlerTeacher.IWantTo().ConfigChatModel("Jeffrey-2", new ChatClientAgentOptions()
             {
                 Name = "Teacher",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是一位老师，负责按照要求出题",
+                    Instructions = "你是一位老师，负责按照要求出题。注意：你不能生成任何解题思路。",
                     MaxOutputTokens = 1000
                 }
             }).BuildKernelWithAgentSessionAsync();
 
-            var iWRStudentA = await aiHandlerStudentA.IWantTo().ConfigChatModel("Jeffrey", new ChatClientAgentOptions()
+            var iWRStudentA = await aiHandlerStudentA.IWantTo().ConfigChatModel("Jeffrey-3", new ChatClientAgentOptions()
             {
                 Name = "StudentA",
                 ChatOptions = new ChatOptions()
@@ -56,7 +58,7 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
                 }
             }).BuildKernelWithAgentSessionAsync();
 
-            var iWRStudentB = await aiHandlerStudentB.IWantTo().ConfigChatModel("Jeffrey", new ChatClientAgentOptions()
+            var iWRStudentB = await aiHandlerStudentB.IWantTo().ConfigChatModel("Jeffrey-4", new ChatClientAgentOptions()
             {
                 Name = "StudentB",
                 ChatOptions = new ChatOptions()
@@ -70,25 +72,27 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
 #pragma warning disable MAAIW001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             Workflow workflow = new MagenticWorkflowBuilder(iWRManager.Kernel.ChatClientAgent)
                 .AddParticipants([
-                        iWRStudentA.Kernel.ChatClientAgent,
                         iWRStudentB.Kernel.ChatClientAgent,
-                        iWRTeacher.Kernel.ChatClientAgent])
-                .WithName("Home work")
-                .WithDescription("组织老师和学生进行对话")
+                        iWRStudentA.Kernel.ChatClientAgent,
+                        /*iWRTeacher.Kernel.ChatClientAgent*/])
+                .WithName("Homework")
+                .WithDescription("组织成员进行对话")
                 .RequirePlanSignoff(false)
                 .WithMaxRounds(10)
                 .WithMaxStalls(3)
                 .WithMaxResets(2)
                 .Build();
 
-            var taskPrompt = @"请按照如下过程解决问题：
-1. 请 Teacher 老师出一个鸡兔同笼的数学题，数字可以随机定义
-2. 让所有学生 Students 分别回答
-3. 每一位学生回答完之后，最后并由老师对学生的回答进行评分";
+            // Mermaid diagram
+            Console.WriteLine("ToMermaidString: \r\n" + workflow.ToMermaidString());
+
+
+            var taskPrompt = @"请两位 StudentA和StudentB分别回答：为什么1+1=2？言简意赅，轮流回答。";
 
             await using StreamingRun run = await InProcessExecution.RunStreamingAsync(workflow, new List<ChatMessage> { new(ChatRole.User, taskPrompt) });
 
-            await run.TrySendMessageAsync(new TurnToken(emitEvents: true));
+            var trySend = await run.TrySendMessageAsync(new TurnToken(emitEvents: true));
+            Console.WriteLine($"Try send: {trySend}");
 
             string? lastResponseId = null;
             WorkflowOutputEvent? finalOutput = null;
@@ -99,6 +103,9 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             {
                 switch (workflowEvent)
                 {
+                    case ExecutorInvokedEvent invokedEvent:
+                        Console.WriteLine("ExecutorInvokedEvent:" + invokedEvent.Data?.ToJson());
+                        break;
                     case AgentResponseUpdateEvent updateEvent:
                         // Stream per-participant deltas. Group by ResponseId / MessageId / ExecutorId so
                         // each new contiguous response prints its executor header once.
