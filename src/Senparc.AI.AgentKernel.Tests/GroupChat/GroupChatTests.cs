@@ -1,17 +1,12 @@
-﻿using Azure;
-using Azure.AI.Projects;
-using Azure.Identity;
+﻿using Azure.AI.Projects;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Agents.AI.Workflows.Specialized.Magentic;
 using Microsoft.Extensions.AI;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.AgentKernel.Handlers;
 using Senparc.AI.AgentKernel.Tests.BaseSupport;
 using Senparc.CO2NET.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
 
 namespace Senparc.AI.AgentKernel.Tests.GroupChat
 {
@@ -29,7 +24,7 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             var iWRManager = await aiHandlerManager.IWantTo().ConfigChatModel("Jeffrey-1", new ChatClientAgentOptions()
             {
                 Name = "MagenticManager",
-                Description= "你是一位 Orchestrator，负责协调不同人讲话，并完成任务，每一轮需要有不同的人来发言",
+                Description = "你是一位 Orchestrator，负责协调不同人讲话，并完成任务，每一轮需要有不同的人来发言",
                 ChatOptions = new ChatOptions()
                 {
                     Instructions = "你是一位 Orchestrator，负责协调所有对话，在一个智能体发言完毕后，再决定下一个发言的智能体，并且决定何时终止对话。请注意：next_speaker 必须和上一个发言人不同！",
@@ -51,30 +46,38 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             var iWRStudentA = await aiHandlerStudentA.IWantTo().ConfigChatModel("Jeffrey-3", new ChatClientAgentOptions()
             {
                 Name = "StudentA",
+                Description = "你是一位学生，负责回答老师的问题，回答需要尽量简洁，只回答结果。",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是一位学生，负责回答老师的问题，回答需要尽量简洁，只回答结果。",
-                    MaxOutputTokens = 1000
+                    Instructions = "尽量在20个字以内回答问题",
+                    MaxOutputTokens = 100
                 }
             }).BuildKernelWithAgentSessionAsync();
 
             var iWRStudentB = await aiHandlerStudentB.IWantTo().ConfigChatModel("Jeffrey-4", new ChatClientAgentOptions()
             {
                 Name = "StudentB",
+                Description = "你是一位学生，负责回答老师的问题，回答问题需要使用诗词的口吻",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是一位学生，负责回答老师的问题，回答问题需要使用诗词的口吻",
-                    MaxOutputTokens = 1000
+                    Instructions = "你是一位学生，负责回答老师的问题，回答问题需要使用诗词的口吻，最后翻译成英文",
+                    MaxOutputTokens = 200
                 }
             }).BuildKernelWithAgentSessionAsync();
+
+
+
+            //AIAgent stuA = (iWRStudentB.Kernel.ChatClient as ChatClient).AsAIAgent("你是一位学生，负责用精简的语言回答问题", "StudentA", "你是一位学生，负责用精简的语言回答问题");
+            //AIAgent stuB = (iWRStudentB.Kernel.ChatClient as ChatClient).AsAIAgent("你是一位学生，负责用精简的语言回答问题，回答完问题后翻译成英文", "StudentB", "你是一位学生，负责用精简的语言回答问题，回答完问题后翻译成英文");
 
 #pragma warning disable IDE0059 // 不需要赋值
 #pragma warning disable MAAIW001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             Workflow workflow = new MagenticWorkflowBuilder(iWRManager.Kernel.ChatClientAgent)
                 .AddParticipants([
+                    //stuA,stuB
                         iWRStudentB.Kernel.ChatClientAgent,
                         iWRStudentA.Kernel.ChatClientAgent,
-                        /*iWRTeacher.Kernel.ChatClientAgent*/])
+                        iWRTeacher.Kernel.ChatClientAgent])
                 .WithName("Homework")
                 .WithDescription("组织成员进行对话")
                 .RequirePlanSignoff(false)
@@ -87,7 +90,9 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             Console.WriteLine("ToMermaidString: \r\n" + workflow.ToMermaidString());
 
 
-            var taskPrompt = @"请两位 StudentA和StudentB分别回答：为什么1+1=2？言简意赅，轮流回答。";
+            var taskPrompt = @"请按照如下过程解决问题：
+1. 请 Teacher 老师出一个鸡兔同笼的数学题，数字可以随机定义。老师只能出题，不能分析答案。
+2. 让所有学生 Students 分别回答（StudentA、StudentB）";
 
             await using StreamingRun run = await InProcessExecution.RunStreamingAsync(workflow, new List<ChatMessage> { new(ChatRole.User, taskPrompt) });
 
@@ -104,7 +109,7 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
                 switch (workflowEvent)
                 {
                     case ExecutorInvokedEvent invokedEvent:
-                        Console.WriteLine("ExecutorInvokedEvent:" + invokedEvent.Data?.ToJson());
+                        //Console.WriteLine("ExecutorInvokedEvent:" + invokedEvent.Data?.ToJson());
                         break;
                     case AgentResponseUpdateEvent updateEvent:
                         // Stream per-participant deltas. Group by ResponseId / MessageId / ExecutorId so
@@ -172,6 +177,12 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
 
             Console.WriteLine("========");
             Console.WriteLine("TotalTokenCount: " + totalTokenCount);
+            List<ChatMessage> list = new List<ChatMessage>();
+            Assert.IsNotNull(iWRStudentA.Kernel.AgentSession);
+
+
+
+            Console.WriteLine("ChatMessages: " + list.Select(z => $"[{z.Role.Value}]: {z.Text}").ToJson(true));
 
 #pragma warning restore MAAIW001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 #pragma warning restore IDE0059 // 不需要赋值
