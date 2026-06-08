@@ -105,12 +105,10 @@ namespace Senparc.AI.AgentKernel.Handlers
                     modelNameStr = modelName.Embedding;
                     kernelBuilder = iWantTo.AgentKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
                     break;
-                //case AI.ConfigModel.TextToImage:
-                //    modelNameStr = modelName.TextToImage;
-                //    kernelBuilder = iWantTo.AgentKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
-                //    //Console.WriteLine($"[调试]GetDeploymentName：{modelNameStr} / {GetDeploymentName(modelNameStr)}");
-                //    //Console.WriteLine($"[调试]{senparcAiSetting.AiPlatform}-{senparcAiSetting.AzureOpenAIKeys.DeploymentName}-{senparcAiSetting.AzureOpenAIKeys.AzureEndpoint}\r\n{senparcAiSetting.AzureOpenAIKeys.ModelName.ToJson(true)}");
-                //    break;
+                case AI.ConfigModel.TextToImage:
+                    modelNameStr = modelName.TextToImage;
+                    kernelBuilder = iWantTo.AgentKernelHelper.ConfigImageGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
+                    break;
                 //case AI.ConfigModel.SpeechToText:
                 //    modelNameStr = modelName.SpeechToText ?? "whisper"; // 默认使用 whisper
                 //    kernelBuilder = iWantTo.AgentKernelHelper.ConfigAudioToText(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
@@ -142,6 +140,13 @@ namespace Senparc.AI.AgentKernel.Handlers
             iWantToConfig.ConfigModel(AI.ConfigModel.Chat, userId, modelName, senparcAiSetting, deploymentName);
             iWantToConfig.ChatClientAgentOptions = options;
 
+            return iWantToConfig;
+        }
+
+        public static IWantToConfig ConfigImageModel(this IWantToConfig iWantToConfig, string userId, ModelName modelName = null,
+           ISenparcAiSetting? senparcAiSetting = null, string deploymentName = null)
+        {
+            iWantToConfig.ConfigModel(AI.ConfigModel.TextToImage, userId, modelName, senparcAiSetting, deploymentName);
             return iWantToConfig;
         }
 

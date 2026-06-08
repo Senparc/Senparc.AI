@@ -18,6 +18,7 @@ namespace Senparc.AI.AgentKernel.Kernels
     {
         public ConfigModel[] ConfigModels { get; set; }
         public object ChatClient { get; set; }//TODO:进行一次封装
+        public object ImageClient { get; set; }
         public object EmbeddingClient { get; set; }
         public string EmbeddingCollectionName { get; }
         public ChatClientAgentOptions ChatClientAgentOptions { get; set; }
@@ -33,11 +34,12 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         public bool AgentInited { get; set; }
 
-        public AiKernel(IServiceProvider serviceProvider, ISenparcAiSetting senparcAiSetting, ConfigModel[] configModels, object chatClient, object embeddingClient, string embeddingCollectionName, ChatClientAgentOptions chatClientAgentOptions)
+        public AiKernel(IServiceProvider serviceProvider, ISenparcAiSetting senparcAiSetting, ConfigModel[] configModels, object chatClient, object imageClient, object embeddingClient, string embeddingCollectionName, ChatClientAgentOptions chatClientAgentOptions)
         {
             this.ServiceProvider = serviceProvider;
             this.SenparcAiSetting = senparcAiSetting;
             this.ChatClient = chatClient;
+            this.ImageClient = imageClient;
             this.ConfigModels = configModels;
             this.EmbeddingClient = embeddingClient;
             this.EmbeddingCollectionName = embeddingCollectionName;

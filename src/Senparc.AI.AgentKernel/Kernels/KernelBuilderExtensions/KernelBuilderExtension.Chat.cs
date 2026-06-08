@@ -13,6 +13,21 @@ namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
 {
     public static partial class KernelBuilderExtension
     {
+        #region Image
+
+        public static object AddOpenAITextToImage(this IAIKernelBuilder kernelBuilder, string apiKey, string modelName)
+        {
+            // Use Azure/OpenAI or community OpenAI SDKs if available. For now store info as a simple anonymous holder
+            return new { Provider = "OpenAI", ApiKey = apiKey, Model = modelName };
+        }
+
+        public static object AddAzureOpenAITextToImage(this IAIKernelBuilder kernelBuilder, Uri endpoint, ApiKeyCredential credential, AzureOpenAIClientOptions options, string deploymentName)
+        {
+            return new { Provider = "AzureOpenAI", Endpoint = endpoint, Credential = credential, Options = options, Deployment = deploymentName };
+        }
+
+        #endregion
+
         public static ChatClient AddOpenAIChatCompletion(this IAIKernelBuilder kernelBuilder,
             string apiKey, string modelName)
         {
