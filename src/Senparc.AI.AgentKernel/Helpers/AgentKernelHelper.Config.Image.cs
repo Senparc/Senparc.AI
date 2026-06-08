@@ -1,8 +1,10 @@
-﻿using Senparc.AI.AgentKernel.Kernels;
+﻿using Azure.AI.OpenAI;
+using Senparc.AI.AgentKernel.Kernels;
 using Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.Text;
 

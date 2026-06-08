@@ -22,6 +22,7 @@ services.AddTransient<ChatSample>();
 services.AddTransient<CompletionSample>();
 services.AddTransient<EmbeddingSample>();
 services.AddTransient<EmbeddingRagSample>();
+services.AddTransient<ImageGenerateSample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -90,7 +91,7 @@ switch (index)
         }
         break;
     case "4":
-        await NotSupportedSample.RunAsync("Dall·E 绘图");
+        await serviceProvider.GetRequiredService<ImageGenerateSample>().RunAsync();
         break;
     case "5":
         await NotSupportedSample.RunAsync("Planner 任务计划");
