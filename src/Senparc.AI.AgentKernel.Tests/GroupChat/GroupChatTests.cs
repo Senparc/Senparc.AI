@@ -36,6 +36,7 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             var iWRTeacher = await aiHandlerTeacher.IWantTo().ConfigChatModel("Jeffrey-2", new ChatClientAgentOptions()
             {
                 Name = "Teacher",
+                Description="你是一位老师，负责按照要求出题。注意：你不能生成任何解题思路。",
                 ChatOptions = new ChatOptions()
                 {
                     Instructions = "你是一位老师，负责按照要求出题。注意：你不能生成任何解题思路。",
@@ -92,7 +93,7 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
 
             var taskPrompt = @"请按照如下过程解决问题：
 1. 请 Teacher 老师出一个鸡兔同笼的数学题，数字可以随机定义。老师只能出题，不能分析答案。
-2. 让所有学生 Students 分别回答（StudentA、StudentB）";
+2. 让所有学生 Students 依次回答（StudentA、StudentB）";
 
             await using StreamingRun run = await InProcessExecution.RunStreamingAsync(workflow, new List<ChatMessage> { new(ChatRole.User, taskPrompt) });
 
