@@ -1,4 +1,5 @@
 ﻿using Azure.AI.OpenAI;
+using OpenAI;
 using Senparc.AI.AgentKernel.Kernels;
 using Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions;
 using Senparc.AI.Exceptions;
@@ -38,12 +39,10 @@ namespace Senparc.AI.AgentKernel.Helpers
 
             kernelBuilder.ImageClient = aiPlatForm switch
             {
-                AiPlatform.OpenAI => kernelBuilder.AddOpenAITextToImage(senparcAiSetting.ApiKey, modelName),
-                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(
-                    new Uri(senparcAiSetting.AzureEndpoint),
-                    new ApiKeyCredential(senparcAiSetting.ApiKey),
-                    new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
-                    deploymentName: deploymentName),
+                AiPlatform.OpenAI => kernelBuilder.AddOpenAITextToImage(senparcAiSetting.ApiKey, modelName, new OpenAIClientOptions()),
+                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(senparcAiSetting, senparcAiSetting.ApiKey, modelName, new OpenAIClientOptions()),
+                AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToImage(senparcAiSetting, senparcAiSetting.ApiKey, modelName, new OpenAIClientOptions()),
+                //new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
                 _ => throw new SenparcAiException($"ConfigImageGeneration 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };
 

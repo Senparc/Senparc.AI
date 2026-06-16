@@ -8,9 +8,17 @@ using Senparc.AI.Entities.Keys;
 using Senparc.AI.Interfaces;
 using Senparc.CO2NET.Extensions;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions;
+using System.Net.Http;
+using System.Text.Json;
+using System.IO;
+using System.Threading.Tasks;
+using System.ClientModel;
+using OpenAI.Images;
 
 namespace Senparc.AI.AgentKernel.Kernels
 {
@@ -222,6 +230,56 @@ namespace Senparc.AI.AgentKernel.Kernels
         internal IAsyncEnumerable<AgentResponseUpdate> InvokeChatStreamingAsync(string prompt, AgentSession session = null)
         {
             return ChatClientAgent.RunStreamingAsync(prompt, session ?? AgentSession);
+        }
+
+        /// <summary>
+        /// Generate image from text prompt. Returns either an URL or a base64 data string.
+        /// Currently supports OpenAI provider via ImageClientDescriptor and defaults to model "gpt-image-2" when not specified.
+        /// </summary>
+        /// <param name="prompt"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="imageCount">Number of images to generate. If greater than 1, the first generated image will be returned.</param>
+        /// <param name="quality">Image quality option.</param>
+        /// <param name="style">Image style option.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Image URL or base64 (data:) string</returns>
+        public async Task<ClientResult<GeneratedImage>> ImageGenerationAsync(string prompt, int width = 1024, int height = 1024, int imageCount = 1, OpenAI.Images.GeneratedImageQuality? quality = null, OpenAI.Images.GeneratedImageStyle? style = null, CancellationToken cancellationToken = default)
+        {
+            if (!ConfigModels.Contains(ConfigModel.TextToImage))
+            {
+                throw new Exception("TextToImage is not configured for this kernel");
+            }
+
+            if (ImageClient == null)
+            {
+                throw new Exception("ImageClient is not configured");
+            }
+
+            // Support ImageClientDescriptor produced by KernelBuilderExtension
+            if (ImageClient is OpenAI.Images.ImageClient client)
+            {
+#pragma warning disable OPENAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+                var options = new OpenAI.Images.ImageGenerationOptions()
+                {
+                    Size = new OpenAI.Images.GeneratedImageSize(width, height),
+                    Quality = quality ?? OpenAI.Images.GeneratedImageQuality.MediumQuality,
+                    //Style = style ?? OpenAI.Images.GeneratedImageStyle.Vivid,
+                };
+#pragma warning restore OPENAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+
+                if (imageCount <= 1)
+                {
+                    var result = await client.GenerateImageAsync(prompt, options, cancellationToken);
+                    return result;
+                }
+
+                // When requesting multiple images, call the API method that accepts an imageCount and return the first image.
+                var collectionResult = await client.GenerateImagesAsync(prompt, imageCount, options, cancellationToken);
+                // Convert collection result to single image result by taking the first generated image and preserving raw response
+                return ClientResult.FromValue(collectionResult.Value?.FirstOrDefault(), collectionResult.GetRawResponse());
+            }
+            return null;
         }
     }
 }
