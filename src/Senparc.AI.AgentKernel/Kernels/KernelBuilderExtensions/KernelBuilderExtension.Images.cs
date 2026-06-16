@@ -1,5 +1,7 @@
 ﻿using Azure.AI.OpenAI;
 using Azure.AI.OpenAI.Images;
+using Azure.Core;
+using Azure.Core.Pipeline;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using OllamaSharp;
@@ -36,7 +38,10 @@ namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
 
         public static ImageClient AddAzureOpenAITextToImage(this IAIKernelBuilder kernelBuilder, ISenparcAiSetting senparcAiSetting, string apiKey, string modelName, OpenAIClientOptions options /*AzureOpenAIClientOptions options*/)
         {
-            AzureOpenAIClient azureClient = new AzureOpenAIClient(new Uri(senparcAiSetting.Endpoint), new ApiKeyCredential(apiKey));
+            AzureOpenAIClient azureClient = new AzureOpenAIClient(new Uri(senparcAiSetting.Endpoint), new ApiKeyCredential(apiKey), new AzureOpenAIClientOptions()
+            {
+                NetworkTimeout = TimeSpan.FromMinutes(5)
+            });
 
             ImageClient client = azureClient.GetImageClient(modelName);
 
