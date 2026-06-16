@@ -20,7 +20,7 @@ namespace Senparc.AI.Interfaces
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IAiContext<T> : IAiContext
-        where T : class, IDictionary<string, object?>
+        where T : IDictionary<string, object?>
     {
         // /// <summary>
         // /// 扩展类型的上下文
@@ -31,5 +31,19 @@ namespace Senparc.AI.Interfaces
         /// 扩展类型的上下文
         /// </summary>
         T KernelArguments { get; set; }
+    }
+
+    public interface IAiAgentContext<T> : IAiContext<T>
+        where T : ISenparcKernelArguments
+    {
+        // /// <summary>
+        // /// 扩展类型的上下文
+        // /// </summary>
+        // [Obsolete("请使用 ContextVariables", true)]
+        // T ExtendContext { get; set; }
+        /// <summary>
+        /// 扩展类型的上下文
+        /// </summary>
+        T AgentKernelArguments { get; set; }
     }
 }

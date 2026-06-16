@@ -1,9 +1,7 @@
 using Microsoft.Extensions.VectorData;
 using Senparc.AI.AgentKernel;
 using Senparc.AI.AgentKernel.Handlers;
-using Senparc.AI.AgentKernel.KernelConfigExtensions;
 using Senparc.AI.Interfaces;
-using Senparc.AI.Samples.AgentKernelConsoles.Samples.Support;
 using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
@@ -42,8 +40,8 @@ public class EmbeddingSample
             .ConfigTextEmbeddingModel(UserId, CollectionName)
             .BuildKernel();
 
-        var vectorStore = iWantToRun.GetVectorStore(setting.VectorDB);
-        var store = new TextSearchStore(iWantToRun, vectorStore);
+        //var vectorStore = iWantToRun.GetVectorStore(setting.VectorDB);
+        var store = iWantToRun.CreateTextSearchStore();
 
         var id = 1ul;
         while (true)

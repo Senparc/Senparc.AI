@@ -1,141 +1,300 @@
-# ASP.NET
-# Build and test ASP.NET projects.
-# Add steps that publish symbols, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
-
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- master
+  - master
 
+# 🎯 使用自托管代理池，加快 CI/CD 速度（与 NcfPackageSources 共享同一 Agent Pool 与变量组）
 pool:
-  vmImage: 'windows-latest'
+  name: 'SenparcOpenSource'
+  demands:
+    - Agent.OS -equals Windows_NT
 
 variables:
-  solution: '**/Senparc.AI.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-  # MSBuildSDKsPath: 'C:\\hostedtoolcache\\windows\\dotnet\\sdk\\6.0.407\\Sdks'
+  - group: Nuget_Key   # Library 变量组，内含变量 NUGET_API_KEY（与 NcfPackageSources 共享）
+  - name: solution
+    value: '**/Senparc.AI.sln'
+  - name: buildPlatform
+    value: 'Any CPU'
+  - name: buildConfiguration
+    value: 'Release'
+  - name: NUGET_PACKAGES
+    value: '$(Agent.ToolsDirectory)/nuget/packages'
+  - name: NuGetPushSource
+    value: 'https://api.nuget.org/v3/index.json'
 
 steps:
+# ✅ 固定 .NET SDK 版本（Solution 含 netstandard2.1 / net8.0 / net10.0 项目；SDK 10 可编译全部 TFM）
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK 10'
+  inputs:
+    version: '10.0.x'
+    packageType: 'sdk'
+    performMultiLevelLookup: true
+    includePreviewVersions: true
 
-# - task: UseDotNet@2
-#   displayName: 'Use .NET SDK 8'
-#   inputs:
-#     version: '8.x'
-#     packageType: 'sdk'
-#     performMultiLevelLookup: true
-#     includePreviewVersions: true
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK 8'
+  inputs:
+    version: '8.x'
+    packageType: 'sdk'
+    performMultiLevelLookup: true
+    includePreviewVersions: true
 
+- script: |
+    echo "=== Installed SDKs ==="
+    dotnet --list-sdks
+    echo "=== Active SDK (global.json) ==="
+    dotnet --version
+    dotnet --list-sdks | findstr /R /C:"10\." >nul || (echo ##[error].NET 10 SDK 未安装，无法编译 net10.0 项目。请检查 UseDotNet 任务或 Agent 网络。 && exit 1)
+  displayName: 'Verify .NET 10 SDK'
+
+# 🟢 缓存 NuGet 及依赖项
+- task: Cache@2
+  inputs:
+    key: 'nuget | "$(Agent.OS)" | **/*.csproj'
+    path: '$(NUGET_PACKAGES)'
+    restoreKeys: 'nuget'
+  displayName: 'Cache NuGet Packages'
+
+# 🟢 缓存 Aspire Workload
+- task: Cache@2
+  inputs:
+    key: 'aspire-workload | "$(Agent.OS)"'
+    path: '~/.dotnet'
+    restoreKeys: 'aspire-workload'
+  displayName: 'Cache Aspire Workload'
+
+# 🟢 缓存 NuGet 工具（减少安装时间）
+- task: Cache@2
+  inputs:
+    key: 'nuget-tool | "$(Agent.OS)"'
+    path: 'C:\ProgramData\nuget'
+    restoreKeys: 'nuget-tool'
+  displayName: 'Cache NuGet Tool'
+
+# ✅ 仅当缓存未命中时安装 Aspire Workload
+- script: |
+    dotnet workload list | findstr /C:"aspire" || dotnet workload install aspire
+  displayName: 'Check & Install Aspire Workload'
+  condition: ne(variables['CACHE_RESTORED'], 'true')
+
+# ✅ 使用缓存的 NuGet 版本，避免重复安装
+- task: NuGetToolInstaller@1
+  displayName: 'Use Cached NuGet 6.3.0'
+  inputs:
+    versionSpec: '6.3.0'
+
+- script: |
+    nuget sources remove -name nuget.org
+  displayName: 'Remove Existing NuGet Source'
+- script: |
+    dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+  displayName: 'Add NuGet Source'
+
+# ✅ 恢复 NuGet 依赖（dotnet restore 会按 global.json 使用 SDK 10，避免 nuget.exe + MSBuild 误用 SDK 8）
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet --list-sdks '
+  displayName: 'dotnet restore'
   inputs:
-    command: custom
-    custom: '--list-sdks '
+    command: restore
+    projects: '**/Senparc.AI.sln'
+    arguments: '--verbosity detailed'
 
-
-# - task: NuGetToolInstaller@1
-#   displayName: 'Use NuGet 6.3.0'
-#   inputs:
-#     versionSpec: '6.3.0'
-#     checkLatest: true
-
-    
-- task: NuGetCommand@2
-  inputs:
-    command: 'restore'
-    restoreSolution: '**/Senparc.AI.sln'
-    feedsToUse: 'config'
-    externalFeedCredentials: 'nuget-jeffrey-full-key'
-    
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
     command: build
     projects: '**/Senparc.AI.sln'
-    arguments: '--configuration Release'
-
-- task: NuGetCommand@2
-  displayName: Senparc.AI -V0
-  inputs:
-    command: push
-    packagesToPush: '**/Senparc.AI.0.*.nupkg'
-    nuGetFeedType: external
-    publishFeedCredentials: 'nuget-jeffrey-full-key'
+    arguments: '--configuration Release --no-restore'
   continueOnError: true
-  condition: succeededOrFailed()
 
-- task: NuGetCommand@2
-  displayName: 'Senparc.AI -V0 - Symbol'
-  inputs:
-    command: push
-    packagesToPush: '**/Senparc.AI.0.*.snupkg'
-    nuGetFeedType: external
-    publishFeedCredentials: 'nuget-jeffrey-full-key'
-  continueOnError: true
-  condition: succeededOrFailed()
+# 自动发现并推送 Senparc.AI.* 的 .nupkg / .snupkg（--skip-duplicate）
+# 凭据：通过 Library 变量组 Nuget_Key 中的机密变量 NUGET_API_KEY 注入
+- powershell: |
+    $ErrorActionPreference = 'Continue'
+    $root = "$(Build.SourcesDirectory)"
+    $source = "$(NuGetPushSource)"
+    $apiKey = $env:NUGET_API_KEY
+    if ([string]::IsNullOrWhiteSpace($apiKey)) {
+      Write-Host "##[error]缺少机密变量 NUGET_API_KEY：请在 Library 变量组 Nuget_Key 中设置（变量名须为 NUGET_API_KEY，勾选 secret）。"
+      exit 2
+    }
 
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-- task: NuGetCommand@2
-  displayName: Senparc.AI.Kernel -V0
-  inputs:
-    command: push
-    packagesToPush: '**/Senparc.AI.Kernel.*.nupkg'
-    nuGetFeedType: external
-    publishFeedCredentials: 'nuget-jeffrey-full-key'
-  continueOnError: true
-  condition: succeededOrFailed()
+    function Get-NupkgMetadataFromZip {
+      param([string]$PackagePath)
+      try {
+        $zip = [System.IO.Compression.ZipFile]::OpenRead($PackagePath)
+        try {
+          $entry = $zip.Entries | Where-Object { $_.FullName -match '(?i)\.nuspec$' } | Select-Object -First 1
+          if (-not $entry) {
+            return @{ Id = ''; Version = '' }
+          }
+          $r = New-Object System.IO.StreamReader($entry.Open())
+          try {
+            $txt = $r.ReadToEnd()
+          } finally { $r.Close() }
+          $xml = New-Object System.Xml.XmlDocument
+          $xml.PreserveWhitespace = $true
+          $xml.LoadXml($txt)
+          $nsUri = $xml.DocumentElement.NamespaceURI
+          $id = $null
+          $ver = $null
+          if ([string]::IsNullOrEmpty($nsUri)) {
+            $id = $xml.package.metadata.id
+            $ver = $xml.package.metadata.version
+          } else {
+            $nsm = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
+            $nsm.AddNamespace('n', $nsUri)
+            $meta = $xml.SelectSingleNode('//n:metadata', $nsm)
+            if ($meta) {
+              $idN = $meta.SelectSingleNode('n:id', $nsm)
+              $verN = $meta.SelectSingleNode('n:version', $nsm)
+              if ($idN) { $id = $idN.InnerText }
+              if ($verN) { $ver = $verN.InnerText }
+            }
+          }
+          return @{ Id = [string]$id; Version = [string]$ver }
+        } finally { $zip.Dispose() }
+      } catch {
+        return @{ Id = ''; Version = '' }
+      }
+    }
 
-- task: NuGetCommand@2
-  displayName: 'Senparc.AI.Kernel -V0 - Symbol'
-  inputs:
-    command: push
-    packagesToPush: '**/Senparc.AI.Kernel.*.snupkg'
-    nuGetFeedType: external
-    publishFeedCredentials: 'nuget-jeffrey-full-key'
-  continueOnError: true
-  condition: succeededOrFailed()
+    function Test-SenparcAiPackageFileName {
+      param([string]$FileName)
+      return $FileName.StartsWith('Senparc.AI.', [System.StringComparison]::Ordinal)
+    }
 
-- task: NuGetCommand@2
-  displayName: Senparc.AI.Agents -V0
-  inputs:
-    command: push
-    packagesToPush: '**/Senparc.AI.Agents.*.nupkg'
-    nuGetFeedType: external
-    publishFeedCredentials: 'nuget-jeffrey-full-key'
-  continueOnError: true
-  condition: succeededOrFailed()
+    function Get-PackageDisplayName {
+      param([string]$PackagePath)
+      $meta = Get-NupkgMetadataFromZip $PackagePath
+      if (-not [string]::IsNullOrWhiteSpace($meta.Id)) {
+        return $meta.Id
+      }
+      return [System.IO.Path]::GetFileNameWithoutExtension($PackagePath)
+    }
 
-- task: NuGetCommand@2
-  displayName: 'Senparc.AI.Agents -V0 - Symbol'
-  inputs:
-    command: push
-    packagesToPush: '**/Senparc.AI.Agents.*.snupkg'
-    nuGetFeedType: external
-    publishFeedCredentials: 'nuget-jeffrey-full-key'
-  continueOnError: true
-  condition: succeededOrFailed()
+    function Push-PackageFile {
+      param(
+        [string]$PackagePath,
+        [string]$PackageKind
+      )
 
-- task: NuGetCommand@2
-  displayName: Senparc.AI.AgentKernel -V0
-  inputs:
-    command: push
-    packagesToPush: '**/Senparc.AI.AgentKernel.*.nupkg'
-    nuGetFeedType: external
-    publishFeedCredentials: 'nuget-jeffrey-full-key'
-  continueOnError: true
-  condition: succeededOrFailed()
+      $pkgId = Get-PackageDisplayName $PackagePath
+      $meta = Get-NupkgMetadataFromZip $PackagePath
+      $pkgVer = if ([string]::IsNullOrWhiteSpace($meta.Version)) { '' } else { $meta.Version }
 
-- task: NuGetCommand@2
-  displayName: 'Senparc.AI.AgentKernel -V0 - Symbol'
-  inputs:
-    command: push
-    packagesToPush: '**/Senparc.AI.AgentKernel.*.snupkg'
-    nuGetFeedType: external
-    publishFeedCredentials: 'nuget-jeffrey-full-key'
-  continueOnError: true
+      Write-Host ("##[command] dotnet nuget push ""{0}"" --source ""{1}"" --api-key *** --skip-duplicate ({2})" -f $PackagePath, $source, $PackageKind)
+
+      $stdoutPath = Join-Path $env:TEMP ("nuget-push-{0}.out.txt" -f [Guid]::NewGuid().ToString('N'))
+      $stderrPath = Join-Path $env:TEMP ("nuget-push-{0}.err.txt" -f [Guid]::NewGuid().ToString('N'))
+      try {
+        $p = Start-Process -FilePath 'dotnet' -ArgumentList 'nuget', 'push', $PackagePath, '--source', $source, '--api-key', $apiKey, '--skip-duplicate', '--timeout', '3600' -NoNewWindow -Wait -PassThru `
+          -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+        $out = (Get-Content -LiteralPath $stdoutPath -Raw -ErrorAction SilentlyContinue)
+        $err = (Get-Content -LiteralPath $stderrPath -Raw -ErrorAction SilentlyContinue)
+        $code = $p.ExitCode
+      } finally {
+        Remove-Item -LiteralPath $stdoutPath -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $stderrPath -Force -ErrorAction SilentlyContinue
+      }
+
+      $combined = (@($out, $err) | Where-Object { $_ }) -join "`n"
+      $result = 'Failed'
+      $reason = ''
+
+      if ($code -eq 0) {
+        $lower = if ($combined) { $combined.ToLowerInvariant() } else { '' }
+        if ($lower -match 'skip|already exists|duplicate|409') {
+          $result = 'Skipped (exists)'
+          if ($combined) {
+            $one = ($combined.Trim() -replace '\s+', ' ')
+            if ($one.Length -gt 200) { $reason = $one.Substring(0, 200) + '...' } else { $reason = $one }
+          }
+        } else {
+          $result = 'Published'
+        }
+      } else {
+        $lower = if ($combined) { $combined.ToLowerInvariant() } else { '' }
+        if ($lower -match '409|conflict|already exists|duplicate|cannot publish.*exists') {
+          $result = 'Skipped (exists)'
+          if ($combined) {
+            $one = ($combined.Trim() -replace '\s+', ' ')
+            if ($one.Length -gt 200) { $reason = $one.Substring(0, 200) + '...' } else { $reason = $one }
+          }
+        } else {
+          $script:anyUnexpectedFailure = $true
+          $result = 'Failed'
+          $reason = if ($combined) { ($combined.Trim() -replace '\s+', ' ') } else { ("dotnet exit code {0}" -f $code) }
+          if ($reason.Length -gt 400) { $reason = $reason.Substring(0, 400) + '...' }
+        }
+      }
+
+      return [pscustomobject]@{
+        PackageId = $pkgId
+        Version   = $pkgVer
+        Kind      = $PackageKind
+        Path      = $PackagePath
+        Result    = $result
+        Detail    = $reason
+      }
+    }
+
+    $anyUnexpectedFailure = $false
+    $rows = New-Object System.Collections.Generic.List[object]
+
+    $nupkgCandidates = Get-ChildItem -Path $root -Recurse -File -Filter '*.nupkg' -ErrorAction SilentlyContinue |
+      Where-Object { Test-SenparcAiPackageFileName $_.Name } |
+      Sort-Object FullName -Unique
+
+    $snupkgCandidates = Get-ChildItem -Path $root -Recurse -File -Filter '*.snupkg' -ErrorAction SilentlyContinue |
+      Where-Object { Test-SenparcAiPackageFileName $_.Name } |
+      Sort-Object FullName -Unique
+
+    Write-Host "== Senparc.AI NuGet push: discovered $($nupkgCandidates.Count) .nupkg and $($snupkgCandidates.Count) .snupkg under $root =="
+
+    foreach ($f in $nupkgCandidates) {
+      $rows.Add((Push-PackageFile -PackagePath $f.FullName -PackageKind 'nupkg'))
+    }
+
+    foreach ($f in $snupkgCandidates) {
+      $rows.Add((Push-PackageFile -PackagePath $f.FullName -PackageKind 'snupkg'))
+    }
+
+    Write-Host ''
+    Write-Host 'Legend: ✅ Published  |  ❌ Failed  |  ⏭️ Skipped (exists)'
+    Write-Host '========== NuGet push summary (PackageId | Version | Kind | Path | Result) =========='
+    foreach ($r in $rows) {
+      $pathDisp = $r.Path
+      if ($pathDisp.Length -gt 120) { $pathDisp = '...' + $pathDisp.Substring([Math]::Max(0, $pathDisp.Length - 117)) }
+      $resultDisp = switch ($r.Result) {
+        'Published' { '✅ Published' }
+        'Failed' { '❌ Failed' }
+        'Skipped (exists)' { '⏭️ Skipped (exists)' }
+        default { $r.Result }
+      }
+      Write-Host ('| {0} | {1} | {2} | {3} | {4} |' -f $r.PackageId, $r.Version, $r.Kind, $pathDisp, $resultDisp)
+      if ($r.Detail) {
+        Write-Host ('  Reason: {0}' -f $r.Detail)
+      }
+    }
+    Write-Host '==============================================================================='
+    Write-Host ('Total: {0}  (Published / Skipped / Failed 见上表 Result 列)' -f $rows.Count)
+    Write-Host 'Job exit: 发现与推送循环已执行完毕；若存在非重复性错误则失败。'
+
+    if ($anyUnexpectedFailure) {
+      Write-Host "##[error]One or more package pushes failed (see summary table)."
+      exit 1
+    }
+    exit 0
+  displayName: 'Push Senparc.AI .nupkg/.snupkg (auto-discover, skip duplicates)'
   condition: succeededOrFailed()
-  
-  # 系统模块 结束
+  env:
+    NUGET_API_KEY: $(NUGET_API_KEY)
 
 - task: DotNetCoreCLI@2
   displayName: Publish

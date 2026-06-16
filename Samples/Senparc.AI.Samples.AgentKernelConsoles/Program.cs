@@ -22,6 +22,7 @@ services.AddTransient<ChatSample>();
 services.AddTransient<CompletionSample>();
 services.AddTransient<EmbeddingSample>();
 services.AddTransient<EmbeddingRagSample>();
+services.AddTransient<ImageGenerateSample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -44,7 +45,7 @@ Console.WriteLine("[0] 进入设置");
 Console.WriteLine("[1] Chat 对话（AgentSession 多轮上下文）");
 Console.WriteLine("[2] Completion 单次补全（无历史上下文）");
 Console.WriteLine("[3] Embedding 与向量检索");
-Console.WriteLine("[4] Dall·E 绘图");
+Console.WriteLine("[4] GPT-Image-2 绘图");
 Console.WriteLine("[5] Planner 任务计划");
 Console.WriteLine("[6] PluginFromObject / Function Calling");
 Console.WriteLine("[7] STT（Speech to Text）");
@@ -90,7 +91,7 @@ switch (index)
         }
         break;
     case "4":
-        await NotSupportedSample.RunAsync("Dall·E 绘图");
+        await serviceProvider.GetRequiredService<ImageGenerateSample>().RunAsync();
         break;
     case "5":
         await NotSupportedSample.RunAsync("Planner 任务计划");

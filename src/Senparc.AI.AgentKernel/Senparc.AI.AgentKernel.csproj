@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>0.1.0-preview.1</Version>
+		<Version>0.1.5</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>13.0</LangVersion>
@@ -32,6 +32,10 @@
 			3、AgentSession 多轮对话；BuildKernelAsync / BuildKernelWithAgentSessionAsync
 			4、EmbeddingDimensions、向量存储（InMemory / Qdrant / Redis 等）
 			5、修复 HttpMessageHandler 链、日志流式读取及 HuggingFace 扩展命名
+			[2026-05-25] v0.1.1 添加 TextSearchStore
+			[2026-05-26] v0.1.2 Open Streaming Chat mode for AgentKernel
+			[2026-05-30] v0.1.4 Add extension functions to, such as Arguments Replacement, Auto search function-calling target
+			[2026-05-30] v0.1.5 Add TextToImage functions
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
@@ -55,9 +59,11 @@
 		<PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
 		<PackageReference Include="Azure.AI.Projects" Version="2.1.0-beta.2" />
 		<PackageReference Include="Azure.Identity" Version="1.21.0" />
-		<PackageReference Include="Microsoft.Agents.AI" Version="1.6.1" />
-		<PackageReference Include="Microsoft.Agents.AI.Foundry" Version="1.6.1-preview.260514.1" />
-		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.6.1" />
+		<PackageReference Include="Microsoft.Agents.AI" Version="1.8.0" />
+		<PackageReference Include="Microsoft.Agents.AI.Foundry" Version="1.8.0-preview.260528.1" />
+		<PackageReference Include="Microsoft.Agents.AI.Hosting.A2A.AspNetCore" Version="1.8.0-preview.260528.1" />
+		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.8.0" />
+		<PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.8.0" />
 		<PackageReference Include="Microsoft.Extensions.AI" Version="10.5.1" />
 		<!--<PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />-->
 		<PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.1.0" />
@@ -74,5 +80,11 @@
 		<PackageReference Include="OllamaSharp" Version="5.4.25" />
 		<!--<PackageReference Include="Microsoft.SemanticKernel.Functions.Semantic" Version="1.0.0-beta2" />-->
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="A2A\" />
+	</ItemGroup>
+
+
 
 </Project>

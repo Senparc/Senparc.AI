@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.AI;
+﻿using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Helpers;
@@ -66,9 +67,11 @@ namespace Senparc.AI.AgentKernel.Handlers
         public string UserId { get; set; }
         public string ModelName { get; set; }
 
-        public AgentAiHandler SemanticAiHandler => IWantTo.AgentAiHandler;
-        public AgentKernelHelper SemanticKernelHelper => IWantTo.AgentKernelHelper;
-        //public AiKernel Kernel => SemanticKernelHelper.GetKernel();
+        public ChatClientAgentOptions ChatClientAgentOptions { get; set; }
+
+        public AgentAiHandler AgentAiHandler => IWantTo.AgentAiHandler;
+        public AgentKernelHelper AgentKernelHelper => IWantTo.AgentKernelHelper;
+        //public AiKernel Kernel => AgentKernelHelper.GetKernel();
 
         public IWantToConfig(IWantTo iWantTo)
         {
@@ -80,10 +83,10 @@ namespace Senparc.AI.AgentKernel.Handlers
     {
         public IWantToConfig IWantToConfig { get; set; }
 
-        public AgentAiHandler SemanticAiHandler => IWantToConfig.IWantTo.AgentAiHandler;
-        public AgentKernelHelper SemanticKernelHelper => IWantToConfig.IWantTo.AgentKernelHelper;
+        public AgentAiHandler AgentAiHandler => IWantToConfig.IWantTo.AgentAiHandler;
+        public AgentKernelHelper AgentKernelHelper => IWantToConfig.IWantTo.AgentKernelHelper;
 
-        public AiKernel Kernel => SemanticKernelHelper.GetKernel();
+        public AiKernel Kernel => AgentKernelHelper.GetKernel();
 
         public IWantToBuild(IWantToConfig iWantToConfig)
         {
@@ -100,9 +103,9 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         public List<AIFunction> Functions { get; set; }
 
-        public AgentAiHandler SemanticAiHandler => IWantToBuild.IWantToConfig.IWantTo.AgentAiHandler;
-        public AgentKernelHelper SemanticKernelHelper => IWantToBuild.IWantToConfig.IWantTo.AgentKernelHelper;
-        public AiKernel Kernel => SemanticKernelHelper.GetKernel();
+        public AgentAiHandler AgentAiHandler => IWantToBuild.IWantToConfig.IWantTo.AgentAiHandler;
+        public AgentKernelHelper AgentKernelHelper => IWantToBuild.IWantToConfig.IWantTo.AgentKernelHelper;
+        public AiKernel Kernel => AgentKernelHelper.GetKernel();
         public IWantToRun(IWantToBuild iWantToBuild)
         {
             IWantToBuild = iWantToBuild;

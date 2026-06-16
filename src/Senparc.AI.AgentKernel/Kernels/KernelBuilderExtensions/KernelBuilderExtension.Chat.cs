@@ -1,18 +1,16 @@
 ﻿using Azure.AI.OpenAI;
-using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using OllamaSharp;
 using OpenAI;
 using OpenAI.Chat;
-using System;
 using System.ClientModel;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
 {
     public static partial class KernelBuilderExtension
     {
+
+
         public static ChatClient AddOpenAIChatCompletion(this IAIKernelBuilder kernelBuilder,
             string apiKey, string modelName)
         {

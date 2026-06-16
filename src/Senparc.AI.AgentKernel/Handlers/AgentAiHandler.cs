@@ -59,7 +59,7 @@ namespace Senparc.AI.AgentKernel
 
             //TODO:此方法暂时还不能用
             throw new Exception("尚未实现");
-            //var kernelBuilder = SemanticKernelHelper.ConfigTextCompletion(request.UserId, senparcAiSetting: senparcAiSetting);
+            //var kernelBuilder = AgentKernelHelper.ConfigTextCompletion(request.UserId, senparcAiSetting: senparcAiSetting);
             //var kernel = kernelBuilder.Build();
             //// KernelResult result = await kernel.RunAsync(input: request.RequestContent!, pipeline: request.FunctionPipeline);
 
@@ -105,7 +105,7 @@ namespace Senparc.AI.AgentKernel
         //    var chatHistory = new ChatHistory();
         //    chatHistory.AddSystemMessage(chatSystemMessage ?? DefaultSetting.DEFAULT_SYSTEM_MESSAGE);
 
-        //    iWanToRun.StoredAiArguments.KernelArguments.Set(hisgoryArgName, chatHistory);
+        //    iWanToRun.StoredAiArguments.AgentKernelArguments.Set(hisgoryArgName, chatHistory);
 
         //    return iWanToRun;
         //}

@@ -2,7 +2,6 @@ using Microsoft.Agents.AI;
 using Senparc.AI.AgentKernel;
 using Senparc.AI.AgentKernel.Handlers;
 using Senparc.AI.Interfaces;
-using Senparc.AI.Samples.AgentKernelConsoles.Samples.Support;
 using Senparc.CO2NET.Extensions;
 
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
@@ -71,9 +70,8 @@ public class EmbeddingRagSample
             .ConfigTextEmbeddingModel(UserId, CollectionName)
             .BuildKernelWithAgentSessionAsync(chatOptions);
 
-        var vectorStore = iWantToRun.GetVectorStore(setting.VectorDB);
-        _textSearchStore = new TextSearchStore(iWantToRun, vectorStore);
-        await _textSearchStore.UpsertDocumentsAsync(TextSearchStore.GetSampleDocuments());
+        var vectorStore = iWantToRun.CreateTextSearchStore();
+        await vectorStore.UpsertDocumentsAsync(TextSearchStore.GetSampleDocuments());
 
         Console.WriteLine("[调试] 向量库初始化完成。可提问例如：What is NCF?");
         Console.WriteLine("输入 exit 退出。");
@@ -98,7 +96,7 @@ public class EmbeddingRagSample
             Console.WriteLine("机器：");
             try
             {
-                var result = await iWantToRun.RunAsync(input, session);
+                var result = await iWantToRun.RunChatAsync(input, session);
                 Console.WriteLine(result.Result.Text);
                 Console.WriteLine($"[调试] Tokens — total: {result.Result.Usage?.TotalTokenCount}");
             }

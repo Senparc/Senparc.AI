@@ -76,8 +76,8 @@ public class ChatSample
         if (sessionMode == SessionMode.Shared)
         {
             sharedRun = await agentHandler.IWantTo(SampleSetting.CurrentSetting)
-                .ConfigModel(ConfigModel.Chat, userId)
-                .BuildKernelWithAgentSessionAsync(chatOptions);
+                .ConfigChatModel(userId, chatOptions)
+                .BuildKernelWithAgentSessionAsync();
             agentSession = sharedRun.Kernel.AgentSession;
             Console.WriteLine($"[调试] AgentSession 已创建：{agentSession != null}");
         }
@@ -115,8 +115,20 @@ public class ChatSample
                     agentSession = iWantToRun.Kernel.AgentSession;//实际为 null
                 }
 
-                var result = await iWantToRun.RunAsync(input, agentSession);
-                Console.WriteLine(result.Result.Text);
+                Action changeColor = () =>
+                {
+                    Console.ForegroundColor = Console.ForegroundColor == ConsoleColor.DarkYellow ? ConsoleColor.White : ConsoleColor.DarkYellow;
+                };
+
+                Action<AgentResponseUpdate> updateFun = update =>
+                {
+                    changeColor();
+                    Console.Write(update.Text);
+                };
+
+                var result = await iWantToRun.RunChatAsync(input, agentSession, updateFun);
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine();
                 Console.WriteLine($"[调试] Tokens — input: {result.Result.Usage?.InputTokenCount}, output: {result.Result.Usage?.OutputTokenCount}, total: {result.Result.Usage?.TotalTokenCount}");
             }
             catch (Exception ex)
