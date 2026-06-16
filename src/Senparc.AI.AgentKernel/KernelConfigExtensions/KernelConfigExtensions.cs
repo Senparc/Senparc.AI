@@ -105,15 +105,13 @@ namespace Senparc.AI.AgentKernel.Handlers
                     modelNameStr = modelName.Embedding;
                     kernelBuilder = iWantTo.AgentKernelHelper.ConfigTextEmbeddingGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
                     break;
-                //case AI.ConfigModel.TextToImage:
-                //    modelNameStr = modelName.TextToImage;
-                //    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
-                //    //Console.WriteLine($"[调试]GetDeploymentName：{modelNameStr} / {GetDeploymentName(modelNameStr)}");
-                //    //Console.WriteLine($"[调试]{senparcAiSetting.AiPlatform}-{senparcAiSetting.AzureOpenAIKeys.DeploymentName}-{senparcAiSetting.AzureOpenAIKeys.AzureEndpoint}\r\n{senparcAiSetting.AzureOpenAIKeys.ModelName.ToJson(true)}");
-                //    break;
+                case AI.ConfigModel.TextToImage:
+                    modelNameStr = modelName.TextToImage;
+                    kernelBuilder = iWantTo.AgentKernelHelper.ConfigImageGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
+                    break;
                 //case AI.ConfigModel.SpeechToText:
                 //    modelNameStr = modelName.SpeechToText ?? "whisper"; // 默认使用 whisper
-                //    kernelBuilder = iWantTo.SemanticKernelHelper.ConfigAudioToText(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
+                //    kernelBuilder = iWantTo.AgentKernelHelper.ConfigAudioToText(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
                 //    break;
                 default:
                     throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel);
@@ -145,6 +143,13 @@ namespace Senparc.AI.AgentKernel.Handlers
             return iWantToConfig;
         }
 
+        public static IWantToConfig ConfigImageModel(this IWantToConfig iWantToConfig, string userId, ModelName modelName = null,
+           ISenparcAiSetting? senparcAiSetting = null, string deploymentName = null)
+        {
+            iWantToConfig.ConfigModel(AI.ConfigModel.TextToImage, userId, modelName, senparcAiSetting, deploymentName);
+            return iWantToConfig;
+        }
+
         ///// <summary>
         ///// 添加 TextCompletion 配置
         ///// </summary>
@@ -154,9 +159,9 @@ namespace Senparc.AI.AgentKernel.Handlers
         ///// <exception cref="SenparcAiException"></exception>
         //public static IWantToConfig AddTextCompletion(this IWantToConfig iWantToConfig, string? modelName = null)
         //{
-        //    var aiPlatForm = iWantToConfig.IWantTo.SemanticKernelHelper.AiSetting.AiPlatform;
+        //    var aiPlatForm = iWantToConfig.IWantTo.AgentKernelHelper.AiSetting.AiPlatform;
         //    var kernel = iWantToConfig.IWantTo.Kernel;
-        //    var skHelper = iWantToConfig.IWantTo.SemanticKernelHelper;
+        //    var skHelper = iWantToConfig.IWantTo.AgentKernelHelper;
         //    var aiSetting = skHelper.AiSetting;
         //    var userId = iWantToConfig.IWantTo.UserId;
         //    modelName ??= iWantToConfig.IWantTo.ModelName;
@@ -289,7 +294,7 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         public static TextSearchStore CreateTextSearchStore(this IWantToRun iWantToRun)
         {
-            var setting = iWantToRun.SemanticKernelHelper.AiSetting;
+            var setting = iWantToRun.AgentKernelHelper.AiSetting;
             var vectorStore = iWantToRun.GetVectorStore(setting.VectorDB);
             var store = new TextSearchStore(iWantToRun, vectorStore);
             return store;
@@ -342,7 +347,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //public static IWantToRun BuildMemoryKernel(this IWantToConfig iWantToConfig, Action<MemoryBuilder>? kernelBuilderAction = null)
         //{
         //    var iWantTo = iWantToConfig.IWantTo;
-        //    var handler = iWantTo.SemanticKernelHelper;
+        //    var handler = iWantTo.AgentKernelHelper;
         //    handler.BuildKernel(iWantTo.KernelBuilder, kernelBuilderAction);
 
         //    return new IWantToRun(new IWantToBuild(iWantToConfig));
@@ -407,7 +412,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
-        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, KernelArguments arguments, AgentSession agentSession = null,
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, AgentKernelArguments arguments, AgentSession agentSession = null,
             bool useAllRegisteredFunctions = false, params AIFunction[] pipeline)
         {
             var iWantTo = iWantToRun.IWantToBuild.IWantToConfig.IWantTo;
@@ -429,7 +434,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         /// <param name="contextVariables"></param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
-        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, KernelArguments contextVariables, AgentSession agentSession, params AIFunction[] pipeline)
+        public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, AgentKernelArguments contextVariables, AgentSession agentSession, params AIFunction[] pipeline)
         {
             return CreateRequest(iWantToRun, contextVariables, agentSession, false, pipeline);
         }

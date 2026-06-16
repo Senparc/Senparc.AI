@@ -2,17 +2,33 @@
 using Microsoft.Extensions.AI;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Handlers;
+using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.CO2NET.Extensions;
 using Senparc.CO2NET.Trace;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Senparc.AI.AgentKernel.Handlers
 {
-    public partial class KernelConfigExtensions
+    public static partial class KernelConfigExtensions
     {
+        #region 配置
+
+        public static ChatClientAgentOptions CreateChatClientAgentOptions(this IWantToConfig iWantToConfig,   string agentName, string systemMessage, ChatOptions chatOptions = null)
+        {
+            var options = new ChatClientAgentOptions()
+            {
+                Name = agentName,
+                ChatOptions = chatOptions
+            };
+
+            return options;
+        }
+
+        #endregion
 
         #region 运行
 
@@ -51,7 +67,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// 运行，兼容 Streamming
+        /// 运行，兼容 Streamming（RunChat 统一入口）
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
@@ -63,11 +79,15 @@ namespace Senparc.AI.AgentKernel.Handlers
             where T : class
         {
             var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
-            var helper = iWanToRun.SemanticKernelHelper;
+            var helper = iWanToRun.AgentKernelHelper;
             var kernel = helper.GetKernel();
             //var function = iWanToRun.KernelFunction;
 
             var prompt = request.RequestContent;
+
+            //替换参数
+            prompt = request.ReplacePrompt();
+
             var session = request.AgentSession;
             var functionPipline = request.FunctionPipeline;
             //var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
@@ -75,8 +95,8 @@ namespace Senparc.AI.AgentKernel.Handlers
             //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
 
             iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
-            var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
-            var tempArguments = request.TempAiArguments?.KernelArguments;
+            var storedArguments = iWanToRun.StoredAiArguments.AgentKernelArguments;
+            var tempArguments = request.TempAiArguments?.AgentKernelArguments;
 
             AgentResponse agentResponse = null;
             var result = new SenparcKernelAiResult<T>(iWanToRun, inputContent: null);
@@ -305,7 +325,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //{
         //    var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
 
-        //    var helper = iWanToRun.SemanticKernelHelper;
+        //    var helper = iWanToRun.AgentKernelHelper;
         //    var kernel = helper.GetKernel();
         //    //var function = iWanToRun.KernelFunction;
 
@@ -316,8 +336,8 @@ namespace Senparc.AI.AgentKernel.Handlers
         //    //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
 
         //    iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
-        //    var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
-        //    var tempArguments = request.TempAiArguments?.KernelArguments;
+        //    var storedArguments = iWanToRun.StoredAiArguments.AgentKernelArguments;
+        //    var tempArguments = request.TempAiArguments?.AgentKernelArguments;
 
         //    FunctionResult? functionResult = null;
         //    var result = new SenparcKernelAiResult<T>(iWanToRun, inputContent: null);
@@ -424,15 +444,15 @@ namespace Senparc.AI.AgentKernel.Handlers
         //{
         //    var iWantTo = iWanToRun.IWantToBuild.IWantToConfig.IWantTo;
 
-        //    var helper = iWanToRun.SemanticKernelHelper;
+        //    var helper = iWanToRun.AgentKernelHelper;
         //    var kernel = helper.GetKernel();
         //    //var function = iWanToRun.KernelFunction;
 
         //    //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
 
         //    iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
-        //    var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
-        //    var tempArguments = request.TempAiArguments?.KernelArguments;
+        //    var storedArguments = iWanToRun.StoredAiArguments.AgentKernelArguments;
+        //    var tempArguments = request.TempAiArguments?.AgentKernelArguments;
 
         //    FunctionResult? functionResult = null;
         //    var result = new SenparcKernelAiResult<T>(iWanToRun, inputContent: null);

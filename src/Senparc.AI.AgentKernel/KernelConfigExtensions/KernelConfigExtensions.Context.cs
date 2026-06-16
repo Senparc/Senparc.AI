@@ -16,11 +16,11 @@ namespace Senparc.AI.AgentKernel.Handlers
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <returns>SK context</returns>
-        public static (IWantToRun iWantToRun, KernelArguments arguments) CreateNewArguments(this IWantToRun iWantToRun)
+        public static (IWantToRun iWantToRun, AgentKernelArguments arguments) CreateNewArguments(this IWantToRun iWantToRun)
         {
-            //var helper = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticKernelHelper;
+            //var helper = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.AgentKernelHelper;
             //var kernel = helper.GetKernel();
-            var context = new KernelArguments();// kernel.CreateNewContext();
+            var context = new AgentKernelArguments();// kernel.CreateNewContext();
             return (iWantToRun, context);
         }
 
@@ -38,7 +38,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         public static SenparcAiRequest SetTempContext(this SenparcAiRequest request, string key, string value)
         {
             request.TempAiArguments ??= new SenparcAiArguments();
-            request.TempAiArguments.KernelArguments.Set(key, value);
+            request.TempAiArguments.AgentKernelArguments.Set(key, value);
             return request;
         }
 
@@ -51,7 +51,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         /// <returns></returns>
         public static SenparcAiRequest SetStoredContext(this SenparcAiRequest request, string key, object value)
         {
-            request.StoreAiArguments.KernelArguments.Set(key, value);
+            request.StoreAiArguments.AgentKernelArguments.Set(key, value);
             return request;
         }
 
@@ -65,7 +65,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         /// <returns></returns>
         public static bool GetTempArguments(this SenparcAiRequest request, string key, out object? value)
         {
-            return request.TempAiArguments.KernelArguments.TryGetValue(key, out value);
+            return request.TempAiArguments.AgentKernelArguments.TryGetValue(key, out value);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         /// <returns></returns>
         public static bool GetStoredArguments(this SenparcAiRequest request, string key, out object? value)
         {
-            return request.StoreAiArguments.KernelArguments.TryGetValue(key, out value);
+            return request.StoreAiArguments.AgentKernelArguments.TryGetValue(key, out value);
         }
 
         #endregion

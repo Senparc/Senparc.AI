@@ -1,5 +1,6 @@
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.AgentKernel.Handlers;
 using Senparc.AI.AgentKernel.Kernels;
 using Senparc.AI.AgentKernel.Tests.BaseSupport;
@@ -15,6 +16,30 @@ public class AiKernelRunChatTests : KernelTestBase
     public void Init()
     {
         _kernel = RunChatTestHelper.BuildChatRun().GetAwaiter().GetResult().Kernel;
+    }
+
+    [TestMethod]
+    public async Task TestPlaceHolder()
+    {
+        var prompt = "{{city}} 的特产有什么？";
+        var iWantToRun = await new AgentAiHandler().IWantTo().ConfigChatModel("Jeffrey",
+            new ChatClientAgentOptions()
+            {
+                ChatOptions = new ChatOptions()
+                {
+                    Instructions = "你是一个机器人，负责帮助我回答问题。回答问题之前，你需要完整复述一下我的完整问题"
+                }
+            }
+            ).BuildKernelWithAgentSessionAsync();
+
+        iWantToRun.Kernel.AgentSession.StateBag.SetValue("city", "苏州");
+
+        var result = await iWantToRun.RunChatAsync(prompt, iWantToRun.Kernel.AgentSession);
+
+        Console.WriteLine("result:" + result.OutputString);
+
+        Assert.IsTrue(result.OutputString.Contains("苏州"));
+
     }
 
     //[TestMethod]

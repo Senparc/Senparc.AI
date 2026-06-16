@@ -47,8 +47,8 @@
 //        /// <returns></returns>
 //        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromPromptDirectory(this IWantToRun iWantToRun, string parentDirectory, string pluginName, IPromptTemplateFactory? promptTemplateFactory = null, bool throwExceptionWhenSamePluginNameExisted = false)
 //        {
-//            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-//            var helper = handler.SemanticKernelHelper;
+//            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.AgentAiHandler;
+//            var helper = handler.AgentKernelHelper;
 //            var kernel = helper.GetKernel();
 
 //            KernelPlugin kernelPlugin;
@@ -75,8 +75,8 @@
 //        /// <remarks>Public methods that have the Microsoft.SemanticKernel.KernelFunctionFromPrompt attribute will be included in the plugin.</remarks>
 //        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromObject(this IWantToRun iWantToRun, object target, string? pluginName = null, bool throwExceptionWhenSamePluginNameExisted = false)
 //        {
-//            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-//            var helper = handler.SemanticKernelHelper;
+//            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.AgentAiHandler;
+//            var helper = handler.AgentKernelHelper;
 //            var kernel = helper.GetKernel();
 
 //            KernelPlugin kernelPlugin;
@@ -104,8 +104,8 @@
 //        /// <returns>A Microsoft.SemanticKernel.KernelPlugin containing Microsoft.SemanticKernel.KernelFunctions for all relevant members of T.</returns>
 //        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromType<T>(this IWantToRun iWantToRun, string? pluginName = null, bool throwExceptionWhenSamePluginNameExisted = false)
 //        {
-//            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-//            var helper = handler.SemanticKernelHelper;
+//            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.AgentAiHandler;
+//            var helper = handler.AgentKernelHelper;
 //            var kernel = helper.GetKernel();
 
 //            KernelPlugin kernelPlugin;
@@ -133,8 +133,8 @@
 //        /// <returns>A Microsoft.SemanticKernel.KernelPlugin containing the functions provided in functions.</returns>
 //        public static (IWantToRun iWantToRun, KernelPlugin kernelPlugin) ImportPluginFromFunctions(this IWantToRun iWantToRun, string pluginName, IEnumerable<KernelFunction>? functions = null, bool throwExceptionWhenSamePluginNameExisted = false)
 //        {
-//            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SemanticAiHandler;
-//            var helper = handler.SemanticKernelHelper;
+//            var handler = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.AgentAiHandler;
+//            var helper = handler.AgentKernelHelper;
 //            var kernel = helper.GetKernel();
 
 //            KernelPlugin kernelPlugin;
