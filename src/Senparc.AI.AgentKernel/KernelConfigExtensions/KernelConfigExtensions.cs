@@ -109,10 +109,14 @@ namespace Senparc.AI.AgentKernel.Handlers
                     modelNameStr = modelName.TextToImage;
                     kernelBuilder = iWantTo.AgentKernelHelper.ConfigImageGeneration(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
                     break;
-                //case AI.ConfigModel.SpeechToText:
-                //    modelNameStr = modelName.SpeechToText ?? "whisper"; // 默认使用 whisper
-                //    kernelBuilder = iWantTo.AgentKernelHelper.ConfigAudioToText(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
-                //    break;
+                case AI.ConfigModel.SpeechToText:
+                    modelNameStr = modelName.SpeechToText ?? "whisper";
+                    kernelBuilder = iWantTo.AgentKernelHelper.ConfigSpeechToText(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
+                    break;
+                case AI.ConfigModel.TextToSpeech:
+                    modelNameStr = modelName.TextToSpeech ?? "tts";
+                    kernelBuilder = iWantTo.AgentKernelHelper.ConfigTextToSpeech(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
+                    break;
                 default:
                     throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel);
             }
@@ -147,6 +151,20 @@ namespace Senparc.AI.AgentKernel.Handlers
            ISenparcAiSetting? senparcAiSetting = null, string deploymentName = null)
         {
             iWantToConfig.ConfigModel(AI.ConfigModel.TextToImage, userId, modelName, senparcAiSetting, deploymentName);
+            return iWantToConfig;
+        }
+
+        public static IWantToConfig ConfigSpeechToTextModel(this IWantToConfig iWantToConfig, string userId, ModelName modelName = null,
+           ISenparcAiSetting? senparcAiSetting = null, string deploymentName = null)
+        {
+            iWantToConfig.ConfigModel(AI.ConfigModel.SpeechToText, userId, modelName, senparcAiSetting, deploymentName);
+            return iWantToConfig;
+        }
+
+        public static IWantToConfig ConfigTextToSpeechModel(this IWantToConfig iWantToConfig, string userId, ModelName modelName = null,
+           ISenparcAiSetting? senparcAiSetting = null, string deploymentName = null)
+        {
+            iWantToConfig.ConfigModel(AI.ConfigModel.TextToSpeech, userId, modelName, senparcAiSetting, deploymentName);
             return iWantToConfig;
         }
 

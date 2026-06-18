@@ -23,6 +23,8 @@ services.AddTransient<CompletionSample>();
 services.AddTransient<EmbeddingSample>();
 services.AddTransient<EmbeddingRagSample>();
 services.AddTransient<ImageGenerateSample>();
+services.AddTransient<SttSample>();
+services.AddTransient<TtsSample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -49,6 +51,7 @@ Console.WriteLine("[4] GPT-Image-2 绘图");
 Console.WriteLine("[5] Planner 任务计划");
 Console.WriteLine("[6] PluginFromObject / Function Calling");
 Console.WriteLine("[7] STT（Speech to Text）");
+Console.WriteLine("[8] TTS（Text to Speech）");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -100,7 +103,10 @@ switch (index)
         await NotSupportedSample.RunAsync("PluginFromObject / Function Calling");
         break;
     case "7":
-        await NotSupportedSample.RunAsync("STT（Speech to Text）");
+        await serviceProvider.GetRequiredService<SttSample>().RunAsync();
+        break;
+    case "8":
+        await serviceProvider.GetRequiredService<TtsSample>().RunAsync();
         break;
     case "0":
         serviceProvider.GetRequiredService<SampleSetting>().Run();
