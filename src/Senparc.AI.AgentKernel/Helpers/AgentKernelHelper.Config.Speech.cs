@@ -1,63 +1,137 @@
-﻿using Azure.AI.OpenAI;
+using Azure.AI.OpenAI;
 using Senparc.AI.AgentKernel.Kernels;
 using Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
 using System;
 using System.ClientModel;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Senparc.AI.AgentKernel.Helpers
 {
     public partial class AgentKernelHelper
     {
-
-
         /// <summary>
-        /// 设置 Whisper 语音转文字接口
+        /// 配置语音转文字（Speech-To-Text）模型（OpenAI Whisper）。
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="kernelBuilder"></param>
-        /// <param name="modelId">模型名称，默认为 whisper</param>
-        /// <param name="senparcAiSetting"></param>
-        /// <param name="deploymentName">Azure 部署名称</param>
+        /// <param name="userId">用户 ID，用于区分服务实例。</param>
+        /// <param name="kernelBuilder">已有 builder，可连续配置多个模型。</param>
+        /// <param name="modelName">模型名称（为空则读取配置，默认 whisper）。</param>
+        /// <param name="senparcAiSetting">AI 配置。</param>
+        /// <param name="deploymentName">Azure 部署名（为空则取 DeploymentName 或 modelName）。</param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
-        //public IAIKernelBuilder ConfigAudioToText(string userId, IAIKernelBuilder? kernelBuilder = null, string modelId = null, ISenparcAiSetting senparcAiSetting = null, string deploymentName = null)
-        //{
-        //    senparcAiSetting ??= this.AiSetting;
-        //    modelId ??= "whisper"; // 默认使用 whisper 模型
+        public IAIKernelBuilder ConfigSpeechToText(
+            string userId,
+            string modelName = null,
+            ISenparcAiSetting senparcAiSetting = null,
+            IAIKernelBuilder? kernelBuilder = null,
+            string deploymentName = null)
+        {
+            senparcAiSetting ??= this.AiSetting;
+            modelName ??= senparcAiSetting.ModelName.SpeechToText ?? "whisper";
+            deploymentName ??= senparcAiSetting.DeploymentName ?? modelName;
 
-        //    var serviceId = GetServiceId(userId, "audio-to-text");
-        //    var aiPlatForm = senparcAiSetting.AiPlatform;
+            var aiPlatform = senparcAiSetting.AiPlatform;
+            kernelBuilder ??= Kernels.AIKernelBuilder.CreateBuilder();
+            kernelBuilder.AddConfigModel(ConfigModel.SpeechToText);
 
-        //    kernelBuilder ??= Microsoft.SemanticKernel.Kernel.CreateBuilder();
+            kernelBuilder.SpeechToTextClient = aiPlatform switch
+            {
+                AiPlatform.OpenAI => kernelBuilder.AddOpenAIAudio(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName),
 
-        //    _ = aiPlatForm switch
-        //    {
-        //        AiPlatform.OpenAI => kernelBuilder.AddOpenAIAudioToText(
-        //            modelId: modelId,
-        //            apiKey: senparcAiSetting.ApiKey,
-        //            orgId: senparcAiSetting.OrganizationId,
-        //            httpClient: _httpClient),
+                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAIAudio(
+                    endpoint: new Uri(senparcAiSetting.AzureEndpoint),
+                    credential: new ApiKeyCredential(senparcAiSetting.ApiKey),
+                    options: new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
+                    deploymentName: deploymentName),
 
-        //        AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAIAudioToText(
-        //            deploymentName: deploymentName ?? modelId,
-        //            endpoint: senparcAiSetting.Endpoint,
-        //            apiKey: senparcAiSetting.ApiKey,
-        //            httpClient: _httpClient),
+                AiPlatform.NeuCharAI => kernelBuilder.AddNeuCharAIAudio(
+                    endpoint: new Uri(senparcAiSetting.NeuCharEndpoint),
+                    credential: new ApiKeyCredential(senparcAiSetting.ApiKey),
+                    options: new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
+                    deploymentName: deploymentName),
 
-        //        AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAIAudioToText(
-        //            deploymentName: deploymentName ?? modelId,
-        //            endpoint: senparcAiSetting.Endpoint,
-        //            apiKey: senparcAiSetting.ApiKey,
-        //            httpClient: _httpClient),
+                _ => throw new SenparcAiException($"ConfigSpeechToText 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatform}")
+            };
 
-        //        _ => throw new SenparcAiException($"ConfigAudioToText 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
-        //    };
+            return kernelBuilder;
+        }
 
-        //    return kernelBuilder;
-        //}
+        /// <summary>
+        /// 保留旧命名：配置语音转文字（Speech-To-Text）。
+        /// </summary>
+        public IAIKernelBuilder ConfigAudioToText(
+            string userId,
+            IAIKernelBuilder? kernelBuilder = null,
+            string modelName = null,
+            ISenparcAiSetting senparcAiSetting = null,
+            string deploymentName = null)
+        {
+            return ConfigSpeechToText(userId, modelName, senparcAiSetting, kernelBuilder, deploymentName);
+        }
+
+        /// <summary>
+        /// 配置文本转语音（Text-To-Speech）模型。
+        /// </summary>
+        /// <param name="userId">用户 ID，用于区分服务实例。</param>
+        /// <param name="modelName">模型名称（为空则读取配置，默认 tts）。</param>
+        /// <param name="senparcAiSetting">AI 配置。</param>
+        /// <param name="kernelBuilder">已有 builder，可连续配置多个模型。</param>
+        /// <param name="deploymentName">Azure 部署名（为空则取 DeploymentName 或 modelName）。</param>
+        /// <returns></returns>
+        /// <exception cref="SenparcAiException"></exception>
+        public IAIKernelBuilder ConfigTextToSpeech(
+            string userId,
+            string modelName = null,
+            ISenparcAiSetting senparcAiSetting = null,
+            IAIKernelBuilder? kernelBuilder = null,
+            string deploymentName = null)
+        {
+            senparcAiSetting ??= this.AiSetting;
+            modelName ??= senparcAiSetting.ModelName.TextToSpeech ?? "tts";
+            deploymentName ??= senparcAiSetting.DeploymentName ?? modelName;
+
+            var aiPlatform = senparcAiSetting.AiPlatform;
+            kernelBuilder ??= Kernels.AIKernelBuilder.CreateBuilder();
+            kernelBuilder.AddConfigModel(ConfigModel.TextToSpeech);
+
+            kernelBuilder.TextToSpeechClient = aiPlatform switch
+            {
+                AiPlatform.OpenAI => kernelBuilder.AddOpenAIAudio(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName),
+
+                AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAIAudio(
+                    endpoint: new Uri(senparcAiSetting.AzureEndpoint),
+                    credential: new ApiKeyCredential(senparcAiSetting.ApiKey),
+                    options: new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
+                    deploymentName: deploymentName),
+
+                AiPlatform.NeuCharAI => kernelBuilder.AddNeuCharAIAudio(
+                    endpoint: new Uri(senparcAiSetting.NeuCharEndpoint),
+                    credential: new ApiKeyCredential(senparcAiSetting.ApiKey),
+                    options: new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
+                    deploymentName: deploymentName),
+
+                _ => throw new SenparcAiException($"ConfigTextToSpeech 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatform}")
+            };
+
+            return kernelBuilder;
+        }
+
+        /// <summary>
+        /// 保留旧命名：配置文本转语音（Text-To-Speech）。
+        /// </summary>
+        public IAIKernelBuilder ConfigTextToAudio(
+            string userId,
+            IAIKernelBuilder? kernelBuilder = null,
+            string modelName = null,
+            ISenparcAiSetting senparcAiSetting = null,
+            string deploymentName = null)
+        {
+            return ConfigTextToSpeech(userId, modelName, senparcAiSetting, kernelBuilder, deploymentName);
+        }
     }
 }
