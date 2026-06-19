@@ -11,13 +11,13 @@ namespace Senparc.AI.AgentKernel.Helpers
     public partial class AgentKernelHelper
     {
         /// <summary>
-        /// 配置语音转文字（Speech-To-Text）模型（OpenAI Whisper）。
+        /// Configures the speech-to-text model (OpenAI Whisper).
         /// </summary>
-        /// <param name="userId">用户 ID，用于区分服务实例。</param>
-        /// <param name="kernelBuilder">已有 builder，可连续配置多个模型。</param>
-        /// <param name="modelName">模型名称（为空则读取配置，默认 whisper）。</param>
-        /// <param name="senparcAiSetting">AI 配置。</param>
-        /// <param name="deploymentName">Azure 部署名（为空则取 DeploymentName 或 modelName）。</param>
+        /// <param name="userId">User ID used to distinguish service instances.</param>
+        /// <param name="kernelBuilder">Existing builder, allowing multiple models to be configured in sequence.</param>
+        /// <param name="modelName">Model name. If empty, the value is read from configuration and defaults to whisper.</param>
+        /// <param name="senparcAiSetting">AI configuration.</param>
+        /// <param name="deploymentName">Azure deployment name. If empty, DeploymentName or modelName is used.</param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
         public IAIKernelBuilder ConfigSpeechToText(
@@ -53,14 +53,14 @@ namespace Senparc.AI.AgentKernel.Helpers
                     options: new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
                     deploymentName: deploymentName),
 
-                _ => throw new SenparcAiException($"ConfigSpeechToText 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatform}")
+                _ => throw new SenparcAiException($"ConfigSpeechToText does not handle the current {nameof(AiPlatform)} type: {aiPlatform}")
             };
 
             return kernelBuilder;
         }
 
         /// <summary>
-        /// 保留旧命名：配置语音转文字（Speech-To-Text）。
+        /// Preserves the legacy name for configuring speech-to-text.
         /// </summary>
         public IAIKernelBuilder ConfigAudioToText(
             string userId,
@@ -73,13 +73,13 @@ namespace Senparc.AI.AgentKernel.Helpers
         }
 
         /// <summary>
-        /// 配置文本转语音（Text-To-Speech）模型。
+        /// Configures the text-to-speech model.
         /// </summary>
-        /// <param name="userId">用户 ID，用于区分服务实例。</param>
-        /// <param name="modelName">模型名称（为空则读取配置，默认 tts）。</param>
-        /// <param name="senparcAiSetting">AI 配置。</param>
-        /// <param name="kernelBuilder">已有 builder，可连续配置多个模型。</param>
-        /// <param name="deploymentName">Azure 部署名（为空则取 DeploymentName 或 modelName）。</param>
+        /// <param name="userId">User ID used to distinguish service instances.</param>
+        /// <param name="modelName">Model name. If empty, the value is read from configuration and defaults to tts.</param>
+        /// <param name="senparcAiSetting">AI configuration.</param>
+        /// <param name="kernelBuilder">Existing builder, allowing multiple models to be configured in sequence.</param>
+        /// <param name="deploymentName">Azure deployment name. If empty, DeploymentName or modelName is used.</param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
         public IAIKernelBuilder ConfigTextToSpeech(
@@ -115,14 +115,14 @@ namespace Senparc.AI.AgentKernel.Helpers
                     options: new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
                     deploymentName: deploymentName),
 
-                _ => throw new SenparcAiException($"ConfigTextToSpeech 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatform}")
+                _ => throw new SenparcAiException($"ConfigTextToSpeech does not handle the current {nameof(AiPlatform)} type: {aiPlatform}")
             };
 
             return kernelBuilder;
         }
 
         /// <summary>
-        /// 保留旧命名：配置文本转语音（Text-To-Speech）。
+        /// Preserves the legacy name for configuring text-to-speech.
         /// </summary>
         public IAIKernelBuilder ConfigTextToAudio(
             string userId,

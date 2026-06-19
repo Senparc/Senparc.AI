@@ -1,4 +1,4 @@
-﻿using Senparc.AI.Entities;
+using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
 using Senparc.CO2NET.Extensions;
@@ -11,7 +11,7 @@ using System.Text;
 namespace Senparc.AI.Interfaces
 {
     /// <summary>
-    /// Senparc.AI 基础配置，附带 Items 设置多模型配置
+    /// Senparc.AI base configuration with Items settings for multi-model configuration
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface ISenparcAiSetting<T> where T : ISenparcAiSetting
@@ -26,12 +26,12 @@ namespace Senparc.AI.Interfaces
     }
 
     /// <summary>
-    /// Senparc.AI 基础配置
+    /// Senparc.AI base configuration
     /// </summary>
     public interface ISenparcAiSetting
     {
         /// <summary>
-        /// 是否处于调试状态
+        /// Whether debug mode is enabled
         /// </summary>
         bool IsDebug { get; set; }
 
@@ -46,20 +46,20 @@ namespace Senparc.AI.Interfaces
             AiPlatform.FastAPI => FastAPIEndpoint,
             AiPlatform.Ollama => OllamaEndpoint,
             AiPlatform.DeepSeek => DeepSeekEndpoint,
-            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 Endpoint 输出")
+            _ => throw new SenparcAiException($"not configured {AiPlatform} of Endpoint output")
         };
 
         /// <summary>
-        /// 是否使用 Azure OpenAI
+        /// Whether Azure OpenAI is used
         /// </summary>
         bool UseAzureOpenAI => AiPlatform == AiPlatform.AzureOpenAI;
 
         /// <summary>
-        /// 是否使用 NeuChar OpenAI
+        /// whether to use NeuChar OpenAI
         /// </summary>
         bool UseNeuCharAI => AiPlatform == AiPlatform.NeuCharAI;
         /// <summary>
-        /// AI 平台类型
+        /// AI platform type
         /// </summary>
         AiPlatform AiPlatform { get; set; }
 
@@ -72,7 +72,7 @@ namespace Senparc.AI.Interfaces
         DeepSeekKeys DeepSeekKeys { get; set; }
 
         /// <summary>
-        /// Neuchar OpenAI 或 Azure OpenAI 或 OpenAI API Key
+        /// Neuchar OpenAI or Azure OpenAI or OpenAI API key
         /// </summary>
         string ApiKey { get; }
 
@@ -97,7 +97,7 @@ namespace Senparc.AI.Interfaces
         /// </summary>
         string AzureEndpoint { get; }
         /// <summary>
-        /// Azure OpenAI 版本号
+        /// Azure OpenAI version
         /// </summary>
         string AzureOpenAIApiVersion { get; }
 
@@ -110,13 +110,13 @@ namespace Senparc.AI.Interfaces
         /// </summary>
         string NeuCharEndpoint { get; }
         /// <summary>
-        /// Azure OpenAI 版本号
+        /// Azure OpenAI version
         /// </summary>
-        //[Obsolete("已过期，请使用 NeuCharAIApiVersion", true)]
+        //[Obsolete("Expired. Use NeuCharAIApiVersion.", true)]
         //string NeuCharOpenAIApiVersion { get; }
 
         /// <summary>
-        /// 对应 Azure OpenAI 版本号
+        /// corresponding Azure OpenAI version
         /// </summary>
         string NeuCharAIApiVersion { get; }
 
@@ -147,16 +147,16 @@ namespace Senparc.AI.Interfaces
         #endregion
 
         /// <summary>
-        /// OpenAIKeys 是否已经设置
+        /// whether OpenAIKeys is already set
         /// </summary>
         public bool IsOpenAiKeysSetted { get; }
 
 
         public ModelName ModelName { get; }
 
-#pragma warning disable CS8603 // 可能返回 null 引用。
+#pragma warning disable CS8603 // Possible null reference return.
         public string DeploymentName { get; }
-#pragma warning restore CS8603 // 可能返回 null 引用。
+#pragma warning restore CS8603 // Possible null reference return.
 
     }
 
@@ -172,7 +172,7 @@ namespace Senparc.AI.Interfaces
     //    //Sqlite,
     //    //SqlServer,
 
-    //    /* 注意：枚举值一旦确定，不能再进行修改 */
+    //    /* note:Enum values cannot be modified after they are determined */
 
     //    AzureAISearch=0,
     //    CosmosDBMongoDB=1,

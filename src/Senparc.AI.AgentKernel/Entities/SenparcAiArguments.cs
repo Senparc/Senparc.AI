@@ -34,7 +34,7 @@ namespace Senparc.AI.AgentKernel.Entities
             {
                 if (value is not Senparc.AI.AgentKernel.Entities.AgentKernelArguments)
                 {
-                    throw new SenparcAiException("Context 类型必须为 ISenparcKernelArguments");
+                    throw new SenparcAiException("Context type must be ISenparcKernelArguments");
                 }
                 AgentKernelArguments = (AgentKernelArguments)value;
             }

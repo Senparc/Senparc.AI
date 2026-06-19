@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
@@ -9,7 +9,7 @@
 		<RootNamespace>Senparc.AI.Kernel</RootNamespace>
 		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
 		<Description>
-			Senparc.AI 核心模块，支持 Semantic Kernel，提供一系列 Senparc.AI 产品基础接口实现
+			Senparc.AI core module, support Semantic Kernel, provide a series of Senparc.AI product base API implementation
 		</Description>
 		<Copyright>Senparc Copyright © 2004~2026</Copyright>
 		<PackageTags>
@@ -20,38 +20,38 @@
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<ProjectUrl>https://github.com/Senparc/Senparc.AI.Kernel</ProjectUrl>
 		<Title>Senparc.AI.Kernel.dll</Title>
-		<Summary>Senparc.AI 核心模块</Summary>
+		<Summary>Senparc.AI core module</Summary>
 		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI.Kernel</PackageProjectUrl>
 		<PackageIcon>icon.jpg</PackageIcon>
 		<PackageReleaseNotes>
-			v0.1.0 创世
-			v0.2.0 添加 NeuChar OpenAI
-			v0.3.1 同步最新版本 Semantic Kernel，完善 Prompt 运行方法
-			v0.3.1.1 弃用 SenparcAiContext.ExtendContext，改为 SenparcAiContext.ContextVariables
-			v0.4.0 支持外部 ISenparcAiSetting 输入到模型配置过程
-			v0.5.0 适配 Semantic Kernel 1.0.0-beta2
-			v0.6.0 优化 Plugin 等通用接口
-			v0.7.0 支持 Senparc.AI.Kernel 1.0.1
-			v0.8.0 重构 IWantToRun，实现自定义 SenparcAISetting 输入
-			v0.9.0 重构 SenparcAiSetting，支持多模型配置
-			v0.10.0 添加 FastAPI 模型选项
-			v0.10.1 提供 SenparcAiSetting.Endpoint 属性
-			v0.11.0 重构 ModelName 获取方式，可根据模型平台自动获取 ModelName 和 DepolymentName
-			v0.12.0 完善 SemanticAiHandler.ChatAsync() 方法，提供指定保留 N 条历史记录的能力
-			v0.13.0 完善流式输出
-			v0.13.1 SemanticAiHandler.ChatConfig() 方法添加 promptTemplate 参数
-			v0.14.0 完善模型识别
-			v0.15.0 添加 HttpClient 日志功能，完善内容输出机制
-			v0.15.1 升级到 SK 最新版本（v1.7.1）
-			v0.15.2 添加 RedirectingHttpMessageHandler
-			v0.15.3 添加 IWantToRun.SetPromptConfigParameter() 方法
-			v0.15.4 升级到 SK 1.10.0，为 ImportPluginFromPromptDirectory() 方法添加已有对象的检测
-			v0.16.1 添加 RunAsync(kernelFunction) 方法
-			v0.17.0 支持 Ollama
-			v0.17.2 升级 AutoGen，更新对应扩展代码
-			[2024-09-07] v0.18.0 SemanticKernelHelper 提供重新设置 SenparcAiSetting 参数方法
-			[2024-11-08] v0.19.0 升级 SemanticKernel
-			[2024-11-14] v0.20.0 升级 AutoGen
+			v0.1.0 Genesis
+			v0.2.0 add NeuChar OpenAI
+			v0.3.1 synchronize the latest version Semantic Kernel, improve Prompt run method
+			v0.3.1.1 Deprecate SenparcAiContext.ExtendContext and change to SenparcAiContext.ContextVariables
+			v0.4.0 support external ISenparcAiSetting input into the model configuration process
+			v0.5.0 adapt Semantic Kernel 1.0.0-beta2
+			v0.6.0 optimize Plugin and other general APIs
+			v0.7.0 support Senparc.AI.Kernel 1.0.1
+			v0.8.0 refactor IWantToRun, implement custom SenparcAISetting input
+			v0.9.0 refactor SenparcAiSetting, support multi-model configuration
+			v0.10.0 add FastAPI model option
+			v0.10.1 provide SenparcAiSetting.Endpoint property
+			v0.11.0 refactor ModelName retrieval method, can be obtained automatically based on the model platform ModelName and DepolymentName
+			v0.12.0 improve SemanticAiHandler.ChatAsync() method, provide the capability to keep a specified number of history records
+			v0.13.0 Improve streaming output
+			v0.13.1 Add the promptTemplate parameter to SemanticAiHandler.ChatConfig()
+			v0.14.0 Improve model recognition
+			v0.15.0 add HttpClient logging feature, Improve content output mechanism
+			v0.15.1 upgrade to SK latest version(v1.7.1)
+			v0.15.2 add RedirectingHttpMessageHandler
+			v0.15.3 add IWantToRun.SetPromptConfigParameter() method
+			v0.15.4 upgrade to SK 1.10.0, as ImportPluginFromPromptDirectory() add detection for existing objects to the method
+			v0.16.1 add RunAsync(kernelFunction) method
+			v0.17.0 support Ollama
+			v0.17.2 upgrade AutoGen, update the corresponding extension code
+			[2024-09-07] v0.18.0 Add a SemanticKernelHelper method for resetting SenparcAiSetting parameters
+			[2024-11-08] v0.19.0 upgrade SemanticKernel
+			[2024-11-14] v0.20.0 upgrade AutoGen
 			[2024-11-19] v0.21.0 Update CO2NET, reframe for Aspire
 			[2025-01-25] v0.22.1 fix output result for nonstreaming request
 			[2025-02-02] v0.23.0-beta1 Upgrade support for Ollama, finished test for DeepSeek-r1 and nomic-embed-text:v1.5

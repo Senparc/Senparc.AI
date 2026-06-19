@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Services;
@@ -12,7 +12,7 @@ namespace Senparc.AI.Kernel.Handlers
     public class IWantTo
     {
         /// <summary>
-        /// 暂存信息
+        /// temporary information
         /// </summary>
         public ConcurrentDictionary<string, object> TempStore { get; set; } = new ConcurrentDictionary<string, object>();
         public IKernelBuilder KernelBuilder { get; set; }
@@ -121,7 +121,7 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 获取当前类型的所有服务
+        /// Get all services of the current type
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>

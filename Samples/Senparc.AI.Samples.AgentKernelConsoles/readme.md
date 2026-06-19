@@ -1,32 +1,32 @@
 # Senparc.AI.Samples.AgentKernelConsoles
 
-基于 **Senparc.AI.AgentKernel**（Microsoft Agent Framework）的控制台示例，菜单结构与 `Senparc.AI.Samples.Consoles` 对齐。
+This console sample is based on **Senparc.AI.AgentKernel** and Microsoft Agent Framework. Its menu structure is aligned with `Senparc.AI.Samples.Consoles`.
 
-## 已实现
+## Implemented
 
-| 菜单 | 说明 | 参考测试 |
-|------|------|----------|
-| Chat | 多轮对话 + AgentSession | `AgentAiHandlerTests` |
-| Completion | 单次 TextCompletion | `RunTest` / `SingleLineTest` |
-| Embedding [1] | 向量写入 + 相似检索 | `EmbeddingStoreTest` |
-| Embedding [2] | RAG + TextSearchProvider | `EmbeddingTest` |
-| Image | 文生图（TextToImage） | `KernelConfigExtensionsImageTests` |
-| STT | 语音转文字（SpeechToText） | `KernelConfigExtensionsSpeechTests` |
-| TTS | 文本转语音（TextToSpeech） | `KernelConfigExtensionsSpeechTests` |
+| Menu | Description | Reference test |
+| --- | --- | --- |
+| Chat | Multi-turn conversation with AgentSession | `AgentAiHandlerTests` |
+| Completion | Single-turn TextCompletion | `RunTest` / `SingleLineTest` |
+| Embedding [1] | Vector write and similarity retrieval | `EmbeddingStoreTest` |
+| Embedding [2] | RAG with TextSearchProvider | `EmbeddingTest` |
+| Image | Text-to-image generation | `KernelConfigExtensionsImageTests` |
+| STT | Speech-to-text | `KernelConfigExtensionsSpeechTests` |
+| TTS | Text-to-speech | `KernelConfigExtensionsSpeechTests` |
 
-## 尚未提供
+## Not Yet Available
 
-以下能力与 Consoles（Kernel）对齐的菜单项在 AgentKernel 中暂未实现，运行后会提示 **「尚未提供」**：
+The following Kernel-aligned menu items are not implemented in AgentKernel yet. Running them shows **"Not available yet"**:
 
-- Planner 任务计划
+- Planner task planning
 - PluginFromObject / Function Calling
 
-## 配置
+## Configuration
 
-1. 编辑 `appsettings.json`（或复制为 `appsettings.Development.json`）填写 `SenparcAiSetting`
-2. 向量库默认 `Memory`，可在配置中改为 Redis / Qdrant 等（需 AgentKernel 已支持的类型）
+1. Edit `appsettings.json`, or copy it to `appsettings.Development.json`, and fill in `SenparcAiSetting`.
+2. The vector store defaults to `Memory`. You can change it to Redis, Qdrant, or another AgentKernel-supported type in configuration.
 
-## 运行
+## Run
 
 ```bash
 cd Samples/Senparc.AI.Samples.AgentKernelConsoles

@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Senparc.AI.Entities.Keys
 {
     /// <summary>
-    /// 包含 DeploymentName 的接口
+    /// API containing DeploymentName
     /// </summary>
     public interface  IDeployment
     {

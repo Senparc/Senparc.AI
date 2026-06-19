@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,13 +19,13 @@ namespace Senparc.AI.Agents
              string key = null;
              switch (agent.Name)
              {
-                 case "行政主管":
+                 case "Administrative Manager":
                      key = AgentKeys.AgentKey1;
                      break;
-                 case "产品经理":
+                 case "Product Manager":
                      key = AgentKeys.AgentKey2;
                      break;
-                 case "项目经理":
+                 case "Project Manager":
                      key = AgentKeys.AgentKey3;
                      break;
                  default:

@@ -1,4 +1,4 @@
-﻿using Senparc.CO2NET;
+using Senparc.CO2NET;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -15,9 +15,9 @@ namespace Senparc.AI.Interfaces
         where TContext : IAiContext
     {
         /// <summary>
-        /// 运行
+        /// run
         /// </summary>
-        /// <param name="request">请求数据</param>
+        /// <param name="request">request data</param>
         /// <returns></returns>
         public TResult Run(TRequest request, ISenparcAiSetting? senparcAiSetting = null);
 

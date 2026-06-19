@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Senparc.AI.Interfaces
@@ -9,7 +9,7 @@ namespace Senparc.AI.Interfaces
     public interface IAiContext
     {
         /// <summary>
-        /// 基础上下文
+        /// base context
         /// </summary>
         IDictionary<string, object?> Context { get; set; }
         //bool StoreToContainer { get; set; }
@@ -23,12 +23,12 @@ namespace Senparc.AI.Interfaces
         where T : IDictionary<string, object?>
     {
         // /// <summary>
-        // /// 扩展类型的上下文
+        // /// context for the extension type
         // /// </summary>
-        // [Obsolete("请使用 ContextVariables", true)]
+        // [Obsolete("please use ContextVariables", true)]
         // T ExtendContext { get; set; }
         /// <summary>
-        /// 扩展类型的上下文
+        /// context for the extension type
         /// </summary>
         T KernelArguments { get; set; }
     }
@@ -37,12 +37,12 @@ namespace Senparc.AI.Interfaces
         where T : ISenparcKernelArguments
     {
         // /// <summary>
-        // /// 扩展类型的上下文
+        // /// context for the extension type
         // /// </summary>
-        // [Obsolete("请使用 ContextVariables", true)]
+        // [Obsolete("please use ContextVariables", true)]
         // T ExtendContext { get; set; }
         /// <summary>
-        /// 扩展类型的上下文
+        /// context for the extension type
         /// </summary>
         T AgentKernelArguments { get; set; }
     }

@@ -24,7 +24,7 @@ using Senparc.CO2NET;
 namespace Senparc.AI.Kernel.Helpers
 {
     /// <summary>
-    /// SemanticKernel 帮助类
+    /// SemanticKernel helper class
     /// </summary>
     public partial class SemanticKernelHelper
     {
@@ -43,12 +43,12 @@ namespace Senparc.AI.Kernel.Helpers
         public HttpClient _httpClient;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="aiSetting"></param>
         /// <param name="loggerFactory"></param>
-        /// <param name="httpClient">为 null 时，自动使用 <see cref="LoggingHttpMessageHandler"/> 构建 <see cref="HttpClient" /></param>
-        /// <param name="enableLog">是否开启 <paramref name="httpClient"/> 的日志（仅在 <paramref name="httpClient"/> 为 null 时，会自动构建 <see cref="LoggingHttpMessageHandler"/> 时生效。</param>
+        /// <param name="httpClient">When null, automatically build <see cref="HttpClient" /> with <see cref="LoggingHttpMessageHandler"/></param>
+        /// <param name="enableLog">Whether to enable logging for <paramref name="httpClient"/>. Effective only when <paramref name="httpClient"/> is null and <see cref="LoggingHttpMessageHandler"/> is automatically built.</param>
         public SemanticKernelHelper(ISenparcAiSetting? aiSetting = null, ILoggerFactory? loggerFactory = null, HttpClient httpClient = null, bool enableLog = false)
         {
             AiSetting = aiSetting ?? Senparc.AI.Config.SenparcAiSetting;
@@ -57,7 +57,7 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// 重置 HttpClient
+        /// Reset HttpClient
         /// </summary>
         /// <param name="httpClient"></param>
         public void ResetHttpClient(HttpClient httpClient = null, bool enableLog = false)
@@ -73,7 +73,7 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// 获取对话 ServiceId
+        /// Get conversation ServiceId
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="modelName"></param>
@@ -84,10 +84,10 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// 获取 SemanticKernel 对象
+        /// Get the SemanticKernel object
         /// </summary>
-        /// <param name="kernelBuilderAction"><see cref="KernelBuilder"/> 在进行 <see cref="KernelBuilder.Build()"/> 之前需要插入的操作</param>
-        /// <param name="refresh" default="false">是否需要刷新kernel</param>
+        /// <param name="kernelBuilderAction">Operations to insert into <see cref="KernelBuilder"/> before <see cref="KernelBuilder.Build()"/></param>
+        /// <param name="refresh" default="false">Whether the kernel needs to be refreshed</param>
         /// <returns></returns>
         public Microsoft.SemanticKernel.Kernel GetKernel(Action<IKernelBuilder>? kernelBuilderAction = null, bool refresh = false)
         {
@@ -101,7 +101,7 @@ namespace Senparc.AI.Kernel.Helpers
 
 
         /// <summary>
-        /// Build 新的 Kernel 对象
+        /// Build a new Kernel object
         /// </summary>
         /// <param name="kernelBuilder"></param>
         /// <param name="kernelBuilderAction"></param>
@@ -120,7 +120,7 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// 重新设置 SenparcAiSetting 参数
+        /// Reset SenparcAiSetting parameters
         /// </summary>
         /// <param name="aiSetting"></param>
         public void ResetSenparcAiSetting(ISenparcAiSetting aiSetting)
@@ -131,7 +131,7 @@ namespace Senparc.AI.Kernel.Helpers
         #region RequestSettings
 
         /// <summary>
-        /// 根据不同的 AiPlatform 类型生成不同的 ExecutionSettings 对象
+        /// Generate different ExecutionSettings objects for different AiPlatform types
         /// </summary>
         /// <param name="temperature"></param>
         /// <param name="topP"></param>
@@ -147,7 +147,7 @@ namespace Senparc.AI.Kernel.Helpers
 
             if (senparcAiSetting == null)
             {
-                throw new SenparcAiException("全局未设置 Senparc.AI.Config.SenparcAiSetting，请在参数中提供相关配置！");
+                throw new SenparcAiException("Global Senparc.AI.Config.SenparcAiSetting is not set. Provide the relevant configuration in the parameters.");
             }
 
             var aiPlatForm = senparcAiSetting.AiPlatform;
@@ -164,8 +164,8 @@ namespace Senparc.AI.Kernel.Helpers
                 //    StopSequences = stopSequences
                 //},
                 //AiPlatform.AzureOpenAI =>
-                //AiPlatform.NeuCharAI => 
-                //AiPlatform.HuggingFace => 
+                //AiPlatform.NeuCharAI =>
+                //AiPlatform.HuggingFace =>
                 _ => new OpenAIPromptExecutionSettings()
                 {
                     Temperature = temperature,
@@ -181,7 +181,7 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// 根据不同的 AiPlatform 类型生成不同的 ExecutionSettings 对象
+        /// Generate different ExecutionSettings objects for different AiPlatform types
         /// </summary>
         /// <param name="promptConfigParameter"></param>
         /// <param name="senparcAiSetting"></param>

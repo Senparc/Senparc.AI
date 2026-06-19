@@ -1,4 +1,4 @@
-﻿using AutoGen.Core;
+using AutoGen.Core;
 using Senparc.CO2NET.Trace;
 using System;
 using System.Collections.Generic;
@@ -58,7 +58,7 @@ namespace Senparc.AI.Agents.AgentUtility
             }
             catch (Exception ex)
             {
-                SenparcTrace.SendCustomLog("PrintWechatMessageMiddleware 异常", ex.ToString());
+                SenparcTrace.SendCustomLog("PrintWechatMessageMiddleware exception", ex.ToString());
                 SenparcTrace.BaseExceptionLog(ex);
                 throw;
             }

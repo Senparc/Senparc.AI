@@ -1,6 +1,6 @@
-﻿/**
-Last modified: 20231207 - 修复拼写错误和中文编码错误
-Last modifier: FelixJ 
+/**
+Last modified: 20231207 - fixed spelling and Chinese encoding issues
+Last modifier: FelixJ
 */
 
 
@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace Senparc.AI.Kernel
 {
     /// <summary>
-    /// Senparc.AI.Kernel 模块的 AI 接口返回信息
+    /// Senparc.AI.Kernel moduleof AI API return information
     /// </summary>
     public class SenparcAiResult : IAiResult
     {

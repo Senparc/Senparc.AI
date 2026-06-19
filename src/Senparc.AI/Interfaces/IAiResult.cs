@@ -1,28 +1,28 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Senparc.AI.Interfaces
 {
     /// <summary>
-    /// AI 调用返回的最终结果接口
+    /// Final result API returned by an AI call
     /// </summary>
     public interface IAiResult
     {
         /// <summary>
-        /// 请求实际提供的输入参数，一般为 prompt
+        /// actual input parameter provided by the request, usually prompt
         /// </summary>
         string InputContent { get; set; }
         /// <summary>
-        /// 请求实际提供的上下文
+        /// actual context provided by the request
         /// </summary>
         IAiContext InputContext { get; set; }
         /// <summary>
-        /// 输出内容（文本）
+        /// output content(text)
         /// </summary>
         string OutputString { get; set; }
         /// <summary>
-        /// 最近一个异常
+        /// most recent exception
         /// </summary>
         Exception? LastException { get; set; }
     }

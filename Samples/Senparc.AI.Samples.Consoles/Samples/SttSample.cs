@@ -14,7 +14,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.Consoles.Samples
 {
     /// <summary>
-    /// 语音转文字（Speech-To-Text）示例 - 使用 Whisper 模型
+    /// Speech-to-text sample using the Whisper model.
     /// </summary>
     public class SttSample
     {
@@ -27,14 +27,14 @@ namespace Senparc.AI.Samples.Consoles.Samples
         {
             this._serviceProvider = serviceProvider;
             _aiHandler = aiHandler;
-            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);
         }
 
         public async Task RunAsync()
         {
             var sttSetting = Senparc.AI.Config.SenparcAiSetting;
             
-            // 检查 API Key 配置
+            // Check API key configuration.
             if ((
                     sttSetting.OpenAIKeys == null ||
                     sttSetting.OpenAIKeys.ApiKey.IsNullOrEmpty()
@@ -48,16 +48,16 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 )
                )
             {
-                await Console.Out.WriteLineAsync("Whisper 接口需要设置 OpenAI 或 AzureOpenAI ApiKey 后才能使用！");
+                await Console.Out.WriteLineAsync("The Whisper API requires an OpenAI or Azure OpenAI API key before use.");
                 return;
             }
 
             await Console.Out.WriteLineAsync("========================================");
-            await Console.Out.WriteLineAsync("Whisper 语音转文字（STT）示例开始运行");
+            await Console.Out.WriteLineAsync("Whisper speech-to-text (STT) sample started");
             await Console.Out.WriteLineAsync("========================================");
             await Console.Out.WriteLineAsync();
-            await Console.Out.WriteLineAsync("请输入音频文件路径（支持格式：flac, m4a, mp3, mp4, mpeg, mpga, oga, ogg, wav, webm）");
-            await Console.Out.WriteLineAsync("输入 'exit' 退出程序");
+            await Console.Out.WriteLineAsync("Enter an audio file path. Supported formats: flac, m4a, mp3, mp4, mpeg, mpga, oga, ogg, wav, webm.");
+            await Console.Out.WriteLineAsync("Enter 'exit' to leave the program.");
             await Console.Out.WriteLineAsync();
 
             var userId = "Jeffrey";
@@ -74,65 +74,65 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 
                 if (audioFilePath.IsNullOrEmpty())
                 {
-                    await Console.Out.WriteLineAsync("请输入有效的文件路径！");
+                    await Console.Out.WriteLineAsync("Please enter a valid file path.");
                     await Console.Out.WriteLineAsync();
                     continue;
                 }
 
-                // 检查文件是否存在
+                // Check whether the file exists.
                 if (!File.Exists(audioFilePath))
                 {
-                    await Console.Out.WriteLineAsync($"文件不存在：{audioFilePath}");
+                    await Console.Out.WriteLineAsync($"File not found: {audioFilePath}");
                     await Console.Out.WriteLineAsync();
                     continue;
                 }
 
                 try
                 {
-                    await Console.Out.WriteLineAsync("正在转换音频为文本，请等待...");
+                    await Console.Out.WriteLineAsync("Converting audio to text. Please wait...");
                     await Console.Out.WriteLineAsync();
 
-                    // 读取音频文件
+                    // Read the audio file.
                     await using var audioFileStream = File.OpenRead(audioFilePath);
                     var audioFileBinaryData = await BinaryData.FromStreamAsync(audioFileStream);
                     var fileName = Path.GetFileName(audioFilePath);
                     var fileExtension = Path.GetExtension(audioFilePath).ToLower();
 
-                    await Console.Out.WriteLineAsync($"[调试] 文件名: {fileName}, 扩展名: {fileExtension}");
+                    await Console.Out.WriteLineAsync($"[Debug] File name: {fileName}, extension: {fileExtension}");
 
-                    // 创建音频内容（mimeType 设置为 null，让SDK自动处理）
+                    // Create audio content; use a null MIME type so the SDK can infer it.
                     var audioContent = new Microsoft.SemanticKernel.AudioContent(audioFileBinaryData, mimeType: null);
                     
-                    // 创建执行设置，必须包含文件名
+                    // Create execution settings; the file name is required.
                     var executionSettings = new Microsoft.SemanticKernel.Connectors.OpenAI.OpenAIAudioToTextExecutionSettings(fileName)
                     {
-                        Language = "zh" // 中文识别，如果是英文可以设置为 "en"
+                        Language = "zh" // Use "en" for English recognition.
                     };
 
-                    // 调用 Whisper API 进行语音转文字
+                    // Call the Whisper API for speech-to-text.
                     var textContent = await audioToTextService.GetTextContentAsync(audioContent, executionSettings);
 
                     await Console.Out.WriteLineAsync("========================================");
-                    await Console.Out.WriteLineAsync("转换结果：");
+                    await Console.Out.WriteLineAsync("Conversion result:");
                     await Console.Out.WriteLineAsync("========================================");
                     await Console.Out.WriteLineAsync(textContent.Text);
                     await Console.Out.WriteLineAsync("========================================");
                 }
                 catch (Exception ex)
                 {
-                    await Console.Out.WriteLineAsync($"转换失败：{ex.Message}");
+                    await Console.Out.WriteLineAsync($"Conversion failed: {ex.Message}");
                     if (ex.InnerException != null)
                     {
-                        await Console.Out.WriteLineAsync($"详细错误：{ex.InnerException.Message}");
+                        await Console.Out.WriteLineAsync($"Detailed error: {ex.InnerException.Message}");
                     }
                 }
 
                 await Console.Out.WriteLineAsync();
-                await Console.Out.WriteLineAsync("请继续输入音频文件路径，或输入 'exit' 退出：");
+                await Console.Out.WriteLineAsync("Enter another audio file path, or enter 'exit' to leave:");
             }
 
             await Console.Out.WriteLineAsync();
-            await Console.Out.WriteLineAsync("STT 示例已退出。");
+            await Console.Out.WriteLineAsync("STT sample exited.");
         }
     }
 }

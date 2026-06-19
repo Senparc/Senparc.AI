@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
 using System;
@@ -8,7 +8,7 @@ namespace Senparc.AI.Kernel.Entities
 {
     public class SenparcAiArguments : IAiContext<KernelArguments>
     {
-   
+
         private KernelArguments? _kernelArguments { get; set; }
 
 
@@ -28,7 +28,7 @@ namespace Senparc.AI.Kernel.Entities
             {
                 if (value is not Microsoft.SemanticKernel.KernelArguments)
                 {
-                    throw new SenparcAiException("Context 类型必须为 IDictionary<string, object?>");
+                    throw new SenparcAiException("Context type must be IDictionary<string, object?>");
                 }
                 KernelArguments = (KernelArguments)value;
             }

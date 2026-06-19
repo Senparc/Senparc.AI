@@ -1,4 +1,4 @@
-﻿#region Apache License Version 2.0
+#region Apache License Version 2.0
 /*----------------------------------------------------------------
 
 Copyright 2024 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
@@ -20,10 +20,10 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 
 /*----------------------------------------------------------------
     Copyright (C) 2023 Senparc
-    
-    文件名：SenparcAiTrace.cs
-    文件功能描述：跟踪日志相关
-    
+
+    file name:SenparcAiTrace.cs
+    file function description: trace-log related
+
 ----------------------------------------------------------------*/
 
 using Senparc.AI.Exceptions;
@@ -35,17 +35,17 @@ using System.IO;
 namespace Senparc.AI.Trace
 {
     /// <summary>
-    /// 微信日志跟踪
+    /// WeChat log tracing
     /// </summary>
     public class SenparcAiTrace : SenparcTrace
     {
         /// <summary>
-        /// 记录WeixinException日志时需要执行的任务
+        /// Task to execute when recording WeixinException logs
         /// </summary>
         public static Action<SenparcAiException> OnSenparcAiExceptionFunc;
 
         /// <summary>
-        /// 记录系统日志
+        /// Record system log
         /// </summary>
         /// <param name="messageFormat"></param>
         /// <param name="param"></param>
@@ -55,7 +55,7 @@ namespace Senparc.AI.Trace
         }
 
         /// <summary>
-        /// API请求日志（接收结果）
+        /// API request log(receive result)
         /// </summary>
         /// <param name="url"></param>
         /// <param name="stream"></param>
@@ -68,10 +68,10 @@ namespace Senparc.AI.Trace
             }
         }
 
-        #region SenparcAiException 相关日志
+        #region SenparcAiException related log
 
         /// <summary>
-        /// SenparcAiException 日志
+        /// SenparcAiException log
         /// </summary>
         /// <param name="ex"></param>
         public static void SenparcAiExceptionLog(SenparcAiException ex)
@@ -83,14 +83,14 @@ namespace Senparc.AI.Trace
             using (var traceItem = new SenparcTraceItem(SenparcTrace._logEndActon, "SenparcAiExceptionLog"))
             {
                 traceItem.Log(ex.GetType().Name);
-                traceItem.Log("ModelName：{0}", ex.ModelName);
-                traceItem.Log("EndpointUrl：{0}", ex.EndpointUrl);
-                traceItem.Log("Message：{0}", ex.Message);
-                traceItem.Log("StackTrace：{0}", ex.StackTrace);
+                traceItem.Log("ModelName:{0}", ex.ModelName);
+                traceItem.Log("EndpointUrl:{0}", ex.EndpointUrl);
+                traceItem.Log("Message:{0}", ex.Message);
+                traceItem.Log("StackTrace:{0}", ex.StackTrace);
                 if (ex.InnerException != null)
                 {
-                    traceItem.Log("InnerException：{0}", ex.InnerException.Message);
-                    traceItem.Log("InnerException.StackTrace：{0}", ex.InnerException.StackTrace);
+                    traceItem.Log("InnerException:{0}", ex.InnerException.Message);
+                    traceItem.Log("InnerException.StackTrace:{0}", ex.InnerException.StackTrace);
                 }
             }
 

@@ -15,13 +15,13 @@ namespace Senparc.AI.AgentKernel.Helpers
     {
 
         /// <summary>
-        /// 设置 DallE 接口，默认强制使用 OpenAI 权限
+        /// Set the DallE interface. OpenAI credentials are forced by default.
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="kernelBuilder"></param>
-        /// <param name="azureModeId">AzureOpenAI 的模型名称</param>
+        /// <param name="azureModeId">AzureOpenAI model name</param>
         /// <param name="senparcAiSetting"></param>
-        /// <param name="azureDallEDepploymentName">AzureAI 的 DallE 模型部署名称</param>
+        /// <param name="azureDallEDepploymentName">AzureAI DallE model deployment name</param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
         public IAIKernelBuilder ConfigImageGeneration(string userId, string modelName = null, ISenparcAiSetting senparcAiSetting = null,
@@ -43,7 +43,7 @@ namespace Senparc.AI.AgentKernel.Helpers
                 AiPlatform.AzureOpenAI => kernelBuilder.AddAzureOpenAITextToImage(senparcAiSetting, senparcAiSetting.ApiKey, modelName, new OpenAIClientOptions()),
                 AiPlatform.NeuCharAI => kernelBuilder.AddAzureOpenAITextToImage(senparcAiSetting, senparcAiSetting.ApiKey, modelName, new OpenAIClientOptions()),
                 //new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
-                _ => throw new SenparcAiException($"ConfigImageGeneration 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"ConfigImageGeneration does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };
 
             return kernelBuilder;

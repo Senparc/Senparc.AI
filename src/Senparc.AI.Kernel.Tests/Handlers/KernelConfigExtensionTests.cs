@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
@@ -24,7 +24,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                             as SemanticAiHandler;
             var userId = "JeffreySu";
 
-            //测试 TextEmbedding
+            //Test TextEmbedding
             var iWantToRun = handler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, userId)
@@ -40,7 +40,7 @@ namespace Senparc.AI.Kernel.Handlers.Tests
             string embeddingModelName = setting.ModelName.Embedding;
             string embeddingDeployName = setting.DeploymentName ?? embeddingModelName;//"text-embedding-ada-002";
 
-            //新方法（异步，同时进行）
+            //New method (asynchronous, concurrent)
             iWantToRun
                 .MemorySaveInformation(textCompletionModelName, MemoryCollectionName, id: "info1", text: "My name is Andrea", azureDeployName: embeddingDeployName)
                 .MemorySaveInformation(textCompletionModelName, MemoryCollectionName, id: "info2", text: "I currently work as a tourist operator", azureDeployName: embeddingDeployName)
@@ -79,24 +79,24 @@ namespace Senparc.AI.Kernel.Handlers.Tests
                 Console.WriteLine();
             }
 
-            // 测试 recall
+            // test recall
 
             Assert.AreEqual(0, iWantToRun.Kernel.Data.Count);
 
             var memory = iWantToRun.SemanticKernelHelper.TryGetMemory();
 
-            iWantToRun.ImportPluginFromObject(new TextMemoryPlugin(memory)/*, "Retrieve"*/);//TODO: 简化方法
+            iWantToRun.ImportPluginFromObject(new TextMemoryPlugin(memory)/*, "Retrieve"*/);//TODO: simplify method
 
-            await Console.Out.WriteLineAsync("\nFunctionsViews：");
+            await Console.Out.WriteLineAsync("\nFunctionsViews:");
             foreach (var item in iWantToRun.Kernel.Plugins)
             {
                 await Console.Out.WriteLineAsync(item.ToJson());
             }
             // Save, Remove, Recall, Retrieve
 
-            //没有增加实际的 Funciton，只有默认的 4 个
-            Assert.AreEqual(0 + 1/* 1 个 Skill */, iWantToRun.Kernel.Plugins.Count);
-            Assert.AreEqual(4 /* 4 个默认的 Function */, iWantToRun.Kernel.Plugins.First().Count());
+            //No actual Function was added. Only the default 4 exist.
+            Assert.AreEqual(0 + 1/* 1 Skill */, iWantToRun.Kernel.Plugins.Count);
+            Assert.AreEqual(4 /* 4 default Functions */, iWantToRun.Kernel.Plugins.First().Count());
 
             const string skPrompt = @"
 ChatBot can have a conversation with you about any topic.
@@ -119,9 +119,9 @@ ChatBot: ";
 
             var chatFunction = iWantToRun.CreateFunctionFromPrompt(skPrompt, maxTokens: 200, temperature: 0.8);
 
-            //增加了 1 个 Function，但不会影响 Plugins 数量
-            Assert.AreEqual(0 + 1/* 1 个 Skill */, iWantToRun.Kernel.Plugins.Count);
-            Assert.AreEqual(4 /* 4 个默认的 Function */, iWantToRun.Kernel.Plugins.First().Count());
+            //Added 1 Function, but it does not affect the Plugin count
+            Assert.AreEqual(0 + 1/* 1 Skill */, iWantToRun.Kernel.Plugins.Count);
+            Assert.AreEqual(4 /* 4 default Functions */, iWantToRun.Kernel.Plugins.First().Count());
 
             var context = iWantToRun.CreateNewArguments().arguments;
 
@@ -132,11 +132,11 @@ ChatBot: ";
             context["fact5"] = "what do I do for work?";
             context["fact6"] = "what company I work for?";
             context["fact7"] = "how many years of R&D experience does Senparc has?";
-#pragma warning disable SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning disable SKEXP0052 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
             context[TextMemoryPlugin.CollectionParam] = MemoryCollectionName;
             context[TextMemoryPlugin.LimitParam] = "2";
             context[TextMemoryPlugin.RelevanceParam] = "0.8";
-#pragma warning restore SKEXP0052 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning restore SKEXP0052 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
 
             var history = "[]";
             context["history"] = history;
@@ -175,9 +175,9 @@ ChatBot: ";
             var handler = serviceProvider.GetRequiredService<IAiHandler>()
                             as SemanticAiHandler;
             var userId = "JeffreySu";
-          
 
-            //测试 TextEmbedding
+
+            //Test TextEmbedding
             var iWantToRun = handler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, userId)
@@ -193,24 +193,24 @@ ChatBot: ";
             var githubFiles = new Dictionary<string, string>()
             {
                 ["https://github.com/NeuCharFramework/NcfDocs/blob/main/start/home/index.md"]
-                    = "README: NCF 简介，源码地址，QQ 技术交流群",
+                    = "README: NCF introduction, source address, QQ technical exchange group",
                 ["https://github.com/NeuCharFramework/NcfDocs/blob/main/start/start-develop/get-docs.md"]
-                    = "获取文档，在线阅读官方文档，在 NCF 站点中进入官方文档，下载源码后使用 npm 本地运行，下载文档源码，运行 npm 命令",
+                    = "Get documents, read official documents online, open official documents from the NCF site, run documentation locally with npm after downloading the source, download documentation source, run npm commands",
                 ["https://github.com/NeuCharFramework/NcfDocs/blob/main/start/start-develop/run-ncf.md"]
-                    = "使用 Visual Studio 运行 NCF"
+                    = "Run NCF with Visual Studio"
             };
 
             var j = 0;
             var dt2 = SystemTime.Now;
-         
-            //载入
+
+            //Load
             foreach (var entry in githubFiles)
             {
                 iWantToRun.MemorySaveReference(
                     modelName: embeddingModelName,
                     collection: memoryCollectionName,
-                    description: entry.Value,//只用于展示记录
-                    text: entry.Value,//真正用于生成 embedding
+                    description: entry.Value,//Used only to display records
+                    text: entry.Value,//Actually used to generate embedding
                     externalId: entry.Key,
                     externalSourceName: "NeuCharFramework",
                     azureDeployName: embeddingDeployName
@@ -228,17 +228,17 @@ ChatBot: ";
             await Console.Out.WriteLineAsync($"MemorySave cost:{SystemTime.DiffTotalMS(dt2)}ms");
             await Console.Out.WriteLineAsync();
 
-            //提问
+            //Question
             var dt3 = SystemTime.Now;
 
-            var askPrompt = "我正在使用 Visutal Studio，如何进行开发？";
+            var askPrompt = "I am using Visual Studio. How do I develop with it?";
             var memories = await iWantToRun.MemorySearchAsync(embeddingModelName, memoryCollectionName, askPrompt, limit: 5, minRelevanceScore: 0.77);
 
             var dt4 = SystemTime.Now;
 
-            await Console.Out.WriteLineAsync("提问：" + askPrompt);
+            await Console.Out.WriteLineAsync("Question:" + askPrompt);
             var h = 0;
-#pragma warning disable SKEXP0003 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning disable SKEXP0003 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
             await foreach (MemoryQueryResult memory in memories.MemoryQueryResult)
             {
                 await Console.Out.WriteLineAsync($"Result {++h}:");
@@ -248,10 +248,10 @@ ChatBot: ";
                 await Console.Out.WriteLineAsync("  Relevance:\t" + memory.Relevance);
                 await Console.Out.WriteLineAsync();
             }
-#pragma warning restore SKEXP0003 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning restore SKEXP0003 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
             if (h == 0)
             {
-                await Console.Out.WriteLineAsync("没有匹配结果");
+                await Console.Out.WriteLineAsync("No matching result");
             }
 
             await Console.Out.WriteLineAsync($" -- query cost:{SystemTime.DiffTotalMS(dt4)}ms");

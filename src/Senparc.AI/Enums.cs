@@ -1,42 +1,42 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Senparc.AI
 {
     /// <summary>
-    /// AI 平台类型
+    /// AI platform type
     /// </summary>
     public enum AiPlatform
     {
         UnSet = 0,
         None = 1,
         Other = 2,
-        //[Obsolete("已过期，请使用 NeuCharAI", true)]
+        //[Obsolete("expired, please use NeuCharAI", true)]
         //NeuCharOpenAI = 4,
         NeuCharAI = 4,
         OpenAI = 8,
         AzureOpenAI = 16,
         HuggingFace = 32,
-        //Oobabooga = 64,//未实现
+        //Oobabooga = 64,//not implemented
         FastAPI = 128,
         Ollama = 256,
         DeepSeek = 512
     }
 
     /// <summary>
-    /// 配置模型类型
+    /// Configure model type
     /// </summary>
     public enum ConfigModel
     {
-        /*注意：值一旦确定，请勿修改！*/
+        /*note:Do not modify values after they are determined!*/
         Other = -1,
         Unknown = 0,
         TextCompletion = 1,
         Chat = 2,
         TextEmbedding = 3,
         TextToImage = 4,
-        [Obsolete("请使用 " + nameof(TextToImage))]
+        [Obsolete("please use " + nameof(TextToImage))]
         ImageGeneration = 4,
         ImageToText = 5,
         TextToSpeech = 6,
@@ -44,7 +44,7 @@ namespace Senparc.AI
         SpeechRecognition = 8
     }
 
-#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+#pragma warning disable CS1591 // missing XML comment for publicly visible type or member XML comment
     //public enum VectorDBType
     //{
     //    Memory,
@@ -58,5 +58,5 @@ namespace Senparc.AI
     //    Default = Memory,
     //}
 
-#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
+#pragma warning restore CS1591 // missing XML comment for publicly visible type or member XML comment
 }

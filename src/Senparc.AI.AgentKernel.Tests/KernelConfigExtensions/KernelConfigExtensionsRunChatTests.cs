@@ -52,7 +52,7 @@ public class KernelConfigExtensionsRunChatTests : KernelTestBase
     {
         if (!RunChatTestHelper.SupportsStreaming(_senparcAiSetting))
         {
-            Assert.Inconclusive("当前 AiPlatform 不支持流式输出，已跳过。");
+            Assert.Inconclusive("current AiPlatform does not support streaming output, skipped.");
             return;
         }
 
@@ -62,7 +62,7 @@ public class KernelConfigExtensionsRunChatTests : KernelTestBase
 
         var result = await iWantToRun.RunChatAsync(request, _ => callbackCount++);
 
-        Assert.IsTrue(callbackCount > 0, "流式回调应至少执行一次");
+        Assert.IsTrue(callbackCount > 0, "The streaming callback should execute at least once");
         Assert.IsNotNull(result.StreamResult);
         Assert.IsFalse(string.IsNullOrWhiteSpace(result.OutputString));
         RunChatTestHelper.AssertAgentResponse(result.Result);
@@ -74,7 +74,7 @@ public class KernelConfigExtensionsRunChatTests : KernelTestBase
     {
         if (!RunChatTestHelper.SupportsStreaming(_senparcAiSetting))
         {
-            Assert.Inconclusive("当前 AiPlatform 不支持流式输出，已跳过。");
+            Assert.Inconclusive("current AiPlatform does not support streaming output, skipped.");
             return;
         }
 
@@ -98,7 +98,7 @@ public class KernelConfigExtensionsRunChatTests : KernelTestBase
     {
         if (!RunChatTestHelper.SupportsStreaming(_senparcAiSetting))
         {
-            Assert.Inconclusive("当前 AiPlatform 不支持流式输出，已跳过。");
+            Assert.Inconclusive("current AiPlatform does not support streaming output, skipped.");
             return;
         }
 
@@ -126,7 +126,7 @@ public class KernelConfigExtensionsRunChatTests : KernelTestBase
     {
         if (!RunChatTestHelper.SupportsStreaming(_senparcAiSetting))
         {
-            Assert.Inconclusive("当前 AiPlatform 不支持流式输出，已跳过。");
+            Assert.Inconclusive("current AiPlatform does not support streaming output, skipped.");
             return;
         }
 

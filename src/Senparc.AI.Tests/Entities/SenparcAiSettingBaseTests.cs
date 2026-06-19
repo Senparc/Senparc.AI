@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.Entities;
 using System;
 using System.Collections.Generic;
@@ -16,16 +16,16 @@ namespace Senparc.AI.Tests.Entities
         {
             var senparcAiSetting = new SenparcAiSettingBase();
 
-            //不进行任何设置
+            //do not perform any setting
             Assert.IsFalse(senparcAiSetting.IsOpenAiKeysSetted);
 
-            //设置 ApiKey
+            //setting ApiKey
             senparcAiSetting.OpenAIKeys = new OpenAIKeys()
             {
                 ApiKey = "MyApiKey"
             };
             Assert.IsTrue(senparcAiSetting.IsOpenAiKeysSetted);
-            
+
         }
     }
 }

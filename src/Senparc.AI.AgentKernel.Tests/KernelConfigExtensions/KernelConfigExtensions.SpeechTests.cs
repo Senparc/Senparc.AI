@@ -83,7 +83,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
 
             var audioFilePath = "../../../STT-Test.m4a";
             var result = await iWantToRun.Kernel.SpeechToTextAsync(audioFilePath);
-            Assert.AreEqual("你好,1234567890", result.Value.Text);
+            Assert.AreEqual("\u4F60\u597D,1234567890", result.Value.Text);
             Console.WriteLine(result.Value.Text);
 
         }
@@ -99,12 +99,12 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
             //await Assert.ThrowsExceptionAsync<Exception>(async () =>
             //    await iWantToRun.Kernel.TextToSpeechAsync("hello", GeneratedSpeechVoice.Alloy));
 
-#pragma warning disable OPENAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning disable OPENAI001 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
             System.ClientModel.ClientResult<BinaryData>? result = await iWantToRun.Kernel.TextToSpeechAsync("hello, welcome to use Senparc.AI.", GeneratedSpeechVoice.Alloy, new SpeechGenerationOptions()
             {
                 SpeedRatio = 0.8f, Instructions =  "Use a friendly tone. Emphasize the word 'welcome'."
             });
-#pragma warning restore OPENAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning restore OPENAI001 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
             Assert.IsNotNull(result);
             var outputPath = "output.mp3";
             using (var fileStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write))

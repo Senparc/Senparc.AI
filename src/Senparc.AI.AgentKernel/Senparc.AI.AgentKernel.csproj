@@ -11,7 +11,7 @@
 		<RootNamespace>Senparc.AI.AgentKernel</RootNamespace>
 		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
 		<Description>
-			Senparc.AI AgentKernel 模块，基于 Microsoft Agent Framework，提供 Senparc.AI 标准接口实现，支持 Chat、Embedding、SpeechToText、TextToSpeech、TextToImage、向量存储等能力
+			Senparc.AI AgentKernel module based on Microsoft Agent Framework. It provides Senparc.AI standard interface implementations and supports Chat, Embedding, SpeechToText, TextToSpeech, TextToImage, vector storage, and related capabilities.
 		</Description>
 		<Copyright>Senparc Copyright © 2004~2026</Copyright>
 		<PackageTags>
@@ -22,17 +22,17 @@
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<ProjectUrl>https://github.com/Senparc/Senparc.AI</ProjectUrl>
 		<Title>Senparc.AI.AgentKernel.dll</Title>
-		<Summary>Senparc.AI AgentKernel 模块</Summary>
+		<Summary>Senparc.AI AgentKernel module</Summary>
 		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI</PackageProjectUrl>
 		<PackageIcon>icon.jpg</PackageIcon>
 		<PackageReleaseNotes>
 			[2026-05-21] v0.1.0-preview.1 Initial release based on Microsoft Agent Framework
-			1、AgentAiHandler / AgentKernelHelper：Chat、Embedding、多平台模型接入
-			2、AiKernel / AIKernelBuilder 链式配置 API（KernelConfigExtensions）
-			3、AgentSession 多轮对话；BuildKernelAsync / BuildKernelWithAgentSessionAsync
-			4、EmbeddingDimensions、向量存储（InMemory / Qdrant / Redis 等）
-			5、修复 HttpMessageHandler 链、日志流式读取及 HuggingFace 扩展命名
-			[2026-05-25] v0.1.1 添加 TextSearchStore
+			1, AgentAiHandler / AgentKernelHelper:Chat, Embedding, multi-platform model integration
+			2, AiKernel / AIKernelBuilder chainable configuration API(KernelConfigExtensions)
+			3, AgentSession multi-turn conversation;BuildKernelAsync / BuildKernelWithAgentSessionAsync
+			4, EmbeddingDimensions, vector storage(InMemory / Qdrant / Redis and others)
+			5, fix HttpMessageHandler chain, logging stream reads and HuggingFace extension naming
+			[2026-05-25] v0.1.1 add TextSearchStore
 			[2026-05-26] v0.1.2 Open Streaming Chat mode for AgentKernel
 			[2026-05-30] v0.1.4 Add extension functions to, such as Arguments Replacement, Auto search function-calling target
 			[2026-05-30] v0.1.5 Add TextToImage functions

@@ -47,7 +47,7 @@ namespace Senparc.AI.AgentKernel.HttpMessageHandlers
 
         public LoggingHttpMessageHandler(HttpMessageHandler innerHandler, bool enableLog = false) : base(innerHandler)
         {
-            //TODO: 增加 ILoggerFactory? loggerFactory = null
+            //TODO: add ILoggerFactory? loggerFactory = null
             EnableLog = enableLog;
         }
 

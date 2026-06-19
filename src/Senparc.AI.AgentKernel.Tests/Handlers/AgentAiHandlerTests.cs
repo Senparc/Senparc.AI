@@ -48,7 +48,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
                          .IWantTo()
                          .ConfigModel(ConfigModel.Chat, "Jeffrey")
                          .BuildKernel()
-                         .RunChatAsync("余弦相似度在AI训练和RAG过程中，如何被使用到了？每50个字换一行。 ");
+                         .RunChatAsync("How is cosine similarity used in AI training and RAG? Wrap every 50 words. ");
 
             Assert.IsTrue(result.Result.Text.Length > 0);
             Console.WriteLine(result.Result.Text);
@@ -59,7 +59,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
         {
             AgentAiHandler agentAiHandler = new AgentAiHandler(_senparcAiSetting);
 
-            var prompts = new[] { "苏州特产有哪些（请您说三个）？", "南京的呢？", "北京的呢？用英文" };
+            var prompts = new[] { "What are the local specialties of Suzhou(please list three)?", "What about Nanjing?", "What about Beijing?in English" };
             var i = 0;
             AgentSession agentSession = null;
             foreach (var prompt in prompts)
@@ -73,11 +73,11 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
 
                 var result = await iWantToRun.RunChatAsync(prompt, agentSession);
 
-                Console.WriteLine($"[{i}]结果：{result.Result.Text}（Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount}）");
+                Console.WriteLine($"[{i}]Result:{result.Result.Text}(Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount})");
 
                 if (i == 1)
                 {
-                    Assert.Contains("盐水鸭", result.Result.Text, "The response should contain '盐水鸭' for the first prompt.");
+                    Assert.Contains("salted duck", result.Result.Text, "The response should contain 'salted duck' for the first prompt.");
                 }
 
                 i++;
@@ -90,13 +90,13 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
         {
             AgentAiHandler agentAiHandler = new AgentAiHandler(_senparcAiSetting);
 
-            var prompts = new[] { "苏州特产有哪些（请您说三个）？", "南京的呢？", "北京的呢？用英文" };
+            var prompts = new[] { "What are the local specialties of Suzhou(please list three)?", "What about Nanjing?", "What about Beijing?in English" };
             var i = 0;
             AgentSession agentSession = null;
 
             var iWantToRun = agentAiHandler.IWantTo()
                       .ConfigModel(ConfigModel.Chat, "Jeffrey")
-                      .BuildKernel(); //同一个对象，自带 Session
+                      .BuildKernel(); //The same object includes its own Session
 
             foreach (var prompt in prompts)
             {
@@ -105,11 +105,11 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
 
                 var result = await iWantToRun.RunChatAsync(prompt, agentSession);
 
-                Console.WriteLine($"[{i}]结果：{result.Result.Text}（Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount}）");
+                Console.WriteLine($"[{i}]Result:{result.Result.Text}(Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount})");
 
                 if (i == 1)
                 {
-                    Assert.DoesNotContain("盐水鸭", result.Result.Text, "The response should contain '盐水鸭' for the first prompt.");
+                    Assert.DoesNotContain("salted duck", result.Result.Text, "The response should not contain 'salted duck' for the first prompt.");
                 }
 
                 i++;
@@ -122,7 +122,7 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
         {
             AgentAiHandler agentAiHandler = new AgentAiHandler(_senparcAiSetting);
 
-            var prompts = new[] { "苏州特产有哪些（请您说三个）？", "南京的呢？", "北京的呢？用英文" };
+            var prompts = new[] { "What are the local specialties of Suzhou(please list three)?", "What about Nanjing?", "What about Beijing?in English" };
             var i = 0;
             AgentSession agentSession = null;
 
@@ -137,11 +137,11 @@ namespace Senparc.AI.AgentKernel.Tests.Handlers
 
                 var result = await iWantToRun.RunChatAsync(prompt, agentSession);
 
-                Console.WriteLine($"[{i}]结果：{result.Result.Text}（Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount}）");
+                Console.WriteLine($"[{i}]Result:{result.Result.Text}(Tokens-input {result.Result.Usage.InputTokenCount} output {result.Result.Usage.OutputTokenCount})");
 
                 if (i == 1)
                 {
-                    Assert.DoesNotContain("盐水鸭", result.Result.Text, "The response should contain '盐水鸭' for the first prompt.");
+                    Assert.DoesNotContain("salted duck", result.Result.Text, "The response should not contain 'salted duck' for the first prompt.");
                 }
 
                 i++;

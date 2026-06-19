@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
@@ -10,12 +10,12 @@ using System.Text;
 namespace Senparc.AI
 {
     /// <summary>
-    /// 注册 Senparc.AI
+    /// Register Senparc.AI
     /// </summary>
     public static class Register
     {
         /// <summary>
-        /// 注册
+        /// register
         /// </summary>
         /// <param name="registerService"></param>
         /// <param name="senparcAiSetting"></param>

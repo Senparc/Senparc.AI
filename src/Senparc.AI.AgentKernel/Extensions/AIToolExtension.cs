@@ -11,7 +11,7 @@ namespace Senparc.AI.AgentKernel.Extensions
     public static class AIToolExtension
     {
         /// <summary>
-        /// 根据某个对象获取到它的 AITools，要求方法上必须有 KernelFunctionAttribute 特性标记
+        /// Get AITools from an object. Methods must be marked with KernelFunctionAttribute.
         /// </summary>
         /// <param name="aiHandler"></param>
         /// <param name="instance"></param>
@@ -20,8 +20,8 @@ namespace Senparc.AI.AgentKernel.Extensions
         {
             var type = instance.GetType();
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                .Where(m => !m.IsSpecialName) // 排除 get/set 属性方法
-                .Where(m => m.DeclaringType == type) // 只取当前类直接定义的方法
+                .Where(m => !m.IsSpecialName) // Exclude get/set property methods
+                .Where(m => m.DeclaringType == type) // Only take methods directly defined on the current class
                 .Where(m => m.GetCustomAttributes().ToList().Exists(z => z is KernelFunctionAttribute))
                 .Select(m => AIFunctionFactory.Create(
                     method: m,

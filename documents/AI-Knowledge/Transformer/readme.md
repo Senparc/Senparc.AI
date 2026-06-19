@@ -1,27 +1,28 @@
-# AI 原理示意工具
+# AI Principle Visualization Tools
 
-当前系列工具用于对 Transformer 及大模型相关的技术进行可视化的示意说明。
+This tool series visualizes concepts related to Transformer models and large-model technologies.
 
-注意：由于网页呈现能力的局限性，和出于示意的需要，无法穷尽所有可能和细节，这些过程只是方便大家理解，详细原理请参见个技术对应论文。
+Note: because web presentation has limits and the diagrams are intended for explanation, these pages do not cover every possible detail. They are simplified aids for understanding. For complete principles, refer to the corresponding papers for each technology.
 
-## AI-Tree.html：
+## AI-Tree.html
 
-展示 AI 部分技术和应用层次关系，双击节点可以平面展示相关上下游的信息。
+Shows relationships between AI technologies and application layers. Double-click a node to display related upstream and downstream information.
 
-## AI-Generation.html：
+## AI-Generation.html
 
-展示 Transformer（GPT、DeepSeek 所使用的基础算法）在 Token 生成过程中的原理（主要是概率）。
+Shows the principle behind token generation in Transformer models such as GPT and DeepSeek, mainly from the probability perspective.
 
 ## AI-MoE.html
 
-展示 MoE（混合专家模型）的内部执行过程和原理。
+Shows the internal execution process and principles of MoE, or mixture-of-experts, models.
 
-> 提示：反复刷新可以查看不同 Prompt 请求案例。
+> Tip: refresh repeatedly to view different prompt request examples.
 
 ## AI-MCP.html
 
-解释 MCP（Model Context Protocol）的配置和访问原理。
+Explains the configuration and access principles of MCP, the Model Context Protocol.
 
-开源项目地址（保持更新）：https://github.com/Senparc/Senparc.AI/tree/main/documemts/AI-Knowledge/Transformer
+Open-source project address, kept up to date:
+https://github.com/Senparc/Senparc.AI/tree/main/documemts/AI-Knowledge/Transformer
 
-> 所有示例继承当前项目 Apache License 2.0 协议开源，支持在培训等场景中免费商用。
+> All samples inherit this project's Apache License 2.0 license and can be used commercially for training and other scenarios.

@@ -1,4 +1,4 @@
-﻿using Senparc.AI.Entities.Keys;
+using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
 using Senparc.CO2NET;
@@ -11,19 +11,19 @@ using System.Text;
 namespace Senparc.AI.Entities
 {
     /// <summary>
-    /// SenparcAiSetting<T> 基类
+    /// Base class for SenparcAiSetting<T>
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract record class SenparcAiSettingBase<T> : SenparcAiSettingBase, ISenparcAiSetting<T>
         where T : ISenparcAiSetting
     {
         /// <summary>
-        /// 多级不同模型配置
+        /// Multi-level model configuration
         /// </summary>
         public virtual ConcurrentDictionary<string, T> Items { get; set; } = new ConcurrentDictionary<string, T>();
 
         /// <summary>
-        /// 获取自定义配置
+        /// Get custom configuration
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -35,63 +35,63 @@ namespace Senparc.AI.Entities
     }
 
     /// <summary>
-    /// SenparcAiSetting 基类
+    /// Base class for SenparcAiSetting
     /// </summary>
     public record class SenparcAiSettingBase : ISenparcAiSetting
     {
         /// <summary>
-        /// 是否处于调试状态
+        /// Whether debug mode is enabled
         /// </summary>
         public virtual bool IsDebug { get; set; }
 
         /// <summary>
-        /// 向量数据库配置
+        /// Vector database configuration
         /// </summary>
         public VectorDB VectorDB { get; set; }
 
         /// <summary>
-        /// 是否使用 OpenAI
+        /// Whether OpenAI is used
         /// </summary>
         public virtual bool UseOpenAI => AiPlatform == AiPlatform.OpenAI;
 
         /// <summary>
-        /// 是否使用 Azure OpenAI
+        /// Whether Azure OpenAI is used
         /// </summary>
         public virtual bool UseAzureOpenAI => AiPlatform == AiPlatform.AzureOpenAI;
 
         /// <summary>
-        /// 是否使用 NeuCharAI
+        /// Whether NeuCharAI is used
         /// </summary>
         public virtual bool UseNeuCharAI => AiPlatform == AiPlatform.NeuCharAI;
 
         /// <summary>
-        /// 是否使用 HuggingFace
+        /// Whether HuggingFace is used
         /// </summary>
         public virtual bool UseHuggingFace => AiPlatform == AiPlatform.HuggingFace;
 
         /// <summary>
-        /// 是否使用 FastAPI
+        /// Whether FastAPI is used
         /// </summary>
         public virtual bool UseFastAPI => AiPlatform == AiPlatform.FastAPI;
 
         /// <summary>
-        /// 是否使用 Ollama
+        /// Whether Ollama is used
         /// </summary>
         public virtual bool Ollama => AiPlatform == AiPlatform.Ollama;
 
         /// <summary>
-        /// 是否使用 DeepSeek
+        /// Whether DeepSeek is used
         /// </summary>
         public virtual bool UseDeepSeek => AiPlatform == AiPlatform.DeepSeek;
 
         /// <summary>
-        /// AI 平台类型
+        /// AI platform type
         /// </summary>
         public virtual AiPlatform AiPlatform { get; set; }
 
         public virtual OpenAIKeys OpenAIKeys { get; set; }
         public virtual NeuCharAIKeys NeuCharAIKeys { get; set; }
-        //[Obsolete("即将过期")]
+        //[Obsolete("Will expire soon")]
         //public virtual NeuCharAIKeys NeuCharOpenAIKeys { get; set; }
         public virtual AzureOpenAIKeys AzureOpenAIKeys { get; set; }
         public virtual HuggingFaceKeys HuggingFaceKeys { get; set; }
@@ -102,7 +102,7 @@ namespace Senparc.AI.Entities
         public virtual DeepSeekKeys DeepSeekKeys { get; set; }
 
         /// <summary>
-        /// Azure OpenAI 或 OpenAI API Key
+        /// Azure OpenAI or OpenAI API key
         /// </summary>
         public virtual string ApiKey => AiPlatform switch
         {
@@ -140,7 +140,7 @@ namespace Senparc.AI.Entities
         public virtual string AzureEndpoint => AzureOpenAIKeys?.AzureEndpoint;
 
         /// <summary>
-        /// Azure OpenAI 版本号
+        /// Azure OpenAI version
         /// </summary>
         public virtual string AzureOpenAIApiVersion => AzureOpenAIKeys?.AzureOpenAIApiVersion;
 
@@ -155,12 +155,12 @@ namespace Senparc.AI.Entities
         public virtual string NeuCharEndpoint => NeuCharAIKeys?.NeuCharEndpoint;
 
         /// <summary>
-        /// Azure OpenAI 版本号
+        /// Azure OpenAI version
         /// </summary>
-        //[Obsolete("已过期，请使用 NeuCharAIApiVersion", true)]
+        //[Obsolete("Expired. Use NeuCharAIApiVersion.", true)]
         //public virtual string NeuCharOpenAIApiVersion => NeuCharAIKeys?.NeuCharAIApiVersion;
         /// <summary>
-        /// Azure OpenAI 版本号
+        /// Azure OpenAI version
         /// </summary>
         public virtual string NeuCharAIApiVersion => NeuCharAIKeys?.NeuCharAIApiVersion;
 
@@ -194,10 +194,10 @@ namespace Senparc.AI.Entities
             VectorDB = new VectorDB() { Type = VectorDBType.Default };
         }
 
-        #region 快速配置方法
+        #region Quick configuration methods
 
         /// <summary>
-        /// 设置 OpenAI
+        /// Set OpenAI
         /// </summary>
         /// <param name="openAIKeys"></param>
         public ISenparcAiSetting SetOpenAI(OpenAIKeys openAIKeys)
@@ -208,7 +208,7 @@ namespace Senparc.AI.Entities
         }
 
         ///<summary>
-        /// 设置 AzureOpenAI
+        /// Set AzureOpenAI
         /// </summary>
         public ISenparcAiSetting SetAzureOpenAI(AzureOpenAIKeys azureOpenAIKeys)
         {
@@ -218,7 +218,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// 设置 NeuCharAI
+        /// Set NeuCharAI
         /// </summary>
         /// <param name="neuCharAIKeys"></param>
         /// <returns></returns>
@@ -230,7 +230,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// 设置 HuggingFace
+        /// Set HuggingFace
         /// </summary>
         /// <param name="huggingFaceKeys"></param>
         /// <returns></returns>
@@ -243,7 +243,7 @@ namespace Senparc.AI.Entities
 
 
         /// <summary>
-        /// 设置 FastAPIKeys
+        /// Set FastAPIKeys
         /// </summary>
         /// <param name="fastAPIKeys"></param>
         /// <returns></returns>
@@ -255,7 +255,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// 设置 Ollama
+        /// Set Ollama
         /// </summary>
         /// <param name="ollamaAPIKeys"></param>
         /// <returns></returns>
@@ -267,7 +267,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// 设置 DeepSeek
+        /// Set DeepSeek
         /// </summary>
         /// <param name="deepSeekKeys"></param>
         /// <returns></returns>
@@ -279,7 +279,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// 设置其他平台
+        /// Set another platform
         /// </summary>
         /// <returns></returns>
         public ISenparcAiSetting SetOtherPlatform()
@@ -300,10 +300,10 @@ namespace Senparc.AI.Entities
             AiPlatform.FastAPI => FastAPIKeys.ModelName,
             AiPlatform.Ollama => OllamaKeys.ModelName,
             AiPlatform.DeepSeek => DeepSeekKeys.ModelName,
-            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 ModelName 输出")
+            _ => throw new SenparcAiException($"not configured {AiPlatform}  ModelName output")
         };
 
-#pragma warning disable CS8603 // 可能返回 null 引用。
+#pragma warning disable CS8603 // Possible null reference return.
         public string DeploymentName => AiPlatform switch
         {
             AiPlatform.AzureOpenAI => AzureOpenAIKeys.DeploymentName,
@@ -313,7 +313,7 @@ namespace Senparc.AI.Entities
             AiPlatform.FastAPI => null,
             AiPlatform.Ollama => null,
             AiPlatform.DeepSeek => null,
-            _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 DeploymentName 输出")
+            _ => throw new SenparcAiException($"not configured {AiPlatform}  DeploymentName output")
         };
 
     }

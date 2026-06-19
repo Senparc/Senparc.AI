@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.Entities;
 using System;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace Senparc.AI.Entities.Tests
 
             //Assert.AreEqual(promptConfigParameter.MaxTokens, testConfigClass.MaxTokens);
             //Assert.AreEqual(testConfigClass.Temperature, promptConfigParameter.Temperature);
-            //Assert.AreEqual(10, promptConfigParameter.TopP);//未设置
+            //Assert.AreEqual(10, promptConfigParameter.TopP);//not set
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using DefaultNamespace;
+using DefaultNamespace;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Senparc.AI.Entities;
@@ -23,13 +23,13 @@ namespace Senparc.AI.Samples.Consoles.Samples
         {
             this._serviceProvider = serviceProvider;
             _aiHandler = aiHandler;
-            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//Synchronize logging setting state
         }
 
         public async Task RunAsync()
         {
-            await Console.Out.WriteLineAsync(@"ChatSample 开始运行");
-            await Console.Out.WriteLineAsync($@"[聊天设置 - 1/2] 请输入机器人系统信息（System Message），默认信息如下，如无需修改可直接输入回车。");
+            await Console.Out.WriteLineAsync(@"ChatSample started");
+            await Console.Out.WriteLineAsync($@"[Chat settings - 1/2] Enter the assistant system message (System Message). The default message is shown below. Press Enter directly if no change is needed.");
             await Console.Out.WriteLineAsync();
             await Console.Out.WriteLineAsync("------ System Message Start ------");
             await Console.Out.WriteLineAsync(Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE);
@@ -43,7 +43,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             int maxHistoryCount = 0;
             while (true)
             {
-                await Console.Out.WriteLineAsync($"[聊天设置 - 2/2] 请输入最大保留历史对话数量，建议 5-20 之间。留空则默认保留 {defaultMaxHistoryCount} 条。");
+                await Console.Out.WriteLineAsync($"[Chat settings - 2/2] Enter the maximum number of history messages to keep. 5 to 20 is recommended. Leave empty to keep the default {defaultMaxHistoryCount} items.");
 
                 var maxHistoryCountString = Console.ReadLine();
                 if (maxHistoryCountString.IsNullOrEmpty())
@@ -53,7 +53,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
                 else if (!int.TryParse(maxHistoryCountString, out maxHistoryCount) || maxHistoryCount <= 0)
                 {
-                    await Console.Out.WriteLineAsync("请输入正确的数字！");
+                    await Console.Out.WriteLineAsync("Enter a valid number!");
                 }
                 else
                 {
@@ -61,18 +61,18 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
             }
 
-            await Console.Out.WriteLineAsync($"对话历史记录数将保留 {maxHistoryCount} 条");
+            await Console.Out.WriteLineAsync($"Conversation history count will keep {maxHistoryCount} items");
 
 
             await Console.Out.WriteLineAsync();
 
-            await Console.Out.WriteLineAsync(@"配置完成，请输入对话内容。
+            await Console.Out.WriteLineAsync(@"Configuration complete. Enter conversation content.
 
 ---------------------------------
-输入 [ML] 开启单次对话的多行模式
-输入 [END] 完成所有多行输入
-输入 save 保存对话记录
-输入 exit 退出。
+Enter [ML] to enable multiline mode for a single conversation turn
+Enter [END] to finish all multiline input
+Enter save to save conversation records
+Enter exit to leave.
 ---------------------------------");
 
             await Console.Out.WriteLineAsync();
@@ -88,7 +88,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             //var remoteResponse = await huggingFaceRemote.CompleteAsync(Input);
             // modelName: "gpt-4-32k"*/
 
-            var setting = Senparc.AI.Config.SenparcAiSetting;//也可以留空，将自动获取
+            var setting = Senparc.AI.Config.SenparcAiSetting;//can also be left empty; it will be obtained automatically
 
             var iWantToRun = _semanticAiHandler.ChatConfig(parameter,
                                 userId: "Jeffrey",
@@ -103,16 +103,16 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var multiLineContent = new StringBuilder();
             var useMultiLine = false;
-            //开始对话
+            //Start conversation
             var talkingRounds = 0;
             while (true)
             {
-                await Console.Out.WriteLineAsync($"[{talkingRounds + 1}] 人类：");
+                await Console.Out.WriteLineAsync($"[{talkingRounds + 1}] Human:");
                 var input = Console.ReadLine() ?? "";
 
                 if (input.IsNullOrEmpty())
                 {
-                    Console.WriteLine("[请输入正确的内容]");
+                    Console.WriteLine("[Enter valid content]");
                     continue;
                 }
 
@@ -120,7 +120,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 if (input.ToUpper() == "[ML]")
                 {
-                    await Console.Out.WriteLineAsync("识别到多行模式，请继续输入");
+                    await Console.Out.WriteLineAsync("Multiline mode detected. Continue entering text.");
                     useMultiLine = true;
                 }
 
@@ -133,7 +133,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     }
                     else
                     {
-                        await Console.Out.WriteLineAsync("请继续输入，直到输入 [END] 停止...");
+                        await Console.Out.WriteLineAsync("Continue entering text until [END] is entered...");
                         input = Console.ReadLine();
                         multiLineContent.Append(input);
                     }
@@ -146,29 +146,29 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 if (input == "save")
                 {
-                    //保存到文件
+                    //Save to file
                     var request = iWantToRun.CreateRequest(true);
 
-                    //历史记录
-                    //初始化对话历史（可选）
+                    //History records
+                    //Initialize conversation history (optional)
                     if (request.GetStoredArguments("history", out var historyObj) && historyObj is string historyStr)
                     {
                         var fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"ChatHistory-{SystemTime.NowTicks}[{talkingRounds}].txt");
                         using (var file = File.CreateText(fileName))
                         {
-                            await file.WriteLineAsync("模型信息：");
+                            await file.WriteLineAsync("Model information:");
                             await file.WriteLineAsync($"{SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform}");
 
-                            await file.WriteLineAsync($"ModelName：{SampleSetting.CurrentSetting.ModelName.Chat}");
-                            await file.WriteLineAsync($"DeploymentName：{SampleSetting.CurrentSetting.DeploymentName}");
+                            await file.WriteLineAsync($"ModelName:{SampleSetting.CurrentSetting.ModelName.Chat}");
+                            await file.WriteLineAsync($"DeploymentName:{SampleSetting.CurrentSetting.DeploymentName}");
                             await file.WriteLineAsync();
-                            await file.WriteLineAsync($"保存时间：{SystemTime.Now.ToString("F")}");
-                            await file.WriteLineAsync($"保存对话数：{maxHistoryCount}");
-                            await file.WriteLineAsync($"System Message：{systemMessage}");
+                            await file.WriteLineAsync($"Saved at:{SystemTime.Now.ToString("F")}");
+                            await file.WriteLineAsync($"Saved conversation count:{maxHistoryCount}");
+                            await file.WriteLineAsync($"System Message:{systemMessage}");
                             await file.WriteLineAsync();
-                            await file.WriteLineAsync("对话记录：");
+                            await file.WriteLineAsync("Conversation records:");
 
-                            #region 逐行处理
+                            #region Process line by line
 
                             string[] lines = historyStr.Split(new[] { '\n' }, StringSplitOptions.None);
                             StringBuilder newString = new StringBuilder();
@@ -180,11 +180,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                 {
                                     humanCount++;
                                     newString.AppendLine();
-                                    newString.AppendLine($"[{humanCount}] 人类：" + line.Substring("Human:".Length));
+                                    newString.AppendLine($"[{humanCount}] Human:" + line.Substring("Human:".Length));
                                 }
                                 else if (line.StartsWith("ChatBot:"))
                                 {
-                                    newString.AppendLine($"[{humanCount}] 机器人：" + line.Substring("ChatBot:".Length));
+                                    newString.AppendLine($"[{humanCount}] Assistant:" + line.Substring("ChatBot:".Length));
                                 }
                                 else
                                 {
@@ -197,11 +197,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
                             await file.WriteLineAsync();
                             await file.FlushAsync();
                         }
-                        await Console.Out.WriteLineAsync($"保存完毕： {fileName}");
+                        await Console.Out.WriteLineAsync($"Saved: {fileName}");
                     }
                     else
                     {
-                        await Console.Out.WriteLineAsync($"找不到有效的对话记录，保存失败！");
+                        await Console.Out.WriteLineAsync($"No valid conversation records were found. Save failed.");
                     }
 
                     talkingRounds--;
@@ -213,20 +213,20 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                     var dt = SystemTime.Now;
 
-                    await Console.Out.WriteLineAsync($"[{talkingRounds}] 机器：");
+                    await Console.Out.WriteLineAsync($"[{talkingRounds}] Assistant:");
 
                     var useStream = true;
 
                     if (useStream)
                     {
-                        //使用流式输出
+                        //Use streaming output
 
-                        var originalColor = Console.ForegroundColor;//原始颜色
+                        var originalColor = Console.ForegroundColor;//Original color
                         Action<StreamingKernelContent> streamItemProceessing = async item =>
                         {
                             await Console.Out.WriteAsync(item.ToString());
 
-                            //每个流式输出改变一次颜色
+                            //Change color for each streamed output
                             if (Console.ForegroundColor == originalColor)
                             {
                                 Console.ForegroundColor = ConsoleColor.Green;
@@ -237,7 +237,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                             }
                         };
 
-                        //输出结果
+                        //Output result
                         SenparcAiResult result = await _semanticAiHandler.ChatAsync(iWantToRun, input, streamItemProceessing);
 
                         if (result.GetLastFunctionResultContent().IsFunctionCall)
@@ -245,15 +245,15 @@ namespace Senparc.AI.Samples.Consoles.Samples
                             Console.WriteLine();
                             Console.WriteLine();
 
-                            SampleHelper.PrintNote($"本次请求执行了 function-calling：{result.GetLastFunctionResultContent().FunctionResultContent?.FunctionName}");
+                            SampleHelper.PrintNote($"This request executed function-calling:{result.GetLastFunctionResultContent().FunctionResultContent?.FunctionName}");
                         }
 
-                        //复原颜色
+                        //Restore color
                         Console.ForegroundColor = originalColor;
                     }
                     else
                     {
-                        //使用整体输出
+                        //Use full output
                         var result = await _semanticAiHandler.ChatAsync(iWantToRun, input);
                         await Console.Out.WriteLineAsync(result.OutputString);
                     }
@@ -263,7 +263,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
                 catch (Exception ex)
                 {
-                    await Console.Out.WriteLineAsync("发生错误：" + ex.ToString());
+                    await Console.Out.WriteLineAsync("An error occurred:" + ex.ToString());
                 }
                 await Console.Out.WriteLineAsync();
             }

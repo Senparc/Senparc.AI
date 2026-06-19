@@ -6,7 +6,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// 单次补全示例，参考 AgentAiHandlerTests.RunTest / SingleLineTest。
+/// Single completion sample. See AgentAiHandlerTests.RunTest / SingleLineTest.
 /// </summary>
 public class CompletionSample
 {
@@ -25,13 +25,13 @@ public class CompletionSample
     {
         if (_aiHandler is not AgentAiHandler agentHandler)
         {
-            throw new InvalidOperationException("当前示例需要 AgentAiHandler。");
+            throw new InvalidOperationException("This sample requires AgentAiHandler.");
         }
 
         agentHandler.AgentKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);
 
-        Console.WriteLine("CompletionSample 开始运行（无历史上下文，每轮独立请求）");
-        Console.WriteLine("输入 exit 退出。");
+        Console.WriteLine("CompletionSample started(No historical context. Each round is an independent request.)");
+        Console.WriteLine("Enter exit to leave.");
         Console.WriteLine();
 
         var userId = "JeffreySu";
@@ -41,11 +41,11 @@ public class CompletionSample
 
         while (true)
         {
-            Console.WriteLine("提示词：");
+            Console.WriteLine("Prompt:");
             var prompt = Console.ReadLine();
             if (prompt.IsNullOrEmpty())
             {
-                Console.WriteLine("请填写提示词！");
+                Console.WriteLine("Please enter a prompt.");
                 continue;
             }
 
@@ -54,16 +54,16 @@ public class CompletionSample
                 break;
             }
 
-            Console.WriteLine("回复：");
+            Console.WriteLine("Response:");
             try
             {
                 var result = await iWantToRun.RunChatAsync(prompt);
                 Console.WriteLine(result.Result.Text);
-                Console.WriteLine($"[调试] Tokens — total: {result.Result.Usage?.TotalTokenCount}");
+                Console.WriteLine($"[Debug] Tokens — total: {result.Result.Usage?.TotalTokenCount}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("发生错误：" + ex);
+                Console.WriteLine("An error occurred:" + ex);
             }
 
             Console.WriteLine();
