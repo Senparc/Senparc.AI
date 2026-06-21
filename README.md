@@ -126,7 +126,7 @@ var aiResult = await iWantToRun.RunAsync(aiRequest);
 // aiResult.Result example: China has a population of about 1.4 billion.
 ```
 
-![Chat sample](docs/readme-images/chat-sample.png)
+![Chat sample](docs/readme-images/chat-sample-en.png)
 
 ## Samples
 
@@ -144,7 +144,7 @@ All quick-reference samples are located in the `/Samples/` folder.
 
 Open `Senparc.AI.sln`, set the API key and platform parameters in `appsettings.json`, then start the `Senparc.AI.Samples.Consoles` project.
 
-![Open solution](docs/readme-images/open-solution.png)
+![Open solution](docs/readme-images/open-solution-en.png)
 
 ### 2. Operations
 
@@ -152,13 +152,13 @@ Open `Senparc.AI.sln`, set the API key and platform parameters in `appsettings.j
 
 Enter `1` to start the chat workflow.
 
-![Chat operation](docs/readme-images/chat-operation.png)
+![Chat operation](docs/readme-images/chat-operation-en.png)
 
 #### 2.2 TextCompletion
 
 Enter `2` on the main screen to start the TextCompletion workflow.
 
-![Text completion operation](docs/readme-images/text-completion-operation.png)
+![Text completion operation](docs/readme-images/text-completion-operation-en.png)
 
 #### 2.3 Embedding
 
@@ -168,29 +168,29 @@ Enter `3` on the main screen to start the Embedding workflow. Embedding supports
 
 Select `1` to enter the standard Embedding test. Input information is separated by three English colons. After entering the information, enter `n` to start the chat test.
 
-![Embedding standard operation](docs/readme-images/embedding-standard-operation.png)
+![Embedding standard operation](docs/readme-images/embedding-standard-operation-en.png)
 
 ##### 2.3.2 Reference Embedding Information
 
 Select `2` to enter the reference Embedding test. Input information is separated by three English colons. After entering the information, enter `n` to start the chat test.
 
-![Embedding reference operation](docs/readme-images/embedding-reference-operation.png)
+![Embedding reference operation](docs/readme-images/embedding-reference-operation-en.png)
 
 #### 2.4 DALL-E Image Generation
 
 Enter `4` on the main screen to start the DALL-E image generation workflow.
 
-![DALL-E operation](docs/readme-images/dalle-operation.png)
+![DALL-E operation](docs/readme-images/dalle-operation-en.png)
 
 The result is returned as a URL. Enter `s` to save the generated image locally.
 
-![DALL-E save operation](docs/readme-images/dalle-save-operation.png)
+![DALL-E save operation](docs/readme-images/dalle-save-operation-en.png)
 
 Note: the URL returned by the API is temporary and should not be used as a persistent display URL. Save the image promptly if you need to keep it.
 
 ## Unit Tests
 
-![Unit tests](docs/readme-images/unit-tests.png)
+![Unit tests](docs/readme-images/unit-tests-en.png)
 
 ## TODO
 
