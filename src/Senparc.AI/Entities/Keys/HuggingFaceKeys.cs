@@ -7,6 +7,7 @@ namespace Senparc.AI
 {
     public class HuggingFaceKeys : BaseKeys
     {
+        public string ApiKey { get; set; }
         public string Endpoint { get; set; }
 
     }

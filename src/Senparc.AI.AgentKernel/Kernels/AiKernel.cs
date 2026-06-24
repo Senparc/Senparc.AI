@@ -90,6 +90,7 @@ namespace Senparc.AI.AgentKernel.Kernels
                 {
                     ChatClient c => c.AsAIAgent(ChatClientAgentOptions),
                     OllamaApiClient c => c.AsAIAgent(ChatClientAgentOptions),
+                    IChatClient c => c.AsAIAgent(ChatClientAgentOptions),
                     _ => throw new Exception("Unsupported ChatClient type")
                 };
 
@@ -139,8 +140,9 @@ namespace Senparc.AI.AgentKernel.Kernels
 
             this.EmbeddingGenerator = EmbeddingClient switch
             {
-                EmbeddingClient c => c.AsIEmbeddingGenerator(EmbeddingDimensions),//TODO: add defaultModelDimensions
                 OllamaApiClient c => c,
+                EmbeddingClient c => c.AsIEmbeddingGenerator(EmbeddingDimensions),//TODO: add defaultModelDimensions
+                IEmbeddingGenerator c => c,
                 _ => throw new Exception("Unsupported EmbeddingClient type")
             };
         }

@@ -27,7 +27,6 @@ namespace Senparc.AI.AgentKernel.Helpers
             modelName ??= senparcAiSetting.ModelName.Embedding;
             deploymentName ??= senparcAiSetting.DeploymentName ?? modelName;
 
-            var serviceId = GetServiceId(userId, modelName);
             var aiPlatForm = senparcAiSetting.AiPlatform;
             //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
 
@@ -37,6 +36,16 @@ namespace Senparc.AI.AgentKernel.Helpers
             // 以上方法已经被SK标注为 Obsolete, 修改为SK推荐的方法
             kernelBuilder ??= Kernels.AIKernelBuilder.CreateBuilder();
             kernelBuilder.AddConfigModel(ConfigModel.TextEmbedding);
+
+            string GetEndpointOrThrow(string? endpoint, string platformName)
+            {
+                if (string.IsNullOrWhiteSpace(endpoint))
+                {
+                    throw new SenparcAiException($"{platformName} 必须提供 Endpoint");
+                }
+
+                return endpoint;
+            }
 
             // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
             kernelBuilder.EmbeddingClient = aiPlatForm switch
@@ -55,14 +64,37 @@ namespace Senparc.AI.AgentKernel.Helpers
                     credential: new System.ClientModel.ApiKeyCredential(senparcAiSetting.ApiKey),
                     options: new Azure.AI.OpenAI.AzureOpenAIClientOptions(),
                     modelName: deploymentName),
-                //AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextEmbeddingGeneration(
-                //    model: modelName,
-                //    endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace 必须提供 Endpoint")),
-                //    httpClient: _httpClient),
+                AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: senparcAiSetting.HuggingFaceEndpoint,
+                    dimensions: senparcAiSetting.ModelName.EmbeddingDimensions),
+                AiPlatform.FastAPI => kernelBuilder.AddFastAPIEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.FastAPIEndpoint, nameof(AiPlatform.FastAPI)),
+                    dimensions: senparcAiSetting.ModelName.EmbeddingDimensions),
 
                 AiPlatform.Ollama => kernelBuilder.AddOllamaEmbedding(
                     endpoint: senparcAiSetting.OllamaEndpoint,
                     modelName: modelName),
+                AiPlatform.DeepSeek => kernelBuilder.AddDeepSeekEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.DeepSeekEndpoint, nameof(AiPlatform.DeepSeek))),
+                AiPlatform.Anthropic => throw new SenparcAiException("Anthropic 官方接口当前不提供 Embedding API，请切换到支持 Embedding 的平台。"),
+                AiPlatform.Gemini => kernelBuilder.AddOpenAICompatibleEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.GeminiEndpoint, nameof(AiPlatform.Gemini))),
+                AiPlatform.Qwen => kernelBuilder.AddOpenAICompatibleEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.QwenEndpoint, nameof(AiPlatform.Qwen))),
+                AiPlatform.Kimi => kernelBuilder.AddOpenAICompatibleEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.KimiEndpoint, nameof(AiPlatform.Kimi))),
 
                 _ => throw new SenparcAiException($"ConfigTextEmbeddingGeneration 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };

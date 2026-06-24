@@ -85,6 +85,26 @@ namespace Senparc.AI.Entities
         public virtual bool UseDeepSeek => AiPlatform == AiPlatform.DeepSeek;
 
         /// <summary>
+        /// 是否使用 Anthropic
+        /// </summary>
+        public virtual bool UseAnthropic => AiPlatform == AiPlatform.Anthropic;
+
+        /// <summary>
+        /// 是否使用 Gemini
+        /// </summary>
+        public virtual bool UseGemini => AiPlatform == AiPlatform.Gemini;
+
+        /// <summary>
+        /// 是否使用 Qwen（OpenAI-Compatible）
+        /// </summary>
+        public virtual bool UseQwen => AiPlatform == AiPlatform.Qwen;
+
+        /// <summary>
+        /// 是否使用 Kimi（OpenAI-Compatible）
+        /// </summary>
+        public virtual bool UseKimi => AiPlatform == AiPlatform.Kimi;
+
+        /// <summary>
         /// AI 平台类型
         /// </summary>
         public virtual AiPlatform AiPlatform { get; set; }
@@ -100,6 +120,10 @@ namespace Senparc.AI.Entities
         public virtual OllamaKeys OllamaKeys { get; set; }
 
         public virtual DeepSeekKeys DeepSeekKeys { get; set; }
+        public virtual AnthropicKeys AnthropicKeys { get; set; }
+        public virtual GeminiKeys GeminiKeys { get; set; }
+        public virtual QwenKeys QwenKeys { get; set; }
+        public virtual KimiKeys KimiKeys { get; set; }
 
         /// <summary>
         /// Azure OpenAI 或 OpenAI API Key
@@ -109,19 +133,30 @@ namespace Senparc.AI.Entities
             AiPlatform.OpenAI => OpenAIKeys?.ApiKey,
             AiPlatform.NeuCharAI => NeuCharAIKeys?.ApiKey,
             AiPlatform.AzureOpenAI => AzureOpenAIKeys?.ApiKey,
-            AiPlatform.HuggingFace => "",
-            AiPlatform.FastAPI => FastAPIKeys.ApiKey,
+            AiPlatform.HuggingFace => HuggingFaceKeys?.ApiKey,
+            AiPlatform.FastAPI => FastAPIKeys?.ApiKey,
             AiPlatform.Ollama => "",
             AiPlatform.DeepSeek => DeepSeekKeys?.ApiKey,
+            AiPlatform.Anthropic => AnthropicKeys?.ApiKey,
+            AiPlatform.Gemini => GeminiKeys?.ApiKey,
+            AiPlatform.Qwen => QwenKeys?.ApiKey,
+            AiPlatform.Kimi => KimiKeys?.ApiKey,
             _ => ""
         };
 
         /// <summary>
         /// OpenAI API Orgaization ID
         /// </summary>
-        public virtual string OrganizationId => AiPlatform == AiPlatform.OpenAI
-                                                    ? OpenAIKeys?.OrganizationId
-                                                    : FastAPIKeys?.OrganizationId;
+        public virtual string OrganizationId => AiPlatform switch
+        {
+            AiPlatform.OpenAI => OpenAIKeys?.OrganizationId,
+            _ => null
+        };
+
+        /// <summary>
+        /// Anthropic API version header value.
+        /// </summary>
+        public virtual string AnthropicVersion => AnthropicKeys?.AnthropicVersion;
 
         #region OpenAI
 
@@ -183,7 +218,27 @@ namespace Senparc.AI.Entities
         #endregion
 
         #region DeepSeek
-        public string DeepSeekEndpoint => DeepSeekKeys?.Endpoint;
+        public virtual string DeepSeekEndpoint => DeepSeekKeys?.Endpoint;
+
+        #endregion
+
+        #region Anthropic
+        public virtual string AnthropicEndpoint => AnthropicKeys?.Endpoint;
+
+        #endregion
+
+        #region Gemini
+        public virtual string GeminiEndpoint => GeminiKeys?.Endpoint;
+
+        #endregion
+
+        #region Qwen
+        public virtual string QwenEndpoint => QwenKeys?.Endpoint;
+
+        #endregion
+
+        #region Kimi
+        public virtual string KimiEndpoint => KimiKeys?.Endpoint;
 
         #endregion
 
@@ -279,6 +334,54 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
+        /// 设置 Anthropic
+        /// </summary>
+        /// <param name="anthropicKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetAnthropic(AnthropicKeys anthropicKeys)
+        {
+            this.AiPlatform = AiPlatform.Anthropic;
+            this.AnthropicKeys = anthropicKeys;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置 Gemini
+        /// </summary>
+        /// <param name="geminiKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetGemini(GeminiKeys geminiKeys)
+        {
+            this.AiPlatform = AiPlatform.Gemini;
+            this.GeminiKeys = geminiKeys;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置 Qwen（OpenAI-Compatible）
+        /// </summary>
+        /// <param name="qwenKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetQwen(QwenKeys qwenKeys)
+        {
+            this.AiPlatform = AiPlatform.Qwen;
+            this.QwenKeys = qwenKeys;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置 Kimi（OpenAI-Compatible）
+        /// </summary>
+        /// <param name="kimiKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetKimi(KimiKeys kimiKeys)
+        {
+            this.AiPlatform = AiPlatform.Kimi;
+            this.KimiKeys = kimiKeys;
+            return this;
+        }
+
+        /// <summary>
         /// 设置其他平台
         /// </summary>
         /// <returns></returns>
@@ -300,6 +403,10 @@ namespace Senparc.AI.Entities
             AiPlatform.FastAPI => FastAPIKeys.ModelName,
             AiPlatform.Ollama => OllamaKeys.ModelName,
             AiPlatform.DeepSeek => DeepSeekKeys.ModelName,
+            AiPlatform.Anthropic => AnthropicKeys.ModelName,
+            AiPlatform.Gemini => GeminiKeys.ModelName,
+            AiPlatform.Qwen => QwenKeys.ModelName,
+            AiPlatform.Kimi => KimiKeys.ModelName,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 ModelName 输出")
         };
 
@@ -313,6 +420,10 @@ namespace Senparc.AI.Entities
             AiPlatform.FastAPI => null,
             AiPlatform.Ollama => null,
             AiPlatform.DeepSeek => null,
+            AiPlatform.Anthropic => null,
+            AiPlatform.Gemini => null,
+            AiPlatform.Qwen => null,
+            AiPlatform.Kimi => null,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 DeploymentName 输出")
         };
 

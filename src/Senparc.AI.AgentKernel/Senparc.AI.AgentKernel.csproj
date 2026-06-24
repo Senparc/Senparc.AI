@@ -61,6 +61,8 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />
+		<ProjectReference Include="..\Senparc.AI.AgentKernel.Providers.FastAPI\Senparc.AI.AgentKernel.Providers.FastAPI.csproj" />
+		<ProjectReference Include="..\Senparc.AI.AgentKernel.Providers.HuggingFace\Senparc.AI.AgentKernel.Providers.HuggingFace.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
