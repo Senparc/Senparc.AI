@@ -46,6 +46,10 @@ namespace Senparc.AI.Interfaces
             AiPlatform.FastAPI => FastAPIEndpoint,
             AiPlatform.Ollama => OllamaEndpoint,
             AiPlatform.DeepSeek => DeepSeekEndpoint,
+            AiPlatform.Anthropic => AnthropicEndpoint,
+            AiPlatform.Gemini => GeminiEndpoint,
+            AiPlatform.Qwen => QwenEndpoint,
+            AiPlatform.Kimi => KimiEndpoint,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 Endpoint 输出")
         };
 
@@ -70,6 +74,10 @@ namespace Senparc.AI.Interfaces
         FastAPIKeys FastAPIKeys { get; set; }
         OllamaKeys OllamaKeys { get; set; }
         DeepSeekKeys DeepSeekKeys { get; set; }
+        AnthropicKeys AnthropicKeys { get; set; }
+        GeminiKeys GeminiKeys { get; set; }
+        QwenKeys QwenKeys { get; set; }
+        KimiKeys KimiKeys { get; set; }
 
         /// <summary>
         /// Neuchar OpenAI 或 Azure OpenAI 或 OpenAI API Key
@@ -77,9 +85,14 @@ namespace Senparc.AI.Interfaces
         string ApiKey { get; }
 
         /// <summary>
-        /// OpenAI API Orgaization ID
+        /// OpenAI API Organization ID
         /// </summary>
         string OrganizationId { get; }
+
+        /// <summary>
+        /// Anthropic API version header value.
+        /// </summary>
+        string AnthropicVersion { get; }
 
         #region OpenAI
 
@@ -143,6 +156,30 @@ namespace Senparc.AI.Interfaces
         #region DeepSeek
 
         string DeepSeekEndpoint { get; }
+
+        #endregion
+
+        #region Anthropic
+
+        string AnthropicEndpoint { get; }
+
+        #endregion
+
+        #region Gemini
+
+        string GeminiEndpoint { get; }
+
+        #endregion
+
+        #region Qwen
+
+        string QwenEndpoint { get; }
+
+        #endregion
+
+        #region Kimi
+
+        string KimiEndpoint { get; }
 
         #endregion
 
