@@ -11,7 +11,7 @@
 		<RootNamespace>Senparc.AI.AgentKernel.Providers.HuggingFace</RootNamespace>
 		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
 		<Description>
-			Senparc.AI AgentKernel HuggingFace 提供方适配模块，基于 Hugging Face OpenAI-compatible 路由端点，为 AgentKernel 提供 Chat、Embedding 等能力的 HuggingFace 接入
+			Senparc.AI AgentKernel HuggingFace provider adapter module; exposes Chat and Embedding capabilities via Hugging Face OpenAI-compatible routing endpoints for AgentKernel
 		</Description>
 		<Copyright>Senparc Copyright © 2004~2026</Copyright>
 		<PackageTags>
@@ -22,7 +22,7 @@
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<ProjectUrl>https://github.com/Senparc/Senparc.AI</ProjectUrl>
 		<Title>Senparc.AI.AgentKernel.Providers.HuggingFace.dll</Title>
-		<Summary>Senparc.AI AgentKernel HuggingFace 提供方适配模块</Summary>
+		<Summary>Senparc.AI AgentKernel HuggingFace provider adapter module</Summary>
 		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI</PackageProjectUrl>
 		<PackageIcon>icon.jpg</PackageIcon>
 		<PackageReleaseNotes>
