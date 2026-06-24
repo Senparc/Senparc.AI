@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Version>0.1.0</Version>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>13.0</LangVersion>
+		<AssemblyName>Senparc.AI.AgentKernel.Providers.HuggingFace</AssemblyName>
+		<RootNamespace>Senparc.AI.AgentKernel.Providers.HuggingFace</RootNamespace>
+		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
+		<Description>
+			Senparc.AI AgentKernel HuggingFace 提供方适配模块，基于 Hugging Face OpenAI-compatible 路由端点，为 AgentKernel 提供 Chat、Embedding 等能力的 HuggingFace 接入
+		</Description>
+		<Copyright>Senparc Copyright © 2004~2026</Copyright>
+		<PackageTags>
+			Senparc,AI,AgentKernel,HuggingFace,OpenAI-Compatible,Provider,C#,AIGC,GenAI,LLM
+		</PackageTags>
+		<Authors>Jeffrey Su</Authors>
+		<Owners>Senparc</Owners>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<ProjectUrl>https://github.com/Senparc/Senparc.AI</ProjectUrl>
+		<Title>Senparc.AI.AgentKernel.Providers.HuggingFace.dll</Title>
+		<Summary>Senparc.AI AgentKernel HuggingFace 提供方适配模块</Summary>
+		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI</PackageProjectUrl>
+		<PackageIcon>icon.jpg</PackageIcon>
+		<PackageReleaseNotes>
+			[2026-06-25] v0.1.0 Initial release
+			1. HuggingFaceProviderClientFactory: create IChatClient / IEmbeddingGenerator via OpenAI-compatible routing
+			2. Default endpoint https://router.huggingface.co/v1; support custom endpoint and apiKey
+			3. Integrate with Senparc.AI.AgentKernel KernelBuilderExtension for Chat / Embedding platform access
+		</PackageReleaseNotes>
+		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
+		<Configurations>Debug;Release;Test</Configurations>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0|AnyCPU'">
+		<OutputPath>..\..\BuildOutPut\</OutputPath>
+		<DocumentationFile>..\..\BuildOutPut\net10.0\Senparc.AI.AgentKernel.Providers.HuggingFace.xml</DocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\icon.jpg" Pack="true" Visible="false" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.5.1" />
+		<PackageReference Include="OpenAI" Version="2.10.0" />
+	</ItemGroup>
+
+</Project>

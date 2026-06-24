@@ -10,15 +10,16 @@
 | Completion | 单次 TextCompletion | `RunTest` / `SingleLineTest` |
 | Embedding [1] | 向量写入 + 相似检索 | `EmbeddingStoreTest` |
 | Embedding [2] | RAG + TextSearchProvider | `EmbeddingTest` |
+| Image | 文生图（TextToImage） | `KernelConfigExtensionsImageTests` |
+| STT | 语音转文字（SpeechToText） | `KernelConfigExtensionsSpeechTests` |
+| TTS | 文本转语音（TextToSpeech） | `KernelConfigExtensionsSpeechTests` |
 
 ## 尚未提供
 
 以下能力与 Consoles（Kernel）对齐的菜单项在 AgentKernel 中暂未实现，运行后会提示 **「尚未提供」**：
 
-- Dall·E 绘图
 - Planner 任务计划
 - PluginFromObject / Function Calling
-- STT（Speech to Text）
 
 ## 配置
 

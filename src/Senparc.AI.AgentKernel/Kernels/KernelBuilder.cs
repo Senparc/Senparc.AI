@@ -15,6 +15,8 @@ namespace Senparc.AI.AgentKernel.Kernels
         object ChatClient { get; set; }
         object ImageClient { get; set; }
         object EmbeddingClient { get; set; }
+        object SpeechToTextClient { get; set; }
+        object TextToSpeechClient { get; set; }
         IServiceProvider ServiceProvider { get; set; }
         IServiceCollection Services { get; set; }
         string EmbeddingCollectionName { get; set; }
@@ -35,6 +37,10 @@ namespace Senparc.AI.AgentKernel.Kernels
         public object ImageClient { get; set; }
 
         public object EmbeddingClient { get; set; }
+
+        public object SpeechToTextClient { get; set; }
+
+        public object TextToSpeechClient { get; set; }
 
         public List<ConfigModel> ConfigModels { get; set; }
         public string EmbeddingCollectionName { get; set; }
@@ -59,7 +65,7 @@ namespace Senparc.AI.AgentKernel.Kernels
         public AiKernel Build(ISenparcAiSetting senparcAiSetting, ChatClientAgentOptions chatClientAgentOptions = null)
         {
             ServiceProvider = Services.BuildServiceProvider();
-            AiKernel aiKernel = new AiKernel(ServiceProvider, senparcAiSetting, ConfigModels.ToArray(), ChatClient, ImageClient, EmbeddingClient, EmbeddingCollectionName, chatClientAgentOptions);
+            AiKernel aiKernel = new AiKernel(ServiceProvider, senparcAiSetting, ConfigModels.ToArray(), ChatClient, ImageClient, EmbeddingClient, SpeechToTextClient, TextToSpeechClient, EmbeddingCollectionName, chatClientAgentOptions);
 
             return aiKernel;
         }

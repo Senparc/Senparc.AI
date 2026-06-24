@@ -21,7 +21,11 @@ namespace Senparc.AI
         //Oobabooga = 64,//未实现
         FastAPI = 128,
         Ollama = 256,
-        DeepSeek = 512
+        DeepSeek = 512,
+        Anthropic = 1024,
+        Gemini = 2048,
+        Qwen = 4096,
+        Kimi = 8192
     }
 
     /// <summary>

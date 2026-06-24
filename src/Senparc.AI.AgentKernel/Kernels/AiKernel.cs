@@ -18,6 +18,7 @@ using System.Text.Json;
 using System.IO;
 using System.Threading.Tasks;
 using System.ClientModel;
+using OpenAI.Audio;
 using OpenAI.Images;
 
 namespace Senparc.AI.AgentKernel.Kernels
@@ -28,6 +29,8 @@ namespace Senparc.AI.AgentKernel.Kernels
         public object ChatClient { get; set; }//TODO:进行一次封装
         public object ImageClient { get; set; }
         public object EmbeddingClient { get; set; }
+        public object SpeechToTextClient { get; set; }
+        public object TextToSpeechClient { get; set; }
         public string EmbeddingCollectionName { get; }
         public ChatClientAgentOptions ChatClientAgentOptions { get; set; }
         public ModelName ModelName { get; }
@@ -42,7 +45,7 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         public bool AgentInited { get; set; }
 
-        public AiKernel(IServiceProvider serviceProvider, ISenparcAiSetting senparcAiSetting, ConfigModel[] configModels, object chatClient, object imageClient, object embeddingClient, string embeddingCollectionName, ChatClientAgentOptions chatClientAgentOptions)
+        public AiKernel(IServiceProvider serviceProvider, ISenparcAiSetting senparcAiSetting, ConfigModel[] configModels, object chatClient, object imageClient, object embeddingClient, object speechToTextClient, object textToSpeechClient, string embeddingCollectionName, ChatClientAgentOptions chatClientAgentOptions)
         {
             this.ServiceProvider = serviceProvider;
             this.SenparcAiSetting = senparcAiSetting;
@@ -50,6 +53,8 @@ namespace Senparc.AI.AgentKernel.Kernels
             this.ImageClient = imageClient;
             this.ConfigModels = configModels;
             this.EmbeddingClient = embeddingClient;
+            this.SpeechToTextClient = speechToTextClient;
+            this.TextToSpeechClient = textToSpeechClient;
             this.EmbeddingCollectionName = embeddingCollectionName;
             this.ChatClientAgentOptions = chatClientAgentOptions;
             this.ModelName = senparcAiSetting.ModelName;
@@ -85,6 +90,7 @@ namespace Senparc.AI.AgentKernel.Kernels
                 {
                     ChatClient c => c.AsAIAgent(ChatClientAgentOptions),
                     OllamaApiClient c => c.AsAIAgent(ChatClientAgentOptions),
+                    IChatClient c => c.AsAIAgent(ChatClientAgentOptions),
                     _ => throw new Exception("Unsupported ChatClient type")
                 };
 
@@ -134,8 +140,9 @@ namespace Senparc.AI.AgentKernel.Kernels
 
             this.EmbeddingGenerator = EmbeddingClient switch
             {
-                EmbeddingClient c => c.AsIEmbeddingGenerator(EmbeddingDimensions),//TODO: add defaultModelDimensions
                 OllamaApiClient c => c,
+                EmbeddingClient c => c.AsIEmbeddingGenerator(EmbeddingDimensions),//TODO: add defaultModelDimensions
+                IEmbeddingGenerator c => c,
                 _ => throw new Exception("Unsupported EmbeddingClient type")
             };
         }
@@ -280,6 +287,110 @@ namespace Senparc.AI.AgentKernel.Kernels
                 return ClientResult.FromValue(collectionResult.Value?.FirstOrDefault(), collectionResult.GetRawResponse());
             }
             return null;
+        }
+
+        /// <summary>
+        /// Transcribe speech audio to text.
+        /// </summary>
+        /// <param name="audioStream">Audio stream.</param>
+        /// <param name="audioFileName">Audio filename with extension (e.g. sample.m4a).</param>
+        /// <param name="options">Transcription options.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Transcription result.</returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<ClientResult<AudioTranscription>> SpeechToTextAsync(
+            Stream audioStream,
+            string audioFileName,
+            AudioTranscriptionOptions? options = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (!ConfigModels.Contains(ConfigModel.SpeechToText))
+            {
+                throw new Exception("SpeechToText is not configured for this kernel");
+            }
+
+            if (SpeechToTextClient == null)
+            {
+                throw new Exception("SpeechToTextClient is not configured");
+            }
+
+            if (audioStream == null)
+            {
+                throw new ArgumentNullException(nameof(audioStream));
+            }
+
+            if (string.IsNullOrWhiteSpace(audioFileName))
+            {
+                throw new ArgumentException("audioFileName is required", nameof(audioFileName));
+            }
+
+            if (SpeechToTextClient is AudioClient client)
+            {
+                var transcriptionOptions = options ?? new AudioTranscriptionOptions();
+                return await client.TranscribeAudioAsync(audioStream, audioFileName, transcriptionOptions, cancellationToken);
+            }
+
+            throw new Exception("Unsupported SpeechToTextClient type");
+        }
+
+        /// <summary>
+        /// Transcribe speech audio file to text.
+        /// </summary>
+        /// <param name="audioFilePath">Audio file path.</param>
+        /// <param name="options">Transcription options.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Transcription result.</returns>
+        public async Task<ClientResult<AudioTranscription>> SpeechToTextAsync(
+            string audioFilePath,
+            AudioTranscriptionOptions? options = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(audioFilePath))
+            {
+                throw new ArgumentException("audioFilePath is required", nameof(audioFilePath));
+            }
+
+            await using var stream = File.OpenRead(audioFilePath);
+            return await SpeechToTextAsync(stream, Path.GetFileName(audioFilePath), options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Generate speech audio from text.
+        /// </summary>
+        /// <param name="text">Input text.</param>
+        /// <param name="voice">Voice option.</param>
+        /// <param name="options">Speech generation options.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Audio binary result.</returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<ClientResult<BinaryData>> TextToSpeechAsync(
+            string text,
+            GeneratedSpeechVoice voice,
+            SpeechGenerationOptions? options = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (!ConfigModels.Contains(ConfigModel.TextToSpeech))
+            {
+                throw new Exception("TextToSpeech is not configured for this kernel");
+            }
+
+            if (TextToSpeechClient == null)
+            {
+                throw new Exception("TextToSpeechClient is not configured");
+            }
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                throw new ArgumentException("text is required", nameof(text));
+            }
+
+            if (TextToSpeechClient is AudioClient client)
+            {
+                var speechOptions = options ?? new SpeechGenerationOptions();
+                return await client.GenerateSpeechAsync(text, voice, speechOptions, cancellationToken);
+            }
+
+            throw new Exception("Unsupported TextToSpeechClient type");
         }
     }
 }

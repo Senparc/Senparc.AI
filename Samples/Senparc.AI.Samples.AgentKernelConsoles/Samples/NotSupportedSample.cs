@@ -9,8 +9,8 @@ public static class NotSupportedSample
     {
         Console.WriteLine();
         Console.WriteLine($"{featureName}：尚未提供");
-        Console.WriteLine("说明：Senparc.AI.AgentKernel 基于 Microsoft Agent Framework，当前示例仅覆盖测试中已验证的 Chat / Completion / Embedding / RAG 能力。");
-        Console.WriteLine("如需 Dall·E、Planner、Plugin、STT 等，请使用 Samples/Senparc.AI.Samples.Consoles（Senparc.AI.Kernel）。");
+        Console.WriteLine("说明：Senparc.AI.AgentKernel 基于 Microsoft Agent Framework，当前示例已覆盖 Chat / Completion / Embedding / RAG / Image / STT / TTS。");
+        Console.WriteLine("如需 Planner、Plugin 等能力，请使用 Samples/Senparc.AI.Samples.Consoles（Senparc.AI.Kernel）。");
         Console.WriteLine();
         return Task.CompletedTask;
     }
