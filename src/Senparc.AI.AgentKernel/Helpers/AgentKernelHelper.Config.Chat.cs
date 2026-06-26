@@ -28,7 +28,6 @@ namespace Senparc.AI.AgentKernel.Helpers
             modelName ??= senparcAiSetting.ModelName.Chat;
             deploymentName ??= senparcAiSetting.DeploymentName ?? modelName;
 
-            var serviceId = GetServiceId(userId, modelName);
             var aiPlatForm = senparcAiSetting.AiPlatform;
 
             //TODO Need to check Kernel.TextCompletionServices.ContainsKey(serviceId). If it already exists, do not add it again.
@@ -37,6 +36,16 @@ namespace Senparc.AI.AgentKernel.Helpers
             // The previous method has been marked obsolete by SK. Changed to the method recommended by SK.
             kernelBuilder ??= Kernels.AIKernelBuilder.CreateBuilder();
             kernelBuilder.AddConfigModel(ConfigModel.Chat);
+
+            string GetEndpointOrThrow(string? endpoint, string platformName)
+            {
+                if (string.IsNullOrWhiteSpace(endpoint))
+                {
+                    throw new SenparcAiException($"{platformName} 必须提供 Endpoint");
+                }
+
+                return endpoint;
+            }
 
             // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
             kernelBuilder.ChatClient = aiPlatForm switch
@@ -54,22 +63,40 @@ namespace Senparc.AI.AgentKernel.Helpers
                     new AzureOpenAIClientOptions(AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview),
                     deploymentName: deploymentName
                 ),
-                //AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextGeneration(
-                //        model: modelName,
-                //        apiKey: null,
-                //        endpoint: new Uri(senparcAiSetting.HuggingFaceEndpoint ?? throw new SenparcAiException("HuggingFace requires Endpoint")),
-                //        serviceId: serviceId,
-                //        httpClient: _httpClient),
-                //AiPlatform.FastAPI => kernelBuilder.AddFastAPIChatCompletion(
-                //        modelId: modelName,
-                //        apiKey: senparcAiSetting.ApiKey,
-                //        orgId: senparcAiSetting.OrganizationId,
-                //        endpoint: senparcAiSetting.FastAPIEndpoint,
-                //        serviceId: null
-                //    ),
+                AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceChatCompletion(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: senparcAiSetting.HuggingFaceEndpoint),
+                AiPlatform.FastAPI => kernelBuilder.AddFastAPIChatCompletion(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.FastAPIEndpoint, nameof(AiPlatform.FastAPI))),
                 AiPlatform.Ollama => kernelBuilder.AddOllamaChatCompletion(senparcAiSetting.OllamaEndpoint, modelName),
-                //DeepSeek uses the same request format as OpenAI
-                AiPlatform.DeepSeek => kernelBuilder.AddOpenAIChatCompletion(senparcAiSetting.ApiKey, modelName),
+                // 这些平台使用 OpenAI-Compatible 的 Chat API 协议（或兼容网关）。
+                AiPlatform.DeepSeek => kernelBuilder.AddDeepSeekChatCompletion(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.DeepSeekEndpoint, nameof(AiPlatform.DeepSeek))),
+                AiPlatform.Anthropic => kernelBuilder.AddOpenAICompatibleChatCompletion(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.AnthropicEndpoint, nameof(AiPlatform.Anthropic))),
+                AiPlatform.Gemini => kernelBuilder.AddOpenAICompatibleChatCompletion(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.GeminiEndpoint, nameof(AiPlatform.Gemini))),
+                AiPlatform.Qwen => kernelBuilder.AddOpenAICompatibleChatCompletion(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.QwenEndpoint, nameof(AiPlatform.Qwen))),
+                AiPlatform.Kimi => kernelBuilder.AddOpenAICompatibleChatCompletion(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.KimiEndpoint, nameof(AiPlatform.Kimi))),
+                AiPlatform.XunFei => kernelBuilder.AddXunFeiChatCompletion(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.XunFeiEndpoint, nameof(AiPlatform.XunFei))),
 
                 _ => throw new SenparcAiException($"ConfigChat does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };

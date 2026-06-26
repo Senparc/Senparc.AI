@@ -29,6 +29,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Senparc.AI.AgentKernel.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Senparc.AI.Samples.AgentKernelConsoles", "..\Samples\Senparc.AI.Samples.AgentKernelConsoles\Senparc.AI.Samples.AgentKernelConsoles.csproj", "{2F4F0AF4-A78F-4037-85D5-F6C3BC22BA24}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Senparc.AI.AgentKernel.Providers.FastAPI", "Senparc.AI.AgentKernel.Providers.FastAPI\Senparc.AI.AgentKernel.Providers.FastAPI.csproj", "{12A19EFE-28ED-43DB-8912-C4156CD55053}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Senparc.AI.AgentKernel.Providers.HuggingFace", "Senparc.AI.AgentKernel.Providers.HuggingFace\Senparc.AI.AgentKernel.Providers.HuggingFace.csproj", "{496142E3-449C-4496-91C2-064E3790C162}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7F839CC1-1174-4F79-991A-911844D433F0}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -95,6 +99,18 @@ Global
 		{2F4F0AF4-A78F-4037-85D5-F6C3BC22BA24}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2F4F0AF4-A78F-4037-85D5-F6C3BC22BA24}.Test|Any CPU.ActiveCfg = Debug|Any CPU
 		{2F4F0AF4-A78F-4037-85D5-F6C3BC22BA24}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{12A19EFE-28ED-43DB-8912-C4156CD55053}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12A19EFE-28ED-43DB-8912-C4156CD55053}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12A19EFE-28ED-43DB-8912-C4156CD55053}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12A19EFE-28ED-43DB-8912-C4156CD55053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12A19EFE-28ED-43DB-8912-C4156CD55053}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{12A19EFE-28ED-43DB-8912-C4156CD55053}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{496142E3-449C-4496-91C2-064E3790C162}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{496142E3-449C-4496-91C2-064E3790C162}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{496142E3-449C-4496-91C2-064E3790C162}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{496142E3-449C-4496-91C2-064E3790C162}.Release|Any CPU.Build.0 = Release|Any CPU
+		{496142E3-449C-4496-91C2-064E3790C162}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{496142E3-449C-4496-91C2-064E3790C162}.Test|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -110,6 +126,8 @@ Global
 		{C2CD7F27-431D-442D-A601-5C85EDD8E9EC} = {85962C3A-3F83-41FD-98FC-B86F5178540A}
 		{AA24C8F0-9621-4250-974E-8D01E2E2BB5E} = {52CD3E2F-D7FA-458F-A0DF-FF69F3684AA0}
 		{2F4F0AF4-A78F-4037-85D5-F6C3BC22BA24} = {758253C7-033C-4D73-B58A-BBB2EB57B873}
+		{12A19EFE-28ED-43DB-8912-C4156CD55053} = {85962C3A-3F83-41FD-98FC-B86F5178540A}
+		{496142E3-449C-4496-91C2-064E3790C162} = {85962C3A-3F83-41FD-98FC-B86F5178540A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E892F45B-7C63-4C1C-9F53-ABA5CBFA95C6}

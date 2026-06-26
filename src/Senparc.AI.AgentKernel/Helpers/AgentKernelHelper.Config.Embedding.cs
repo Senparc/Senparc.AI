@@ -27,7 +27,6 @@ namespace Senparc.AI.AgentKernel.Helpers
             modelName ??= senparcAiSetting.ModelName.Embedding;
             deploymentName ??= senparcAiSetting.DeploymentName ?? modelName;
 
-            var serviceId = GetServiceId(userId, modelName);
             var aiPlatForm = senparcAiSetting.AiPlatform;
             //TODO Need to check Kernel.TextCompletionServices.ContainsKey(serviceId). If it already exists, do not add it again.
 
@@ -37,6 +36,16 @@ namespace Senparc.AI.AgentKernel.Helpers
             // The previous method has been marked obsolete by SK. Changed to the method recommended by SK.
             kernelBuilder ??= Kernels.AIKernelBuilder.CreateBuilder();
             kernelBuilder.AddConfigModel(ConfigModel.TextEmbedding);
+
+            string GetEndpointOrThrow(string? endpoint, string platformName)
+            {
+                if (string.IsNullOrWhiteSpace(endpoint))
+                {
+                    throw new SenparcAiException($"{platformName} 必须提供 Endpoint");
+                }
+
+                return endpoint;
+            }
 
             // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
             kernelBuilder.EmbeddingClient = aiPlatForm switch
@@ -55,14 +64,38 @@ namespace Senparc.AI.AgentKernel.Helpers
                     credential: new System.ClientModel.ApiKeyCredential(senparcAiSetting.ApiKey),
                     options: new Azure.AI.OpenAI.AzureOpenAIClientOptions(),
                     modelName: deploymentName),
-                //AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextEmbeddingGeneration(
-                //    model: modelName,
-                //    endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace requires Endpoint")),
-                //    httpClient: _httpClient),
+                AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: senparcAiSetting.HuggingFaceEndpoint,
+                    dimensions: senparcAiSetting.ModelName.EmbeddingDimensions),
+                AiPlatform.FastAPI => kernelBuilder.AddFastAPIEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.FastAPIEndpoint, nameof(AiPlatform.FastAPI)),
+                    dimensions: senparcAiSetting.ModelName.EmbeddingDimensions),
 
                 AiPlatform.Ollama => kernelBuilder.AddOllamaEmbedding(
                     endpoint: senparcAiSetting.OllamaEndpoint,
                     modelName: modelName),
+                AiPlatform.DeepSeek => kernelBuilder.AddDeepSeekEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.DeepSeekEndpoint, nameof(AiPlatform.DeepSeek))),
+                AiPlatform.Anthropic => throw new SenparcAiException("Anthropic 官方接口当前不提供 Embedding API，请切换到支持 Embedding 的平台。"),
+                AiPlatform.Gemini => kernelBuilder.AddOpenAICompatibleEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.GeminiEndpoint, nameof(AiPlatform.Gemini))),
+                AiPlatform.Qwen => kernelBuilder.AddOpenAICompatibleEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.QwenEndpoint, nameof(AiPlatform.Qwen))),
+                AiPlatform.Kimi => kernelBuilder.AddOpenAICompatibleEmbedding(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.KimiEndpoint, nameof(AiPlatform.Kimi))),
+                AiPlatform.XunFei => throw new SenparcAiException("XunFei 当前接入路径为 OpenAI-compatible Chat API，未包含 Embedding 接口。"),
 
                 _ => throw new SenparcAiException($"ConfigTextEmbeddingGeneration does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };

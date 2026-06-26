@@ -1,15 +1,11 @@
-﻿using Azure.AI.OpenAI;
+using Azure.AI.OpenAI;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Options;
 using OllamaSharp;
 using OpenAI;
-using OpenAI.Chat;
 using OpenAI.Embeddings;
-using System;
+using Senparc.AI.AgentKernel.Providers.FastAPI;
+using Senparc.AI.AgentKernel.Providers.HuggingFace;
 using System.ClientModel;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
 
 namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
 {
@@ -18,37 +14,85 @@ namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
         #region AddEmbedding
 
         public static EmbeddingClient AddOpenAIEmbedding(this IAIKernelBuilder kernelBuilder,
-            string apiKey, string modelName)
+            string apiKey,
+            string modelName)
         {
             return new EmbeddingClient(modelName, apiKey);
-            //var embeddingClient = new OpenAIClient(apiKey).GetEmbeddingClient(modelName);
+        }
+
+        public static EmbeddingClient AddOpenAICompatibleEmbedding(this IAIKernelBuilder kernelBuilder,
+            string apiKey,
+            string modelName,
+            string endpoint)
+        {
+            var client = new OpenAIClient(
+                credential: new ApiKeyCredential(apiKey ?? string.Empty),
+                options: new OpenAIClientOptions
+                {
+                    Endpoint = new Uri(endpoint)
+                });
+
+            return client.GetEmbeddingClient(modelName);
         }
 
         public static EmbeddingClient AddAzureOpenAIEmbedding(this IAIKernelBuilder kernelBuilder,
-            Uri endpoint, ApiKeyCredential credential, AzureOpenAIClientOptions options, string azureDeploymentName)
+            Uri endpoint,
+            ApiKeyCredential credential,
+            AzureOpenAIClientOptions options,
+            string azureDeploymentName)
         {
             return new AzureOpenAIClient(endpoint, credential, options).GetEmbeddingClient(azureDeploymentName);
         }
 
         public static EmbeddingClient AddNeuCharAIEmbedding(this IAIKernelBuilder kernelBuilder,
-          Uri endpoint, ApiKeyCredential credential, AzureOpenAIClientOptions options, string modelName)
+            Uri endpoint,
+            ApiKeyCredential credential,
+            AzureOpenAIClientOptions options,
+            string modelName)
         {
             return AddAzureOpenAIEmbedding(kernelBuilder, endpoint, credential, options, modelName);
         }
 
         public static OllamaApiClient AddOllamaEmbedding(this IAIKernelBuilder kernelBuilder,
-       string endpoint, string modelName)
+            string endpoint,
+            string modelName)
         {
             return new OllamaApiClient(endpoint, modelName);
         }
 
-        #endregion
+        public static IEmbeddingGenerator AddFastAPIEmbedding(this IAIKernelBuilder kernelBuilder,
+            string apiKey,
+            string modelName,
+            string endpoint,
+            int? dimensions = null)
+        {
+            return FastAPIProviderClientFactory.CreateEmbeddingGenerator(
+                modelName: modelName,
+                endpoint: endpoint,
+                apiKey: apiKey,
+                dimensions: dimensions);
+        }
 
-        #region Generate Embedding
+        public static IEmbeddingGenerator AddHuggingFaceEmbedding(this IAIKernelBuilder kernelBuilder,
+            string apiKey,
+            string modelName,
+            string? endpoint,
+            int? dimensions = null)
+        {
+            return HuggingFaceProviderClientFactory.CreateEmbeddingGenerator(
+                modelName: modelName,
+                endpoint: endpoint,
+                apiKey: apiKey,
+                dimensions: dimensions);
+        }
 
-        //public static Task GenerateOpenAIEmbeddingAsync(List<string> content) { 
-        //return new 
-        //}
+        public static EmbeddingClient AddDeepSeekEmbedding(this IAIKernelBuilder kernelBuilder,
+            string apiKey,
+            string modelName,
+            string endpoint)
+        {
+            return kernelBuilder.AddOpenAICompatibleEmbedding(apiKey, modelName, endpoint);
+        }
 
         #endregion
     }
