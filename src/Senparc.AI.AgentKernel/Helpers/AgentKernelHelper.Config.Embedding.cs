@@ -1,4 +1,4 @@
-﻿using Senparc.AI.AgentKernel.Kernels;
+using Senparc.AI.AgentKernel.Kernels;
 using Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
@@ -41,7 +41,7 @@ namespace Senparc.AI.AgentKernel.Helpers
             {
                 if (string.IsNullOrWhiteSpace(endpoint))
                 {
-                    throw new SenparcAiException($"{platformName} 必须提供 Endpoint");
+                    throw new SenparcAiException($"{platformName} must provide Endpoint");
                 }
 
                 return endpoint;
@@ -82,7 +82,7 @@ namespace Senparc.AI.AgentKernel.Helpers
                     apiKey: senparcAiSetting.ApiKey,
                     modelName: modelName,
                     endpoint: GetEndpointOrThrow(senparcAiSetting.DeepSeekEndpoint, nameof(AiPlatform.DeepSeek))),
-                AiPlatform.Anthropic => throw new SenparcAiException("Anthropic 官方接口当前不提供 Embedding API，请切换到支持 Embedding 的平台。"),
+                AiPlatform.Anthropic => throw new SenparcAiException("The official Anthropic API does not currently provide an Embedding API. Switch to a platform that supports Embedding."),
                 AiPlatform.Gemini => kernelBuilder.AddOpenAICompatibleEmbedding(
                     apiKey: senparcAiSetting.ApiKey,
                     modelName: modelName,
@@ -95,7 +95,7 @@ namespace Senparc.AI.AgentKernel.Helpers
                     apiKey: senparcAiSetting.ApiKey,
                     modelName: modelName,
                     endpoint: GetEndpointOrThrow(senparcAiSetting.KimiEndpoint, nameof(AiPlatform.Kimi))),
-                AiPlatform.XunFei => throw new SenparcAiException("XunFei 当前接入路径为 OpenAI-compatible Chat API，未包含 Embedding 接口。"),
+                AiPlatform.XunFei => throw new SenparcAiException("The current XunFei integration path is the OpenAI-compatible Chat API and does not include an Embedding API."),
 
                 _ => throw new SenparcAiException($"ConfigTextEmbeddingGeneration does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };

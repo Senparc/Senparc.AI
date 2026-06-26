@@ -1,4 +1,4 @@
-﻿using Azure.AI.OpenAI;
+using Azure.AI.OpenAI;
 using Senparc.AI.AgentKernel.Kernels;
 using Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions;
 using Senparc.AI.Exceptions;
@@ -41,7 +41,7 @@ namespace Senparc.AI.AgentKernel.Helpers
             {
                 if (string.IsNullOrWhiteSpace(endpoint))
                 {
-                    throw new SenparcAiException($"{platformName} 必须提供 Endpoint");
+                    throw new SenparcAiException($"{platformName} must provide Endpoint");
                 }
 
                 return endpoint;
@@ -72,7 +72,7 @@ namespace Senparc.AI.AgentKernel.Helpers
                     modelName: modelName,
                     endpoint: GetEndpointOrThrow(senparcAiSetting.FastAPIEndpoint, nameof(AiPlatform.FastAPI))),
                 AiPlatform.Ollama => kernelBuilder.AddOllamaChatCompletion(senparcAiSetting.OllamaEndpoint, modelName),
-                // 这些平台使用 OpenAI-Compatible 的 Chat API 协议（或兼容网关）。
+                // These platforms use the OpenAI-compatible Chat API protocol, or a compatible gateway.
                 AiPlatform.DeepSeek => kernelBuilder.AddDeepSeekChatCompletion(
                     apiKey: senparcAiSetting.ApiKey,
                     modelName: modelName,
