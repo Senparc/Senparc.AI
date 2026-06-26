@@ -82,5 +82,13 @@ namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
         {
             return kernelBuilder.AddOpenAICompatibleChatCompletion(apiKey, modelName, endpoint);
         }
+
+        public static ChatClient AddXunFeiChatCompletion(this IAIKernelBuilder kernelBuilder,
+            string apiKey,
+            string modelName,
+            string endpoint)
+        {
+            return kernelBuilder.AddOpenAICompatibleChatCompletion(apiKey, modelName, endpoint);
+        }
     }
 }

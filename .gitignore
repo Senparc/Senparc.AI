@@ -18,3 +18,5 @@ appsettings.Development.json
 .cursor/steps/step-04-samples-and-validation.md
 **/SenparcTraceLog/
 Samples/Senparc.AI.Samples.Consoles/TTS-Output-*
+Samples/Senparc.AI.Samples.AgentKernelConsoles/Senparc.AI.Image-*.png
+Samples/Senparc.AI.Samples.AgentKernelConsoles/TTS-*.mp3
