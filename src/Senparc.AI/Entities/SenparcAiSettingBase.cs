@@ -105,6 +105,11 @@ namespace Senparc.AI.Entities
         public virtual bool UseKimi => AiPlatform == AiPlatform.Kimi;
 
         /// <summary>
+        /// 是否使用讯飞（OpenAI-Compatible）
+        /// </summary>
+        public virtual bool UseXunFei => AiPlatform == AiPlatform.XunFei;
+
+        /// <summary>
         /// AI 平台类型
         /// </summary>
         public virtual AiPlatform AiPlatform { get; set; }
@@ -124,6 +129,7 @@ namespace Senparc.AI.Entities
         public virtual GeminiKeys GeminiKeys { get; set; }
         public virtual QwenKeys QwenKeys { get; set; }
         public virtual KimiKeys KimiKeys { get; set; }
+        public virtual XunFeiKeys XunFeiKeys { get; set; }
 
         /// <summary>
         /// Azure OpenAI 或 OpenAI API Key
@@ -141,6 +147,7 @@ namespace Senparc.AI.Entities
             AiPlatform.Gemini => GeminiKeys?.ApiKey,
             AiPlatform.Qwen => QwenKeys?.ApiKey,
             AiPlatform.Kimi => KimiKeys?.ApiKey,
+            AiPlatform.XunFei => XunFeiKeys?.ApiKey,
             _ => ""
         };
 
@@ -239,6 +246,11 @@ namespace Senparc.AI.Entities
 
         #region Kimi
         public virtual string KimiEndpoint => KimiKeys?.Endpoint;
+
+        #endregion
+
+        #region XunFei
+        public virtual string XunFeiEndpoint => XunFeiKeys?.Endpoint;
 
         #endregion
 
@@ -382,6 +394,18 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
+        /// 设置 XunFei（OpenAI-Compatible）
+        /// </summary>
+        /// <param name="xunFeiKeys"></param>
+        /// <returns></returns>
+        public ISenparcAiSetting SetXunFei(XunFeiKeys xunFeiKeys)
+        {
+            this.AiPlatform = AiPlatform.XunFei;
+            this.XunFeiKeys = xunFeiKeys;
+            return this;
+        }
+
+        /// <summary>
         /// 设置其他平台
         /// </summary>
         /// <returns></returns>
@@ -407,6 +431,7 @@ namespace Senparc.AI.Entities
             AiPlatform.Gemini => GeminiKeys.ModelName,
             AiPlatform.Qwen => QwenKeys.ModelName,
             AiPlatform.Kimi => KimiKeys.ModelName,
+            AiPlatform.XunFei => XunFeiKeys.ModelName,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 ModelName 输出")
         };
 
@@ -424,6 +449,7 @@ namespace Senparc.AI.Entities
             AiPlatform.Gemini => null,
             AiPlatform.Qwen => null,
             AiPlatform.Kimi => null,
+            AiPlatform.XunFei => null,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 DeploymentName 输出")
         };
 

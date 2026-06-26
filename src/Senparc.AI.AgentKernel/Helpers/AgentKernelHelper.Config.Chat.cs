@@ -93,6 +93,10 @@ namespace Senparc.AI.AgentKernel.Helpers
                     apiKey: senparcAiSetting.ApiKey,
                     modelName: modelName,
                     endpoint: GetEndpointOrThrow(senparcAiSetting.KimiEndpoint, nameof(AiPlatform.Kimi))),
+                AiPlatform.XunFei => kernelBuilder.AddXunFeiChatCompletion(
+                    apiKey: senparcAiSetting.ApiKey,
+                    modelName: modelName,
+                    endpoint: GetEndpointOrThrow(senparcAiSetting.XunFeiEndpoint, nameof(AiPlatform.XunFei))),
 
                 _ => throw new SenparcAiException($"ConfigChat 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };

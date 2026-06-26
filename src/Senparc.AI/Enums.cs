@@ -25,7 +25,8 @@ namespace Senparc.AI
         Anthropic = 1024,
         Gemini = 2048,
         Qwen = 4096,
-        Kimi = 8192
+        Kimi = 8192,
+        XunFei = 16384
     }
 
     /// <summary>

@@ -19,6 +19,7 @@ namespace Senparc.AI.AgentKernel.Tests.Helpers
         [DataRow(AiPlatform.Gemini)]
         [DataRow(AiPlatform.Qwen)]
         [DataRow(AiPlatform.Kimi)]
+        [DataRow(AiPlatform.XunFei)]
         public void ConfigChat_ShouldCreateChatClient_ForSupportedAdditionalPlatforms(AiPlatform platform)
         {
             var setting = CreateSetting(platform);
@@ -70,6 +71,16 @@ namespace Senparc.AI.AgentKernel.Tests.Helpers
         public void ConfigTextEmbeddingGeneration_Anthropic_ShouldThrow()
         {
             var setting = CreateSetting(AiPlatform.Anthropic);
+            var helper = new AgentKernelHelper(setting, httpClient: new HttpClient());
+
+            Assert.ThrowsExactly<SenparcAiException>(() =>
+                helper.ConfigTextEmbeddingGeneration("UnitTestUser", senparcAiSetting: setting));
+        }
+
+        [TestMethod]
+        public void ConfigTextEmbeddingGeneration_XunFei_ShouldThrow()
+        {
+            var setting = CreateSetting(AiPlatform.XunFei);
             var helper = new AgentKernelHelper(setting, httpClient: new HttpClient());
 
             Assert.ThrowsExactly<SenparcAiException>(() =>
@@ -144,6 +155,14 @@ namespace Senparc.AI.AgentKernel.Tests.Helpers
                     {
                         ApiKey = "kimi-key",
                         Endpoint = "https://api.moonshot.ai/v1",
+                        ModelName = modelName
+                    });
+                    break;
+                case AiPlatform.XunFei:
+                    setting.SetXunFei(new XunFeiKeys
+                    {
+                        ApiKey = "xunfei-key",
+                        Endpoint = "https://maas-api.cn-huabei-1.xf-yun.com/v1",
                         ModelName = modelName
                     });
                     break;

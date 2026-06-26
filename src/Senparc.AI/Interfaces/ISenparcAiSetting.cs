@@ -50,6 +50,7 @@ namespace Senparc.AI.Interfaces
             AiPlatform.Gemini => GeminiEndpoint,
             AiPlatform.Qwen => QwenEndpoint,
             AiPlatform.Kimi => KimiEndpoint,
+            AiPlatform.XunFei => XunFeiEndpoint,
             _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 Endpoint 输出")
         };
 
@@ -78,6 +79,7 @@ namespace Senparc.AI.Interfaces
         GeminiKeys GeminiKeys { get; set; }
         QwenKeys QwenKeys { get; set; }
         KimiKeys KimiKeys { get; set; }
+        XunFeiKeys XunFeiKeys { get; set; }
 
         /// <summary>
         /// Neuchar OpenAI 或 Azure OpenAI 或 OpenAI API Key
@@ -180,6 +182,12 @@ namespace Senparc.AI.Interfaces
         #region Kimi
 
         string KimiEndpoint { get; }
+
+        #endregion
+
+        #region XunFei
+
+        string XunFeiEndpoint { get; }
 
         #endregion
 

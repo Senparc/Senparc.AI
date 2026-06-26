@@ -30,8 +30,15 @@ When network access is restored, Anthropic/Gemini can be switched to official Nu
 | DeepSeek | Officially compatible with OpenAI/Anthropic API shapes | Reuses OpenAI-compatible path | Only `apiKey` / `endpoint` / `model` need to be swapped |
 | Qwen (DashScope) | Official OpenAI-compatible docs; swap `apiKey` / `base_url` / `model` | Reuses OpenAI-compatible path | No duplicate adapter layer |
 | Kimi (Moonshot) | Official OpenAI-compatible docs; swap `apiKey` / `base_url` / `model` | Reuses OpenAI-compatible path | No duplicate adapter layer |
+| XunFei (iFLYTEK MaaS) | Official docs provide OpenAI protocol access with `apiKey` + `base_url` | Reuses OpenAI-compatible path (`XunFeiKeys`) | Current integration targets MaaS OpenAI-compatible Chat API; Embedding is not enabled by default |
 | Anthropic | `x-api-key` + `anthropic-version` (not a native OpenAI API) | Chat via compatible path; Embedding explicitly unsupported | `AnthropicKeys` adds `AnthropicVersion` field |
 | Gemini | API Key (Google AI) or Vertex parameters (Project/Location) | Compatible entry point retained for now | `GeminiKeys` adds `UseVertexAI` / `ProjectId` / `Location` to align with official parameter structure |
+
+### XunFei integration note
+
+XunFei currently has multiple API lines. This release uses the **MaaS OpenAI-compatible route** for `AiPlatform.XunFei`, because it can be cleanly integrated into the existing OpenAI-compatible adapter layer.
+
+For XunFei Spark HTTP/WebSocket documentation using URL-signature authentication (`appid + apiKey + apiSecret`), a dedicated custom adapter can be added in a future release if required by business scenarios.
 
 ## 4. Recommended Official Packages (switch when network is available)
 
@@ -50,6 +57,7 @@ When network access is restored, Anthropic/Gemini can be switched to official Nu
   - Anthropic adds `AnthropicVersion`
   - Gemini adds Vertex-related fields
 - Anthropic Embedding throws at configuration time to avoid implying official support.
+- XunFei added as OpenAI-compatible Chat platform (`XunFeiKeys` with provider-specific endpoint + apiKey).
 
 ## 6. Reference Links
 
@@ -73,6 +81,12 @@ When network access is restored, Anthropic/Gemini can be switched to official Nu
   - https://platform.kimi.ai/docs/api/overview
 - Kimi API quickstart:
   - https://platform.kimi.ai/docs/guide/start-using-kimi-api
+- XunFei MaaS Coding Plan (supports OpenAI protocol):
+  - https://www.xfyun.cn/doc/spark/CodingPlan.html
+- XunFei 推理服务 HTTP 协议（OpenAI Python 示例）:
+  - https://www.xfyun.cn/doc/spark/%E7%B2%BE%E8%B0%83%E6%9C%8D%E5%8A%A1API-http.html
+- XunFei 通用鉴权（appid / APIKey / APISecret 签名模式）:
+  - https://www.xfyun.cn/doc/spark/general_url_authentication.html
 - HuggingFace Inference Providers:
   - https://huggingface.co/docs/inference-providers/index
   - https://huggingface.co/docs/inference-providers/en/guides/first-api-call

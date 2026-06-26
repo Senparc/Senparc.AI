@@ -95,6 +95,7 @@ namespace Senparc.AI.AgentKernel.Helpers
                     apiKey: senparcAiSetting.ApiKey,
                     modelName: modelName,
                     endpoint: GetEndpointOrThrow(senparcAiSetting.KimiEndpoint, nameof(AiPlatform.Kimi))),
+                AiPlatform.XunFei => throw new SenparcAiException("XunFei 当前接入路径为 OpenAI-compatible Chat API，未包含 Embedding 接口。"),
 
                 _ => throw new SenparcAiException($"ConfigTextEmbeddingGeneration 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
             };

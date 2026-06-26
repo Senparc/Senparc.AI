@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>0.1.8</Version>
+		<Version>0.1.8.1</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>13.0</LangVersion>
@@ -11,7 +11,7 @@
 		<RootNamespace>Senparc.AI.AgentKernel</RootNamespace>
 		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
 		<Description>
-			Senparc.AI AgentKernel module built on Microsoft Agent Framework, implementing Senparc.AI standard interfaces with support for Chat, Embedding, SpeechToText, TextToSpeech, TextToImage, vector storage, and multi-platform providers including OpenAI, Azure OpenAI, NeuCharAI, HuggingFace, FastAPI, Ollama, DeepSeek, Anthropic, Gemini, Qwen, and Kimi
+			Senparc.AI AgentKernel module built on Microsoft Agent Framework, implementing Senparc.AI standard interfaces with support for Chat, Embedding, SpeechToText, TextToSpeech, TextToImage, vector storage, and multi-platform providers including OpenAI, Azure OpenAI, NeuCharAI, HuggingFace, FastAPI, Ollama, DeepSeek, Anthropic, Gemini, Qwen, Kimi, and XunFei
 		</Description>
 		<Copyright>Senparc Copyright © 2004~2026</Copyright>
 		<PackageTags>
@@ -45,7 +45,7 @@
 			5. Keep ConfigAudioToText / ConfigTextToAudio as legacy aliases
 			6. Add SttSample / TtsSample console samples and KernelConfigExtensionsSpeechTests
 			[2026-06-25] v0.1.8 Multi-platform Provider support expansion
-			1. ConfigChat / ConfigTextEmbeddingGeneration: HuggingFace, FastAPI, DeepSeek, Anthropic, Gemini, Qwen, Kimi
+			1. ConfigChat / ConfigTextEmbeddingGeneration: HuggingFace, FastAPI, DeepSeek, Anthropic, Gemini, Qwen, Kimi, XunFei(Chat)
 			2. New provider packages: Senparc.AI.AgentKernel.Providers.HuggingFace / Providers.FastAPI (OpenAI-compatible IChatClient / IEmbeddingGenerator)
 			3. KernelBuilderExtension: AddOpenAICompatibleChatCompletion / AddOpenAICompatibleEmbedding for OpenAI-compatible platforms
 			4. HuggingFace default endpoint https://router.huggingface.co/v1; FastAPI supports custom OpenAI-compatible gateway

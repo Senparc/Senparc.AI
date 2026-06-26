@@ -10,6 +10,7 @@ namespace Senparc.AI.AgentKernel.Tests.Helpers
         [DataRow(AiPlatform.Gemini)]
         [DataRow(AiPlatform.Qwen)]
         [DataRow(AiPlatform.Kimi)]
+        [DataRow(AiPlatform.XunFei)]
         public void AdditionalPlatforms_ShouldResolveProviderSpecificProperties(AiPlatform platform)
         {
             var endpoint = $"https://{platform.ToString().ToLowerInvariant()}.example.com/v1";
@@ -70,6 +71,14 @@ namespace Senparc.AI.AgentKernel.Tests.Helpers
                     break;
                 case AiPlatform.Kimi:
                     setting.SetKimi(new KimiKeys
+                    {
+                        ApiKey = apiKey,
+                        Endpoint = endpoint,
+                        ModelName = modelName
+                    });
+                    break;
+                case AiPlatform.XunFei:
+                    setting.SetXunFei(new XunFeiKeys
                     {
                         ApiKey = apiKey,
                         Endpoint = endpoint,
