@@ -85,7 +85,7 @@ public class McpSample
             }
         }
 
-        var toolset = await McpToolsetBuilder.PrepareAsync(selected, resolvedSseUrl);
+        await using var toolset = await McpToolsetBuilder.PrepareAsync(selected, resolvedSseUrl);
         PrintToolDiscoveryDebug(selected, toolset);
 
         var chatOptions = toolset.CreateChatClientAgentOptions(selected.SystemPrompt);

@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>0.1.8.1</Version>
+		<Version>0.1.9</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>13.0</LangVersion>
@@ -52,6 +52,9 @@
 			5. Anthropic Embedding throws at config time (official API does not provide Embedding)
 			6. Senparc.AI provider-specific Keys: AnthropicKeys, GeminiKeys, QwenKeys, KimiKeys, FastAPIKeys, HuggingFaceKeys
 			7. Add AgentKernelHelperPlatformSupportTests / ProviderFactoriesTests / SenparcAiSettingAdditionalPlatformTests
+			[2026-06-28] v0.1.9 Add MCP support
+			1. Add McpToolsetBuilder / McpToolsetResult / McpToolBindingMode / McpServerOption
+			2. Add McpSample console sample
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

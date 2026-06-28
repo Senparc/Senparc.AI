@@ -38,24 +38,41 @@ namespace Senparc.AI.AgentKernel.Mcp
             }
 
             var bindingMode = option.GetBindingMode();
+            var mcpClient = await CreateMcpClientAsync(mcpUri, option.AuthorizationBearerToken);
 
-            await using var mcpClient = await CreateMcpClientAsync(mcpUri, option.AuthorizationBearerToken);
-            var discoveryResult = await TryListMcpToolsAsync(mcpClient);
-            var discoveredMcpTools = discoveryResult.Tools;
-
-            var chatTools = BuildChatTools(bindingMode, option, mcpUri, discoveredMcpTools);
-
-            return new McpToolsetResult
+            try
             {
-                ServerOption = option,
-                BindingMode = bindingMode,
-                ResolvedSseUrl = resolvedSseUrl,
-                McpUri = mcpUri,
-                DiscoveredMcpTools = discoveredMcpTools,
-                DiscoveredToolNames = discoveredMcpTools.Select(z => z.Name).ToList(),
-                ChatTools = chatTools,
-                ToolDiscoveryError = discoveryResult.Error
-            };
+                var discoveryResult = await TryListMcpToolsAsync(mcpClient);
+                var discoveredMcpTools = discoveryResult.Tools;
+
+                var chatTools = BuildChatTools(bindingMode, option, mcpUri, discoveredMcpTools);
+
+                var keepRuntimeClient = bindingMode == McpToolBindingMode.LocalFunctionProxy;
+                var result = new McpToolsetResult
+                {
+                    ServerOption = option,
+                    BindingMode = bindingMode,
+                    ResolvedSseUrl = resolvedSseUrl,
+                    McpUri = mcpUri,
+                    DiscoveredMcpTools = discoveredMcpTools,
+                    DiscoveredToolNames = discoveredMcpTools.Select(z => z.Name).ToList(),
+                    ChatTools = chatTools,
+                    ToolDiscoveryError = discoveryResult.Error,
+                    RuntimeMcpClient = keepRuntimeClient ? mcpClient : null
+                };
+
+                if (!keepRuntimeClient)
+                {
+                    await mcpClient.DisposeAsync();
+                }
+
+                return result;
+            }
+            catch
+            {
+                await mcpClient.DisposeAsync();
+                throw;
+            }
         }
 
         /// <summary>
