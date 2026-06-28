@@ -259,6 +259,25 @@ namespace Senparc.AI.Entities
 
         #endregion
 
+        public virtual bool IsMcpServersSetted => McpServers != null && McpServers.Count > 0;
+
+       public virtual string Endpoint => AiPlatform switch
+       {
+        AiPlatform.OpenAI => OpenAIEndpoint,
+        AiPlatform.AzureOpenAI => AzureEndpoint,
+        AiPlatform.NeuCharAI => NeuCharEndpoint,
+        AiPlatform.HuggingFace => HuggingFaceEndpoint,
+        AiPlatform.FastAPI => FastAPIEndpoint,
+        AiPlatform.Ollama => OllamaEndpoint,
+        AiPlatform.DeepSeek => DeepSeekEndpoint,
+        AiPlatform.Anthropic => AnthropicEndpoint,
+        AiPlatform.Gemini => GeminiEndpoint,
+        AiPlatform.Qwen => QwenEndpoint,
+        AiPlatform.Kimi => KimiEndpoint,
+        AiPlatform.XunFei => XunFeiEndpoint,
+        _ => throw new SenparcAiException($"未配置 {AiPlatform} 的 Endpoint 输出")
+       };
+
         public virtual bool IsOpenAiKeysSetted => OpenAIKeys != null && !OpenAIKeys.ApiKey.IsNullOrEmpty();
 
         public SenparcAiSettingBase()
