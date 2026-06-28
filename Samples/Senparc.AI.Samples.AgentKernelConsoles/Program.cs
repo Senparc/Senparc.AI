@@ -16,6 +16,7 @@ var services = new ServiceCollection();
 services.AddSenparcGlobalServices(config);
 services.AddSenparcAI(config);
 services.AddMemoryCache();
+services.AddSingleton<IConfiguration>(config);
 
 services.AddSingleton<SampleSetting>();
 services.AddTransient<ChatSample>();
@@ -25,6 +26,7 @@ services.AddTransient<EmbeddingRagSample>();
 services.AddTransient<ImageGenerateSample>();
 services.AddTransient<SttSample>();
 services.AddTransient<TtsSample>();
+services.AddTransient<McpSample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -52,6 +54,7 @@ Console.WriteLine("[5] Planner 任务计划");
 Console.WriteLine("[6] PluginFromObject / Function Calling");
 Console.WriteLine("[7] STT（Speech to Text）");
 Console.WriteLine("[8] TTS（Text to Speech）");
+Console.WriteLine("[9] MCP（Hosted MCP Server Tool）");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -107,6 +110,9 @@ switch (index)
         break;
     case "8":
         await serviceProvider.GetRequiredService<TtsSample>().RunAsync();
+        break;
+    case "9":
+        await serviceProvider.GetRequiredService<McpSample>().RunAsync();
         break;
     case "0":
         serviceProvider.GetRequiredService<SampleSetting>().Run();

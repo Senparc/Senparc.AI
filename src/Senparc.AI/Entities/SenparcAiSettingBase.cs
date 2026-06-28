@@ -50,6 +50,11 @@ namespace Senparc.AI.Entities
         public VectorDB VectorDB { get; set; }
 
         /// <summary>
+        /// MCP Server 配置
+        /// </summary>
+        public List<McpServerOption> McpServers { get; set; } = new List<McpServerOption>();
+
+        /// <summary>
         /// 是否使用 OpenAI
         /// </summary>
         public virtual bool UseOpenAI => AiPlatform == AiPlatform.OpenAI;
@@ -259,6 +264,7 @@ namespace Senparc.AI.Entities
         public SenparcAiSettingBase()
         {
             VectorDB = new VectorDB() { Type = VectorDBType.Default };
+            McpServers = new List<McpServerOption>();
         }
 
         #region 快速配置方法

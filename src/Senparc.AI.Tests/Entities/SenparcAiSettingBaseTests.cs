@@ -27,5 +27,13 @@ namespace Senparc.AI.Tests.Entities
             Assert.IsTrue(senparcAiSetting.IsOpenAiKeysSetted);
             
         }
+
+        [TestMethod]
+        public void McpServers_Default_ShouldNotBeNull()
+        {
+            var senparcAiSetting = new SenparcAiSettingBase();
+            Assert.IsNotNull(senparcAiSetting.McpServers);
+            Assert.AreEqual(0, senparcAiSetting.McpServers.Count);
+        }
     }
 }
