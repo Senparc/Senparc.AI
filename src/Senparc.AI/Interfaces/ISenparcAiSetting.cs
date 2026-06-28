@@ -37,6 +37,11 @@ namespace Senparc.AI.Interfaces
 
         VectorDB VectorDB { get; set; }
 
+        /// <summary>
+        /// MCP Server 配置集合。
+        /// </summary>
+        List<McpServerOption> McpServers { get; set; }
+
         string Endpoint => AiPlatform switch
         {
             AiPlatform.OpenAI => OpenAIEndpoint,
