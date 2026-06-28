@@ -11,7 +11,7 @@ using System.Net;
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// MCP 示例（Hosted MCP Server Tool）。
+/// MCP 示例：支持 LocalFunctionProxy / HostedServerTool 两种工具绑定模式。
 /// </summary>
 public class McpSample
 {
@@ -58,8 +58,13 @@ public class McpSample
             return;
         }
 
+        // 绑定模式决定“工具由谁执行”：
+        // LocalFunctionProxy：模型调用本地 AIFunction（本进程转发到 MCP）。
+        // HostedServerTool：模型服务端直接连接 MCP Server。
         var bindingMode = selected.GetBindingMode();
 
+        // SSE URL 解析优先级：
+        // SseUrl(公网) > LocalSseUrl + PublicBaseUrl/环境变量映射 > LocalSseUrl(原值)。
         var resolvedSseUrl = ResolveSseUrl(selected);
         if (resolvedSseUrl.IsNullOrEmpty())
         {
@@ -72,6 +77,7 @@ public class McpSample
             IsLocalAddress(resolvedSseUrl) &&
             selected.RequirePublicUrl)
         {
+            // Hosted 模式下，MCP 连接发生在“模型服务端”，localhost 通常不可达。
             SampleHelper.PrintNote("[提示] 检测到本地地址。Hosted MCP 由模型服务端访问，通常无法直连 localhost。");
             PrintExposeUrlHint(resolvedSseUrl);
 
@@ -97,11 +103,13 @@ public class McpSample
             return;
         }
 
+        // 建立 MCP 客户端用于探测工具；Local 模式下也用于后续本地代理调用。
         await using var mcpClient = await CreateMcpClientAsync(mcpUri, selected.AuthorizationBearerToken);
         var discoveredMcpTools = await ListMcpToolsAsync(mcpClient);
         var discoveredToolNames = discoveredMcpTools.Select(z => z.Name).ToList();
         PrintToolDiscoveryDebug(selected, bindingMode, discoveredToolNames);
 
+        // 根据绑定模式构造最终传给 ChatOptions.Tools 的工具集合。
         var chatTools = BuildChatTools(bindingMode, selected, mcpUri, discoveredMcpTools);
         var chatOptions = new ChatClientAgentOptions
         {
@@ -147,6 +155,7 @@ public class McpSample
         Console.WriteLine($"[调试] SSE URL: {resolvedSseUrl}");
         Console.WriteLine("[调试] 正在创建 AgentSession...");
 
+        // 将 MCP 工具（Hosted 或 Local）绑定到当前会话。
         var iWantToRun = await agentHandler.IWantTo(SampleSetting.CurrentSetting)
             .ConfigChatModel(UserId, chatOptions)
             .BuildKernelWithAgentSessionAsync();
@@ -197,6 +206,7 @@ public class McpSample
     {
         if (bindingMode == McpToolBindingMode.HostedServerTool)
         {
+            // Hosted 模式：仅暴露一个 HostedMcpServerTool，由模型服务端负责调用远端 MCP。
             var hosted = BuildHostedMcpTool(option, mcpUri);
             return [hosted];
         }
@@ -230,6 +240,9 @@ public class McpSample
         return tool;
     }
 
+    /// <summary>
+    /// 输出“配置白名单”和“服务端真实探测结果”的对照，便于快速定位工具未生效问题。
+    /// </summary>
     private static void PrintToolDiscoveryDebug(McpServerOption option, McpToolBindingMode bindingMode, IReadOnlyList<string> discoveredTools)
     {
         Console.WriteLine($"[调试] 配置项 AllowedTools（白名单）: {option.AllowedTools.Count}");
@@ -254,6 +267,9 @@ public class McpSample
         }
     }
 
+    /// <summary>
+    /// 通过 SSE 传输创建 MCP 客户端。
+    /// </summary>
     private static async Task<McpClient> CreateMcpClientAsync(Uri mcpUri, string? bearerToken)
     {
         var transportOptions = new HttpClientTransportOptions
@@ -272,6 +288,9 @@ public class McpSample
         return await McpClient.CreateAsync(transport);
     }
 
+    /// <summary>
+    /// 尝试探测 MCP Server 的工具列表；失败时返回空集合并打印调试信息。
+    /// </summary>
     private static async Task<IReadOnlyList<McpClientTool>> ListMcpToolsAsync(McpClient client)
     {
         try
@@ -285,6 +304,9 @@ public class McpSample
         }
     }
 
+    /// <summary>
+    /// 读取 McpSample.Servers 配置并做最小合法性过滤。
+    /// </summary>
     private IReadOnlyList<McpServerOption> LoadServerOptions()
     {
         var list = new List<McpServerOption>();
@@ -345,6 +367,12 @@ public class McpSample
         return bool.TryParse(value, out var parsed) ? parsed : defaultValue;
     }
 
+    /// <summary>
+    /// 解析可用 SSE 地址：
+    /// 1) 优先 SseUrl（公网）；
+    /// 2) 否则尝试 LocalSseUrl + PublicBaseUrl（配置或环境变量）合成；
+    /// 3) 失败则回退 LocalSseUrl。
+    /// </summary>
     private static string? ResolveSseUrl(McpServerOption option)
     {
         if (!option.SseUrl.IsNullOrEmpty())
@@ -376,6 +404,9 @@ public class McpSample
         return mergedUrl;
     }
 
+    /// <summary>
+    /// 用公网 Base URL 替换本地地址的域名/端口，保留原 LocalSseUrl 的路径和查询参数。
+    /// </summary>
     private static bool TryMergePublicBaseUrl(string publicBaseUrl, string localSseUrl, out string mergedUrl, out string error)
     {
         mergedUrl = localSseUrl;
@@ -423,6 +454,9 @@ public class McpSample
         return false;
     }
 
+    /// <summary>
+    /// 提示如何将本地 MCP SSE 地址通过隧道暴露为公网地址。
+    /// </summary>
     private static void PrintExposeUrlHint(string sseUrl)
     {
         if (!Uri.TryCreate(sseUrl, UriKind.Absolute, out var uri))
@@ -469,15 +503,25 @@ public class McpSample
 
         public McpToolBindingMode GetBindingMode()
         {
+            // 默认值选择 LocalFunctionProxy，保证在配置缺失时仍可进行本地调试。
             return Enum.TryParse<McpToolBindingMode>(ToolBindingMode, ignoreCase: true, out var parsed)
                 ? parsed
                 : McpToolBindingMode.LocalFunctionProxy;
         }
     }
 
+    /// <summary>
+    /// MCP 工具绑定模式。
+    /// </summary>
     private enum McpToolBindingMode
     {
+        /// <summary>
+        /// 本地函数代理：模型调用本地函数，本进程再转发到 MCP。
+        /// </summary>
         LocalFunctionProxy = 0,
+        /// <summary>
+        /// Hosted MCP：模型服务端直接连接并调用 MCP Server。
+        /// </summary>
         HostedServerTool = 1,
     }
 }
