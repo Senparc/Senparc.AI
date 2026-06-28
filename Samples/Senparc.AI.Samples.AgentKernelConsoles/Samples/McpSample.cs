@@ -1,6 +1,7 @@
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
+using ModelContextProtocol.Client;
 using Senparc.AI.AgentKernel;
 using Senparc.AI.AgentKernel.Handlers;
 using Senparc.AI.Interfaces;
@@ -39,8 +40,8 @@ public class McpSample
 
         agentHandler.AgentKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);
 
-        Console.WriteLine("MCP Sample：通过 HostedMcpServerTool 使用 MCP Server。");
-        Console.WriteLine("提示：当 SSE 地址是 localhost 时，通常需要先映射为公网地址。");
+        Console.WriteLine("MCP Sample：支持 LocalFunctionProxy / HostedServerTool 两种模式。");
+        Console.WriteLine("提示：HostedServerTool 模式下，当 SSE 地址是 localhost 时通常需要映射公网地址。");
         Console.WriteLine();
 
         var serverOptions = LoadServerOptions();
@@ -57,6 +58,8 @@ public class McpSample
             return;
         }
 
+        var bindingMode = selected.GetBindingMode();
+
         var resolvedSseUrl = ResolveSseUrl(selected);
         if (resolvedSseUrl.IsNullOrEmpty())
         {
@@ -65,7 +68,9 @@ public class McpSample
             return;
         }
 
-        if (IsLocalAddress(resolvedSseUrl) && selected.RequirePublicUrl)
+        if (bindingMode == McpToolBindingMode.HostedServerTool &&
+            IsLocalAddress(resolvedSseUrl) &&
+            selected.RequirePublicUrl)
         {
             SampleHelper.PrintNote("[提示] 检测到本地地址。Hosted MCP 由模型服务端访问，通常无法直连 localhost。");
             PrintExposeUrlHint(resolvedSseUrl);
@@ -92,11 +97,16 @@ public class McpSample
             return;
         }
 
-        var mcpTool = BuildHostedMcpTool(selected, mcpUri);
+        await using var mcpClient = await CreateMcpClientAsync(mcpUri, selected.AuthorizationBearerToken);
+        var discoveredMcpTools = await ListMcpToolsAsync(mcpClient);
+        var discoveredToolNames = discoveredMcpTools.Select(z => z.Name).ToList();
+        PrintToolDiscoveryDebug(selected, bindingMode, discoveredToolNames);
+
+        var chatTools = BuildChatTools(bindingMode, selected, mcpUri, discoveredMcpTools);
         var chatOptions = new ChatClientAgentOptions
         {
             Name = "McpAgent",
-            Description = "An assistant that can call hosted MCP tools.",
+            Description = "An assistant that can call MCP tools.",
             ChatOptions = new ChatOptions
             {
                 Instructions = selected.SystemPrompt.IsNullOrEmpty()
@@ -105,16 +115,32 @@ public class McpSample
                 Temperature = 0.2f,
                 TopP = 0.2f,
                 MaxOutputTokens = 2000,
-                Tools = [mcpTool],
+                Tools = chatTools,
                 AllowMultipleToolCalls = true
             }
         };
 
-        //output all tools of the mcpTool
-        Console.WriteLine($"[调试] MCP Tools: {mcpTool.AllowedTools?.Count() ?? -1}");
-        foreach (var tool in mcpTool.AllowedTools)
+        Console.WriteLine($"[调试] MCP ToolBindingMode: {bindingMode}");
+        if (bindingMode == McpToolBindingMode.HostedServerTool)
         {
-            Console.WriteLine($"[调试] MCP Tool: {tool}");
+            var mcpTool = chatTools.OfType<HostedMcpServerTool>().FirstOrDefault();
+            var hostedAllowedTools = mcpTool?.AllowedTools;
+            Console.WriteLine($"[调试] HostedMcpServerTool.AllowedTools: {(hostedAllowedTools == null ? "null（不限制，允许服务端全部工具）" : hostedAllowedTools.Count.ToString())}");
+            if (hostedAllowedTools is { Count: > 0 })
+            {
+                foreach (var toolName in hostedAllowedTools)
+                {
+                    Console.WriteLine($"[调试] Hosted 白名单工具: {toolName}");
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine($"[调试] Local MCP AIFunction 数量: {chatTools.Count}");
+            foreach (var item in chatTools)
+            {
+                Console.WriteLine($"[调试] Local MCP AIFunction: {item.Name}");
+            }
         }
 
         Console.WriteLine($"[调试] MCP Server: {selected.ServerName}");
@@ -163,7 +189,25 @@ public class McpSample
         Console.WriteLine("MCP 示例结束。");
     }
 
-    private HostedMcpServerTool BuildHostedMcpTool(McpServerOption option, Uri mcpUri)
+    private static List<AITool> BuildChatTools(
+        McpToolBindingMode bindingMode,
+        McpServerOption option,
+        Uri mcpUri,
+        IReadOnlyList<McpClientTool> discoveredMcpTools)
+    {
+        if (bindingMode == McpToolBindingMode.HostedServerTool)
+        {
+            var hosted = BuildHostedMcpTool(option, mcpUri);
+            return [hosted];
+        }
+
+        // 使用本地代理模式：将 MCP 工具作为 AIFunction 提供给模型，调用由当前进程完成。
+        return discoveredMcpTools
+            .Cast<AITool>()
+            .ToList();
+    }
+
+    private static HostedMcpServerTool BuildHostedMcpTool(McpServerOption option, Uri mcpUri)
     {
         var tool = new HostedMcpServerTool(option.ServerName, mcpUri);
 
@@ -171,15 +215,11 @@ public class McpSample
         {
             tool.ServerDescription = option.ServerDescription;
         }
-Console.WriteLine($"[调试] AllowedTools: {option.AllowedTools?.Count() ?? -1}");
-Console.WriteLine($"[调试] {option.ToJson(true)}");
 
-        if (option.AllowedTools.Count > 0 && tool.AllowedTools is { } allowedTools)
+        // AllowedTools 来自配置白名单；为空时不设置 HostedMcpServerTool.AllowedTools（保持 null = 允许全部工具）。
+        if (option.AllowedTools.Count > 0)
         {
-            foreach (var toolName in option.AllowedTools)
-            {
-                allowedTools.Add(toolName);
-            }
+            tool.AllowedTools = [.. option.AllowedTools];
         }
 
         if (!option.AuthorizationBearerToken.IsNullOrEmpty() && tool.Headers is { } headers)
@@ -188,6 +228,61 @@ Console.WriteLine($"[调试] {option.ToJson(true)}");
         }
 
         return tool;
+    }
+
+    private static void PrintToolDiscoveryDebug(McpServerOption option, McpToolBindingMode bindingMode, IReadOnlyList<string> discoveredTools)
+    {
+        Console.WriteLine($"[调试] 配置项 AllowedTools（白名单）: {option.AllowedTools.Count}");
+        if (option.AllowedTools.Count > 0)
+        {
+            foreach (var toolName in option.AllowedTools)
+            {
+                Console.WriteLine($"[调试] 配置白名单工具: {toolName}");
+            }
+        }
+        else
+        {
+            Console.WriteLine(bindingMode == McpToolBindingMode.HostedServerTool
+                ? "[调试] 配置 AllowedTools 为空：Hosted MCP 将不限制工具名（由模型服务端连接 MCP Server 时使用全部工具）。"
+                : "[调试] 配置 AllowedTools 为空：LocalFunctionProxy 将加载 MCP Server 的全部工具。");
+        }
+
+        Console.WriteLine($"[调试] MCP Server 实际工具数: {discoveredTools.Count}");
+        foreach (var toolName in discoveredTools)
+        {
+            Console.WriteLine($"[调试] MCP Server 工具: {toolName}");
+        }
+    }
+
+    private static async Task<McpClient> CreateMcpClientAsync(Uri mcpUri, string? bearerToken)
+    {
+        var transportOptions = new HttpClientTransportOptions
+        {
+            Endpoint = mcpUri,
+            TransportMode = HttpTransportMode.Sse,
+            ConnectionTimeout = TimeSpan.FromSeconds(15)
+        };
+
+        if (!bearerToken.IsNullOrEmpty())
+        {
+            transportOptions.AdditionalHeaders["Authorization"] = $"Bearer {bearerToken}";
+        }
+
+        var transport = new HttpClientTransport(transportOptions);
+        return await McpClient.CreateAsync(transport);
+    }
+
+    private static async Task<IReadOnlyList<McpClientTool>> ListMcpToolsAsync(McpClient client)
+    {
+        try
+        {
+            return (IReadOnlyList<McpClientTool>)await client.ListToolsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[调试] 无法从 MCP Server 探测工具列表：{ex.Message}");
+            return [];
+        }
     }
 
     private IReadOnlyList<McpServerOption> LoadServerOptions()
@@ -223,7 +318,8 @@ Console.WriteLine($"[调试] {option.ToJson(true)}");
                 ServerDescription = section["ServerDescription"],
                 SystemPrompt = section["SystemPrompt"],
                 AuthorizationBearerToken = section["AuthorizationBearerToken"],
-                RequirePublicUrl = false,//ParseBool(section["RequirePublicUrl"], true),
+                RequirePublicUrl = ParseBool(section["RequirePublicUrl"], true),
+                ToolBindingMode = section["ToolBindingMode"],
                 AllowedTools = allowedTools
             });
         }
@@ -345,7 +441,7 @@ Console.WriteLine($"[调试] {option.ToJson(true)}");
     private static void PrintConfigTemplate()
     {
         Console.WriteLine("示例配置（appsettings.json）：");
-        Console.WriteLine("\"McpSample\": { \"Servers\": [ { \"Name\": \"Demo\", \"ServerName\": \"demo\", \"LocalSseUrl\": \"http://127.0.0.1:3001/sse\", \"PublicBaseUrl\": \"https://xxxx.trycloudflare.com\" } ] }");
+        Console.WriteLine("\"McpSample\": { \"Servers\": [ { \"Name\": \"Demo\", \"ServerName\": \"demo\", \"LocalSseUrl\": \"http://127.0.0.1:3001/sse\", \"ToolBindingMode\": \"LocalFunctionProxy\" } ] }");
         Console.WriteLine();
     }
 
@@ -367,7 +463,21 @@ Console.WriteLine($"[调试] {option.ToJson(true)}");
         public string? ServerDescription { get; set; }
         public string? SystemPrompt { get; set; }
         public string? AuthorizationBearerToken { get; set; }
+        public string? ToolBindingMode { get; set; }
         public bool RequirePublicUrl { get; set; } = true;
         public List<string> AllowedTools { get; set; } = new();
+
+        public McpToolBindingMode GetBindingMode()
+        {
+            return Enum.TryParse<McpToolBindingMode>(ToolBindingMode, ignoreCase: true, out var parsed)
+                ? parsed
+                : McpToolBindingMode.LocalFunctionProxy;
+        }
+    }
+
+    private enum McpToolBindingMode
+    {
+        LocalFunctionProxy = 0,
+        HostedServerTool = 1,
     }
 }

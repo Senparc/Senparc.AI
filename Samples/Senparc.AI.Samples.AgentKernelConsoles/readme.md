@@ -13,7 +13,7 @@
 | Image | 文生图（TextToImage） | `KernelConfigExtensionsImageTests` |
 | STT | 语音转文字（SpeechToText） | `KernelConfigExtensionsSpeechTests` |
 | TTS | 文本转语音（TextToSpeech） | `KernelConfigExtensionsSpeechTests` |
-| MCP | Hosted MCP Server Tool（SSE） | `IWantToRunExtensionRunChatTests.EntityClassToolsTest`（工具调用模式参考） |
+| MCP | LocalFunctionProxy / HostedServerTool（SSE） | `IWantToRunExtensionRunChatTests.EntityClassToolsTest`（工具调用模式参考） |
 
 ## 尚未提供
 
@@ -26,8 +26,9 @@
 
 1. 编辑 `appsettings.json`（或复制为 `appsettings.Development.json`）填写 `SenparcAiSetting`
 2. 向量库默认 `Memory`，可在配置中改为 Redis / Qdrant 等（需 AgentKernel 已支持的类型）
-3. 如需 MCP 示例，请配置 `McpSample.Servers`。若 `LocalSseUrl` 为本地地址，可配 `PublicBaseUrl`（或环境变量 `MCP_PUBLIC_BASE_URL`）自动拼接为公网 URL
-4. 当模型服务端无法访问 `localhost` 时，可使用 `cloudflared` 或 `ngrok` 暴露本地 SSE 端口
+3. 如需 MCP 示例，请配置 `McpSample.Servers`
+4. `ToolBindingMode` 默认建议使用 `LocalFunctionProxy`（本地代理为 AIFunction，兼容当前 AgentKernel Chat 路径）
+5. 若使用 `HostedServerTool`，`LocalSseUrl` 通常需要配合 `PublicBaseUrl`（或环境变量 `MCP_PUBLIC_BASE_URL`）映射为公网 URL；模型服务端无法直接访问 `localhost`
 
 ## 运行
 
