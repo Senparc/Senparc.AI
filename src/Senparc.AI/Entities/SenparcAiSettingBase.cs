@@ -1,4 +1,4 @@
-using Senparc.AI.Entities.Keys;
+﻿using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
 using Senparc.CO2NET;
@@ -48,6 +48,11 @@ namespace Senparc.AI.Entities
         /// Vector database configuration
         /// </summary>
         public VectorDB VectorDB { get; set; }
+
+        /// <summary>
+        /// MCP Server configuration
+        /// </summary>
+        public List<McpServerOption> McpServers { get; set; } = new List<McpServerOption>();
 
         /// <summary>
         /// Whether OpenAI is used
@@ -254,11 +259,31 @@ namespace Senparc.AI.Entities
 
         #endregion
 
+        public virtual bool IsMcpServersSetted => McpServers != null && McpServers.Count > 0;
+
+       public virtual string Endpoint => AiPlatform switch
+       {
+        AiPlatform.OpenAI => OpenAIEndpoint,
+        AiPlatform.AzureOpenAI => AzureEndpoint,
+        AiPlatform.NeuCharAI => NeuCharEndpoint,
+        AiPlatform.HuggingFace => HuggingFaceEndpoint,
+        AiPlatform.FastAPI => FastAPIEndpoint,
+        AiPlatform.Ollama => OllamaEndpoint,
+        AiPlatform.DeepSeek => DeepSeekEndpoint,
+        AiPlatform.Anthropic => AnthropicEndpoint,
+        AiPlatform.Gemini => GeminiEndpoint,
+        AiPlatform.Qwen => QwenEndpoint,
+        AiPlatform.Kimi => KimiEndpoint,
+        AiPlatform.XunFei => XunFeiEndpoint,
+        _ => throw new SenparcAiException($"Endpoint output is not configured for {AiPlatform}")
+       };
+
         public virtual bool IsOpenAiKeysSetted => OpenAIKeys != null && !OpenAIKeys.ApiKey.IsNullOrEmpty();
 
         public SenparcAiSettingBase()
         {
             VectorDB = new VectorDB() { Type = VectorDBType.Default };
+            McpServers = new List<McpServerOption>();
         }
 
         #region Quick configuration methods

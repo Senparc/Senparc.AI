@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.27.1</Version>
+		<Version>0.27.2</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>10.0</LangVersion>
 		<AssemblyName>Senparc.AI</AssemblyName>
@@ -59,8 +59,9 @@
 			[2025-11-01] v0.24.4 Combine VectorDBType from different projects
 			[2026-02-14] v0.24.5 Update for SenparcAISetting
 			[2026-05-21] v0.25.0 Add SpeechToText and EmbeddingDimensions to ModelName; update package references
-			[2026-05-23] v0.27.0 Support Microsoft Agent Framework, adapted to Senparc.AI.AgentKernel
+			[2026-05-23] v0.27.0 Support Microsoft Agntent Framework, adapterd to Senparc.AI.AgentKernel
 			[2026-06-25] v0.27.1 Add provider-specific keys and AiPlatform mapping for XunFei (MaaS OpenAI-compatible path)
+			[2026-06-28] v0.27.2 Fix: SenparcAiSetting.Endpoint
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

@@ -1,4 +1,4 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.Entities;
 using System;
 using System.Collections.Generic;
@@ -16,16 +16,24 @@ namespace Senparc.AI.Tests.Entities
         {
             var senparcAiSetting = new SenparcAiSettingBase();
 
-            //do not perform any setting
+            //Do not apply any settings
             Assert.IsFalse(senparcAiSetting.IsOpenAiKeysSetted);
 
-            //setting ApiKey
+            //Set ApiKey
             senparcAiSetting.OpenAIKeys = new OpenAIKeys()
             {
                 ApiKey = "MyApiKey"
             };
             Assert.IsTrue(senparcAiSetting.IsOpenAiKeysSetted);
 
+        }
+
+        [TestMethod]
+        public void McpServers_Default_ShouldNotBeNull()
+        {
+            var senparcAiSetting = new SenparcAiSettingBase();
+            Assert.IsNotNull(senparcAiSetting.McpServers);
+            Assert.AreEqual(0, senparcAiSetting.McpServers.Count);
         }
     }
 }

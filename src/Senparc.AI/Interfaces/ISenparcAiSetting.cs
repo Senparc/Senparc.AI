@@ -1,4 +1,4 @@
-using Senparc.AI.Entities;
+﻿using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
 using Senparc.CO2NET.Extensions;
@@ -36,6 +36,11 @@ namespace Senparc.AI.Interfaces
         bool IsDebug { get; set; }
 
         VectorDB VectorDB { get; set; }
+
+        /// <summary>
+        /// MCP Server configuration collection.
+        /// </summary>
+        List<McpServerOption> McpServers { get; set; }
 
         string Endpoint => AiPlatform switch
         {
