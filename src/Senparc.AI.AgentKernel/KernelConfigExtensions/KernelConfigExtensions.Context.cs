@@ -24,12 +24,12 @@ namespace Senparc.AI.AgentKernel.Handlers
             return (iWantToRun, context);
         }
 
-        #region 运行阶段，或对生成后的 Kernel 进行补充设置
+        #region Run stage or supplemental settings after Kernel generation
 
-        #region 对上下文的管理
+        #region Context management
 
         /// <summary>
-        /// 设置上下文
+        /// Set context
         /// </summary>
         /// <param name="request"></param>
         /// <param name="key"></param>
@@ -43,7 +43,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// 设置上下文
+        /// Set context
         /// </summary>
         /// <param name="request"></param>
         /// <param name="key"></param>
@@ -57,7 +57,7 @@ namespace Senparc.AI.AgentKernel.Handlers
 
 
         /// <summary>
-        /// 获取上下文的值
+        /// Get a context value
         /// </summary>
         /// <param name="request"></param>
         /// <param name="key"></param>
@@ -69,7 +69,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// 获取上下文的值
+        /// Get a context value
         /// </summary>
         /// <param name="request"></param>
         /// <param name="key"></param>

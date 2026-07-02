@@ -19,7 +19,7 @@
 //    public static class Extensions
 //    {
 //        /// <summary>
-//        /// 添加 FastAPI 聊天服务
+//        /// add FastAPI chat service
 //        /// </summary>
 //        /// <param name="builder"></param>
 //        /// <param name="modelId"></param>

@@ -1,49 +1,49 @@
-﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel;
 
 
 namespace Senparc.AI.Kernel.Tests.Handlers
 {
     /// <summary>
-    /// 测试 Function
+    /// Test Function
     /// </summary>
     public sealed class TestFunction
     {
         public TestFunction() { }
 
 
-        [KernelFunction("GenerateText"), System.ComponentModel.Description("创建实体类")]
+        [KernelFunction("GenerateText"), System.ComponentModel.Description("create entity class")]
         public async Task<string> GenerateText(
-            [System.ComponentModel.Description("输入要求")] string input,
+            [System.ComponentModel.Description("input requirements")] string input,
             KernelArguments sKContext
             )
         {
-            var promptTemplate = @"请根据新文本要求处理文字：
+            var promptTemplate = @"Process the text according to the new text requirements:
 # Start
-1. 去掉文字收尾的空格
-2. 去掉文字之间的空格
-3. 将句子的首字母改成大写
+1. Trim leading and trailing spaces
+2. Remove spaces between words
+3. Capitalize the first letter of the sentence
 # End
 " +
-@$"新文本要求为：{input}";
+@$"New text requirement is:{input}";
 
             return promptTemplate;
 
         }
 
-        [KernelFunction("GenerateText2"), System.ComponentModel.Description("创建实体类")]
+        [KernelFunction("GenerateText2"), System.ComponentModel.Description("create entity class")]
         public async Task GenerateText2(
-         //[System.ComponentModel.Description("输入要求")] string input,
+         //[System.ComponentModel.Description("input requirements")] string input,
          KernelArguments sKContext
          )
         {
-            var promptTemplate = @"请根据新文本要求处理文字：
+            var promptTemplate = @"Process the text according to the new text requirements:
 # Start
-1. 去掉文字收尾的空格
-2. 去掉文字之间的空格
-3. 将句子的首字母改成大写
+1. Trim leading and trailing spaces
+2. Remove spaces between words
+3. Capitalize the first letter of the sentence
 # End
 " +
-"新文本要求为：{{$INPUT}}";
+"New text requirement is:{{$INPUT}}";
 
             sKContext["promptTemplate"] = promptTemplate;
 

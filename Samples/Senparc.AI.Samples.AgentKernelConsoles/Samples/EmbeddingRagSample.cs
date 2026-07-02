@@ -7,7 +7,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// RAG 示例，参考 KernelConfigExtensions.EmbeddingTests.EmbeddingTest。
+/// RAG sample. See KernelConfigExtensions.EmbeddingTests.EmbeddingTest.
 /// </summary>
 public class EmbeddingRagSample
 {
@@ -30,12 +30,12 @@ public class EmbeddingRagSample
     {
         if (_aiHandler is not AgentAiHandler agentHandler)
         {
-            throw new InvalidOperationException("当前示例需要 AgentAiHandler。");
+            throw new InvalidOperationException("This sample requires AgentAiHandler.");
         }
 
         var setting = SampleSetting.CurrentSetting;
-        Console.WriteLine("EmbeddingRagSample：使用 TextSearchProvider 进行检索增强生成。");
-        Console.WriteLine("[调试] 正在初始化向量库并写入 NCF 示例文档…");
+        Console.WriteLine("EmbeddingRagSample:Use TextSearchProvider for retrieval-augmented generation.");
+        Console.WriteLine("[Debug] Initializing the vector store and writing NCF sample documents...");
 
         var textSearchOptions = new TextSearchProviderOptions
         {
@@ -73,15 +73,15 @@ public class EmbeddingRagSample
         var vectorStore = iWantToRun.CreateTextSearchStore();
         await vectorStore.UpsertDocumentsAsync(TextSearchStore.GetSampleDocuments());
 
-        Console.WriteLine("[调试] 向量库初始化完成。可提问例如：What is NCF?");
-        Console.WriteLine("输入 exit 退出。");
+        Console.WriteLine("[Debug] Vector store initialization completed. You can ask, for example: What is NCF?");
+        Console.WriteLine("Enter exit to leave.");
         Console.WriteLine();
 
         AgentSession? session = iWantToRun.Kernel.AgentSession;
 
         while (true)
         {
-            Console.WriteLine("人类：");
+            Console.WriteLine("Human:");
             var input = Console.ReadLine();
             if (input.IsNullOrEmpty())
             {
@@ -93,16 +93,16 @@ public class EmbeddingRagSample
                 break;
             }
 
-            Console.WriteLine("机器：");
+            Console.WriteLine("Assistant:");
             try
             {
                 var result = await iWantToRun.RunChatAsync(input, session);
                 Console.WriteLine(result.Result.Text);
-                Console.WriteLine($"[调试] Tokens — total: {result.Result.Usage?.TotalTokenCount}");
+                Console.WriteLine($"[Debug] Tokens — total: {result.Result.Usage?.TotalTokenCount}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("发生错误：" + ex);
+                Console.WriteLine("An error occurred:" + ex);
             }
 
             Console.WriteLine();

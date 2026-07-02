@@ -21,24 +21,24 @@ public class AiKernelRunChatTests : KernelTestBase
     [TestMethod]
     public async Task TestPlaceHolder()
     {
-        var prompt = "{{city}} 的特产有什么？";
+        var prompt = "What local specialties does {{city}} have?";
         var iWantToRun = await new AgentAiHandler().IWantTo().ConfigChatModel("Jeffrey",
             new ChatClientAgentOptions()
             {
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是一个机器人，负责帮助我回答问题。回答问题之前，你需要完整复述一下我的完整问题"
+                    Instructions = "You are an assistant responsible for helping me answer questions. Before answering, repeat my full question."
                 }
             }
             ).BuildKernelWithAgentSessionAsync();
 
-        iWantToRun.Kernel.AgentSession.StateBag.SetValue("city", "苏州");
+        iWantToRun.Kernel.AgentSession.StateBag.SetValue("city", "Suzhou");
 
         var result = await iWantToRun.RunChatAsync(prompt, iWantToRun.Kernel.AgentSession);
 
         Console.WriteLine("result:" + result.OutputString);
 
-        Assert.IsTrue(result.OutputString.Contains("苏州"));
+        Assert.IsTrue(result.OutputString.Contains("Suzhou"));
 
     }
 
@@ -89,7 +89,7 @@ public class AiKernelRunChatTests : KernelTestBase
     //    var session = iWantToRun.Kernel.AgentSession;
     //    Assert.IsNotNull(session);
 
-    //    var first = await iWantToRun.Kernel.RunChatAsync("苏州特产有哪些？请只说三个。", session);
+    //    var first = await iWantToRun.Kernel.RunChatAsync("What are three local specialties of Suzhou? Only list three.", session);
     //    var second = await iWantToRun.Kernel.RunChatAsync(RunChatTestHelper.FollowUpPrompt, session);
 
     //    RunChatTestHelper.AssertAgentResponse(first);
@@ -103,7 +103,7 @@ public class AiKernelRunChatTests : KernelTestBase
     //{
     //    if (!RunChatTestHelper.SupportsStreaming(_senparcAiSetting))
     //    {
-    //        Assert.Inconclusive("当前 AiPlatform 不支持流式输出，已跳过。");
+    //        Assert.Inconclusive("current AiPlatform does not support streaming output, skipped.");
     //        return;
     //    }
 
@@ -113,9 +113,9 @@ public class AiKernelRunChatTests : KernelTestBase
     //        updates.Add(update);
     //    }
 
-    //    Assert.IsTrue(updates.Count > 0, "流式应至少返回一个 AgentResponseUpdate");
+    //    Assert.IsTrue(updates.Count > 0, "Streaming should return at least one AgentResponseUpdate");
     //    var text = updates.ToAgentResponse().Text ?? string.Empty;
-    //    Assert.IsFalse(string.IsNullOrWhiteSpace(text), "流式聚合文本不应为空");
+    //    Assert.IsFalse(string.IsNullOrWhiteSpace(text), "The aggregated streaming text should not be empty");
     //    Console.WriteLine($"[RunChatStreamingAsync] chunks={updates.Count}, text={text}");
     //}
 
@@ -124,7 +124,7 @@ public class AiKernelRunChatTests : KernelTestBase
     //{
     //    if (!RunChatTestHelper.SupportsStreaming(_senparcAiSetting))
     //    {
-    //        Assert.Inconclusive("当前 AiPlatform 不支持流式输出，已跳过。");
+    //        Assert.Inconclusive("current AiPlatform does not support streaming output, skipped.");
     //        return;
     //    }
 
@@ -143,7 +143,7 @@ public class AiKernelRunChatTests : KernelTestBase
     //{
     //    if (!RunChatTestHelper.SupportsStreaming(_senparcAiSetting))
     //    {
-    //        Assert.Inconclusive("当前 AiPlatform 不支持流式输出，已跳过。");
+    //        Assert.Inconclusive("current AiPlatform does not support streaming output, skipped.");
     //        return;
     //    }
 

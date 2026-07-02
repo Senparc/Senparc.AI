@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.VisualStudio.TestPlatform;
 using Senparc.AI.Interfaces;
@@ -12,14 +12,14 @@ namespace Senparc.AI.Kernel.Handlers.Tests
 
     public partial class KernelConfigExtensionTests
     {
-        /* Planner 目前官方 SK 版本不稳定
-         * 
+        /* Planner is unstable in the current official SK version
+         *
         [TestMethod]
         public async Task PlannerTest()
         {
-            //TODO: 测试每个阶段时间，Planner 比较耗时
+            //TODO: test each stage time, Planner elapsed-time comparison
 
-            //准备
+            //Prepare
             var serviceProvider = BaseTest.serviceProvider;
             var handler = serviceProvider.GetRequiredService<IAiHandler>()
                             as SemanticAiHandler;

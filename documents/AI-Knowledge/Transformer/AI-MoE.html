@@ -1,17 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoE (Mixture of Experts) 模型可视化</title>
-    <style>
-        body { 
-            margin: 0; 
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MoE (Mixture of Experts) model visualization</title>
+<style>
+        body {
+            margin: 0;
             overflow: hidden;
             font-family: Arial, sans-serif;
         }
-        #canvas { 
-            width: 100%; 
+        #canvas {
+            width: 100%;
             height: 100%;
             position: fixed;
         }
@@ -68,45 +69,45 @@
             color: white;
             padding: 15px;
             border-radius: 5px;
-            display: none; /* 默认隐藏 */
+            display: none; /* translated comment removed */
             width: 280px;
         }
-        
+
         .parameter-section {
             margin-bottom: 20px;
         }
-        
+
         .parameter-section:last-child {
             margin-bottom: 0;
         }
-        
+
         .parameter-section h4 {
             margin-top: 0;
             margin-bottom: 10px;
         }
-        
+
         .slider-container {
             display: flex;
             align-items: center;
             margin-top: 10px;
         }
-        
+
         .slider {
             flex-grow: 1;
             margin: 0 10px;
         }
-        
+
         .disabled-token {
             color: #888888 !important;
             text-decoration: line-through;
         }
-        
+
         .param-description {
             font-size: 12px;
             margin-top: 5px;
             line-height: 1.3;
         }
-        
+
         #expert-selection {
             position: absolute;
             top: 85px;
@@ -115,14 +116,14 @@
             color: white;
             padding: 15px;
             border-radius: 5px;
-            display: none; /* 默认隐藏 */
+            display: none; /* translated comment removed */
             width: 280px;
         }
-        
+
         .expert-checkbox {
             margin: 8px 0;
         }
-        
+
         #expert-weights-chart {
             position: absolute;
             bottom: 20px;
@@ -134,12 +135,12 @@
             width: 500px;
             height: 300px;
         }
-        
+
         #weights-canvas {
             width: 100%;
             height: 100%;
         }
-        
+
         .chart-title {
             color: white;
             text-align: center;
@@ -147,7 +148,7 @@
             margin-bottom: 5px;
             font-size: 16px;
         }
-        
+
         #copyright {
             position: absolute;
             bottom: 10px;
@@ -159,11 +160,11 @@
             pointer-events: none;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
-        
+
         #copyright a {
             pointer-events: auto;
         }
-        
+
         .tooltip {
             position: absolute;
             background: rgba(0, 0, 0, 0.8);
@@ -175,103 +176,96 @@
             z-index: 1000;
             display: none;
         }
-        
+
         .expert {
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .expert:hover {
             transform: scale(1.05);
         }
-        
+
         .expert.selected {
             box-shadow: 0 0 10px 3px rgba(255, 255, 0, 0.8);
         }
-        
+
         .router-token {
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .router-token:hover {
             transform: scale(1.1);
         }
     </style>
 </head>
 <body>
-    <div id="canvas"></div>
-    <div id="info">
-        <h2>MoE (Mixture of Experts) 模型原理</h2>
-        <p id="step-description">Welcome to MoE model visualization! Click "Start" button to begin the demonstration.</p>
-    </div>
-    <div id="controls">
-        <button class="step-btn" id="start-btn">开始</button>
-        <button class="step-btn" id="prev-btn" disabled>上一步</button>
-        <button class="step-btn" id="next-btn" disabled>下一步</button>
-        <button class="step-btn" id="reset-btn">重置</button>
-    </div>
-    <div id="parameters-control">
-        <h3>Router Parameter Control</h3>
-        
-        <!-- Router Temperature control -->
-        <div class="parameter-section">
-            <h4>Router Temperature (Temperature)</h4>
-            <div class="slider-container">
-                <span>0</span>
-                <input type="range" min="0" max="2" step="0.1" value="1.0" class="slider" id="router-temp-slider">
-                <span>2</span>
-            </div>
-            <div id="router-temp-value">Current Value: 1.0</div>
-            <p class="param-description">Adjust the randomness of the router: low temperature for more deterministic, high temperature for more diverse</p>
-        </div>
-        
-        <!-- Top-k control -->
-        <div class="parameter-section">
-            <h4>Select Expert Number (Top-k)</h4>
-            <div class="slider-container">
-                <span>1</span>
-                <input type="range" min="1" max="8" step="1" value="2" class="slider" id="topk-slider">
-                <span>8</span>
-            </div>
-            <div id="topk-value">Current Value: 2</div>
-            <p class="param-description">Select the number of activated experts (MoE's sparsity)</p>
-        </div>
-    </div>
-    
-    <div id="expert-selection">
-        <h3>Expert Selection</h3>
-        <p class="param-description">Select to view expert details</p>
-        <div id="expert-checkboxes">
-            <!-- Will be dynamically added by JavaScript -->
-        </div>
-    </div>
-    
-    <div id="expert-weights-chart">
-        <h3 class="chart-title">Expert Weight Distribution</h3>
-        <canvas id="weights-canvas"></canvas>
-    </div>
-    
-    <div class="tooltip" id="tooltip"></div>
-
-    <!-- Add copyright information at the end of the body -->
-    <div id="copyright">
-        <span>© Senparc</span>
-        <span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documents/AI-Knowledge/Transformer" target="_blank" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">GitHub Documentation</a></span>
-    </div>
-
-    <!-- 改为CDN引用 -->
-    <script src="js/three.min.js"></script>
-    <script src="js/OrbitControls.js"></script>
-    <script src="js/CSS2DRenderer.js"></script>
-    <script>
-        // 在脚本顶部添加错误处理
+<div id="canvas"></div>
+<div id="info">
+<h2>MoE (Mixture of Experts) model principle</h2>
+<p id="step-description">Welcome to MoE model visualization! Click "Start" button to begin the demonstration.</p>
+</div>
+<div id="controls">
+<button class="step-btn" id="start-btn">start</button>
+<button class="step-btn" disabled="" id="prev-btn">Previous step</button>
+<button class="step-btn" disabled="" id="next-btn">Next step</button>
+<button class="step-btn" id="reset-btn">reset</button>
+</div>
+<div id="parameters-control">
+<h3>Router Parameter Control</h3>
+<!-- Router Temperature control -->
+<div class="parameter-section">
+<h4>Router Temperature (Temperature)</h4>
+<div class="slider-container">
+<span>0</span>
+<input class="slider" id="router-temp-slider" max="2" min="0" step="0.1" type="range" value="1.0"/>
+<span>2</span>
+</div>
+<div id="router-temp-value">Current Value: 1.0</div>
+<p class="param-description">Adjust the randomness of the router: low temperature for more deterministic, high temperature for more diverse</p>
+</div>
+<!-- Top-k control -->
+<div class="parameter-section">
+<h4>Select Expert Number (Top-k)</h4>
+<div class="slider-container">
+<span>1</span>
+<input class="slider" id="topk-slider" max="8" min="1" step="1" type="range" value="2"/>
+<span>8</span>
+</div>
+<div id="topk-value">Current Value: 2</div>
+<p class="param-description">Select the number of activated experts (MoE's sparsity)</p>
+</div>
+</div>
+<div id="expert-selection">
+<h3>Expert Selection</h3>
+<p class="param-description">Select to view expert details</p>
+<div id="expert-checkboxes">
+<!-- Will be dynamically added by JavaScript -->
+</div>
+</div>
+<div id="expert-weights-chart">
+<h3 class="chart-title">Expert Weight Distribution</h3>
+<canvas id="weights-canvas"></canvas>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<!-- Add copyright information at the end of the body -->
+<div id="copyright">
+<span>© Senparc</span>
+<span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documents/AI-Knowledge/Transformer" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;" target="_blank">GitHub Documentation</a></span>
+</div>
+<!-- translated comment removed -->
+<script src="js/three.min.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/CSS2DRenderer.js"></script>
+<script>
+        // translated comment removed
         window.addEventListener('error', function(e) {
-            console.error('JavaScript错误:', e.message);
-            alert('发生错误: ' + e.message + '\n请检查控制台获取详细信息');
+            console.error('JavaScript error:', e.message);
+            alert('An error occurred: ' + e.message + '\\n Please check the console for details');
         });
 
-        // Three.js 初始化和场景设置
+        // translated comment removed
         let scene, camera, renderer, labelRenderer, controls;
         let currentStep = 0;
         const steps = [];
@@ -280,37 +274,37 @@
         const expertObjects = [];
         const labels = [];
         const connections = [];
-        
-        // 颜色定义
+
+        // translated comment removed
         const colors = {
-            input: 0x3498db,     // 蓝色 - 输入tokens
-            router: 0xe74c3c,    // 红色 - 路由器
-            expert1: 0x2ecc71,   // 绿色 - 专家1
-            expert2: 0xf39c12,   // 橙色 - 专家2  
-            expert3: 0x9b59b6,   // 紫色 - 专家3
-            expert4: 0x1abc9c,   // 青绿色 - 专家4
-            expert5: 0xd35400,   // 深橙色 - 专家5
-            expert6: 0x8e44ad,   // 深紫色 - 专家6
-            expert7: 0x27ae60,   // 深绿色 - 专家7
-            expert8: 0x3498db,   // 蓝色 - 专家8
-            output: 0xf1c40f,    // 黄色 - 输出结果
-            connection: 0xbdc3c7, // 浅灰色 - 连接线
-            active: 0xecf0f1     // 亮白色 - 激活状态
+            input: 0x3498db,     // translated comment removed
+            router: 0xe74c3c,    // translated comment removed
+            expert1: 0x2ecc71,   // translated comment removed
+            expert2: 0xf39c12,   // translated comment removed
+            expert3: 0x9b59b6,   // translated comment removed
+            expert4: 0x1abc9c,   // translated comment removed
+            expert5: 0xd35400,   // translated comment removed
+            expert6: 0x8e44ad,   // translated comment removed
+            expert7: 0x27ae60,   // translated comment removed
+            expert8: 0x3498db,   // translated comment removed
+            output: 0xf1c40f,    // translated comment removed
+            connection: 0xbdc3c7, // translated comment removed
+            active: 0xecf0f1     // translated comment removed
         };
-        
-        // 专家设置
+
+        // translated comment removed
         const expertConfig = [
-            { id: 1, name: "语法专家", color: colors.expert1, domain: "语法结构" },
-            { id: 2, name: "逻辑专家", color: colors.expert2, domain: "逻辑推理" },
-            { id: 3, name: "知识专家", color: colors.expert3, domain: "事实知识" },
-            { id: 4, name: "创意专家", color: colors.expert4, domain: "创意生成" },
-            { id: 5, name: "情感专家", color: colors.expert5, domain: "情感表达" },
-            { id: 6, name: "数学专家", color: colors.expert6, domain: "数学计算" },
-            { id: 7, name: "代码专家", color: colors.expert7, domain: "编程代码" },
-            { id: 8, name: "总结专家", color: colors.expert8, domain: "内容总结" }
+            { id: 1, name: "grammar expert", color: colors.expert1, domain: "grammatical structure" },
+            { id: 2, name: "logic expert", color: colors.expert2, domain: "logical reasoning" },
+            { id: 3, name: "knowledge expert", color: colors.expert3, domain: "factual knowledge" },
+            { id: 4, name: "creative expert", color: colors.expert4, domain: "idea generation" },
+            { id: 5, name: "Emotional expert", color: colors.expert5, domain: "emotional expression" },
+            { id: 6, name: "math expert", color: colors.expert6, domain: "mathematical calculations" },
+            { id: 7, name: "Code expert", color: colors.expert7, domain: "programming code" },
+            { id: 8, name: "summary expert", color: colors.expert8, domain: "Content summary" }
         ];
-        
-        // 步骤描述
+
+        // translated comment removed
         const stepDescriptions = [
             "Step 1: Input text is split into token sequence, passed into the model.",
             "Step 2: Router analyzes input, calculates relevance score for each expert.",
@@ -318,8 +312,8 @@
             "Step 4: Selected experts process input tokens, generate outputs.",
             "Step 5: System merges outputs of all activated experts, generates final result."
         ];
-        
-        // 交互控制变量
+
+        // translated comment removed
         let routerTemperature = 1.0;
         let topKExperts = 2;
         let selectedExperts = new Set();
@@ -327,116 +321,116 @@
         let raycaster, mouse;
         let tooltip;
         let isSelectionMode = false;
-        
-        // 输入示例
+
+        // translated comment removed
         const inputExamples = [
-            "如何编写一个高效的算法",
-            "写一首关于春天的诗",
-            "计算3的5次方是多少",
-            "分析这段代码的错误",
-            "表达对朋友的关心"
+            "How to write an efficient algorithm",
+            "write a poem about spring",
+            "Calculate what is 3 raised to the 5th power:",
+            "Analyze the errors in this code",
+            "express concern for friends"
         ];
         let currentInput = inputExamples[0];
-        
-        // 初始化 Three.js 场景
+
+        // translated comment removed
         function init() {
-            // 检查Three.js是否正确加载
+            // translated comment removed
             if (typeof THREE === 'undefined') {
-                console.error('错误: Three.js未加载!');
-                alert('Three.js库未正确加载，请检查网络连接或引用路径');
+                console.error('Error: Three.js not loaded!');
+                alert('The Three.js library is not loaded correctly, please check the network connection or reference path');
                 return;
             }
-            
+
             try {
-                // 创建场景
+                // translated comment removed
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color(0x121212);
-                
-                // 创建相机 - 调整以适应垂直布局
+
+                // translated comment removed
                 camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
                 camera.position.z = 20;
-                camera.position.y = 0; // 居中垂直视角
-                
-                // 创建渲染器
+                camera.position.y = 0; // translated comment removed
+
+                // translated comment removed
                 renderer = new THREE.WebGLRenderer({ antialias: true });
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 document.getElementById('canvas').appendChild(renderer.domElement);
-                
-                // 创建CSS2D渲染器用于标签
+
+                // translated comment removed
                 labelRenderer = new THREE.CSS2DRenderer();
                 labelRenderer.setSize(window.innerWidth, window.innerHeight);
                 labelRenderer.domElement.style.position = 'absolute';
                 labelRenderer.domElement.style.top = '0px';
                 labelRenderer.domElement.style.pointerEvents = 'none';
                 document.getElementById('canvas').appendChild(labelRenderer.domElement);
-                
-                // 添加控制
+
+                // translated comment removed
                 controls = new THREE.OrbitControls(camera, renderer.domElement);
                 controls.enableDamping = true;
                 controls.dampingFactor = 0.1;
-                
-                // 添加光源
+
+                // translated comment removed
                 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
                 scene.add(ambientLight);
-                
+
                 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
                 directionalLight.position.set(1, 1, 1);
                 scene.add(directionalLight);
-                
-                // 初始化射线投射器和鼠标向量
+
+                // translated comment removed
                 raycaster = new THREE.Raycaster();
                 mouse = new THREE.Vector2();
-                
-                // 初始化tooltip
+
+                // translated comment removed
                 tooltip = document.getElementById('tooltip');
-                
-                // 窗口大小调整
+
+                // translated comment removed
                 window.addEventListener('resize', onWindowResize, false);
-                
-                // 设置按钮事件
+
+                // translated comment removed
                 document.getElementById('start-btn').addEventListener('click', startDemo);
                 document.getElementById('prev-btn').addEventListener('click', prevStep);
                 document.getElementById('next-btn').addEventListener('click', nextStep);
                 document.getElementById('reset-btn').addEventListener('click', resetDemo);
-                
-                // 添加鼠标事件
+
+                // translated comment removed
                 renderer.domElement.addEventListener('mousemove', onMouseMove);
                 renderer.domElement.addEventListener('click', onClick);
-                
-                // 创建动画步骤
+
+                // translated comment removed
                 createSteps();
-                
-                // 设置专家选择界面
+
+                // translated comment removed
                 setupExpertSelection();
-                
-                // 开始渲染循环
+
+                // translated comment removed
                 animate();
-                
-                console.log('Three.js初始化成功');
+
+                console.log('Three.js initialized successfully');
             } catch (error) {
-                console.error('初始化Three.js时出错:', error);
-                alert('初始化三维场景时发生错误，请检查控制台获取详情');
+                console.error('Error initializing Three.js:', error);
+                alert('An error occurred while initializing the 3D scene, please check the console for details.');
             }
         }
-        
-        // 设置专家选择界面
+
+        // translated comment removed
         function setupExpertSelection() {
             const checkboxContainer = document.getElementById('expert-checkboxes');
             checkboxContainer.innerHTML = '';
-            
+
             expertConfig.forEach(expert => {
                 const div = document.createElement('div');
                 div.className = 'expert-checkbox';
-                
+
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = `expert-${expert.id}`;
                 checkbox.value = expert.id;
-                
+
                 const label = document.createElement('label');
                 label.htmlFor = `expert-${expert.id}`;
                 label.innerHTML = `<span style="color: #${expert.color.toString(16)}">■</span> ${expert.name}`;
-                
+
                 checkbox.addEventListener('change', function() {
                     if (this.checked) {
                         selectedExperts.add(parseInt(this.value));
@@ -445,133 +439,133 @@
                     }
                     updateExpertHighlights();
                 });
-                
+
                 div.appendChild(checkbox);
                 div.appendChild(label);
                 checkboxContainer.appendChild(div);
             });
         }
-        
-        // 创建所有动画步骤
+
+        // translated comment removed
         function createSteps() {
-            // 步骤1: 展示输入 tokens
+            // translated comment removed
             steps.push(() => {
                 clearScene();
                 createInputTokens(currentInput);
                 updateDescription(0);
             });
-            
-            // 步骤2: 路由器分析输入
+
+            // translated comment removed
             steps.push(() => {
                 showRouter();
                 updateDescription(1);
             });
-            
-            // 步骤3: 选择最相关的专家
+
+            // translated comment removed
             steps.push(() => {
                 selectExperts();
                 updateDescription(2);
             });
-            
-            // 步骤4: 专家处理输入
+
+            // translated comment removed
             steps.push(() => {
                 expertsProcessInput();
                 updateDescription(3);
-                
-                // 隐藏路由器参数，显示专家选择
+
+                // translated comment removed
                 document.getElementById('parameters-control').style.display = 'none';
                 document.getElementById('expert-selection').style.display = 'block';
             });
-            
-            // 步骤5: 合并专家输出
+
+            // translated comment removed
             steps.push(() => {
                 mergeExpertOutputs();
                 updateDescription(4);
-                
-                // 隐藏专家选择
+
+                // translated comment removed
                 document.getElementById('expert-selection').style.display = 'none';
             });
         }
-        
-        // 创建输入 tokens - 垂直布局
+
+        // translated comment removed
         function createInputTokens(text) {
-            // 简单拆分文本到tokens
-            const words = text.split(/(?=[，。！？\s])|(?<=[，。！？\s])/g).filter(w => w.trim());
+            // translated comment removed
+            const words = text.split(/(?=[,.;!?\s])|(?<=[,.;!?\s])/g).filter(w => w.trim());
             tokens.length = 0;
-            
+
             for (let i = 0; i < words.length; i++) {
-                if (!words[i].trim()) continue; // 跳过空白
-                
+                if (!words[i].trim()) continue; // translated comment removed
+
                 const tokenGeometry = new THREE.BoxGeometry(1, 1, 1);
                 const tokenMaterial = new THREE.MeshPhongMaterial({ color: colors.input });
                 const token = new THREE.Mesh(tokenGeometry, tokenMaterial);
-                
-                // 放在最上方，水平排列
+
+                // translated comment removed
                 token.position.x = (i - (words.length - 1) / 2) * 2;
-                token.position.y = 10; // 放在顶部
+                token.position.y = 10; // translated comment removed
                 token.position.z = 0;
-                
+
                 token.userData.type = 'input';
                 token.userData.text = words[i];
-                
+
                 scene.add(token);
                 tokens.push(token);
-                
+
                 addTextLabel(token, words[i], 1.2);
             }
         }
-        
-        // 添加文本标签
+
+        // translated comment removed
         function addTextLabel(parent, text, yOffset = 1.2, probability = null, xOffset = 0) {
             const labelDiv = document.createElement('div');
             labelDiv.className = 'label';
             labelDiv.textContent = text;
-            
+
             if (probability !== null) {
                 const probSpan = document.createElement('span');
                 probSpan.className = 'probability';
                 probSpan.textContent = ` (${probability.toFixed(2)})`;
                 labelDiv.appendChild(probSpan);
             }
-            
+
             const label = new THREE.CSS2DObject(labelDiv);
             label.position.set(xOffset, yOffset, 0);
             parent.add(label);
             labels.push(label);
             return label;
         }
-        
-        // 添加专家标签
+
+        // translated comment removed
         function addExpertLabel(parent, expert, yOffset = 1.2) {
             const labelDiv = document.createElement('div');
             labelDiv.className = 'label expert-label';
             labelDiv.innerHTML = `<span style="color: #${expert.color.toString(16)}">■</span> ${expert.name}`;
-            
+
             const label = new THREE.CSS2DObject(labelDiv);
             label.position.set(0, yOffset, 0);
             parent.add(label);
             labels.push(label);
             return label;
         }
-        
-        // 展示路由器 - 垂直布局
+
+        // translated comment removed
         function showRouter() {
-            // 创建门控网络 - 使用更复杂的形状来表示门控机制
+            // translated comment removed
             const routerGroup = new THREE.Group();
-            
-            // 创建中心球体
+
+            // translated comment removed
             const centerGeometry = new THREE.SphereGeometry(1, 16, 16);
-            const centerMaterial = new THREE.MeshPhongMaterial({ 
+            const centerMaterial = new THREE.MeshPhongMaterial({
                 color: colors.router,
                 emissive: new THREE.Color(0xff0000),
                 emissiveIntensity: 0.3
             });
             const centerSphere = new THREE.Mesh(centerGeometry, centerMaterial);
             routerGroup.add(centerSphere);
-            
-            // 创建环绕的环
+
+            // translated comment removed
             const ringGeometry = new THREE.TorusGeometry(1.5, 0.2, 16, 32);
-            const ringMaterial = new THREE.MeshPhongMaterial({ 
+            const ringMaterial = new THREE.MeshPhongMaterial({
                 color: colors.router,
                 emissive: new THREE.Color(0xff0000),
                 emissiveIntensity: 0.2
@@ -579,16 +573,16 @@
             const ring = new THREE.Mesh(ringGeometry, ringMaterial);
             ring.rotation.x = Math.PI / 2;
             routerGroup.add(ring);
-            
-            // 创建门控箭头
+
+            // translated comment removed
             const arrowGeometry = new THREE.ConeGeometry(0.3, 1, 8);
-            const arrowMaterial = new THREE.MeshPhongMaterial({ 
+            const arrowMaterial = new THREE.MeshPhongMaterial({
                 color: colors.router,
                 emissive: new THREE.Color(0xff0000),
                 emissiveIntensity: 0.2
             });
-            
-            // 创建8个箭头，均匀分布
+
+            // translated comment removed
             for (let i = 0; i < 8; i++) {
                 const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
                 const angle = (i / 8) * Math.PI * 2;
@@ -598,121 +592,121 @@
                 arrow.rotation.y += Math.PI;
                 routerGroup.add(arrow);
             }
-            
-            // 路由器位于 tokens 下方
+
+            // translated comment removed
             routerGroup.position.y = 5;
             routerGroup.position.x = 0;
             routerGroup.position.z = 0;
             routerGroup.userData.type = 'router';
             routerGroup.userData.name = 'Gating Network';
             scene.add(routerGroup);
-            
-            // 添加路由器标签
-            addTextLabel(routerGroup, "门控网络", 2.2);
-            
-            // 缓慢移动输入tokens到更高位置
+
+            // translated comment removed
+            addTextLabel(routerGroup, "gated network", 2.2);
+
+            // translated comment removed
             const targetY = 12;
-            
-            // 先移动方块，在移动完成后创建连线
+
+            // translated comment removed
             for (let token of tokens) {
                 animateObjectPosition(token, { y: targetY }, 1000, () => {
-                    // 在回调中创建连线，确保使用最新位置
+                    // translated comment removed
                     createConnection(token, routerGroup, 0.08);
                 });
             }
-            
-            // 缓慢旋转路由器
+
+            // translated comment removed
             animateRouterRotation(routerGroup);
         }
-        
-        // 路由器旋转动画
+
+        // translated comment removed
         function animateRouterRotation(router) {
             let startTime = null;
-            const duration = 10000; // 10秒旋转一周
-            
+            const duration = 10000; // translated comment removed
+
             function rotate(timestamp) {
                 if (!startTime) startTime = timestamp;
                 const elapsed = timestamp - startTime;
-                
+
                 router.rotation.y = (elapsed / duration) * Math.PI * 2;
-                
+
                 if (currentStep === 1 || currentStep === 2) {
                     requestAnimationFrame(rotate);
                 }
             }
-            
+
             requestAnimationFrame(rotate);
         }
-        
-        // 选择最相关的专家
+
+        // translated comment removed
         function selectExperts() {
-            // 添加专家
+            // translated comment removed
             createExperts();
-            
-            // 计算专家权重
+
+            // translated comment removed
             calculateExpertWeights();
-            
-            // 显示参数控制面板
+
+            // translated comment removed
             document.getElementById('parameters-control').style.display = 'block';
             document.getElementById('expert-weights-chart').style.display = 'block';
-            
-            // 立即更新权重图表
+
+            // translated comment removed
             updateExpertWeightsChart();
-            
-            // 确保图表尺寸正确
+
+            // translated comment removed
             const canvas = document.getElementById('weights-canvas');
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
-            
-            // 设置路由器参数控制事件
+
+            // translated comment removed
             const routerTempSlider = document.getElementById('router-temp-slider');
             const topkSlider = document.getElementById('topk-slider');
-            
-            // 设置初始值
+
+            // translated comment removed
             routerTempSlider.value = routerTemperature;
             topkSlider.value = topKExperts;
-            
-            // 更新显示的当前值
+
+            // translated comment removed
             document.getElementById('router-temp-value').textContent = `Current Value: ${routerTemperature.toFixed(1)}`;
             document.getElementById('topk-value').textContent = `Current Value: ${topKExperts}`;
-            
-            // 添加事件监听器
+
+            // translated comment removed
             routerTempSlider.addEventListener('input', handleRouterParameterChange);
             topkSlider.addEventListener('input', handleRouterParameterChange);
-            
-            // 强制触发一次重绘
+
+            // translated comment removed
             setTimeout(() => {
                 updateExpertWeightsChart();
             }, 100);
         }
-        
-        // 创建专家 - 垂直布局
+
+        // translated comment removed
         function createExperts() {
             experts.length = 0;
             expertObjects.length = 0;
-            
+
             const numExperts = expertConfig.length;
-            const radius = 6; // 放置专家的圆的半径
-            
+            const radius = 6; // translated comment removed
+
             for (let i = 0; i < numExperts; i++) {
                 const angle = (i / numExperts) * Math.PI * 2;
                 const expert = expertConfig[i];
-                
-                // 创建专家物体
+
+                // translated comment removed
                 const expertGeometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-                const expertMaterial = new THREE.MeshPhongMaterial({ 
+                const expertMaterial = new THREE.MeshPhongMaterial({
                     color: expert.color,
                     transparent: true,
                     opacity: 0.8
                 });
                 const expertObj = new THREE.Mesh(expertGeometry, expertMaterial);
-                
-                // 计算位置 - 在路由器下方成环形
+
+                // translated comment removed
                 expertObj.position.x = radius * Math.sin(angle);
-                expertObj.position.y = 0; // 路由器下方的中间层
+                expertObj.position.y = 0; // translated comment removed
                 expertObj.position.z = radius * Math.cos(angle);
-                
-                // 添加用户数据
+
+                // translated comment removed
                 expertObj.userData.type = 'expert';
                 expertObj.userData.id = expert.id;
                 expertObj.userData.name = expert.name;
@@ -720,7 +714,7 @@
                 expertObj.userData.color = expert.color;
                 expertObj.userData.weight = 0;
                 expertObj.userData.selected = false;
-                
+
                 scene.add(expertObj);
                 expertObjects.push(expertObj);
                 experts.push({
@@ -730,12 +724,12 @@
                     weight: 0,
                     selected: false
                 });
-                
-                // 添加专家标签
+
+                // translated comment removed
                 addExpertLabel(expertObj, expert, 1.5);
             }
-            
-            // 连接路由器和专家
+
+            // translated comment removed
             const router = scene.children.find(obj => obj.userData.type === 'router');
             if (router) {
                 for (let expert of expertObjects) {
@@ -743,61 +737,61 @@
                 }
             }
         }
-        
-        // 计算专家权重
+
+        // translated comment removed
         function calculateExpertWeights() {
-            // 根据输入和温度生成权重
-            // 以下是示例权重计算 - 实际系统中这会基于复杂的神经网络
-            
-            // 为每个输入类型定义不同专家的相关性基础权重
+            // translated comment removed
+            // translated comment removed
+
+            // translated comment removed
             const baseWeights = {
-                "如何编写一个高效的算法": [0.1, 0.3, 0.1, 0.0, 0.0, 0.1, 0.4, 0.0],
-                "写一首关于春天的诗": [0.2, 0.0, 0.1, 0.5, 0.2, 0.0, 0.0, 0.0],
-                "计算3的5次方是多少": [0.0, 0.2, 0.0, 0.0, 0.0, 0.8, 0.0, 0.0],
-                "分析这段代码的错误": [0.1, 0.2, 0.1, 0.0, 0.0, 0.0, 0.6, 0.0],
-                "表达对朋友的关心": [0.1, 0.0, 0.1, 0.3, 0.5, 0.0, 0.0, 0.0]
+                "How to write an efficient algorithm": [0.1, 0.3, 0.1, 0.0, 0.0, 0.1, 0.4, 0.0],
+                "write a poem about spring": [0.2, 0.0, 0.1, 0.5, 0.2, 0.0, 0.0, 0.0],
+                "Calculate what is 3 raised to the 5th power:": [0.0, 0.2, 0.0, 0.0, 0.0, 0.8, 0.0, 0.0],
+                "Analyze the errors in this code": [0.1, 0.2, 0.1, 0.0, 0.0, 0.0, 0.6, 0.0],
+                "express concern for friends": [0.1, 0.0, 0.1, 0.3, 0.5, 0.0, 0.0, 0.0]
             };
-            
-            // 获取当前输入的基础权重
+
+            // translated comment removed
             let weights = baseWeights[currentInput] || Array(expertConfig.length).fill(1/expertConfig.length);
-            
-            // 应用温度
+
+            // translated comment removed
             weights = applyTemperature(weights, routerTemperature);
-            
-            // 存储权重
+
+            // translated comment removed
             expertWeights = [...weights];
-            
-            // 获取Top-K阈值 - 提前计算以便统一使用
+
+            // translated comment removed
             const threshold = getTopKThreshold(weights, topKExperts);
-            
-            // 更新专家权重
+
+            // translated comment removed
             experts.forEach((expert, index) => {
                 expert.weight = weights[index];
                 expert.obj.userData.weight = weights[index];
-                
-                // 设置专家透明度基于权重
+
+                // translated comment removed
                 expert.obj.material.opacity = 0.3 + 0.7 * weights[index];
-                
-                // 清除之前的发光效果
-                // 找到所有子物体并移除glow球体
+
+                // translated comment removed
+                // translated comment removed
                 for (let i = expert.obj.children.length - 1; i >= 0; i--) {
                     const child = expert.obj.children[i];
-                    // 只移除非标签的子物体（发光球体）
+                    // translated comment removed
                     if (!(child instanceof THREE.CSS2DObject)) {
                         expert.obj.remove(child);
                     }
                 }
-                
-                // 根据Top-K决定是否选择
+
+                // translated comment removed
                 expert.selected = weights[index] >= threshold;
                 expert.obj.userData.selected = expert.selected;
-                
-                // 设置视觉效果
+
+                // translated comment removed
                 if (expert.selected) {
                     expert.obj.material.emissive = new THREE.Color(0x333333);
                     expert.obj.material.emissiveIntensity = 0.5;
-                    
-                    // 发光效果
+
+                    // translated comment removed
                     const glowGeometry = new THREE.SphereGeometry(1.2, 16, 16);
                     const glowMaterial = new THREE.MeshBasicMaterial({
                         color: expert.config.color,
@@ -812,175 +806,175 @@
                 }
             });
         }
-        
-        // 获取Top-K阈值
+
+        // translated comment removed
         function getTopKThreshold(weights, k) {
-            // 复制并排序权重
+            // translated comment removed
             const sortedWeights = [...weights].sort((a, b) => b - a);
-            // 返回第k个元素的权重作为阈值
+            // translated comment removed
             return sortedWeights[Math.min(k - 1, sortedWeights.length - 1)];
         }
-        
-        // 应用温度处理权重
+
+        // translated comment removed
         function applyTemperature(weights, temperature) {
             if (temperature <= 0) {
-                // 温度为0时，权重最高的专家获得所有权重
+                // translated comment removed
                 const maxIndex = weights.indexOf(Math.max(...weights));
                 return weights.map((_, i) => i === maxIndex ? 1.0 : 0.0);
             }
-            
-            // 应用温度
-            const logits = weights.map(w => Math.log(Math.max(w, 0.01))); // 避免log(0)
+
+            // translated comment removed
+            const logits = weights.map(w => Math.log(Math.max(w, 0.01))); // translated comment removed
             const scaledLogits = logits.map(l => l / temperature);
-            
-            // 数值稳定性
+
+            // translated comment removed
             const maxLogit = Math.max(...scaledLogits);
             const expLogits = scaledLogits.map(l => Math.exp(l - maxLogit));
-            
-            // 计算总和并归一化
+
+            // translated comment removed
             const sumExpLogits = expLogits.reduce((a, b) => a + b, 0);
             return expLogits.map(e => e / sumExpLogits);
         }
-        
-        // 专家处理输入 - 垂直布局
+
+        // translated comment removed
         function expertsProcessInput() {
-            // 移除图表
+            // translated comment removed
             document.getElementById('expert-weights-chart').style.display = 'none';
-            
-            // 只保留选中的专家
+
+            // translated comment removed
             const selectedExpertObjs = expertObjects.filter(e => e.userData.selected);
-            
-            // 为每个选定的专家创建处理结果
+
+            // translated comment removed
             for (let expert of selectedExpertObjs) {
-                // 获取专家ID
+                // translated comment removed
                 const expertId = expert.userData.id;
-                
-                // 为专家创建处理结果的输出token
+
+                // translated comment removed
                 const outputTokenGeometry = new THREE.BoxGeometry(1, 1, 1);
-                const outputTokenMaterial = new THREE.MeshPhongMaterial({ 
+                const outputTokenMaterial = new THREE.MeshPhongMaterial({
                     color: expert.userData.color,
                     transparent: true,
                     opacity: 0.9
                 });
-                
+
                 const outputToken = new THREE.Mesh(outputTokenGeometry, outputTokenMaterial);
-                
-                // 放在专家正下方
+
+                // translated comment removed
                 outputToken.position.copy(expert.position);
-                outputToken.position.y = -5; // 垂直向下
-                
+                outputToken.position.y = -5; // translated comment removed
+
                 outputToken.userData.type = 'expertOutput';
                 outputToken.userData.expertId = expertId;
                 outputToken.userData.weight = expert.userData.weight;
                 outputToken.userData.text = getExpertOutput(expertId);
-                
+
                 scene.add(outputToken);
-                
-                // 添加专家生成的输出标签
+
+                // translated comment removed
                 addTextLabel(outputToken, outputToken.userData.text, 0, expert.userData.weight);
-                
-                // 添加连接线
+
+                // translated comment removed
                 createConnection(expert, outputToken, 0.1, expert.userData.color);
             }
-            
-            // 移动相机以更好地查看专家处理过程
+
+            // translated comment removed
             animateCameraMove({ x: 0, y: -2, z: 16 }, 1000);
         }
-        
-        // 获取专家输出
+
+        // translated comment removed
         function getExpertOutput(expertId) {
-            // 根据当前输入和专家类型生成不同的输出
+            // translated comment removed
             const expertOutputs = {
-                "如何编写一个高效的算法": {
-                    1: "清晰结构",
-                    2: "逻辑清晰",
-                    3: "算法原理",
-                    4: "创新方法",
-                    5: "简洁表达",
-                    6: "时间复杂度",
-                    7: "代码优化",
-                    8: "要点总结"
+                "How to write an efficient algorithm": {
+                    1: "clear structure",
+                    2: "clear logic",
+                    3: "Algorithm principle",
+                    4: "innovative approach",
+                    5: "Concise expression",
+                    6: "time complexity",
+                    7: "Code optimization",
+                    8: "Summary of key points"
                 },
-                "写一首关于春天的诗": {
-                    1: "韵律结构",
-                    2: "意境连贯",
-                    3: "春天知识",
-                    4: "意象创造",
-                    5: "情感表达",
-                    6: "格律计算",
-                    7: "格式化",
-                    8: "主题凝练"
+                "write a poem about spring": {
+                    1: "rhyme structure",
+                    2: "Coherent artistic conception",
+                    3: "spring knowledge",
+                    4: "image creation",
+                    5: "emotional expression",
+                    6: "metrical calculation",
+                    7: "format",
+                    8: "Condensed theme"
                 },
-                "计算3的5次方是多少": {
-                    1: "句式完整",
-                    2: "推理过程",
-                    3: "数学知识",
-                    4: "类比说明",
-                    5: "简洁表达",
+                "Calculate what is 3 raised to the 5th power:": {
+                    1: "Complete sentences",
+                    2: "reasoning process",
+                    3: "Mathematical knowledge",
+                    4: "Analogy explanation",
+                    5: "Concise expression",
                     6: "243",
-                    7: "代码表示",
-                    8: "概念总结"
+                    7: "code representation",
+                    8: "Concept summary"
                 },
-                "分析这段代码的错误": {
-                    1: "表述完整",
-                    2: "逻辑分析",
-                    3: "编程知识",
-                    4: "解决方案",
-                    5: "友好提示",
-                    6: "算法分析",
-                    7: "错误定位",
-                    8: "问题总结"
+                "Analyze the errors in this code": {
+                    1: "Complete expression",
+                    2: "logical analysis",
+                    3: "Programming knowledge",
+                    4: "solution",
+                    5: "Friendly reminder",
+                    6: "Algorithm analysis",
+                    7: "Error location",
+                    8: "Problem summary"
                 },
-                "表达对朋友的关心": {
-                    1: "完整表达",
-                    2: "合理关联",
-                    3: "沟通知识",
-                    4: "真诚建议",
-                    5: "温暖问候",
-                    6: "精确表达",
-                    7: "格式优化",
-                    8: "核心要点"
+                "express concern for friends": {
+                    1: "full expression",
+                    2: "Reasonable connection",
+                    3: "Communicate knowledge",
+                    4: "Sincere advice",
+                    5: "Warm greetings",
+                    6: "precise expression",
+                    7: "Format optimization",
+                    8: "core points"
                 }
             };
-            
+
             return expertOutputs[currentInput]?.[expertId] || `Expert ${expertId} Output`;
         }
-        
-        // 合并专家输出 - 修正垂直位置
+
+        // translated comment removed
         function mergeExpertOutputs() {
-            // 获取所有专家输出
+            // translated comment removed
             const expertOutputs = scene.children.filter(obj => obj.userData.type === 'expertOutput');
-            
+
             if (expertOutputs.length === 0) {
-                console.error('没有找到专家输出对象');
+                console.error('No expert output object found');
                 return;
             }
-            
-            // 计算所有专家输出的平均位置
+
+            // translated comment removed
             let avgX = 0, avgZ = 0;
-            let lowestY = Infinity; // 找到最低的Y值
-            
+            let lowestY = Infinity; // translated comment removed
+
             expertOutputs.forEach(output => {
                 avgX += output.position.x;
                 avgZ += output.position.z;
-                // 记录最低的Y位置
+                // translated comment removed
                 if (output.position.y < lowestY) {
                     lowestY = output.position.y;
                 }
             });
-            
+
             avgX /= expertOutputs.length;
             avgZ /= expertOutputs.length;
-            
-            // 合并输出文本
+
+            // translated comment removed
             let mergedOutput = '';
             expertOutputs.forEach(output => {
                 mergedOutput += output.userData.text + ' ';
             });
-            
-            // 创建最终输出
+
+            // translated comment removed
             const finalOutputGeometry = new THREE.IcosahedronGeometry(1.5, 1);
-            const finalOutputMaterial = new THREE.MeshPhongMaterial({ 
+            const finalOutputMaterial = new THREE.MeshPhongMaterial({
                 color: colors.output,
                 emissive: new THREE.Color(0xffff00),
                 emissiveIntensity: 0.3,
@@ -989,24 +983,24 @@
                 opacity: 0.9
             });
             const finalOutput = new THREE.Mesh(finalOutputGeometry, finalOutputMaterial);
-            
-            // 明确设置最终输出位置
-            // 将最终输出设置为更靠近专家输出的位置（从-10或-15调整到-8）
+
+            // translated comment removed
+            // translated comment removed
             finalOutput.position.x = avgX;
-            finalOutput.position.y = -10; // 调整为更靠近专家输出的位置
+            finalOutput.position.y = -10; // translated comment removed
             finalOutput.position.z = avgZ;
-            
-            // 保存初始Y坐标用于动画
+
+            // translated comment removed
             finalOutput.userData.initialY = finalOutput.position.y;
-            
-            console.log(`专家输出位置: y=${lowestY}, 最终输出位置: y=${finalOutput.position.y}`);
-            
+
+            console.log(`Expert output position: y=${lowestY}, final output position: y=${finalOutput.position.y}`);
+
             finalOutput.userData.type = 'finalOutput';
             finalOutput.userData.text = mergedOutput;
-            
+
             scene.add(finalOutput);
-            
-            // 添加外发光效果
+
+            // translated comment removed
             const glowGeometry = new THREE.SphereGeometry(2, 32, 32);
             const glowMaterial = new THREE.MeshBasicMaterial({
                 color: 0xffff99,
@@ -1016,8 +1010,8 @@
             });
             const glow = new THREE.Mesh(glowGeometry, glowMaterial);
             finalOutput.add(glow);
-            
-            // 添加内核效果
+
+            // translated comment removed
             const coreGeometry = new THREE.SphereGeometry(0.5, 16, 16);
             const coreMaterial = new THREE.MeshBasicMaterial({
                 color: 0xffffff,
@@ -1026,8 +1020,8 @@
             });
             const core = new THREE.Mesh(coreGeometry, coreMaterial);
             finalOutput.add(core);
-            
-            // 添加动态光环
+
+            // translated comment removed
             const ringGeometry = new THREE.RingGeometry(2.2, 2.5, 32);
             const ringMaterial = new THREE.MeshBasicMaterial({
                 color: 0xffffff,
@@ -1038,81 +1032,81 @@
             const ring = new THREE.Mesh(ringGeometry, ringMaterial);
             ring.rotation.x = Math.PI / 2;
             finalOutput.add(ring);
-            
-            // 添加标签
-            addTextLabel(finalOutput, "最终合成结果", 2.2);
+
+            // translated comment removed
+            addTextLabel(finalOutput, "Final synthesis result", 2.2);
             addTextLabel(finalOutput, mergedOutput, -2.2);
-            
-            // 创建从专家输出到最终输出的连接
+
+            // translated comment removed
             expertOutputs.forEach(output => {
                 createAnimatedConnection(output, finalOutput);
             });
-            
-            // 运行动画
+
+            // translated comment removed
             animateFinalOutputComplex(finalOutput, ring);
-            
-            // 调整相机位置，确保能看到整个垂直流程
-            // 计算整个场景的垂直范围
-            const topY = 12; // 输入tokens的顶部
-            const bottomY = -10; // 最终输出的底部
-            const centerY = (topY + bottomY) / 2; // 垂直中心
-            
-            animateCameraMove({ 
-                x: 0, 
-                y: centerY, // 相机Y位置对准场景垂直中心
-                z: 25 // 足够远以看到整个场景
+
+            // translated comment removed
+            // translated comment removed
+            const topY = 12; // translated comment removed
+            const bottomY = -10; // translated comment removed
+            const centerY = (topY + bottomY) / 2; // translated comment removed
+
+            animateCameraMove({
+                x: 0,
+                y: centerY, // translated comment removed
+                z: 25 // translated comment removed
             }, 1500);
         }
-        
-        // 创建动画连接线
+
+        // translated comment removed
         function createAnimatedConnection(source, target) {
-            // 创建曲线路径
+            // translated comment removed
             const sourcePos = source.position.clone();
             const targetPos = target.position.clone();
             const midPoint = new THREE.Vector3(
                 (sourcePos.x + targetPos.x) / 2,
-                (sourcePos.y + targetPos.y) / 2 + 2, // 增加高度使曲线更明显
+                (sourcePos.y + targetPos.y) / 2 + 2, // translated comment removed
                 (sourcePos.z + targetPos.z) / 2
             );
-            
-            // 创建三次贝塞尔曲线
+
+            // translated comment removed
             const curve = new THREE.CubicBezierCurve3(
                 sourcePos,
                 new THREE.Vector3(sourcePos.x, midPoint.y, midPoint.z),
                 new THREE.Vector3(targetPos.x, midPoint.y, midPoint.z),
                 targetPos
             );
-            
-            // 创建曲线路径的几何体
+
+            // translated comment removed
             const points = curve.getPoints(50);
             const geometry = new THREE.BufferGeometry().setFromPoints(points);
-            
-            // 根据专家颜色选择连接线颜色
+
+            // translated comment removed
             const color = source.material.color.clone();
-            
-            // 创建渐变材质
+
+            // translated comment removed
             const material = new THREE.LineBasicMaterial({
                 color: color,
                 transparent: true,
                 opacity: 0.7,
                 linewidth: 2
             });
-            
+
             const line = new THREE.Line(geometry, material);
             scene.add(line);
             connections.push(line);
-            
-            // 添加沿着连接线移动的粒子
+
+            // translated comment removed
             animateParticlesAlongLine(curve, color);
-            
+
             return line;
         }
-        
-        // 沿曲线移动粒子动画
+
+        // translated comment removed
         function animateParticlesAlongLine(curve, color) {
-            // 为每条线创建5个粒子
+            // translated comment removed
             for (let i = 0; i < 5; i++) {
-                // 创建小球体作为粒子
+                // translated comment removed
                 const particleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
                 const particleMaterial = new THREE.MeshBasicMaterial({
                     color: color,
@@ -1120,93 +1114,93 @@
                     opacity: 0.8
                 });
                 const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-                
-                // 随机起始位置
+
+                // translated comment removed
                 const startOffset = Math.random();
-                
-                // 添加到场景
+
+                // translated comment removed
                 scene.add(particle);
-                
-                // 动画函数
+
+                // translated comment removed
                 function moveParticle() {
-                    // 计算当前位置 (循环移动)
+                    // translated comment removed
                     const time = (Date.now() * 0.0005 + startOffset) % 1;
                     const position = curve.getPointAt(time);
                     particle.position.copy(position);
-                    
-                    // 脉冲效果
+
+                    // translated comment removed
                     const pulse = Math.sin(Date.now() * 0.01 + startOffset * 10) * 0.5 + 0.5;
                     particle.scale.setScalar(0.8 + pulse * 0.4);
                     particleMaterial.opacity = 0.4 + pulse * 0.6;
-                    
-                    // 如果仍在步骤5，继续动画
+
+                    // translated comment removed
                     if (currentStep === 4) {
                         requestAnimationFrame(moveParticle);
                     } else {
-                        // 如果不在步骤5，移除粒子
+                        // translated comment removed
                         scene.remove(particle);
                     }
                 }
-                
+
                 moveParticle();
             }
         }
-        
-        // 复合动画效果
+
+        // translated comment removed
         function animateFinalOutputComplex(finalOutput, ring) {
             let startTime = Date.now();
-            
+
             function animate() {
                 const elapsed = Date.now() - startTime;
-                
-                // 让最终输出沿Y轴缓慢旋转
+
+                // translated comment removed
                 finalOutput.rotation.y = elapsed * 0.0005;
-                
-                // 让环沿X轴旋转
+
+                // translated comment removed
                 ring.rotation.z = elapsed * 0.001;
-                
-                // 脉冲效果
+
+                // translated comment removed
                 const pulse = Math.sin(elapsed * 0.002) * 0.5 + 0.5;
                 finalOutput.material.emissiveIntensity = 0.2 + pulse * 0.3;
                 ring.scale.setScalar(0.9 + pulse * 0.2);
-                
-                // 小幅度浮动
+
+                // translated comment removed
                 finalOutput.position.y = finalOutput.userData.initialY + Math.sin(elapsed * 0.001) * 0.3;
-                
-                // 只在步骤5中继续动画
+
+                // translated comment removed
                 if (currentStep === 4) {
                     requestAnimationFrame(animate);
                 }
             }
-            
+
             animate();
         }
-        
-        // 其他辅助函数
+
+        // translated comment removed
         function updateDescription(stepIndex) {
             document.getElementById('step-description').textContent = stepDescriptions[stepIndex];
         }
-        
+
         function updateRouterControls() {
-            // 更新控制器显示数值
+            // translated comment removed
             document.getElementById('router-temp-value').textContent = `Current Value: ${routerTemperature.toFixed(1)}`;
             document.getElementById('topk-value').textContent = `Current Value: ${topKExperts}`;
-            
-            // 更新滑块位置
+
+            // translated comment removed
             document.getElementById('router-temp-slider').value = routerTemperature;
             document.getElementById('topk-slider').value = topKExperts;
         }
-        
+
         function updateExpertHighlights() {
-            // 更新专家高亮状态
+            // translated comment removed
             expertObjects.forEach(expert => {
                 const expertId = expert.userData.id;
                 if (selectedExperts.has(expertId)) {
-                    // 高亮选中的专家
+                    // translated comment removed
                     expert.material.emissive = new THREE.Color(0xffff00);
                     expert.material.emissiveIntensity = 0.5;
                 } else {
-                    // 恢复未选中专家的状态
+                    // translated comment removed
                     if (expert.userData.selected) {
                         expert.material.emissive = new THREE.Color(0x333333);
                         expert.material.emissiveIntensity = 0.5;
@@ -1217,138 +1211,138 @@
                 }
             });
         }
-        
+
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
             renderer.render(scene, camera);
             labelRenderer.render(scene, camera);
         }
-        
+
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
             labelRenderer.setSize(window.innerWidth, window.innerHeight);
         }
-        
+
         function onMouseMove(event) {
             event.preventDefault();
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            
-            // 更新射线投射器
+
+            // translated comment removed
             raycaster.setFromCamera(mouse, camera);
-            
-            // 检查与对象的交互
+
+            // translated comment removed
             const intersects = raycaster.intersectObjects(scene.children, true);
-            
-            // 默认隐藏提示框
+
+            // translated comment removed
             tooltip.style.display = 'none';
-            
-            // 重置鼠标样式
+
+            // translated comment removed
             document.body.style.cursor = 'default';
-            
+
             if (intersects.length > 0) {
                 const obj = intersects[0].object;
-                
-                // 忽略不相关的对象
+
+                // translated comment removed
                 if (!obj.userData || !obj.userData.type) return;
-                
-                // 根据对象类型处理
+
+                // translated comment removed
                 if (obj.userData.type === 'expert') {
                     document.body.style.cursor = 'pointer';
-                    
-                    // 显示专家信息
+
+                    // translated comment removed
                     tooltip.innerHTML = `
                         <strong>${obj.userData.name}</strong><br>
-                        领域: ${obj.userData.domain}<br>
-                        权重: ${obj.userData.weight.toFixed(2)}<br>
-                        ${obj.userData.selected ? '已激活' : '未激活'}
+                        Field: ${obj.userData.domain}<br>
+                        Weight: ${obj.userData.weight.toFixed(2)}<br>
+${obj.userData.selected ? 'Active' : 'Inactive'}
                     `;
-                    
+
                     tooltip.style.left = `${event.clientX + 10}px`;
                     tooltip.style.top = `${event.clientY + 10}px`;
                     tooltip.style.display = 'block';
                 }
                 else if (obj.userData.type === 'router') {
                     document.body.style.cursor = 'pointer';
-                    
-                    // 显示路由器信息
+
+                    // translated comment removed
                     tooltip.innerHTML = `
-                        <strong>路由器</strong><br>
-                        温度: ${routerTemperature.toFixed(1)}<br>
+                        <strong>Router</strong><br>
+                        Temperature: ${routerTemperature.toFixed(1)}<br>
                         Top-K: ${topKExperts}
                     `;
-                    
+
                     tooltip.style.left = `${event.clientX + 10}px`;
                     tooltip.style.top = `${event.clientY + 10}px`;
                     tooltip.style.display = 'block';
                 }
             }
         }
-        
+
         function onClick(event) {
             event.preventDefault();
-            
-            // 只在选择专家阶段生效
+
+            // translated comment removed
             if (currentStep !== 3) return;
-            
+
             const intersects = raycaster.intersectObjects(scene.children, true);
             if (intersects.length > 0) {
                 const obj = intersects[0].object;
-                
-                // 忽略不相关的对象
+
+                // translated comment removed
                 if (!obj.userData || !obj.userData.type) return;
-                
-                // 点击专家
+
+                // translated comment removed
                 if (obj.userData.type === 'expert') {
                     const expertId = obj.userData.id;
-                    
-                    // 切换专家选择状态
+
+                    // translated comment removed
                     if (selectedExperts.has(expertId)) {
                         selectedExperts.delete(expertId);
                     } else {
                         selectedExperts.add(expertId);
                     }
-                    
-                    // 更新复选框
+
+                    // translated comment removed
                     document.getElementById(`expert-${expertId}`).checked = selectedExperts.has(expertId);
-                    
-                    // 更新视觉效果
+
+                    // translated comment removed
                     updateExpertHighlights();
                 }
             }
         }
-        
-        // 创建连接线
+
+        // translated comment removed
         function createConnection(obj1, obj2, width = 0.05, color = colors.connection) {
-            // 创建从obj1到obj2的连接线
+            // translated comment removed
             const points = [];
             points.push(obj1.position.clone());
             points.push(obj2.position.clone());
-            
+
             const geometry = new THREE.BufferGeometry().setFromPoints(points);
-            const material = new THREE.LineBasicMaterial({ 
+            const material = new THREE.LineBasicMaterial({
                 color: color,
                 linewidth: 2,
                 transparent: true,
                 opacity: 0.7
             });
-            
+
             const line = new THREE.Line(geometry, material);
             scene.add(line);
             connections.push(line);
-            
+
             return line;
         }
-        
-        // 清理场景
+
+        // translated comment removed
         function clearScene() {
-            // 移除所有3D对象和标签
-            while(scene.children.length > 0) { 
+            // translated comment removed
+            while(scene.children.length > 0) {
                 const obj = scene.children[0];
-                // 递归移除所有子对象，包括CSS2D标签
+                // translated comment removed
                 function removeAllChildren(object) {
                     while(object.children.length > 0) {
                         removeAllChildren(object.children[0]);
@@ -1356,49 +1350,49 @@
                     }
                 }
                 removeAllChildren(obj);
-                scene.remove(obj); 
+                scene.remove(obj);
             }
-            
-            // 重置数组
+
+            // translated comment removed
             tokens.length = 0;
             experts.length = 0;
             expertObjects.length = 0;
             connections.length = 0;
-            labels.length = 0; // 确保清空标签数组
-            
-            // 重新添加光源
+            labels.length = 0; // translated comment removed
+
+            // translated comment removed
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
             scene.add(ambientLight);
-            
+
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
             directionalLight.position.set(1, 1, 1);
             scene.add(directionalLight);
-            
-            // 隐藏控制面板
+
+            // translated comment removed
             document.getElementById('parameters-control').style.display = 'none';
             document.getElementById('expert-selection').style.display = 'none';
             document.getElementById('expert-weights-chart').style.display = 'none';
         }
-        
-        // 对象位置动画
+
+        // translated comment removed
         function animateObjectPosition(obj, targetPos, duration, callback) {
             const startPos = {
                 x: obj.position.x,
                 y: obj.position.y,
                 z: obj.position.z
             };
-            
+
             let startTime = null;
-            
+
             function update(timestamp) {
                 if (!startTime) startTime = timestamp;
                 const elapsed = timestamp - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
-                // 使用缓动函数
+
+                // translated comment removed
                 const easeProgress = easeInOutCubic(progress);
-                
-                // 更新位置
+
+                // translated comment removed
                 if (targetPos.x !== undefined) {
                     obj.position.x = startPos.x + (targetPos.x - startPos.x) * easeProgress;
                 }
@@ -1408,42 +1402,42 @@
                 if (targetPos.z !== undefined) {
                     obj.position.z = startPos.z + (targetPos.z - startPos.z) * easeProgress;
                 }
-                
+
                 if (progress < 1) {
                     requestAnimationFrame(update);
                 } else if (callback) {
-                    // 动画完成时执行回调
+                    // translated comment removed
                     callback();
                 }
             }
-            
+
             requestAnimationFrame(update);
         }
-        
-        // 缓动函数
+
+        // translated comment removed
         function easeInOutCubic(t) {
             return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         }
-        
-        // 相机移动动画
+
+        // translated comment removed
         function animateCameraMove(targetPos, duration) {
             const startPos = {
                 x: camera.position.x,
                 y: camera.position.y,
                 z: camera.position.z
             };
-            
+
             let startTime = null;
-            
+
             function update(timestamp) {
                 if (!startTime) startTime = timestamp;
                 const elapsed = timestamp - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
-                // 使用缓动函数
+
+                // translated comment removed
                 const easeProgress = easeInOutCubic(progress);
-                
-                // 更新位置
+
+                // translated comment removed
                 if (targetPos.x !== undefined) {
                     camera.position.x = startPos.x + (targetPos.x - startPos.x) * easeProgress;
                 }
@@ -1453,58 +1447,58 @@
                 if (targetPos.z !== undefined) {
                     camera.position.z = startPos.z + (targetPos.z - startPos.z) * easeProgress;
                 }
-                
+
                 if (progress < 1) {
                     requestAnimationFrame(update);
                 }
             }
-            
+
             requestAnimationFrame(update);
         }
-        
-        // 路由器参数变化处理
+
+        // translated comment removed
         function handleRouterParameterChange(event) {
             if (event.target.id === 'router-temp-slider') {
                 routerTemperature = parseFloat(event.target.value);
             } else if (event.target.id === 'topk-slider') {
                 topKExperts = parseInt(event.target.value);
             }
-            
-            // 更新显示
+
+            // translated comment removed
             updateRouterControls();
-            
-            // 重新计算专家权重
+
+            // translated comment removed
             calculateExpertWeights();
-            
-            // 更新权重图表
+
+            // translated comment removed
             updateExpertWeightsChart();
         }
-        
-        // 专家权重图表
+
+        // translated comment removed
         function updateExpertWeightsChart() {
             const canvas = document.getElementById('weights-canvas');
             const ctx = canvas.getContext('2d');
-            
-            // 重置画布尺寸
+
+            // translated comment removed
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
-            
-            // 设置图表边距
+
+            // translated comment removed
             const margin = {
                 top: 30,
                 right: 30,
                 bottom: 50,
                 left: 60
             };
-            
-            // 计算图表区域
+
+            // translated comment removed
             const chartWidth = canvas.width - margin.left - margin.right;
             const chartHeight = canvas.height - margin.top - margin.bottom;
-            
-            // 清除画布
+
+            // translated comment removed
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 绘制坐标轴
+
+            // translated comment removed
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -1512,30 +1506,30 @@
             ctx.lineTo(margin.left, margin.top + chartHeight);
             ctx.lineTo(margin.left + chartWidth, margin.top + chartHeight);
             ctx.stroke();
-            
-            // 绘制水平辅助线
+
+            // translated comment removed
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
             ctx.lineWidth = 1;
-            
-            // Y轴刻度
+
+            // translated comment removed
             for (let i = 0; i <= 10; i++) {
                 const y = margin.top + chartHeight - (i / 10) * chartHeight;
                 ctx.beginPath();
                 ctx.moveTo(margin.left, y);
                 ctx.lineTo(margin.left + chartWidth, y);
                 ctx.stroke();
-                
-                // Y轴标签
+
+                // translated comment removed
                 ctx.fillStyle = '#ffffff';
                 ctx.textAlign = 'right';
                 ctx.textBaseline = 'middle';
                 ctx.fillText((i / 10).toFixed(1), margin.left - 10, y);
             }
-            
-            // 获取Top-K阈值
+
+            // translated comment removed
             const threshold = getTopKThreshold(expertWeights, topKExperts);
-            
-            // 绘制Top-K阈值线
+
+            // translated comment removed
             ctx.strokeStyle = '#ff0000';
             ctx.lineWidth = 2;
             ctx.setLineDash([5, 5]);
@@ -1545,37 +1539,37 @@
             ctx.lineTo(margin.left + chartWidth, thresholdY);
             ctx.stroke();
             ctx.setLineDash([]);
-            
-            // 绘制阈值标签
+
+            // translated comment removed
             ctx.fillStyle = '#ff0000';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'bottom';
-            ctx.fillText(`阈值: ${threshold.toFixed(2)}`, margin.left + 10, thresholdY - 5);
-            
-            // 绘制柱状图
+            ctx.fillText(`Threshold: ${threshold.toFixed(2)}`, margin.left + 10, thresholdY - 5);
+
+            // translated comment removed
             const barWidth = chartWidth / expertConfig.length - 10;
-            
+
             expertConfig.forEach((expert, index) => {
                 const weight = expertWeights[index];
                 const x = margin.left + index * (barWidth + 10) + 5;
                 const barHeight = weight * chartHeight;
                 const y = margin.top + chartHeight - barHeight;
-                
-                // 根据是否超过阈值设置颜色
-                ctx.fillStyle = weight >= threshold ? 
-                    `#${expert.color.toString(16)}` : 
+
+                // translated comment removed
+                ctx.fillStyle = weight >= threshold ?
+                    `#${expert.color.toString(16)}` :
                     'rgba(150, 150, 150, 0.5)';
-                
-                // 绘制柱状
+
+                // translated comment removed
                 ctx.fillRect(x, y, barWidth, barHeight);
-                
-                // 绘制权重值
+
+                // translated comment removed
                 ctx.fillStyle = '#ffffff';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
                 ctx.fillText(weight.toFixed(2), x + barWidth / 2, y - 5);
-                
-                // 绘制专家名称 (旋转45度)
+
+                // translated comment removed
                 ctx.save();
                 ctx.translate(x + barWidth / 2, margin.top + chartHeight + 10);
                 ctx.rotate(Math.PI / 4);
@@ -1584,129 +1578,129 @@
                 ctx.fillText(expert.name, 0, 0);
                 ctx.restore();
             });
-            
-            // 绘制标题
+
+            // translated comment removed
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
             ctx.font = 'bold 14px Arial';
             ctx.fillText('Expert Weight Distribution', canvas.width / 2, 10);
         }
-        
-        // 开始演示
+
+        // translated comment removed
         function startDemo() {
             try {
                 console.log('Starting demo...');
                 currentStep = 0;
-                
-                // 随机选择一个输入示例
+
+                // translated comment removed
                 currentInput = inputExamples[Math.floor(Math.random() * inputExamples.length)];
                 console.log('Selected input:', currentInput);
-                
-                // 禁用开始按钮
+
+                // translated comment removed
                 document.getElementById('start-btn').disabled = true;
-                
-                // 启用下一步按钮
+
+                // translated comment removed
                 document.getElementById('next-btn').disabled = false;
-                
-                // 执行第一步
+
+                // translated comment removed
                 if (steps && steps.length > 0) {
                     console.log('Executing first step');
                     steps[currentStep]();
                 } else {
                     console.error('Error: steps array undefined or empty');
-                    alert('无法开始演示：步骤未正确定义');
+                    alert('Unable to start demo: Steps are not defined correctly');
                 }
             } catch (error) {
                 console.error('Error starting demo:', error);
-                alert('开始演示时发生错误，请检查控制台获取详情');
+                alert('An error occurred while starting the demo, please check the console for details');
             }
         }
-        
-        // 下一步
+
+        // translated comment removed
         function nextStep() {
             if (currentStep < steps.length - 1) {
                 currentStep++;
                 steps[currentStep]();
-                
-                // 启用上一步按钮
+
+                // translated comment removed
                 document.getElementById('prev-btn').disabled = false;
-                
-                // 禁用下一步按钮如果到达最后步骤
+
+                // translated comment removed
                 if (currentStep === steps.length - 1) {
                     document.getElementById('next-btn').disabled = true;
                 }
             }
         }
-        
-        // 上一步
+
+        // translated comment removed
         function prevStep() {
             if (currentStep > 0) {
                 currentStep--;
-                
-                // 清理场景
+
+                // translated comment removed
                 clearScene();
-                
-                // 从头执行到当前步骤
+
+                // translated comment removed
                 for (let i = 0; i <= currentStep; i++) {
                     steps[i]();
                 }
-                
-                // 禁用上一步按钮如果到达第一步
+
+                // translated comment removed
                 if (currentStep === 0) {
                     document.getElementById('prev-btn').disabled = true;
                 }
-                
-                // 启用下一步按钮
+
+                // translated comment removed
                 document.getElementById('next-btn').disabled = false;
-                
-                // 隐藏控制面板
+
+                // translated comment removed
                 document.getElementById('parameters-control').style.display = 'none';
                 document.getElementById('expert-selection').style.display = 'none';
                 document.getElementById('expert-weights-chart').style.display = 'none';
-                
-                // 如果到了第3步，显示相应控制
+
+                // translated comment removed
                 if (currentStep === 2) {
                     document.getElementById('parameters-control').style.display = 'block';
                     document.getElementById('expert-weights-chart').style.display = 'block';
                 }
-                
-                // 如果到了第4步，显示专家选择
+
+                // translated comment removed
                 if (currentStep === 3) {
                     document.getElementById('expert-selection').style.display = 'block';
                 }
             }
         }
-        
-        // 重置演示
+
+        // translated comment removed
         function resetDemo() {
-            // 重置步骤
+            // translated comment removed
             currentStep = -1;
-            
-            // 重置参数
+
+            // translated comment removed
             routerTemperature = 1.0;
             topKExperts = 2;
             selectedExperts.clear();
-            
-            // 清理场景
+
+            // translated comment removed
             clearScene();
-            
-            // 重置相机
+
+            // translated comment removed
             camera.position.set(0, 2, 15);
             controls.target.set(0, 0, 0);
             controls.update();
-            
-            // 重置按钮状态
+
+            // translated comment removed
             document.getElementById('start-btn').disabled = false;
             document.getElementById('prev-btn').disabled = true;
             document.getElementById('next-btn').disabled = true;
-            
-            // 重置描述
-            document.getElementById('step-description').textContent = 
+
+            // translated comment removed
+            document.getElementById('step-description').textContent =
                 'Welcome to MoE model visualization! Click "Start" button to begin the demonstration.';
         }
-        
-        // 页面加载完成后初始化
+
+        // translated comment removed
         window.onload = init;
     </script>
 </body>

@@ -22,14 +22,14 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 /*----------------------------------------------------------------
     Copyright (C) 2023 Senparc
   
-    文件名：KernelConfigExtensions.Function.cs
-    文件功能描述：
+    file name:KernelConfigExtensions.Function.cs
+    file function description:
     
     
-    创建标识：Senparc - 20150211
+    create identifier:Senparc - 20150211
     
-    修改标识：Felixj - 20231207
-    修改描述：修复运行Samples时导致JSONException的问题
+    modify identifier:Felixj - 20231207
+    modify description:fix the issue where running samples caused JSONException
 
 ----------------------------------------------------------------*/
 
@@ -49,12 +49,12 @@ using System.Text;
 
 namespace Senparc.AI.AgentKernel.Handlers
 {
-    /* 注意：所有 Functiuon 添后加都必须执行 iWantToRun.Functions.Add(function); */
+    /* note:All Functions added afterward must execute iWantToRun.Functions.Add(function); */
 
     public static partial class KernelConfigExtensions
     {
         ///// <summary>
-        ///// 设置 PromptConfigParameter
+        ///// setting PromptConfigParameter
         ///// </summary>
         ///// <param name="iWantToRun"></param>
         ///// <param name="promptConfigParameter"></param>
@@ -81,7 +81,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         ///// The <see cref="IPromptTemplateFactory"/> to use when interpreting the <paramref name="promptTemplate"/> into a <see cref="IPromptTemplate"/>.
         ///// If null, a default factory will be used.
         ///// </param>
-        ///// <param name="senparcAiSetting">如果为 null，则默认是用</param>
+        ///// <param name="senparcAiSetting">if it is null, defaults to</param>
         ///// <returns>(IWantToRun iWantToRun, KernelFunction newFunction)</returns>
         //public static (IWantToRun iWantToRun, KernelFunction newFunction) CreateFunctionFromPrompt(
         //    this IWantToRun iWantToRun, string promptTemplate,
@@ -119,7 +119,7 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         //    var aiContext = new SenparcAiArguments();
 
-        //    //TODO:独立 Context
+        //    //TODO:standalone Context
         //    var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
         //    //var history = "";
         //    var history = new ChatHistory();
@@ -153,7 +153,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         ///// <param name="stopSequences">Strings the LLM will detect to stop generating (before reaching max tokens)</param>
         ///// <param name="templateFormat"></param>
         ///// <param name="promptTemplateFactory"></param>
-        ///// <param name="senparcAiSetting">如果为 null，则默认是用</param>
+        ///// <param name="senparcAiSetting">if it is null, defaults to</param>
         ///// <returns>A function ready to use</returns>
         //public static (IWantToRun iWantToRun, KernelFunction function) CreateFunctionFromPrompt(this IWantToRun iWantToRun,
         //    string promptTemplate,

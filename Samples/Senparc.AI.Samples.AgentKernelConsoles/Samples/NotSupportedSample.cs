@@ -1,16 +1,16 @@
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// AgentKernel 暂未实现的能力占位提示。
+/// Placeholder prompt for AgentKernel capabilities that are not implemented yet.
 /// </summary>
 public static class NotSupportedSample
 {
     public static Task RunAsync(string featureName)
     {
         Console.WriteLine();
-        Console.WriteLine($"{featureName}：尚未提供");
-        Console.WriteLine("说明：Senparc.AI.AgentKernel 基于 Microsoft Agent Framework，当前示例已覆盖 Chat / Completion / Embedding / RAG / Image / STT / TTS。");
-        Console.WriteLine("如需 Planner、Plugin 等能力，请使用 Samples/Senparc.AI.Samples.Consoles（Senparc.AI.Kernel）。");
+        Console.WriteLine($"{featureName}:Not available yet");
+        Console.WriteLine("Senparc.AI.AgentKernel is based on Microsoft Agent Framework. This sample currently covers Chat, Completion, Embedding, RAG, Image, STT, and TTS.");
+        Console.WriteLine("Use Samples/Senparc.AI.Samples.Consoles (Senparc.AI.Kernel) for Planner, Plugin, and related capabilities.");
         Console.WriteLine();
         return Task.CompletedTask;
     }

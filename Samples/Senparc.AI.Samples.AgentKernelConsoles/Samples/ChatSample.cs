@@ -7,7 +7,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// 多轮对话示例，参考 AgentAiHandlerTests.ConversationTestWithDefaultSession。
+/// Multi-turn conversation sample. See AgentAiHandlerTests.ConversationTestWithDefaultSession.
 /// </summary>
 public class ChatSample
 {
@@ -34,7 +34,7 @@ public class ChatSample
             return agentHandler;
         }
 
-        throw new InvalidOperationException("当前示例需要 AgentAiHandler，请确认已调用 AddSenparcAI。");
+        throw new InvalidOperationException("This sample requires AgentAiHandler. Confirm that AddSenparcAI has been called.");
     }
 
     public async Task RunAsync()
@@ -43,8 +43,8 @@ public class ChatSample
         var agentHandler = GetHandler(_aiHandler);
         agentHandler.AgentKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);
 
-        Console.WriteLine("ChatSample 开始运行（Microsoft Agent Framework + AgentSession）");
-        Console.WriteLine("[聊天设置 1/2] 请输入 System Message，留空则使用默认：");
+        Console.WriteLine("ChatSample started(Microsoft Agent Framework + AgentSession)");
+        Console.WriteLine("[Chat settings 1/2] Enter the System Message. Leave it empty to use the default:");
         Console.WriteLine("------ System Message Start ------");
         Console.WriteLine(Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE);
         Console.WriteLine("------ System Message End ------");
@@ -53,9 +53,9 @@ public class ChatSample
             ? Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE
             : systemMessage;
 
-        Console.WriteLine("[聊天设置 2/2] 会话模式：");
-        Console.WriteLine("[1] 共享 AgentSession（同一 BuildKernel，保留上下文，推荐）");
-        Console.WriteLine("[2] 每轮新建 Session（无上下文，用于对比测试）");
+        Console.WriteLine("[Chat settings 2/2] Session mode:");
+        Console.WriteLine("[1] Shared AgentSession (same BuildKernel, keeps context, recommended)");
+        Console.WriteLine("[2] New Session each round (no context, for comparison testing)");
         var sessionMode = Console.ReadLine() == "2" ? SessionMode.PerRequest : SessionMode.Shared;
 
         var chatOptions = new ChatClientAgentOptions
@@ -64,7 +64,7 @@ public class ChatSample
         };
 
         Console.WriteLine();
-        Console.WriteLine("配置完成。输入 exit 退出对话。");
+        Console.WriteLine("Configuration complete. Enter exit to leave the conversation.");
         Console.WriteLine("---------------------------------");
 
         var userId = "Jeffrey";
@@ -79,16 +79,16 @@ public class ChatSample
                 .ConfigChatModel(userId, chatOptions)
                 .BuildKernelWithAgentSessionAsync();
             agentSession = sharedRun.Kernel.AgentSession;
-            Console.WriteLine($"[调试] AgentSession 已创建：{agentSession != null}");
+            Console.WriteLine($"[Debug] AgentSession created:{agentSession != null}");
         }
 
         while (true)
         {
-            Console.WriteLine($"[{round + 1}] 人类：");
+            Console.WriteLine($"[{round + 1}] Human:");
             var input = Console.ReadLine();
             if (input.IsNullOrEmpty())
             {
-                Console.WriteLine("[请输入有效内容]");
+                Console.WriteLine("[Enter valid content]");
                 continue;
             }
 
@@ -98,7 +98,7 @@ public class ChatSample
             }
 
             round++;
-            Console.WriteLine($"[{round}] 机器：");
+            Console.WriteLine($"[{round}] Assistant:");
 
             try
             {
@@ -112,7 +112,7 @@ public class ChatSample
                     iWantToRun = agentHandler.IWantTo(SampleSetting.CurrentSetting)
                         .ConfigModel(ConfigModel.Chat, userId)
                         .BuildKernel(chatOptions);
-                    agentSession = iWantToRun.Kernel.AgentSession;//实际为 null
+                    agentSession = iWantToRun.Kernel.AgentSession;//Actually null
                 }
 
                 Action changeColor = () =>
@@ -129,11 +129,11 @@ public class ChatSample
                 var result = await iWantToRun.RunChatAsync(input, agentSession, updateFun);
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine();
-                Console.WriteLine($"[调试] Tokens — input: {result.Result.Usage?.InputTokenCount}, output: {result.Result.Usage?.OutputTokenCount}, total: {result.Result.Usage?.TotalTokenCount}");
+                Console.WriteLine($"[Debug] Tokens — input: {result.Result.Usage?.InputTokenCount}, output: {result.Result.Usage?.OutputTokenCount}, total: {result.Result.Usage?.TotalTokenCount}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("发生错误：" + ex);
+                Console.WriteLine("An error occurred:" + ex);
             }
 
             Console.WriteLine();

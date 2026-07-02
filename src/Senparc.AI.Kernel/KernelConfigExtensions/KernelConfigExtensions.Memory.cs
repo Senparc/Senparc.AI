@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticKernel.Embeddings;
+using Microsoft.SemanticKernel.Embeddings;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel.Entities;
 using System;
@@ -9,7 +9,7 @@ namespace Senparc.AI.Kernel.Handlers
 {
     public static partial class KernelConfigExtensions
     {
-        #region Memory 相关
+        #region Memory related
 
 #pragma warning disable SKEXP0001
 
@@ -70,7 +70,7 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// Memory 查询
+        /// Memory query
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="collection">Collection to search</param>

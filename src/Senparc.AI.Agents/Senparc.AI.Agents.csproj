@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
@@ -9,7 +9,7 @@
 		<RootNamespace>Senparc.AI.Agents</RootNamespace>
 		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
 		<Description>
-			Senparc.AI.Agents - AI Agents（智能体），支持 AutoGen，可配置 Agent 进行协作
+			Senparc.AI.Agents - AI Agents(agent), support AutoGen, configurable Agents can collaborate
 		</Description>
 		<Copyright>Senparc Copyright © 2004~2026</Copyright>
 		<PackageTags>
@@ -20,13 +20,13 @@
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<ProjectUrl>https://github.com/Senparc/Senparc.AI.Agents</ProjectUrl>
 		<Title>Senparc.AI.Agents.dll</Title>
-		<Summary>Senparc.AI 核心模块</Summary>
+		<Summary>Senparc.AI core module</Summary>
 		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI.Agents</PackageProjectUrl>
 		<PackageIcon>icon.jpg</PackageIcon>
 		<PackageReleaseNotes>
-			v0.1.0 创世
+			v0.1.0 Genesis
 
-			[2024-09-07] v0.2.0 SemanticKernelHelper 提供重新设置 SenparcAiSetting 参数方法
+			[2024-09-07] v0.2.0 Add a SemanticKernelHelper method for resetting SenparcAiSetting parameters
 			[2024-11-19] v0.4.0 Update CO2NET, reframe for Aspire
 			[2025-01-25] v0.5.1 fix output result for nonstreaming request
 			[2025-02-02] v0.5.2 Upgrade support for Ollama, finished test for DeepSeek-r1 and nomic-embed-text:v1.5

@@ -6,14 +6,14 @@
 trigger:
   - master
 
-# 🎯 使用自托管代理池，加快 CI/CD 速度（与 NcfPackageSources 共享同一 Agent Pool 与变量组）
+# 🎯 Use a self-hosted agent pool to speed up CI/CD (shares the same Agent Pool and variable group with NcfPackageSources)
 pool:
   name: 'SenparcOpenSource'
   demands:
     - Agent.OS -equals Windows_NT
 
 variables:
-  - group: Nuget_Key   # Library 变量组，内含变量 NUGET_API_KEY（与 NcfPackageSources 共享）
+  - group: Nuget_Key   # Library variable group containing NUGET_API_KEY (shared with NcfPackageSources)
   - name: solution
     value: '**/Senparc.AI.sln'
   - name: buildPlatform
@@ -26,7 +26,7 @@ variables:
     value: 'https://api.nuget.org/v3/index.json'
 
 steps:
-# ✅ 固定 .NET SDK 版本（Solution 含 netstandard2.1 / net8.0 / net10.0 项目；SDK 10 可编译全部 TFM）
+# ✅ Pin the .NET SDK version (the solution contains netstandard2.1, net8.0, and net10.0 projects; SDK 10 can compile all TFMs)
 - task: UseDotNet@2
   displayName: 'Use .NET SDK 10'
   inputs:
@@ -48,10 +48,10 @@ steps:
     dotnet --list-sdks
     echo "=== Active SDK (global.json) ==="
     dotnet --version
-    dotnet --list-sdks | findstr /R /C:"10\." >nul || (echo ##[error].NET 10 SDK 未安装，无法编译 net10.0 项目。请检查 UseDotNet 任务或 Agent 网络。 && exit 1)
+    dotnet --list-sdks | findstr /R /C:"10\." >nul || (echo ##[error].NET 10 SDK is not installed, so net10.0 projects cannot be compiled. Check the UseDotNet task or agent network. && exit 1)
   displayName: 'Verify .NET 10 SDK'
 
-# 🟢 缓存 NuGet 及依赖项
+# 🟢 Cache NuGet and dependencies
 - task: Cache@2
   inputs:
     key: 'nuget | "$(Agent.OS)" | **/*.csproj'
@@ -59,7 +59,7 @@ steps:
     restoreKeys: 'nuget'
   displayName: 'Cache NuGet Packages'
 
-# 🟢 缓存 Aspire Workload
+# 🟢 Cache Aspire Workload
 - task: Cache@2
   inputs:
     key: 'aspire-workload | "$(Agent.OS)"'
@@ -67,7 +67,7 @@ steps:
     restoreKeys: 'aspire-workload'
   displayName: 'Cache Aspire Workload'
 
-# 🟢 缓存 NuGet 工具（减少安装时间）
+# 🟢 Cache NuGet tools to reduce installation time
 - task: Cache@2
   inputs:
     key: 'nuget-tool | "$(Agent.OS)"'
@@ -75,13 +75,13 @@ steps:
     restoreKeys: 'nuget-tool'
   displayName: 'Cache NuGet Tool'
 
-# ✅ 仅当缓存未命中时安装 Aspire Workload
+# ✅ Install Aspire Workload only when the cache misses
 - script: |
     dotnet workload list | findstr /C:"aspire" || dotnet workload install aspire
   displayName: 'Check & Install Aspire Workload'
   condition: ne(variables['CACHE_RESTORED'], 'true')
 
-# ✅ 使用缓存的 NuGet 版本，避免重复安装
+# ✅ Use the cached NuGet version to avoid repeated installation
 - task: NuGetToolInstaller@1
   displayName: 'Use Cached NuGet 6.3.0'
   inputs:
@@ -94,7 +94,7 @@ steps:
     dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
   displayName: 'Add NuGet Source'
 
-# ✅ 恢复 NuGet 依赖（dotnet restore 会按 global.json 使用 SDK 10，避免 nuget.exe + MSBuild 误用 SDK 8）
+# ✅ Restore NuGet dependencies (dotnet restore uses SDK 10 from global.json and avoids nuget.exe + MSBuild accidentally using SDK 8)
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore'
   inputs:
@@ -110,15 +110,15 @@ steps:
     arguments: '--configuration Release --no-restore'
   continueOnError: true
 
-# 自动发现并推送 Senparc.AI.* 的 .nupkg / .snupkg（--skip-duplicate）
-# 凭据：通过 Library 变量组 Nuget_Key 中的机密变量 NUGET_API_KEY 注入
+# Automatically discover and push Senparc.AI.* .nupkg / .snupkg packages (--skip-duplicate)
+# Credentials: injected through the secret variable NUGET_API_KEY in the Library variable group Nuget_Key
 - powershell: |
     $ErrorActionPreference = 'Continue'
     $root = "$(Build.SourcesDirectory)"
     $source = "$(NuGetPushSource)"
     $apiKey = $env:NUGET_API_KEY
     if ([string]::IsNullOrWhiteSpace($apiKey)) {
-      Write-Host "##[error]缺少机密变量 NUGET_API_KEY：请在 Library 变量组 Nuget_Key 中设置（变量名须为 NUGET_API_KEY，勾选 secret）。"
+      Write-Host "##[error]Missing secret variable NUGET_API_KEY. Set it in the Library variable group Nuget_Key (variable name must be NUGET_API_KEY and secret must be enabled)."
       exit 2
     }
 
@@ -283,8 +283,8 @@ steps:
       }
     }
     Write-Host '==============================================================================='
-    Write-Host ('Total: {0}  (Published / Skipped / Failed 见上表 Result 列)' -f $rows.Count)
-    Write-Host 'Job exit: 发现与推送循环已执行完毕；若存在非重复性错误则失败。'
+    Write-Host ('Total: {0}  (Published / Skipped / Failed see the Result column above)' -f $rows.Count)
+    Write-Host 'Job exit: The discovery and push loop has finished executing; the job failed if any non-duplicate error exists.'
 
     if ($anyUnexpectedFailure) {
       Write-Host "##[error]One or more package pushes failed (see summary table)."

@@ -1,4 +1,4 @@
-﻿using Senparc.AI.Interfaces;
+using Senparc.AI.Interfaces;
 using Senparc.CO2NET.Extensions;
 using System;
 using System.Net.Http;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Senparc.AI.Kernel.HttpMessageHandlers
 {
     /// <summary>
-    /// 重定向 HttpMessageHandler，目前主要服务于 OpenAI 的 Proxy
+    /// Redirect HttpMessageHandler. Currently mainly serves OpenAI proxies.
     /// </summary>
     public class RedirectingHttpMessageHandler: DelegatingHandler
     {
@@ -22,7 +22,7 @@ namespace Senparc.AI.Kernel.HttpMessageHandlers
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            //目前对OpenAI开放第三方代理API设置
+            //Currently enables third-party proxy API settings for OpenAI
             if(_senparcAiSetting.AiPlatform == AiPlatform.OpenAI && !_senparcAiSetting.OpenAIEndpoint.IsNullOrEmpty())
             {
                 request.RequestUri = new UriBuilder(request.RequestUri!) { Host = _senparcAiSetting.OpenAIEndpoint }.Uri;

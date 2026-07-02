@@ -5,22 +5,22 @@ using System.Text;
 namespace Senparc.AI.Interfaces
 {
     /// <summary>
-    /// 向量数据库配置
+    /// Vector database configuration
     /// </summary>
     public class VectorDB
     {
         /// <summary>
-        /// 向量数据库类型
+        /// vector database type
         /// </summary>
         public VectorDBType Type { get; set; }
         /// <summary>
-        /// 连接字符串
+        /// connection string
         /// </summary>
         public string? ConnectionString { get; set; }
     }
 
     /// <summary>
-    /// 向量数据库类型
+    /// vector database type
     /// </summary>
     public enum VectorDBType
     {

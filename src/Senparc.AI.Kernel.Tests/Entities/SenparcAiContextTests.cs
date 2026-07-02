@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.AI.Kernel.Entities;
 using System;
 using System.Collections.Generic;
@@ -17,11 +17,11 @@ namespace Senparc.AI.Kernel.Entities.Tests
             var context = new SenparcAiArguments();
             Assert.IsNotNull(context.KernelArguments);
 
-            //执行初始化
+            //ExecuteInitialize
             var extendContextHashCode = context.KernelArguments.GetHashCode();
             Assert.IsNotNull(context.KernelArguments);
 
-            //再次执行初始化
+            //Execute initialization again
             Assert.AreEqual(extendContextHashCode, context.KernelArguments.GetHashCode());
         }
     }

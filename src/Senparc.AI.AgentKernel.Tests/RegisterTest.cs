@@ -15,7 +15,7 @@ namespace Senparc.AI.AgentKernel.Tests
             Assert.IsInstanceOfType(settings, typeof(SenparcAiSetting));
             Assert.AreEqual(settings, Senparc.AI.AgentKernel.Config.SenparcAiSetting);
 
-            //TODO: 测试 NeuChar 接口
+            //TODO: test NeuChar API
             Assert.AreEqual(AiPlatform.AzureOpenAI, settings.AiPlatform);
             Assert.AreEqual(true, settings.UseAzureOpenAI);
             Assert.AreEqual(false, settings.UseNeuCharAI);
@@ -33,7 +33,7 @@ namespace Senparc.AI.AgentKernel.Tests
         {
             var settings = Senparc.AI.Config.SenparcAiSetting as SenparcAiSetting;
 
-            // 修复 CS8602: 确保 settings 不为空
+            // fix CS8602: ensure settings not null
             Assert.IsNotNull(settings);
 
             Assert.AreEqual(3, settings.Items.Count);
@@ -41,7 +41,7 @@ namespace Senparc.AI.AgentKernel.Tests
             var dalle3Setting = settings.Items["AzureDallE3"];
 
             Assert.IsNotNull(dalle3Setting);
-            Assert.AreEqual(settings["AzureDallE3"], dalle3Setting);//索引器获取方式通过
+            Assert.AreEqual(settings["AzureDallE3"], dalle3Setting);//indexer retrieval passed
             Assert.AreEqual("2022-12-01", dalle3Setting.AzureOpenAIApiVersion);
 
             var neucharAISetting = settings["MyNeuCharAI"].NeuCharAIKeys;

@@ -29,9 +29,9 @@ namespace Senparc.AI.Kernel.Helpers
 
     public partial class SemanticKernelHelper
     {
-        /* Config* 方法规则：
-        1. 相关方法为较底层的调用方法，会直接使用 Semantic Kernel 等模块接口
-        2. 所有 modelName、deploymentName，都是用字符串传入，如果留空，则使用 SenparcAiSetting 参数自动获取。
+        /* Config* method rules:
+        1. Related methods are lower-level call methods and directly use module interfaces such as Semantic Kernel
+        2. All modelName and deploymentName values are passed as strings. If left empty, they are read automatically from SenparcAiSetting.
        */
 
 
@@ -40,10 +40,10 @@ namespace Senparc.AI.Kernel.Helpers
 
 
         /// <summary>
-        /// 设置 Kernel，并配置 TextCompletion 模型
+        /// Set Kernel and configure the TextCompletion model
         /// </summary>
-        /// <param name="userId">用户ID， 用于防止api滥用</param>
-        /// <param name="modelName">模型名 modelId</param>
+        /// <param name="userId">User ID, used to prevent API abuse</param>
+        /// <param name="modelName">Model name modelId</param>
         /// <param name="senparcAiSetting"></param>
         /// <param name="kernelBuilder"></param>
         /// <returns></returns>
@@ -58,10 +58,10 @@ namespace Senparc.AI.Kernel.Helpers
             var serviceId = GetServiceId(userId, modelName);
             var aiPlatForm = senparcAiSetting.AiPlatform;
 
-            //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
+            //TODO Need to check Kernel.TextCompletionServices.ContainsKey(serviceId). If it already exists, do not add it again.
 
             // var kernelBuilder = Microsoft.SemanticKernel.Kernel.Builder;
-            // 以上方法已经被SK标注为 Obsolete, 修改为SK推荐的方法
+            // The previous method has been marked obsolete by SK. Changed to the method recommended by SK.
             kernelBuilder ??= Microsoft.SemanticKernel.Kernel.CreateBuilder();
 
             // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
@@ -86,7 +86,7 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextGeneration(
                         model: modelName,
                         apiKey: null,
-                        endpoint: new Uri(senparcAiSetting.HuggingFaceEndpoint ?? throw new SenparcAiException("HuggingFace 必须提供 Endpoint")),
+                        endpoint: new Uri(senparcAiSetting.HuggingFaceEndpoint ?? throw new SenparcAiException("HuggingFace requires Endpoint")),
                         serviceId: serviceId,
                         httpClient: _httpClient),
                 AiPlatform.FastAPI => kernelBuilder.AddFastAPIChatCompletion(
@@ -101,24 +101,24 @@ namespace Senparc.AI.Kernel.Helpers
                         endpoint: new Uri(senparcAiSetting.OllamaEndpoint),
                         serviceId: null
                     ),
-                //DeepSeek 使用和 OpenAI 一致的请求格式
+                //DeepSeek uses the same request format as OpenAI
                 AiPlatform.DeepSeek => kernelBuilder.AddOpenAIChatCompletion(modelName,
                         endpoint: new Uri(senparcAiSetting.Endpoint),
                         apiKey: senparcAiSetting.ApiKey,
                         orgId: senparcAiSetting.OrganizationId,
                         httpClient: _httpClient),
 
-                _ => throw new SenparcAiException($"ConfigChat 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"ConfigChat does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };
 
             return kernelBuilder;
         }
 
         /// <summary>
-        /// 设置 Kernel，并配置 TextCompletion 模型
+        /// Set Kernel and configure the TextCompletion model
         /// </summary>
-        /// <param name="userId">用户ID， 用于防止api滥用</param>
-        /// <param name="modelName">模型名 modelId</param>
+        /// <param name="userId">User ID, used to prevent API abuse</param>
+        /// <param name="modelName">Model name modelId</param>
         /// <param name="senparcAiSetting"></param>
         /// <param name="kernelBuilder"></param>
         /// <returns></returns>
@@ -135,10 +135,10 @@ namespace Senparc.AI.Kernel.Helpers
 
             kernelBuilder ??= Microsoft.SemanticKernel.Kernel.CreateBuilder();
 
-            //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
+            //TODO Need to check Kernel.TextCompletionServices.ContainsKey(serviceId). If it already exists, do not add it again.
 
             // var kernelBuilder = Microsoft.SemanticKernel.Kernel.Builder;
-            // 以上方法已经被SK标注为 Obsolete, 修改为SK推荐的方法
+            // The previous method has been marked obsolete by SK. Changed to the method recommended by SK.
 
             // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
 
@@ -163,7 +163,7 @@ namespace Senparc.AI.Kernel.Helpers
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextGeneration(
                         model: modelName,
                         apiKey: null,
-                        endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace 必须提供 Endpoint")),
+                        endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace requires Endpoint")),
                         serviceId: null,
                         httpClient: _httpClient),
                 AiPlatform.FastAPI => kernelBuilder.AddFastAPIChatCompletion(
@@ -183,14 +183,14 @@ namespace Senparc.AI.Kernel.Helpers
                         apiKey: senparcAiSetting.ApiKey,
                         orgId: senparcAiSetting.OrganizationId,
                         httpClient: _httpClient),
-                _ => throw new SenparcAiException($"ConfigTextCompletion 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"ConfigTextCompletion does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };
 
             return kernelBuilder;
         }
 
         /// <summary>
-        /// 设置 Kernel，并配置 TextCompletion 模型
+        /// Set Kernel and configure the TextCompletion model
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="modelName"></param>
@@ -208,12 +208,12 @@ namespace Senparc.AI.Kernel.Helpers
 
             var serviceId = GetServiceId(userId, modelName);
             var aiPlatForm = senparcAiSetting.AiPlatform;
-            //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
+            //TODO Need to check Kernel.TextCompletionServices.ContainsKey(serviceId). If it already exists, do not add it again.
 
-            //TODO：Builder 不应该新建
+            //TODO:Builder should not be recreated
 
             // var kernelBuilder = Microsoft.SemanticKernel.Kernel.Builder;
-            // 以上方法已经被SK标注为 Obsolete, 修改为SK推荐的方法
+            // The previous method has been marked obsolete by SK. Changed to the method recommended by SK.
             kernelBuilder ??= Microsoft.SemanticKernel.Kernel.CreateBuilder();
 
             // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
@@ -241,29 +241,29 @@ namespace Senparc.AI.Kernel.Helpers
 
                 AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextEmbeddingGeneration(
                     model: modelName,
-                    endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace 必须提供 Endpoint")),
+                    endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace requires Endpoint")),
                     httpClient: _httpClient),
 
                 AiPlatform.Ollama => kernelBuilder.AddOllamaTextEmbeddingGeneration(
                     modelId: modelName,
                     endpoint: new Uri(senparcAiSetting.OllamaEndpoint)),
 
-                _ => throw new SenparcAiException($"ConfigTextEmbeddingGeneration 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"ConfigTextEmbeddingGeneration does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };
 
-            //TODO:测试多次添加
+            //TODO:Test repeated additions
             //KernelBuilder = builder;
             return kernelBuilder;
         }
 
         /// <summary>
-        /// 设置 DallE 接口，默认强制使用 OpenAI 权限
+        /// Set the DallE interface. OpenAI credentials are forced by default.
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="kernelBuilder"></param>
-        /// <param name="azureModeId">AzureOpenAI 的模型名称</param>
+        /// <param name="azureModeId">AzureOpenAI model name</param>
         /// <param name="senparcAiSetting"></param>
-        /// <param name="azureDallEDepploymentName">AzureAI 的 DallE 模型部署名称</param>
+        /// <param name="azureDallEDepploymentName">AzureAI DallE model deployment name</param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
         public IKernelBuilder ConfigImageGeneration(string userId, IKernelBuilder? kernelBuilder = null, string azureModeId = null, ISenparcAiSetting senparcAiSetting = null, string azureDallEDepploymentName = null)
@@ -273,7 +273,7 @@ namespace Senparc.AI.Kernel.Helpers
             var serviceId = GetServiceId(userId, "image-generation");
             var aiPlatForm = senparcAiSetting.AiPlatform;
 
-            //TODO：Builder 不应该新建
+            //TODO:Builder should not be recreated
             kernelBuilder ??= Microsoft.SemanticKernel.Kernel.CreateBuilder();
 
             _ = aiPlatForm switch
@@ -297,26 +297,26 @@ namespace Senparc.AI.Kernel.Helpers
                     modelId: azureModeId,
                     httpClient: _httpClient),
 
-                _ => throw new SenparcAiException($"ConfigImageGeneration 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"ConfigImageGeneration does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };
 
             return kernelBuilder;
         }
 
         /// <summary>
-        /// 设置 Whisper 语音转文字接口
+        /// Set the Whisper speech-to-text interface
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="kernelBuilder"></param>
-        /// <param name="modelId">模型名称，默认为 whisper</param>
+        /// <param name="modelId">Model name. Defaults to whisper</param>
         /// <param name="senparcAiSetting"></param>
-        /// <param name="deploymentName">Azure 部署名称</param>
+        /// <param name="deploymentName">Azure deployment name</param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
         public IKernelBuilder ConfigAudioToText(string userId, IKernelBuilder? kernelBuilder = null, string modelId = null, ISenparcAiSetting senparcAiSetting = null, string deploymentName = null)
         {
             senparcAiSetting ??= this.AiSetting;
-            modelId ??= "whisper"; // 默认使用 whisper 模型
+            modelId ??= "whisper"; // Use whisper by default model
 
             var serviceId = GetServiceId(userId, "audio-to-text");
             var aiPlatForm = senparcAiSetting.AiPlatform;
@@ -343,26 +343,26 @@ namespace Senparc.AI.Kernel.Helpers
                     apiKey: senparcAiSetting.ApiKey,
                     httpClient: _httpClient),
 
-                _ => throw new SenparcAiException($"ConfigAudioToText 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"ConfigAudioToText does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };
 
             return kernelBuilder;
         }
 
         /// <summary>
-        /// 设置 TTS 文本转语音接口
+        /// Set the TTS text-to-speech interface
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="kernelBuilder"></param>
-        /// <param name="modelId">模型名称，默认为 tts，其他支持 tts-hd 等</param>
+        /// <param name="modelId">Model name. Defaults to tts. Other supported values include tts-hd.</param>
         /// <param name="senparcAiSetting"></param>
-        /// <param name="deploymentName">Azure 部署名称</param>
+        /// <param name="deploymentName">Azure deployment name</param>
         /// <returns></returns>
         /// <exception cref="SenparcAiException"></exception>
         public IKernelBuilder ConfigTextToAudio(string userId, IKernelBuilder? kernelBuilder = null, string modelId = null, ISenparcAiSetting senparcAiSetting = null, string deploymentName = null)
         {
             senparcAiSetting ??= this.AiSetting;
-            modelId ??= "tts"; // 默认使用 tts 模型
+            modelId ??= "tts"; // Use tts by default model
 
             var serviceId = GetServiceId(userId, "text-to-audio");
             var aiPlatForm = senparcAiSetting.AiPlatform;
@@ -389,7 +389,7 @@ namespace Senparc.AI.Kernel.Helpers
                     apiKey: senparcAiSetting.ApiKey,
                     httpClient: _httpClient),
 
-                _ => throw new SenparcAiException($"ConfigTextToAudio 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"ConfigTextToAudio does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };
 
             return kernelBuilder;
@@ -462,7 +462,7 @@ namespace Senparc.AI.Kernel.Helpers
                 //    );
                 //}),
 
-                _ => throw new SenparcAiException($"GetEmbedding 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                _ => throw new SenparcAiException($"GetEmbedding does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
             };
 
             //var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
@@ -474,7 +474,7 @@ namespace Senparc.AI.Kernel.Helpers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Senparc.AIKernel Embedding 出错：");
+                Console.WriteLine("Senparc.AIKernel Embedding error:");
                 Console.WriteLine(ex);
                 throw;
             }
@@ -482,29 +482,29 @@ namespace Senparc.AI.Kernel.Helpers
 
         }
 
-        #region Memory 相关
+        #region Memory related
 
-        ISemanticTextMemory _textMemory = null;//TODO:适配多重不同的请求
+        ISemanticTextMemory _textMemory = null;//TODO:Adapt multiple different requests
 
         /// <summary>
-        /// 尝试获取 ISemanticTextMemory 对象
+        /// Try to get the ISemanticTextMemory object
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="SenparcAiException">当 ISemanticTextMemory 未设置时抛出</exception>
+        /// <exception cref="SenparcAiException">Thrown when ISemanticTextMemory is not set</exception>
         public ISemanticTextMemory? TryGetMemory()
         {
             if (_textMemory == null)
             {
-                throw new SenparcAiException("_textMemory 未设置！");
+                throw new SenparcAiException("_textMemory is not set!");
             }
             return _textMemory;
         }
 
         /// <summary>
-        /// 获取 ISemanticTextMemory 对象
+        /// Get the ISemanticTextMemory object
         /// </summary>
         /// <returns></returns>
-        //[Obsolete("该方法已被SK放弃，原文为：Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]
+        //[Obsolete("This method has been abandoned by SK. Original text: Memory functionality will be placed in separate Microsoft.SemanticKernel.Plugins.Memory package. This will be removed in a future release. See sample dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs in the semantic-kernel repository.")]
         [Obsolete]
         public ISemanticTextMemory? GetMemory(string modelName, ISenparcAiSetting senparcAiSetting,
             IKernelBuilder? kernelBuilder, string azureDeployName = null, ITextEmbeddingGenerationService textEmbeddingGeneration = null)
@@ -574,7 +574,7 @@ namespace Senparc.AI.Kernel.Helpers
                         );
                     }),
 
-                    _ => throw new SenparcAiException($"GetMemory 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+                    _ => throw new SenparcAiException($"GetMemory does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
                 };
 
 
@@ -594,7 +594,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <summary>
         /// Save some information into the semantic memory, keeping only a reference to the source information.
         /// </summary>
-        /// <param name="memory">ISemanticTextMemory 对象</param>
+        /// <param name="memory">ISemanticTextMemory object</param>
         /// <param name="collection">Collection where to save the information</param>
         /// <param name="text">Information to save</param>
         /// <param name="externalId">Unique identifier, e.g. URL or GUID to the original source</param>
@@ -621,7 +621,7 @@ namespace Senparc.AI.Kernel.Helpers
         /// <summary>
         /// Save some information into the semantic memory, keeping a copy of the source information.
         /// </summary>
-        /// <param name="memory">ISemanticTextMemory 对象</param>
+        /// <param name="memory">ISemanticTextMemory object</param>
         /// <param name="collection">Collection where to save the information</param>
         /// <param name="id">Unique identifier</param>
         /// <param name="text">Information to save</param>
@@ -642,7 +642,7 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// 添加 Memory 操作
+        /// Add Memory operation
         /// </summary>
         /// <param name="task"></param>
         public void AddMemory(Task task)
@@ -651,7 +651,7 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// 执行 Memory 操作，并等待
+        /// Execute Memory operation and wait
         /// </summary>
         public void ExecuteMemory()
         {

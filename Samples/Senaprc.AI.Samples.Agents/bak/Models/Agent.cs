@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,7 +30,7 @@ namespace Senaprc.AI.Samples.Agents.Models
 
         public Dictionary<string, string> Execute(Dictionary<string, string> args)
         {
-            //TODO 加入当前Agent的上下文判断和AI
+            //TODO Add current Agent context judgment and AI
 
             return ExecutionAction?.Invoke(args) ?? new Dictionary<string, string>();
         }

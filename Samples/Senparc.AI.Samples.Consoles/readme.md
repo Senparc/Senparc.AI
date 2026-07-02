@@ -1,57 +1,42 @@
-﻿## 命令示例行使用说明
+# Command-Line Sample Usage
 
-### 1. 打开解决方案
+## 1. Open The Solution
 
-打开解决方案 `Senparc.AI.sln`，设置 appsettings.json 中 ApiKey 等平台参数，启动项目 `Senparc.AI.Samples.Consoles`：
+Open `Senparc.AI.sln`, set platform parameters such as `ApiKey` in `appsettings.json`, and start the `Senparc.AI.Samples.Consoles` project.
 
-<img width="826" alt="image" src="https://user-images.githubusercontent.com/2281927/233587658-d57e30de-dc97-42c7-901f-70327f4eee00.png">
+## 2. Operations
 
-### 2. 操作
+### 2.1 Chat
 
-#### 2.1 对话
+Enter `1` to start the chat sample.
 
-输入 `1`，进入对话操作：
+### 2.2 Embedding
 
-<img width="674" alt="image" src="https://user-images.githubusercontent.com/2281927/233588902-8786e582-7384-4a59-895f-1e8eaaa805b4.png">
+Enter `2` from the main menu to start the Embedding sample. Embedding supports standard information and reference information modes.
 
-#### 2.2 Embedding
+### 2.2.1 Standard Embedding
 
-在上一步输入 `2` 即可进入 Embedding 操作，Embedding 分为常规信息和引用信息两类，将在下一步中做选择：
+Select `1` to enter the standard Embedding test. Input fields are separated by three English colons. After input is complete, enter `n` to start the conversation test.
 
-<img width="598" alt="image" src="https://user-images.githubusercontent.com/2281927/233589177-b9ab0863-f397-4cba-9d0b-6039a5e2baeb.png">
+### 2.2.2 Reference Embedding
 
-#### 2.2.1 常规 Embedding（Information）
+Select `2` to enter the reference Embedding test. Input fields are separated by three English colons. After input is complete, enter `n` to start the conversation test.
 
-选择 `1`，进入到常规 Embedding 测试，输入信息由 3 个英文冒号分割，录入完成后输入 `n` 开始对话测试：
+### 2.3 DALL-E Image Generation
 
-<img width="1175" alt="image" src="https://user-images.githubusercontent.com/2281927/233590261-9bb70435-e513-49c9-bda2-a9c0e7f883c4.png">
+Enter `3` from the initial screen to start the DALL-E drawing operation. The result is returned as a URL. Enter `s` to save the image locally.
 
-#### 2.2.2 引用 Embedding（Reference）
-2.2.2 上一步选择 `2`，进入到引用 Embedding 测试，输入信息由 3 个英文冒号分割，录入完成后输入 `n` 开始对话测试：
+> Note: the URL returned by the API is temporary and cannot be used for persistent display. Save it promptly.
 
-<img width="1176" alt="image" src="https://user-images.githubusercontent.com/2281927/233590721-c9414ffb-27db-4923-a9f9-0580dc10d275.png">
+### 2.4 Planner
 
-#### 2.3 DallE 绘图操作
+The first step selects an existing plugin provider, such as `SummarizePlugin` or `WriterPlugin`. The second step provides the plan objective directly.
 
-初始界面中输入 `3`，进入 DallE 接口的绘图操作：
+## Embedding Test Data
 
-<img width="1175" alt="image" src="https://user-images.githubusercontent.com/2281927/233681813-ad49e8dc-c69e-4798-b023-903857cd4351.png">
+### Standard Embedding Test
 
-结果将以 URL 的形式返回，此时出入 `s` ，可保存图片到本地：
-<img width="503" alt="image" src="https://user-images.githubusercontent.com/2281927/233681967-61b7e4cc-8962-4c36-8593-13a45595330c.png">
-
-> 注意：接口返回的 URL 是一个暂存地址，不可用于持久化的展示，需要及时保存，
-
-#### 2.4 Planner
-
-在第一步中根据已有的 Plugin 进行提供，如 SummarizePlugin，WriterPlugin 等等。
-
-第二步中直接提供 Plan 的目标。 
-
-## Embedding 测试素材
-
-### Embedding 普通信息测试
-```
+```text
 My name is Jeffrey
 My country is China
 I'm working for Senparc
@@ -63,9 +48,10 @@ Jeffrey Su's Chinese name is Zhenwei Su.
 Zhenwei Su has written two books.
 ```
 
-### Embedding 引用信息测试
-```
-https://github.com/NeuCharFramework/NcfDocs/blob/main/start/home/index.md:::README: NCF 简介，源码地址，QQ 技术交流群"
-https://github.com/NeuCharFramework/NcfDocs/blob/main/start/start-develop/get-docs.md:::获取文档，在线阅读官方文档，在 NCF 站点中进入官方文档，下载源码后使用 npm 本地运行，下载文档源码，运行 npm 命令
-https://github.com/NeuCharFramework/NcfDocs/blob/main/start/start-develop/run-ncf.md:::使用 Visual Studio 运行 NCF
+### Reference Embedding Test
+
+```text
+https://github.com/NeuCharFramework/NcfDocs/blob/main/start/home/index.md:::README: NCF introduction, source address, QQ technical exchange group
+https://github.com/NeuCharFramework/NcfDocs/blob/main/start/start-develop/get-docs.md:::Get documents, read official documents online, open official documents from the NCF site, run documentation locally with npm after downloading the source, download documentation source, run npm commands
+https://github.com/NeuCharFramework/NcfDocs/blob/main/start/start-develop/run-ncf.md:::Run NCF with Visual Studio
 ```

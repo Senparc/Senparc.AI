@@ -1,4 +1,4 @@
-﻿using Senparc.AI.Kernel;
+using Senparc.AI.Kernel;
 using Senparc.CO2NET;
 using Senparc.CO2NET.Extensions;
 using Senparc.CO2NET.RegisterServices;
@@ -11,7 +11,7 @@ namespace Senparc.AI.Tests
         [TestMethod]
         public void GlobalRegisterTest()
         {
-            //本地变量测试
+            //local variable test
             var senparcAiSetting = BaseTest._senparcAiSetting; // Senparc.AI.Config.SenparcAiSettings;
 
             Console.WriteLine(senparcAiSetting.ToJson(true));
@@ -24,7 +24,7 @@ namespace Senparc.AI.Tests
             Assert.IsTrue(senparcAiSetting.OrganizationId.IsNullOrEmpty());
 
 
-            //全局变量
+            //global variable
             IRegisterService registerService = Senparc.CO2NET.AspNet.RegisterServices.RegisterService.Start(null, new SenparcSetting(true))
                            .UseSenparcGlobal(true, null)
                            .UseSenparcAI();
@@ -38,7 +38,7 @@ namespace Senparc.AI.Tests
             Assert.IsNotNull(senparcAiSetting.OpenAIKeys);
             Assert.IsNotNull(senparcAiSetting.OpenAIKeys.ApiKey);
 
-            //测试 Items 多模型
+            //test Items multi-model
             var setting = senparcAiSetting as SenparcAiSetting;
             var item = setting.Items["MyNeuCharAI"];
             Assert.IsNotNull(item);

@@ -14,7 +14,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.Consoles.Samples
 {
     /// <summary>
-    /// 文本转语音（Text-To-Speech）示例 - 使用 TTS 模型
+    /// Text-to-speech sample using a TTS model.
     /// </summary>
     public class TtsSample
     {
@@ -34,7 +34,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         {
             var ttsSetting = Senparc.AI.Config.SenparcAiSetting;
             
-            // 检查 API Key 配置
+            // Check API key configuration.
             if ((
                     ttsSetting.OpenAIKeys == null ||
                     ttsSetting.OpenAIKeys.ApiKey.IsNullOrEmpty()
@@ -48,32 +48,32 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 )
                )
             {
-                await Console.Out.WriteLineAsync("TTS 接口需要设置 OpenAI 或 AzureOpenAI ApiKey 后才能使用！");
+                await Console.Out.WriteLineAsync("The TTS API requires an OpenAI or Azure OpenAI API key before use.");
                 return;
             }
 
             await Console.Out.WriteLineAsync("========================================");
-            await Console.Out.WriteLineAsync("TTS 文本转语音（Text-To-Speech）示例开始运行");
+            await Console.Out.WriteLineAsync("TTS text-to-speech sample started");
             await Console.Out.WriteLineAsync("========================================");
             await Console.Out.WriteLineAsync();
-            await Console.Out.WriteLineAsync("【声音选项】");
-            await Console.Out.WriteLineAsync("  1. alloy   - 中性音色");
-            await Console.Out.WriteLineAsync("  2. echo    - 男性音色");
-            await Console.Out.WriteLineAsync("  3. fable   - 英式口音");
-            await Console.Out.WriteLineAsync("  4. onyx    - 深沉男声");
-            await Console.Out.WriteLineAsync("  5. nova    - 女性音色");
-            await Console.Out.WriteLineAsync("  6. shimmer - 轻柔女声");
+            await Console.Out.WriteLineAsync("[Voice options]");
+            await Console.Out.WriteLineAsync("  1. alloy   - neutral voice");
+            await Console.Out.WriteLineAsync("  2. echo    - male voice");
+            await Console.Out.WriteLineAsync("  3. fable   - British accent");
+            await Console.Out.WriteLineAsync("  4. onyx    - deep male voice");
+            await Console.Out.WriteLineAsync("  5. nova    - female voice");
+            await Console.Out.WriteLineAsync("  6. shimmer - soft female voice");
             await Console.Out.WriteLineAsync();
-            await Console.Out.WriteLineAsync("【输出格式】");
-            await Console.Out.WriteLineAsync("  mp3  - 最常用，兼容性好");
-            await Console.Out.WriteLineAsync("  opus - 高压缩率，适合网络传输");
-            await Console.Out.WriteLineAsync("  aac  - 适合流媒体");
-            await Console.Out.WriteLineAsync("  flac - 无损音质");
+            await Console.Out.WriteLineAsync("[Output format]");
+            await Console.Out.WriteLineAsync("  mp3  - most common format with good compatibility");
+            await Console.Out.WriteLineAsync("  opus - high compression ratio, suitable for network transmission");
+            await Console.Out.WriteLineAsync("  aac  - suitable for streaming media");
+            await Console.Out.WriteLineAsync("  flac - lossless audio quality");
             await Console.Out.WriteLineAsync();
-            await Console.Out.WriteLineAsync("【语速范围】");
-            await Console.Out.WriteLineAsync("  0.25x - 4.0x（默认 1.0x）");
+            await Console.Out.WriteLineAsync("[Speech speed range]");
+            await Console.Out.WriteLineAsync("  0.25x - 4.0x (default 1.0x)");
             await Console.Out.WriteLineAsync();
-            await Console.Out.WriteLineAsync("输入 'exit' 退出程序");
+            await Console.Out.WriteLineAsync("Enter 'exit' to leave the program.");
             await Console.Out.WriteLineAsync();
 
             var userId = "Jeffrey";
@@ -86,7 +86,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
             string inputText;
             while (true)
             {
-                await Console.Out.WriteLineAsync("请输入要转换为语音的文本（或输入 'exit' 退出）：");
+                await Console.Out.WriteLineAsync("Enter the text to convert to speech, or enter 'exit' to leave:");
                 inputText = Console.ReadLine() ?? "";
                 
                 if (inputText.ToLower() == "exit")
@@ -96,13 +96,13 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 if (inputText.IsNullOrEmpty())
                 {
-                    await Console.Out.WriteLineAsync("请输入有效的文本！");
+                    await Console.Out.WriteLineAsync("Please enter valid text.");
                     await Console.Out.WriteLineAsync();
                     continue;
                 }
 
                 await Console.Out.WriteLineAsync();
-                await Console.Out.WriteLineAsync("请选择声音（输入数字 1-6，默认为 1-alloy）：");
+                await Console.Out.WriteLineAsync("Select a voice (enter 1-6, default 1-alloy):");
                 var voiceInput = Console.ReadLine() ?? "1";
                 
                 var voice = voiceInput switch
@@ -117,11 +117,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 };
 
                 await Console.Out.WriteLineAsync();
-                await Console.Out.WriteLineAsync("请选择输出格式（输入数字 1-4，默认为 1-mp3）：");
-                await Console.Out.WriteLineAsync("  1. mp3   - MP3 格式（推荐，兼容性好）");
-                await Console.Out.WriteLineAsync("  2. opus  - Opus 格式（高压缩率）");
-                await Console.Out.WriteLineAsync("  3. aac   - AAC 格式（适合流媒体）");
-                await Console.Out.WriteLineAsync("  4. flac  - FLAC 格式（无损音质）");
+                await Console.Out.WriteLineAsync("Select an output format (enter 1-4, default 1-mp3):");
+                await Console.Out.WriteLineAsync("  1. mp3   - MP3 format (recommended, good compatibility)");
+                await Console.Out.WriteLineAsync("  2. opus  - Opus format (high compression ratio)");
+                await Console.Out.WriteLineAsync("  3. aac   - AAC format (suitable for streaming media)");
+                await Console.Out.WriteLineAsync("  4. flac  - FLAC format (lossless audio quality)");
                 var formatInput = Console.ReadLine() ?? "1";
                 
                 var format = formatInput switch
@@ -134,15 +134,15 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 };
 
                 await Console.Out.WriteLineAsync();
-                await Console.Out.WriteLineAsync("请选择语速（输入数字 1-7，默认为 4-正常速度 1.0x）：");
-                await Console.Out.WriteLineAsync("  1. 0.25x - 极慢");
-                await Console.Out.WriteLineAsync("  2. 0.5x  - 很慢");
-                await Console.Out.WriteLineAsync("  3. 0.75x - 较慢");
-                await Console.Out.WriteLineAsync("  4. 1.0x  - 正常（推荐）");
-                await Console.Out.WriteLineAsync("  5. 1.25x - 较快");
-                await Console.Out.WriteLineAsync("  6. 1.5x  - 很快");
-                await Console.Out.WriteLineAsync("  7. 2.0x  - 极快");
-                await Console.Out.WriteLineAsync("  8. 自定义（0.25 - 4.0）");
+                await Console.Out.WriteLineAsync("Select speech speed (enter 1-7, default 4-normal 1.0x):");
+                await Console.Out.WriteLineAsync("  1. 0.25x - extremely slow");
+                await Console.Out.WriteLineAsync("  2. 0.5x  - very slow");
+                await Console.Out.WriteLineAsync("  3. 0.75x - slow");
+                await Console.Out.WriteLineAsync("  4. 1.0x  - normal (recommended)");
+                await Console.Out.WriteLineAsync("  5. 1.25x - fast");
+                await Console.Out.WriteLineAsync("  6. 1.5x  - very fast");
+                await Console.Out.WriteLineAsync("  7. 2.0x  - extremely fast");
+                await Console.Out.WriteLineAsync("  8. custom (0.25 - 4.0)");
                 var speedInput = Console.ReadLine() ?? "4";
                 
                 float speed = speedInput switch
@@ -161,52 +161,52 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 try
                 {
                     await Console.Out.WriteLineAsync();
-                    await Console.Out.WriteLineAsync($"正在生成语音（声音：{voice}，格式：{format}，语速：{speed}x），请等待...");
+                    await Console.Out.WriteLineAsync($"Generating speech (voice: {voice}, format: {format}, speed: {speed}x). Please wait...");
                     await Console.Out.WriteLineAsync();
 
-                    // 创建执行设置
+                    // Create execution settings.
                     var executionSettings = new Microsoft.SemanticKernel.Connectors.OpenAI.OpenAITextToAudioExecutionSettings
                     {
-                        Voice = voice,           // 声音选项
-                        ResponseFormat = format,  // 输出格式：mp3, opus, aac, flac
-                        Speed = speed             // 语速：0.25 到 4.0
+                        Voice = voice,
+                        ResponseFormat = format,
+                        Speed = speed
                     };
 
-                    // 调用 TTS API 进行文本转语音
+                    // Call the TTS API for text-to-speech.
                     var audioContent = await textToAudioService.GetAudioContentAsync(inputText, executionSettings);
 
-                    // 保存音频文件
+                    // Save the audio file.
                     var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
                     var outputFileName = $"TTS-Output-{voice}-{speed}x-{timestamp}.{format}";
                     var outputFilePath = Path.Combine(Directory.GetCurrentDirectory(), outputFileName);
 
-                    await Console.Out.WriteLineAsync($"[调试] 音频数据大小: {audioContent.Data?.Length ?? 0} 字节");
-                    await Console.Out.WriteLineAsync($"[调试] 参数 - 声音: {voice}, 格式: {format}, 语速: {speed}x");
+                    await Console.Out.WriteLineAsync($"[Debug] Audio data size: {audioContent.Data?.Length ?? 0} bytes");
+                    await Console.Out.WriteLineAsync($"[Debug] Parameters - voice: {voice}, format: {format}, speed: {speed}x");
 
                     if (audioContent.Data.HasValue && audioContent.Data.Value.Length > 0)
                     {
                         await File.WriteAllBytesAsync(outputFilePath, audioContent.Data.Value.ToArray());
                         
                         await Console.Out.WriteLineAsync("========================================");
-                        await Console.Out.WriteLineAsync("语音生成成功！");
-                        await Console.Out.WriteLineAsync($"声音：{voice}");
-                        await Console.Out.WriteLineAsync($"格式：{format}");
-                        await Console.Out.WriteLineAsync($"语速：{speed}x");
-                        await Console.Out.WriteLineAsync($"保存路径：{outputFilePath}");
-                        await Console.Out.WriteLineAsync($"文件大小：{new FileInfo(outputFilePath).Length} 字节");
+                        await Console.Out.WriteLineAsync("Speech generation succeeded.");
+                        await Console.Out.WriteLineAsync($"Voice: {voice}");
+                        await Console.Out.WriteLineAsync($"Format: {format}");
+                        await Console.Out.WriteLineAsync($"Speed: {speed}x");
+                        await Console.Out.WriteLineAsync($"Save path: {outputFilePath}");
+                        await Console.Out.WriteLineAsync($"File size: {new FileInfo(outputFilePath).Length} bytes");
                         await Console.Out.WriteLineAsync("========================================");
                     }
                     else
                     {
-                        await Console.Out.WriteLineAsync("错误：未能获取音频数据");
+                        await Console.Out.WriteLineAsync("Error: failed to get audio data.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    await Console.Out.WriteLineAsync($"转换失败：{ex.Message}");
+                    await Console.Out.WriteLineAsync($"Conversion failed: {ex.Message}");
                     if (ex.InnerException != null)
                     {
-                        await Console.Out.WriteLineAsync($"详细错误：{ex.InnerException.Message}");
+                        await Console.Out.WriteLineAsync($"Detailed error: {ex.InnerException.Message}");
                     }
                 }
 
@@ -214,36 +214,36 @@ namespace Senparc.AI.Samples.Consoles.Samples
             }
 
             await Console.Out.WriteLineAsync();
-            await Console.Out.WriteLineAsync("TTS 示例已退出。");
+            await Console.Out.WriteLineAsync("TTS sample exited.");
         }
 
         /// <summary>
-        /// 获取用户自定义的语速
+        /// Gets a custom speech speed from the user.
         /// </summary>
         /// <returns></returns>
         private async Task<float> GetCustomSpeedAsync()
         {
-            await Console.Out.WriteLineAsync("请输入自定义语速（0.25 - 4.0）：");
+            await Console.Out.WriteLineAsync("Enter a custom speech speed (0.25 - 4.0):");
             var customSpeedInput = Console.ReadLine() ?? "1.0";
             
             if (float.TryParse(customSpeedInput, out var customSpeed))
             {
-                // 限制范围在 0.25 到 4.0 之间
+                // Clamp the value to the 0.25 to 4.0 range.
                 if (customSpeed < 0.25f)
                 {
-                    await Console.Out.WriteLineAsync("语速过慢，已调整为最小值 0.25x");
+                    await Console.Out.WriteLineAsync("Speech speed is too slow; adjusted to the minimum value 0.25x.");
                     return 0.25f;
                 }
                 else if (customSpeed > 4.0f)
                 {
-                    await Console.Out.WriteLineAsync("语速过快，已调整为最大值 4.0x");
+                    await Console.Out.WriteLineAsync("Speech speed is too fast; adjusted to the maximum value 4.0x.");
                     return 4.0f;
                 }
                 return customSpeed;
             }
             else
             {
-                await Console.Out.WriteLineAsync("输入无效，使用默认语速 1.0x");
+                await Console.Out.WriteLineAsync("Invalid input; using default speed 1.0x.");
                 return 1.0f;
             }
         }

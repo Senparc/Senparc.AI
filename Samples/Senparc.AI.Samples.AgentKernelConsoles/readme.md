@@ -1,39 +1,37 @@
-# Senparc.AI.Samples.AgentKernelConsoles
+﻿# Senparc.AI AgentKernel Console Sample
 
-基于 **Senparc.AI.AgentKernel**（Microsoft Agent Framework）的控制台示例，菜单结构与 `Senparc.AI.Samples.Consoles` 对齐。
+Console samples based on **Senparc.AI.AgentKernel** (Microsoft Agent Framework). The menu structure is aligned with `Senparc.AI.Samples.Consoles`.
 
-## 已实现
+## Implemented
 
-| 菜单 | 说明 | 参考测试 |
-|------|------|----------|
-| Chat | 多轮对话 + AgentSession | `AgentAiHandlerTests` |
-| Completion | 单次 TextCompletion | `RunTest` / `SingleLineTest` |
-| Embedding [1] | 向量写入 + 相似检索 | `EmbeddingStoreTest` |
-| Embedding [2] | RAG + TextSearchProvider | `EmbeddingTest` |
-| Image | 文生图（TextToImage） | `KernelConfigExtensionsImageTests` |
-| STT | 语音转文字（SpeechToText） | `KernelConfigExtensionsSpeechTests` |
-| TTS | 文本转语音（TextToSpeech） | `KernelConfigExtensionsSpeechTests` |
-| MCP | LocalFunctionProxy / HostedServerTool（SSE） | `IWantToRunExtensionRunChatTests.EntityClassToolsTest`（工具调用模式参考） |
+| Menu | Description | Reference Tests |
+| --- | --- | --- |
+| Chat | Multi-turn chat + AgentSession | `AgentAiHandlerTests` |
+| Completion | Single-turn TextCompletion | `RunTest` / `SingleLineTest` |
+| Embedding [1] | Vector write + similarity search | `EmbeddingStoreTest` |
+| Embedding [2] | RAG via TextSearchProvider | `KernelConfigExtensions.EmbeddingTests` |
+| Image | Text-to-image | `KernelConfigExtensionsImageTests` |
+| STT | Speech-to-text | `KernelConfigExtensionsSpeechTests` |
+| TTS | Text-to-speech | `KernelConfigExtensionsSpeechTests` |
+| MCP | LocalFunctionProxy / HostedServerTool (SSE) | `IWantToRunExtensionRunChatTests.EntityClassToolsTest` (tool-calling mode reference) |
 
-## 尚未提供
+## Not Yet Provided
 
-以下能力与 Consoles（Kernel）对齐的菜单项在 AgentKernel 中暂未实现，运行后会提示 **「尚未提供」**：
+The following menu items aligned with Consoles (Kernel) are not yet implemented in AgentKernel. Running them shows **"Not available yet"**:
 
-- Planner 任务计划
-- PluginFromObject / Function Calling
+- Planner task planning
 
-## 配置
+## Configuration
 
-1. 编辑 `appsettings.json`（或复制为 `appsettings.Development.json`）填写 `SenparcAiSetting`
-2. 向量库默认 `Memory`，可在配置中改为 Redis / Qdrant 等（需 AgentKernel 已支持的类型）
-3. 如需 MCP 示例，请配置 `SenparcAiSetting.McpServers`
-4. `ToolBindingMode` 默认建议使用 `LocalFunctionProxy`（本地代理为 AIFunction，兼容当前 AgentKernel Chat 路径）
-5. 若使用 `HostedServerTool`，`LocalSseUrl` 通常需要配合 `PublicBaseUrl`（或环境变量 `MCP_PUBLIC_BASE_URL`）映射为公网 URL；模型服务端无法直接访问 `localhost`
-6. MCP 示例已抽象到 `Senparc.AI.AgentKernel.Mcp`（`McpToolsetBuilder` / `McpConfigurationExtensions`），Sample 仅保留交互与调试输出逻辑，默认读取 `SenparcAiSetting.McpServers`
+1. Edit `appsettings.json` or copy it to `appsettings.Development.json` and fill in `SenparcAiSetting`.
+2. The vector store defaults to `Memory`. It can be changed to Redis, Qdrant, or another type already supported by AgentKernel.
+3. To use the MCP sample, configure `SenparcAiSetting.McpServers`.
+4. The recommended default `ToolBindingMode` is `LocalFunctionProxy`, where the local proxy is exposed as an AIFunction and remains compatible with the current AgentKernel chat path.
+5. When using `HostedServerTool`, `LocalSseUrl` usually needs `PublicBaseUrl` or the `MCP_PUBLIC_BASE_URL` environment variable to map it to a public URL. The model server cannot directly access `localhost`.
+6. MCP sample logic has been abstracted into `Senparc.AI.AgentKernel.Mcp` (`McpToolsetBuilder` / `McpConfigurationExtensions`). The sample only keeps interaction and debug output logic, and reads `SenparcAiSetting.McpServers` by default.
 
-## 运行
+## Run
 
-```bash
-cd Samples/Senparc.AI.Samples.AgentKernelConsoles
-dotnet run
+```powershell
+dotnet run --project Samples/Senparc.AI.Samples.AgentKernelConsoles
 ```

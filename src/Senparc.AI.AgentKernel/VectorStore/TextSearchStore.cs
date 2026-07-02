@@ -4,7 +4,7 @@ using Senparc.AI.AgentKernel.Handlers;
 namespace Senparc.AI.AgentKernel;
 
 /// <summary>
-/// RAG 向量检索辅助类，逻辑参考 AgentKernel.Tests KernelConfigExtensions.EmbeddingTests。
+/// RAG vector retrieval helper. Logic references AgentKernel.Tests KernelConfigExtensions.EmbeddingTests.
 /// </summary>
 public class TextSearchDocument
 {

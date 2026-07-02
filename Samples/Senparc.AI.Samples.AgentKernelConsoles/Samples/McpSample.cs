@@ -1,4 +1,4 @@
-using Microsoft.Agents.AI;
+﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Senparc.AI.AgentKernel;
 using Senparc.AI.AgentKernel.Handlers;
@@ -9,7 +9,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// MCP 示例：支持 LocalFunctionProxy / HostedServerTool 两种工具绑定模式。
+/// MCP sample: supports LocalFunctionProxy and HostedServerTool tool binding modes.
 /// </summary>
 public class McpSample
 {
@@ -30,19 +30,19 @@ public class McpSample
     {
         if (_aiHandler is not AgentAiHandler agentHandler)
         {
-            throw new InvalidOperationException("当前示例需要 AgentAiHandler。");
+            throw new InvalidOperationException("This sample requires AgentAiHandler.");
         }
 
         agentHandler.AgentKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);
 
-        Console.WriteLine("MCP Sample：支持 LocalFunctionProxy / HostedServerTool 两种模式。");
-        Console.WriteLine("提示：HostedServerTool 模式下，当 SSE 地址是 localhost 时通常需要映射公网地址。");
+        Console.WriteLine("MCP Sample: supports LocalFunctionProxy and HostedServerTool modes.");
+        Console.WriteLine("Tip: in HostedServerTool mode, a localhost SSE address usually needs to be mapped to a public address.");
         Console.WriteLine();
 
         var serverOptions = GetServerOptionsFromSetting();
         if (serverOptions.Count == 0)
         {
-            SampleHelper.PrintNote("[提示] 未发现 SenparcAiSetting.McpServers 配置，已跳过。");
+            SampleHelper.PrintNote("[Note] SenparcAiSetting.McpServers configuration was not found. Skipped.");
             PrintConfigTemplate();
             return;
         }
@@ -57,7 +57,7 @@ public class McpSample
         var resolvedSseUrl = McpToolsetBuilder.ResolveSseUrl(selected);
         if (resolvedSseUrl.IsNullOrEmpty())
         {
-            SampleHelper.PrintNote("[提示] 未解析到可用的 SSE URL。");
+            SampleHelper.PrintNote("[Note] No available SSE URL was resolved.");
             PrintServerFixHint(selected);
             return;
         }
@@ -66,21 +66,21 @@ public class McpSample
             McpToolsetBuilder.IsLocalAddress(resolvedSseUrl) &&
             selected.RequirePublicUrl)
         {
-            SampleHelper.PrintNote("[提示] 检测到本地地址。Hosted MCP 由模型服务端访问，通常无法直连 localhost。");
+            SampleHelper.PrintNote("[Note] Local address detected. Hosted MCP is accessed by the model server and usually cannot connect directly to localhost.");
             PrintExposeUrlHint(resolvedSseUrl);
 
-            Console.WriteLine("可选：请输入公网 Base URL（如 https://xxxx.trycloudflare.com），回车表示继续使用当前地址：");
+            Console.WriteLine("Optional: enter a public Base URL, such as https://xxxx.trycloudflare.com. Press Enter to keep using the current address:");
             var runtimePublicBaseUrl = Console.ReadLine();
             if (!runtimePublicBaseUrl.IsNullOrEmpty())
             {
                 if (McpToolsetBuilder.TryMergePublicBaseUrl(runtimePublicBaseUrl, resolvedSseUrl, out var mergedUrl, out var error))
                 {
                     resolvedSseUrl = mergedUrl;
-                    Console.WriteLine($"[调试] 运行时公网地址映射成功：{resolvedSseUrl}");
+                    Console.WriteLine($"[Debug] Runtime public address mapping succeeded: {resolvedSseUrl}");
                 }
                 else
                 {
-                    Console.WriteLine($"[调试] 运行时公网地址无效：{error}");
+                    Console.WriteLine($"[Debug] Runtime public address is invalid: {error}");
                 }
             }
         }
@@ -90,32 +90,32 @@ public class McpSample
 
         var chatOptions = toolset.CreateChatClientAgentOptions(selected.SystemPrompt);
 
-        Console.WriteLine($"[调试] MCP ToolBindingMode: {toolset.BindingMode}");
+        Console.WriteLine($"[Debug] MCP ToolBindingMode: {toolset.BindingMode}");
         if (toolset.BindingMode == McpToolBindingMode.HostedServerTool)
         {
             var mcpTool = toolset.ChatTools.OfType<HostedMcpServerTool>().FirstOrDefault();
             var hostedAllowedTools = mcpTool?.AllowedTools;
-            Console.WriteLine($"[调试] HostedMcpServerTool.AllowedTools: {(hostedAllowedTools == null ? "null（不限制，允许服务端全部工具）" : hostedAllowedTools.Count.ToString())}");
+            Console.WriteLine($"[Debug] HostedMcpServerTool.AllowedTools: {(hostedAllowedTools == null ? "null (unrestricted, allows all server-side tools)" : hostedAllowedTools.Count.ToString())}");
             if (hostedAllowedTools is { Count: > 0 })
             {
                 foreach (var toolName in hostedAllowedTools)
                 {
-                    Console.WriteLine($"[调试] Hosted 白名单工具: {toolName}");
+                    Console.WriteLine($"[Debug] Hosted allowlisted tool: {toolName}");
                 }
             }
         }
         else
         {
-            Console.WriteLine($"[调试] Local MCP AIFunction 数量: {toolset.ChatTools.Count}");
+            Console.WriteLine($"[Debug] Local MCP AIFunction count: {toolset.ChatTools.Count}");
             foreach (var item in toolset.ChatTools)
             {
-                Console.WriteLine($"[调试] Local MCP AIFunction: {item.Name}");
+                Console.WriteLine($"[Debug] Local MCP AIFunction: {item.Name}");
             }
         }
 
-        Console.WriteLine($"[调试] MCP Server: {selected.ServerName}");
-        Console.WriteLine($"[调试] SSE URL: {toolset.ResolvedSseUrl}");
-        Console.WriteLine("[调试] 正在创建 AgentSession...");
+        Console.WriteLine($"[Debug] MCP Server: {selected.ServerName}");
+        Console.WriteLine($"[Debug] SSE URL: {toolset.ResolvedSseUrl}");
+        Console.WriteLine("[Debug] Creating AgentSession...");
 
         var iWantToRun = await agentHandler.IWantTo(SampleSetting.CurrentSetting)
             .ConfigChatModel(UserId, chatOptions)
@@ -123,12 +123,12 @@ public class McpSample
 
         var session = iWantToRun.Kernel.AgentSession;
 
-        Console.WriteLine("配置完成。输入 exit 退出。");
+        Console.WriteLine("Configuration completed. Enter exit to leave.");
         Console.WriteLine();
 
         while (true)
         {
-            Console.WriteLine("人类：");
+            Console.WriteLine("Human:");
             var input = Console.ReadLine();
             if (input.IsNullOrEmpty())
             {
@@ -140,28 +140,28 @@ public class McpSample
                 break;
             }
 
-            Console.WriteLine("机器：");
+            Console.WriteLine("Assistant:");
             try
             {
                 var result = await iWantToRun.RunChatAsync(input, session);
                 Console.WriteLine(result.Result.Text);
-                Console.WriteLine($"[调试] Tokens — total: {result.Result.Usage?.TotalTokenCount}");
+                Console.WriteLine($"[Debug] Tokens - total: {result.Result.Usage?.TotalTokenCount}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("发生错误：" + ex.Message);
-                SampleHelper.PrintNote("如与 MCP 调用相关，请检查 SSE URL 可达性、鉴权头和模型平台支持情况。");
+                Console.WriteLine("An error occurred:" + ex.Message);
+                SampleHelper.PrintNote("If this is related to MCP calls, check SSE URL reachability, authentication headers, and model platform support.");
             }
 
             Console.WriteLine();
         }
 
-        Console.WriteLine("MCP 示例结束。");
+        Console.WriteLine("MCP sample ended.");
     }
 
     private static McpServerOption? ChooseServer(IReadOnlyList<McpServerOption> servers)
     {
-        Console.WriteLine("请选择 MCP Server：");
+        Console.WriteLine("Select an MCP Server:");
         var labels = servers.Select(s =>
         {
             var endpoint = s.SseUrl.IsNullOrEmpty() ? s.LocalSseUrl : s.SseUrl;
@@ -174,30 +174,30 @@ public class McpSample
 
     private static void PrintToolDiscoveryDebug(McpServerOption option, McpToolsetResult toolset)
     {
-        Console.WriteLine($"[调试] 配置项 AllowedTools（白名单）: {option.AllowedTools.Count}");
+        Console.WriteLine($"[Debug] Configured AllowedTools (allowlist): {option.AllowedTools.Count}");
         if (option.AllowedTools.Count > 0)
         {
             foreach (var toolName in option.AllowedTools)
             {
-                Console.WriteLine($"[调试] 配置白名单工具: {toolName}");
+                Console.WriteLine($"[Debug] Configured allowlisted tool: {toolName}");
             }
         }
         else
         {
             Console.WriteLine(toolset.BindingMode == McpToolBindingMode.HostedServerTool
-                ? "[调试] 配置 AllowedTools 为空：Hosted MCP 将不限制工具名（由模型服务端连接 MCP Server 时使用全部工具）。"
-                : "[调试] 配置 AllowedTools 为空：LocalFunctionProxy 将加载 MCP Server 的全部工具。");
+                ? "[Debug] Configured AllowedTools is empty: Hosted MCP will not restrict tool names (all tools are used when the model server connects to the MCP Server)."
+                : "[Debug] Configured AllowedTools is empty: LocalFunctionProxy will load all tools from the MCP Server.");
         }
 
         if (!toolset.ToolDiscoveryError.IsNullOrEmpty())
         {
-            Console.WriteLine($"[调试] 无法从 MCP Server 探测工具列表：{toolset.ToolDiscoveryError}");
+            Console.WriteLine($"[Debug] Unable to discover the tool list from the MCP Server: {toolset.ToolDiscoveryError}");
         }
 
-        Console.WriteLine($"[调试] MCP Server 实际工具数: {toolset.DiscoveredToolNames.Count}");
+        Console.WriteLine($"[Debug] Actual MCP Server tool count: {toolset.DiscoveredToolNames.Count}");
         foreach (var toolName in toolset.DiscoveredToolNames)
         {
-            Console.WriteLine($"[调试] MCP Server 工具: {toolName}");
+            Console.WriteLine($"[Debug] MCP Server tool: {toolName}");
         }
     }
 
@@ -209,25 +209,25 @@ public class McpSample
         }
 
         var origin = $"{uri.Scheme}://{uri.Host}:{uri.Port}";
-        SampleHelper.PrintNote("可使用反向隧道暴露本地地址：");
+        SampleHelper.PrintNote("A reverse tunnel can expose the local address:");
         Console.WriteLine($"- cloudflared: cloudflared tunnel --url {origin}");
         Console.WriteLine($"- ngrok: ngrok http {uri.Port}");
-        Console.WriteLine($"完成后将公网域名写入 PublicBaseUrl，或设置环境变量 {McpToolsetBuilder.DefaultPublicBaseUrlEnvName}。");
+        Console.WriteLine($"After completion, write the public domain to PublicBaseUrl, or set the environment variable {McpToolsetBuilder.DefaultPublicBaseUrlEnvName}.");
         Console.WriteLine();
     }
 
     private static void PrintConfigTemplate()
     {
-        Console.WriteLine("示例配置（appsettings.json）：");
+        Console.WriteLine("Sample configuration (appsettings.json):");
         Console.WriteLine("\"SenparcAiSetting\": { \"McpServers\": [ { \"Name\": \"Demo\", \"ServerName\": \"demo\", \"LocalSseUrl\": \"http://127.0.0.1:3001/sse\", \"ToolBindingMode\": \"LocalFunctionProxy\" } ] }");
         Console.WriteLine();
     }
 
     private static void PrintServerFixHint(McpServerOption option)
     {
-        Console.WriteLine($"当前配置：{option.Name}");
-        Console.WriteLine("请至少配置 SseUrl（公网）或 LocalSseUrl（本地）之一。");
-        Console.WriteLine("如配置 LocalSseUrl，可配合 PublicBaseUrl / MCP_PUBLIC_BASE_URL 自动转换。");
+        Console.WriteLine($"Current configuration:{option.Name}");
+        Console.WriteLine("Configure at least one of SseUrl (public) or LocalSseUrl (local).");
+        Console.WriteLine("If LocalSseUrl is configured, PublicBaseUrl / MCP_PUBLIC_BASE_URL can be used for automatic conversion.");
         Console.WriteLine();
     }
 

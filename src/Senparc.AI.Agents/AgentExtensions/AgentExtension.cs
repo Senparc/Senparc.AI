@@ -1,4 +1,4 @@
-﻿using AutoGen;
+using AutoGen;
 using AutoGen.Core;
 using AutoGen.OpenAI;
 using AutoGen.SemanticKernel;
@@ -31,7 +31,7 @@ public static class AgentExtension
         return middlewareAgent;
     }
 
-    #region 快速构建 Graph 扩展方法
+    #region Quickly build Graph extension methods
 
     public static GraphConnector ConnectFrom<TFromAgent>(this Graph graph, TFromAgent fromAgent) where TFromAgent : IAgent
     {
@@ -77,16 +77,16 @@ public static class AgentExtension
 
     #endregion
 
-    #region AI Team 构造
+    #region AI Team construction
 
     /// <summary>
-    /// 创建 AITeam 对象（GroupChat）
+    /// create AITeam object(GroupChat)
     /// </summary>
     /// <typeparam name="TFromAgent"></typeparam>
     /// <param name="graphConnector"></param>
     /// <param name="adminAgent"></param>
     /// <returns></returns>
-    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, TFromAgent adminAgent) 
+    public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, TFromAgent adminAgent)
         where TFromAgent : IAgent
     {
         var aiTeam = new GroupChat(
@@ -97,14 +97,14 @@ public static class AgentExtension
     }
 
     /// <summary>
-    /// 创建 AITeam 对象（GroupChat）
+    /// create AITeam object(GroupChat)
     /// </summary>
     /// <typeparam name="TFromAgent"></typeparam>
     /// <param name="graphConnector"></param>
     /// <param name="adminAgent"></param>
     /// <param name="orchestrator"></param>
     /// <returns></returns>
-    [Obsolete("请使用方法 CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, IOrchestrator orchestrator)")]
+    [Obsolete("please usemethod CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, IOrchestrator orchestrator)")]
     public static GroupChat CreateAiTeam<TFromAgent>(this GraphConnector graphConnector, TFromAgent adminAgent,  IOrchestrator orchestrator)
         where TFromAgent : IAgent
     {
@@ -116,7 +116,7 @@ public static class AgentExtension
     }
 
     /// <summary>
-    /// 创建 AITeam 对象（GroupChat）
+    /// create AITeam object(GroupChat)
     /// </summary>
     /// <typeparam name="TFromAgent"></typeparam>
     /// <param name="graphConnector"></param>

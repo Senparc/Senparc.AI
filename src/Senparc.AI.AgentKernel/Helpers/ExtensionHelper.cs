@@ -10,7 +10,7 @@ namespace Senparc.AI.AgentKernel.Helpers
     internal static class ExtensionHelper
     {
         /// <summary>
-        /// 设置 AgentKernelArguments
+        /// setting AgentKernelArguments
         /// </summary>
         /// <param name="kernelArguments"></param>
         /// <param name="key"></param>

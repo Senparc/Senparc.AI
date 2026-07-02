@@ -38,7 +38,7 @@ namespace Senparc.AI.Tests
         }
 
         /// <summary>
-        /// 注册 IServiceCollection 和 MemoryCache
+        /// register IServiceCollection and MemoryCache
         /// </summary>
         public void RegisterServiceCollection(Func<IConfigurationRoot, ISenparcAiSetting> senparcAiSettingFunc, Action<ServiceCollection> serviceAction)
         {
@@ -68,7 +68,7 @@ namespace Senparc.AI.Tests
 
             serviceAction?.Invoke(serviceCollection);
 
-            serviceCollection.AddMemoryCache();//使用内存缓存
+            serviceCollection.AddMemoryCache();//use memory cache
 
             serviceCollection.AddSenparcAI(config, _senparcAiSetting);
 
@@ -80,11 +80,11 @@ namespace Senparc.AI.Tests
         }
 
         /// <summary>
-        /// 调用 RegisterService.Start()
+        /// Call RegisterService.Start()
         /// </summary>
         public void RegisterServiceStart(Action<IRegisterService> registerAction, bool autoScanExtensionCacheStrategies = false)
         {
-            //注册环境
+            //register environment
             var mockEnv = new Mock<Microsoft.Extensions.Hosting.IHostEnvironment/*IHostingEnvironment*/>();
             mockEnv.Setup(z => z.ContentRootPath).Returns(() => UnitTestHelper.RootPath);
 
@@ -98,25 +98,25 @@ namespace Senparc.AI.Tests
 
             registerService.UseSenparcAI();
 
-            // 如果配置了 Redis，则进行初始化（示例）
+            // If Redis is configured, initialize it (sample).
             var redisConfigurationStr = _senparcSetting.Cache_Redis_Configuration;
-            var useRedis = !string.IsNullOrEmpty(redisConfigurationStr) && redisConfigurationStr != "#{Cache_Redis_Configuration}#" /* 未配置默认占位符 */;
+            var useRedis = !string.IsNullOrEmpty(redisConfigurationStr) && redisConfigurationStr != "#{Cache_Redis_Configuration}#" /* default placeholder is not configured */;
             if (useRedis)
             {
-                /* 说明：
-                 * 1. Redis 配置请在 Config.SenparcSetting.Cache_Redis_Configuration 中填写，框架会自动读取。
-                 * 2. 如果需要动态修改配置，可以通过 SetConfigurationOption 方法设置 Redis 配置。
+                /* Description:
+                 * 1. Redis configure in Config.SenparcSetting.Cache_Redis_Configuration fill in, the framework reads automatically.
+                 * 2. if dynamic configuration changes are required, Redis configuration can be set through SetConfigurationOption.
                  */
                 Senparc.CO2NET.Cache.Redis.Register.SetConfigurationOption(redisConfigurationStr);
-                Console.WriteLine("初始化 Redis 配置");
+                Console.WriteLine("Initialize Redis configuration");
 
-                // 将缓存策略切换为 Redis（键值存储方式）
-                Senparc.CO2NET.Cache.Redis.Register.UseKeyValueRedisNow(); // 使用键值存储 Redis 策略
-                Console.WriteLine("已设置 Redis 为 KeyValue 缓存策略");
+                // switch the cache strategy to Redis(key-value storage mode)
+                Senparc.CO2NET.Cache.Redis.Register.UseKeyValueRedisNow(); // use the key-value Redis strategy
+                Console.WriteLine("set Redis as KeyValue cache strategy");
 
-                //Senparc.CO2NET.Cache.Redis.Register.UseHashRedisNow();// 使用 HashSet 方式的 Redis
+                //Senparc.CO2NET.Cache.Redis.Register.UseHashRedisNow();// use the HashSet Redis strategy
 
-                // 如果需要，也可以通过 CacheStrategyFactory 手动注册其他缓存策略
+                // If needed, other cache strategies can also be registered manually through CacheStrategyFactory
                 //CacheStrategyFactory.RegisterObjectCacheStrategy(() => RedisObjectCacheStrategy.Instance);
                 //CacheStrategyFactory.RegisterObjectCacheStrategy(() => RedisHashSetObjectCacheStrategy.Instance);
             }

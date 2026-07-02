@@ -14,7 +14,7 @@ namespace Senparc.AI.AgentKernel.Handlers
     public class IWantTo
     {
         /// <summary>
-        /// 暂存信息
+        /// temporary information
         /// </summary>
         public ConcurrentDictionary<string, object> TempStore { get; set; } = new ConcurrentDictionary<string, object>();
         public IAIKernelBuilder KernelBuilder { get; set; }
@@ -126,7 +126,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //}
 
         /// <summary>
-        /// 获取当前类型的所有服务
+        /// Get all services of the current type
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>

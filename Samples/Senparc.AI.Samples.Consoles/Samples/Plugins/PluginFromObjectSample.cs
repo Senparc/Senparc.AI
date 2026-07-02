@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.SemanticKernel;
 using Senparc.AI.Interfaces;
@@ -19,21 +19,21 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
         {
             this._aiHandler = aiHandler;
             this._serviceProvider = serviceProvider;
-            this._semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
+            this._semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//Synchronize logging setting state
         }
 
         public async Task RunAsync()
         {
-            await Console.Out.WriteLineAsync(@"您已进入 PluginFromObject，输入 exit 退出。");
+            await Console.Out.WriteLineAsync(@"You have entered PluginFromObject. Enter exit to leave.");
 
             var exit = false;
             while (!exit)
             {
-                await Console.Out.WriteLineAsync("请输入要测试的序号：");
-                await Console.Out.WriteLineAsync("[0] 退出");
-                await Console.Out.WriteLineAsync("[1] 无参数 Plugin");
-                await Console.Out.WriteLineAsync("[2] 带参数 Plugin");
-                await Console.Out.WriteLineAsync("[3] 无参数 Plugin + 带参数 Plugin 组成管道序列");
+                await Console.Out.WriteLineAsync("Enter the number to test:");
+                await Console.Out.WriteLineAsync("[0] Exit");
+                await Console.Out.WriteLineAsync("[1] Plugin without parameters");
+                await Console.Out.WriteLineAsync("[2] Plugin with parameters");
+                await Console.Out.WriteLineAsync("[3] Plugin without parameters + Plugin with parameters as a pipeline sequence");
 
                 var select = Console.ReadLine();
                 switch (select)
@@ -51,14 +51,14 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
                         await RunPiplelineSampleAsync();
                         break;
                     default:
-                        await Console.Out.WriteLineAsync("选择错误，请重新选择！");
+                        await Console.Out.WriteLineAsync("Invalid selection. Select again!");
                         continue;
                 }
             }
         }
 
         /// <summary>
-        /// 无参数 Plugin
+        /// Plugin without parameters
         /// </summary>
         /// <returns></returns>
         public async Task RunParameterlessSampleAsync()
@@ -66,33 +66,33 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
             ConsoleKey? input = null;
             while (input != ConsoleKey.D0)
             {
-                //完成 Kernel 基础设置
+                //Kernel base setup completed
                 var (iWantToRun, kernelPlugin) =
-                        _semanticAiHandler.IWantTo()//初始化
-                            .ConfigModel(ConfigModel.TextCompletion, "Jeffrey")//配置模型类型                                         
-                            .BuildKernel()//构建 Kernel
-                            .ImportPluginFromObject(new SearchPlugin(), "SearchPlugin");//注册插件
+                        _semanticAiHandler.IWantTo()//Initialize
+                            .ConfigModel(ConfigModel.TextCompletion, "Jeffrey")//Configure model type
+                            .BuildKernel()//Build Kernel
+                            .ImportPluginFromObject(new SearchPlugin(), "SearchPlugin");//Register plugin
 
-                //执行
+                //Execute
                 var functionResult = await iWantToRun.RunAsync(kernelPlugin[nameof(SearchPlugin.GetURL)]);
-                //说明：此处返回类型为 string，因此可以不使用泛型 RunAsync<string>，直接使用 RunAsync() 即可
+                //Description: the return type here is string, so RunAsync<string> is not required. RunAsync() can be used directly.
 
-                await Console.Out.WriteLineAsync($"【外部读取】随机获取 URL：{functionResult.OutputString}");
+                await Console.Out.WriteLineAsync($"[External read]Randomly get URL:{functionResult.OutputString}");
 
-                await Console.Out.WriteLineAsync("任意键继续获取，输入 0 退出");
+                await Console.Out.WriteLineAsync("Press any key to continue fetching, or enter 0 to exit");
                 input = Console.ReadKey().Key;
             }
         }
 
         /// <summary>
-        /// 带参数 Plugin
+        /// Plugin with parameters
         /// </summary>
         /// <returns></returns>
         public async Task RunParametersSampleAsync()
         {
             while (true)
             {
-                await Console.Out.WriteLineAsync("请输入需要爬取的完整网址，如 https://sdk.weixin.senparc.com。输入 exit 返回上一级");
+                await Console.Out.WriteLineAsync("Enter the full URL to crawl, such as https://sdk.weixin.senparc.com. Enter exit to return to the previous level.");
                 var url = Console.ReadLine();
 
                 if (url == "exit")
@@ -100,42 +100,42 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
                     break;
                 }
 
-                //检查 URL 是否合法
+                //Check whether the URL is valid
                 if (url.IsNullOrEmpty() || !url.StartsWith("http"))
                 {
-                    await Console.Out.WriteLineAsync("请输入正确的 URL 地址！");
+                    await Console.Out.WriteLineAsync("Enter a valid URL!");
                     continue;
                 }
 
-                //完成 Kernel 基础设置
+                //Kernel base setup completed
                 var (iWantToRun, kernelPlugin) =
                      _semanticAiHandler.IWantTo()
                             .ConfigModel(ConfigModel.TextCompletion, "Jeffrey")
                             .BuildKernel()
-                            //注册插件
+                            //Register plugin
                             .ImportPluginFromObject(new SearchPlugin(this._serviceProvider, null), "SearchPlugin");
 
-                //设置参数（可选）
+                //Set parameters (optional)
                 iWantToRun.StoredAiArguments.Context["url"] = url;
                 iWantToRun.StoredAiArguments.Context["method"] = "GET";
 
-                //创建请求对象
+                //Create request object
                 var request = iWantToRun.CreateRequest(true, kernelPlugin[nameof(SearchPlugin.GetHtml)]);
 
-                //执行
+                //Execute
                 var functionResult = await iWantToRun.RunAsync<GetHtmlResult>(request);
 
                 await Console.Out.WriteLineAsync("==========================");
-                await Console.Out.WriteLineAsync("【从 Function 外部读取】");
-                await Console.Out.WriteLineAsync($"URL：{functionResult.Output.Url}");
-                await Console.Out.WriteLineAsync($"耗时：{functionResult.Output.CostMS}ms");
-                await Console.Out.WriteLineAsync($"HTML：{functionResult.Output.HTML}");
+                await Console.Out.WriteLineAsync("[Read from outside the Function]");
+                await Console.Out.WriteLineAsync($"URL:{functionResult.Output.Url}");
+                await Console.Out.WriteLineAsync($"Elapsed time:{functionResult.Output.CostMS}ms");
+                await Console.Out.WriteLineAsync($"HTML:{functionResult.Output.HTML}");
 
             }
         }
 
         /// <summary>
-        /// 不带参数 Plugin + 带参数 Plugin 组成管道序列
+        /// notPlugin with parameters + Plugin with parameters compose a pipeline sequence
         /// </summary>
         /// <returns></returns>
         public async Task RunPiplelineSampleAsync()
@@ -143,12 +143,12 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
             while (true)
             {
                 await Console.Out.WriteLineAsync(@"
-即将开始执行以下步骤：
-1、从一个独立 Function 中随机获取一个 URL
-2、自动抓取这个 URL 的内容
-3、使用 AI 接口分析当前网页内容
+About to execute the following steps:
+1. Randomly get a URL from an independent Function
+2. Automatically fetch the content from this URL
+3. Use the AI API to analyze the current web page content
 
-输入回车开始，输入 exit 返回上一级
+Press Enter to start. Enter exit to return to the previous level.
 ");
 
                 var url = Console.ReadLine();
@@ -158,23 +158,23 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
                     break;
                 }
 
-                //完成 Kernel 基础设置
+                //Kernel base setup completed
                 var iWantToRun =
                      _semanticAiHandler.IWantTo()
                             .ConfigModel(ConfigModel.TextCompletion, "Jeffrey")
                             .BuildKernel();
 
-                //定义插件
+                //Define plugin
                 var searchPlugin = new SearchPlugin(this._serviceProvider, iWantToRun,this._semanticAiHandler);
 
-                //注册插件
+                //Register plugin
                 var kernelPlugin = iWantToRun.ImportPluginFromObject(searchPlugin, "SearchPlugin").kernelPlugin;
 
-                //设置参数（可选）
-                //iWantToRun.StoredAiArguments.Context["url"] = url; //URL 由 GetURL 方法返回，无需提供
+                //Set parameters (optional)
+                //iWantToRun.StoredAiArguments.Context["url"] = url; //URL is returned by the GetURL method and does not need to be provided
                 iWantToRun.StoredAiArguments.Context["method"] = "GET";
 
-                //定义需要使用的 Function（可以多个）
+                //Define the Functions to use (one or more)
                 var functionPiple = new[] {
                     kernelPlugin[nameof(searchPlugin.GetURL)],
                     kernelPlugin[nameof(searchPlugin.GetHtml)],
@@ -183,12 +183,12 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
 
                 foreach (var function in functionPiple)
                 {
-                    //创建请求对象
+                    //Create request object
                     var request = iWantToRun.CreateRequest(true, function);
 
-                    //执行
+                    //Execute
                     var functionResult = await iWantToRun.RunAsync<object>(request);
-                    /* 如果不需要对 request 进行额外设置，此处也可以不构建 request，直接传入 function：
+                    /* If no extra request settings are required, you can skip building the request here and pass the function directly:
                      * var functionResult = await iWantToRun.RunAsync<object>(function);
                      */
                 }

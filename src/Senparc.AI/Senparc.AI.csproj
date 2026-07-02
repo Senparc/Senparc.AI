@@ -8,7 +8,7 @@
 		<RootNamespace>Senparc.AI</RootNamespace>
 		<GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
 		<Description>
-			Senparc.AI 核心模块，提供一系列 Senparc.AI 产品基础接口
+			Senparc.AI core module that provides a series of base APIs for Senparc.AI products
 			https://github.com/Senparc/Senparc.AI
 		</Description>
 		<Copyright>Senparc Copyright © 2004~2026</Copyright>
@@ -20,36 +20,36 @@
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<ProjectUrl>https://github.com/Senparc/Senparc.AI</ProjectUrl>
 		<Title>Senparc.AI.dll</Title>
-		<Summary>Senparc.AI 核心模块</Summary>
+		<Summary>Senparc.AI core module</Summary>
 		<PackageProjectUrl>https://github.com/Senparc/Senparc.AI</PackageProjectUrl>
 		<PackageIcon>icon.jpg</PackageIcon>
 		<PackageReleaseNotes>
-			v0.1.0 创世
-			v0.2.0 添加 NeuChar OpenAI
-			v0.3.1 同步最新版本 Semantic Kernel，完善 Prompt 运行方法
-			v0.4.0 支持外部 ISenparcAiSetting 输入到模型配置过程
-			v0.5.0 适配 Semantic Kernel 1.0.0-beta2
-			v0.6.0 优化 Plugin 等通用接口
-			v0.6.5 AiPlatform.NeuCharOpenAI 枚举更名为 AiPlatform.NeuCharAI
-			v0.7.0 支持 Senparc.AI.Kernel 1.0.1
-			v0.8.0 重构 IWantToRun，实现自定义 SenparcAISetting 输入
-			v0.9.0 重构 SenparcAiSetting，支持多模型配置
-			v0.10.0 添加 FastAPI 模型选项
-			v0.10.1 提供 SenparcAiSetting.Endpoint 属性
-			v0.11.0 重构 ModelName 获取方式，可根据模型平台自动获取 ModelName 和 DepolymentName
-			v0.12.0 完善 SemanticAiHandler.ChatAsync() 方法，提供指定保留 N 条历史记录的能力
-			v0.13.0 完善流式输出
-			v0.14.0 完善模型识别
-			v0.15.0 添加 HttpClient 日志功能，完善内容输出机制
-			v0.15.1 升级到 SK 最新版本（v1.7.1）
-			v0.15.2 添加 RedirectingHttpMessageHandler
+			v0.1.0 Genesis
+			v0.2.0 Add NeuChar OpenAI
+			v0.3.1 Sync the latest Semantic Kernel version and improve Prompt run methods
+			v0.4.0 Support external ISenparcAiSetting input during model configuration
+			v0.5.0 Adapt to Semantic Kernel 1.0.0-beta2
+			v0.6.0 Optimize Plugin and other common APIs
+			v0.6.5 Rename the AiPlatform.NeuCharOpenAI enum value to AiPlatform.NeuCharAI
+			v0.7.0 Support Senparc.AI.Kernel 1.0.1
+			v0.8.0 Refactor IWantToRun and support custom SenparcAISetting input
+			v0.9.0 Refactor SenparcAiSetting and support multi-model configuration
+			v0.10.0 Add FastAPI model options
+			v0.10.1 Add the SenparcAiSetting.Endpoint property
+			v0.11.0 Refactor ModelName retrieval so ModelName and DepolymentName can be obtained automatically by model platform
+			v0.12.0 Improve SemanticAiHandler.ChatAsync() and support retaining a specified number of history records
+			v0.13.0 Improve streaming output
+			v0.14.0 Improve model recognition
+			v0.15.0 Add HttpClient logging and improve the content output mechanism
+			v0.15.1 Upgrade to the latest SK version (v1.7.1)
+			v0.15.2 Add RedirectingHttpMessageHandler
 			v0.16.0
-			1、添加 SenparcKernelAiResult&lt;T$gt; 类型
-			2、重命名 IAiResult.Output 为 OutputString
-			v0.16.1 将 ISenparcAiSetting.ModelName、DeploymentName 从属性改为 public
-			v0.16.2 增加 Agents 项目输入为空时，异常捕获
-			v0.16.3 优化 SenparcAiSettingBase
-			v0.17.0-beta1 升级 CO2NET
+			1. Add the SenparcKernelAiResult&lt;T&gt; type
+			2. Rename IAiResult.Output to OutputString
+			v0.16.1 Change ISenparcAiSetting.ModelName and DeploymentName from properties to public members
+			v0.16.2 Add exception handling when Agents project input is empty
+			v0.16.3 Optimize SenparcAiSettingBase
+			v0.17.0-beta1 Upgrade CO2NET
 			[2024-11-19] v0.18.0 Update CO2NET, reframe for Aspire
 			[2025-01-19] v0.19.0-beta1 Update Senparc.AI.Agents; Fixed some namespace spelling errors
 			[2025-01-19] v0.20.0-beta1 Update Senparc.AI.Agents; Fixed some namespace spelling errors

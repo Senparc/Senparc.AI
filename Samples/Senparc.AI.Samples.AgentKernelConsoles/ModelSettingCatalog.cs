@@ -6,7 +6,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.AgentKernelConsoles;
 
 /// <summary>
-/// 模型配置选项：Default、各平台 *Keys、Items 子集。
+/// Model configuration options: Default, each platform *Keys section, and Items subsets.
 /// </summary>
 internal static class ModelSettingCatalog
 {
@@ -32,7 +32,7 @@ internal static class ModelSettingCatalog
 
         var choices = new List<ModelChoice>
         {
-            new("Default", $"Default（当前默认：{root.AiPlatform}）")
+            new("Default", $"Default(current default:{root.AiPlatform})")
         };
 
         foreach (var platform in PlatformOrder)
@@ -44,8 +44,8 @@ internal static class ModelSettingCatalog
 
             var modelHint = GetPlatformModelHint(root, platform);
             var label = modelHint.IsNullOrEmpty()
-                ? $"{platform}（{GetKeysSectionName(platform)}）"
-                : $"{platform}（{GetKeysSectionName(platform)} / {modelHint}）";
+                ? $"{platform}({GetKeysSectionName(platform)})"
+                : $"{platform}({GetKeysSectionName(platform)} / {modelHint})";
             choices.Add(new(platform.ToString(), label));
         }
 
@@ -56,8 +56,8 @@ internal static class ModelSettingCatalog
                 var itemSetting = item.Value;
                 var chatModel = itemSetting.ModelName?.Chat;
                 var label = chatModel.IsNullOrEmpty()
-                    ? $"Items/{item.Key}（{itemSetting.AiPlatform}）"
-                    : $"Items/{item.Key}（{itemSetting.AiPlatform} / {chatModel}）";
+                    ? $"Items/{item.Key}({itemSetting.AiPlatform})"
+                    : $"Items/{item.Key}({itemSetting.AiPlatform} / {chatModel})";
                 choices.Add(new(item.Key, label));
             }
         }
