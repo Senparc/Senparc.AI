@@ -60,7 +60,11 @@ public class ChatSample
 
         var chatOptions = new ChatClientAgentOptions
         {
-            ChatOptions = new() { Instructions = systemMessage }
+            ChatOptions = new() 
+            { 
+                Instructions = systemMessage, 
+                Temperature=0.2f // Senparc.AI 会自动忽略不被支持的参数（如使用 GPT-5.6 模型）
+            }
         };
 
         Console.WriteLine();
