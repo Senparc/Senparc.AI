@@ -14,6 +14,7 @@
 | STT | 语音转文字（SpeechToText） | `KernelConfigExtensionsSpeechTests` |
 | TTS | 文本转语音（TextToSpeech） | `KernelConfigExtensionsSpeechTests` |
 | MCP | LocalFunctionProxy / HostedServerTool（SSE） | `IWantToRunExtensionRunChatTests.EntityClassToolsTest`（工具调用模式参考） |
+| A2A | LocalFunctionProxy（A2A Agent -> AIFunction） | `A2AToolsetBuilderTests` |
 
 ## 尚未提供
 
@@ -27,9 +28,11 @@
 1. 编辑 `appsettings.json`（或复制为 `appsettings.Development.json`）填写 `SenparcAiSetting`
 2. 向量库默认 `Memory`，可在配置中改为 Redis / Qdrant 等（需 AgentKernel 已支持的类型）
 3. 如需 MCP 示例，请配置 `SenparcAiSetting.McpServers`
-4. `ToolBindingMode` 默认建议使用 `LocalFunctionProxy`（本地代理为 AIFunction，兼容当前 AgentKernel Chat 路径）
-5. 若使用 `HostedServerTool`，`LocalSseUrl` 通常需要配合 `PublicBaseUrl`（或环境变量 `MCP_PUBLIC_BASE_URL`）映射为公网 URL；模型服务端无法直接访问 `localhost`
-6. MCP 示例已抽象到 `Senparc.AI.AgentKernel.Mcp`（`McpToolsetBuilder` / `McpConfigurationExtensions`），Sample 仅保留交互与调试输出逻辑，默认读取 `SenparcAiSetting.McpServers`
+4. 如需 A2A 示例，请配置 `SenparcAiSetting.A2AAgents`
+5. `ToolBindingMode` 默认建议使用 `LocalFunctionProxy`（本地代理为 AIFunction，兼容当前 AgentKernel Chat 路径）
+6. 若使用 MCP 的 `HostedServerTool`，`LocalSseUrl` 通常需要配合 `PublicBaseUrl`（或环境变量 `MCP_PUBLIC_BASE_URL`）映射为公网 URL；模型服务端无法直接访问 `localhost`
+7. A2A 若使用 `LocalBaseUrl`，可配合 `PublicBaseUrl`（或环境变量 `A2A_PUBLIC_BASE_URL`）映射为公网 URL
+8. MCP 示例已抽象到 `Senparc.AI.AgentKernel.Mcp`（`McpToolsetBuilder` / `McpConfigurationExtensions`），A2A 示例已抽象到 `Senparc.AI.AgentKernel.A2A`（`A2AToolsetBuilder` / `A2AConfigurationExtensions`），Sample 仅保留交互与调试输出逻辑，默认读取 `SenparcAiSetting` 下对应配置
 
 ## 运行
 

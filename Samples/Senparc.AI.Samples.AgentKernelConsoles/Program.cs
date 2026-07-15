@@ -27,6 +27,7 @@ services.AddTransient<ImageGenerateSample>();
 services.AddTransient<SttSample>();
 services.AddTransient<TtsSample>();
 services.AddTransient<McpSample>();
+services.AddTransient<A2ASample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -54,7 +55,8 @@ Console.WriteLine("[5] Planner 任务计划");
 Console.WriteLine("[6] PluginFromObject / Function Calling");
 Console.WriteLine("[7] STT（Speech to Text）");
 Console.WriteLine("[8] TTS（Text to Speech）");
-Console.WriteLine("[9] MCP（Hosted MCP Server Tool）");
+Console.WriteLine("[9] MCP（LocalFunctionProxy / HostedServerTool）");
+Console.WriteLine("[10] A2A（LocalFunctionProxy）");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -113,6 +115,9 @@ switch (index)
         break;
     case "9":
         await serviceProvider.GetRequiredService<McpSample>().RunAsync();
+        break;
+    case "10":
+        await serviceProvider.GetRequiredService<A2ASample>().RunAsync();
         break;
     case "0":
         serviceProvider.GetRequiredService<SampleSetting>().Run();
