@@ -35,5 +35,13 @@ namespace Senparc.AI.Tests.Entities
             Assert.IsNotNull(senparcAiSetting.McpServers);
             Assert.AreEqual(0, senparcAiSetting.McpServers.Count);
         }
+
+        [TestMethod]
+        public void A2AAgents_Default_ShouldNotBeNull()
+        {
+            var senparcAiSetting = new SenparcAiSettingBase();
+            Assert.IsNotNull(senparcAiSetting.A2AAgents);
+            Assert.AreEqual(0, senparcAiSetting.A2AAgents.Count);
+        }
     }
 }

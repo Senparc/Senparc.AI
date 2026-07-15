@@ -55,6 +55,11 @@ namespace Senparc.AI.Entities
         public List<McpServerOption> McpServers { get; set; } = new List<McpServerOption>();
 
         /// <summary>
+        /// A2A Agent 配置
+        /// </summary>
+        public List<A2AAgentOption> A2AAgents { get; set; } = new List<A2AAgentOption>();
+
+        /// <summary>
         /// 是否使用 OpenAI
         /// </summary>
         public virtual bool UseOpenAI => AiPlatform == AiPlatform.OpenAI;
@@ -261,6 +266,8 @@ namespace Senparc.AI.Entities
 
         public virtual bool IsMcpServersSetted => McpServers != null && McpServers.Count > 0;
 
+        public virtual bool IsA2AAgentsSetted => A2AAgents != null && A2AAgents.Count > 0;
+
        public virtual string Endpoint => AiPlatform switch
        {
         AiPlatform.OpenAI => OpenAIEndpoint,
@@ -284,6 +291,7 @@ namespace Senparc.AI.Entities
         {
             VectorDB = new VectorDB() { Type = VectorDBType.Default };
             McpServers = new List<McpServerOption>();
+            A2AAgents = new List<A2AAgentOption>();
         }
 
         #region 快速配置方法

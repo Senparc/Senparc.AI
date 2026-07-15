@@ -2,6 +2,7 @@
 using Microsoft.Extensions.AI;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Handlers;
+using Senparc.AI.AgentKernel.Helpers;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.CO2NET.Extensions;
@@ -91,6 +92,10 @@ namespace Senparc.AI.AgentKernel.Handlers
             var session = request.AgentSession;
             var functionPipline = request.FunctionPipeline;
             //var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
+
+            // GPT-5+ 等模型：提交前再次确保 Temperature 等采样参数不会出现在请求中
+            var chatModelName = kernel.ModelName?.Chat ?? iWantTo.SenparcAiSetting?.ModelName?.Chat;
+            ChatOptionsSanitizer.SanitizeForModel(kernel.ChatClientAgentOptions?.ChatOptions, chatModelName);
 
             //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
 
