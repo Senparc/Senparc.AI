@@ -4,6 +4,7 @@ using OllamaSharp;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
 using Senparc.AI.AgentKernel.Handlers;
+using Senparc.AI.AgentKernel.Helpers;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Interfaces;
 using Senparc.CO2NET.Extensions;
@@ -85,6 +86,11 @@ namespace Senparc.AI.AgentKernel.Kernels
                     Name = "SenparcAgent",
                     Description = "You are a friendly assistant. Keep your answers brief"
                 };
+
+                // GPT-5+ / o 系列推理模型不支持 Temperature 等采样参数，创建 Agent 前先剥离
+                ChatOptionsSanitizer.SanitizeForModel(
+                    ChatClientAgentOptions.ChatOptions,
+                    ModelName?.Chat);
 
                 this.ChatClientAgent = ChatClient switch
                 {

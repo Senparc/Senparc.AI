@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>0.1.9.1</Version>
+		<Version>0.1.10</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>13.0</LangVersion>
@@ -56,6 +56,7 @@
 			1. Add McpToolsetBuilder / McpToolsetResult / McpToolBindingMode / McpServerOption
 			2. Add McpSample console sample
 			[2026-06-28] v0.1.9.1 Fix: SenparcAiSetting.Endpoint
+			[2026-07-15] v0.1.10 Add: ChatOptionsSanitizer.SanitizeForModel
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

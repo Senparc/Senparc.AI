@@ -151,6 +151,14 @@ namespace Senparc.AI.Kernel.Helpers
             }
 
             var aiPlatForm = senparcAiSetting.AiPlatform;
+            var chatModelName = senparcAiSetting.ModelName?.Chat;
+            var skipSampling = Senparc.AI.Helpers.ModelCapabilityHelper.DoesNotSupportTemperature(chatModelName);
+
+            if (skipSampling)
+            {
+                System.Console.WriteLine(
+                    $"[调试] 模型 {chatModelName} 不支持 Temperature/TopP 等采样参数，GetExecutionSetting 将忽略这些字段");
+            }
 
             var promptExecutiongSetting = aiPlatForm switch
             {
@@ -166,15 +174,22 @@ namespace Senparc.AI.Kernel.Helpers
                 //AiPlatform.AzureOpenAI =>
                 //AiPlatform.NeuCharAI => 
                 //AiPlatform.HuggingFace => 
-                _ => new OpenAIPromptExecutionSettings()
-                {
-                    Temperature = temperature,
-                    TopP = topP,
-                    MaxTokens = maxTokens,
-                    PresencePenalty = presencePenalty,
-                    FrequencyPenalty = frequencyPenalty,
-                    StopSequences = stopSequences,
-                },
+                _ => skipSampling
+                    ? new OpenAIPromptExecutionSettings()
+                    {
+                        // GPT-5+ / o 系列：不设置 Temperature/TopP/PresencePenalty/FrequencyPenalty
+                        MaxTokens = maxTokens,
+                        StopSequences = stopSequences,
+                    }
+                    : new OpenAIPromptExecutionSettings()
+                    {
+                        Temperature = temperature,
+                        TopP = topP,
+                        MaxTokens = maxTokens,
+                        PresencePenalty = presencePenalty,
+                        FrequencyPenalty = frequencyPenalty,
+                        StopSequences = stopSequences,
+                    },
             };
 
             return promptExecutiongSetting;
