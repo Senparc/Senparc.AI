@@ -16,3 +16,4 @@ appsettings.Development.json
 Samples/Senparc.AI.Samples.Consoles/TTS-Output-*
 Samples/Senparc.AI.Samples.AgentKernelConsoles/Senparc.AI.Image-*.png
 Samples/Senparc.AI.Samples.AgentKernelConsoles/TTS-*.mp3
+**/Thumbs.db
