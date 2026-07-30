@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<Version>0.29.0</Version>
+		<Version>0.29.1</Version>
 		<Nullable>enable</Nullable>
 		<LangVersion>12.0</LangVersion>
 		<AssemblyName>Senparc.AI.Kernel</AssemblyName>
@@ -64,6 +64,9 @@
 			[2026-02-13] v0.26.1-preview.1 Upgrade Embedding support
 			[2026-02-14] v0.26.2 Update for SenparcAISetting
 			[2026-05-21] v0.27.0 Add Speech-To-Text model configuration; upgrade Microsoft.Agents.AI and Semantic Kernel packages
+			[2026-07-31] v0.29.1 升级 CO2NET 并对齐 System.Text.Json 序列化链
+			1、升级 Senparc.CO2NET 至 4.2.0
+			2、同步 Senparc.AI 0.27.4 的 Newtonsoft.Json 移除与序列化兼容调整
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI.Kernel</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
@@ -93,7 +96,7 @@
 		<PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.74.0-alpha" />
 		<!--<PackageReference Include="Ollama" Version="1.6.1" />-->
 		<!--<PackageReference Include="OllamaSharp" Version="2.0.13" />-->
-		<PackageReference Include="Senparc.CO2NET" Version="3.1.5" />
+		<PackageReference Include="Senparc.CO2NET" Version="4.2.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Senparc.AI\Senparc.AI.csproj" />

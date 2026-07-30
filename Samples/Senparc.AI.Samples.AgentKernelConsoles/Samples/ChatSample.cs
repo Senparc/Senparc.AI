@@ -1,3 +1,16 @@
+/*----------------------------------------------------------------
+    Copyright (C) 2026 Senparc
+
+    文件名：ChatSample.cs
+    文件功能描述：演示基于 AgentKernel 的多轮聊天会话配置与交互流程。
+
+
+    创建标识：Senparc - 20260521
+
+    修改标识：Senparc - 20260731
+    修改描述：v1.1.0 增加 Temperature 参数配置示例
+
+----------------------------------------------------------------*/
 using Microsoft.Agents.AI;
 using Senparc.AI.AgentKernel;
 using Senparc.AI.AgentKernel.Handlers;
