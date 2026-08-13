@@ -5,15 +5,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <Version>1.3.0</Version>
     <PackageReleaseNotes>
-      [2026-08-13] v1.3.0 增加严格 IWantToRun Chat 执行方式示例
-      1、展示 RunChatStreamingAsync / RunChatResponseAsync 与兼容 RunChatAsync 的差异
-      2、展示严格模式下保留上游异常、会话、Token 与已配置 HttpClient 传输链路
-      [2026-08-08] v1.2.0 增加 Microsoft Agent Framework Harness Agent 命令行示例
-      1、使用 AsHarnessAgent 接入上下文压缩、Todo、plan/execute 模式与工具审批
-      2、默认关闭文件访问、文件记忆、Skills 扫描和 Hosted Web Search，保持最小权限
       [2026-07-31] v1.1.0 增加聊天温度参数示例并升级 CO2NET
       1、为 ChatClientAgentOptions 配置 Temperature 参数并兼容不支持该参数的模型
       2、升级 Senparc.CO2NET 至 4.2.0
+      [2026-08-08] v1.2.0 增加 Microsoft Agent Framework Harness Agent 命令行示例
+      1、使用 AsHarnessAgent 接入上下文压缩、Todo、plan/execute 模式与工具审批
+      2、默认关闭文件访问、文件记忆、Skills 扫描和 Hosted Web Search，保持最小权限
+      [2026-08-13] v1.3.0 增加严格 IWantToRun Chat 执行方式示例
+      1、展示 RunChatStreamingAsync / RunChatResponseAsync 与兼容 RunChatAsync 的差异
+      2、展示严格模式下保留上游异常、会话、Token 与已配置 HttpClient 传输链路
     </PackageReleaseNotes>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
