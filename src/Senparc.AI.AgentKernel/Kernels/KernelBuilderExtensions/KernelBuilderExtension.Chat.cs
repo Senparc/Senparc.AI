@@ -12,20 +12,21 @@ namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
     public static partial class KernelBuilderExtension
     {
         public static ChatClient AddOpenAIChatCompletion(this IAIKernelBuilder kernelBuilder,
-            string apiKey, string modelName)
+            string apiKey, string modelName, OpenAIClientOptions? options = null)
         {
-            return new OpenAIClient(apiKey).GetChatClient(modelName);
+            return new OpenAIClient(
+                new ApiKeyCredential(apiKey ?? string.Empty),
+                options ?? new OpenAIClientOptions()).GetChatClient(modelName);
         }
 
         public static ChatClient AddOpenAICompatibleChatCompletion(this IAIKernelBuilder kernelBuilder,
-            string apiKey, string modelName, string endpoint)
+            string apiKey, string modelName, string endpoint, OpenAIClientOptions? options = null)
         {
+            options ??= new OpenAIClientOptions();
+            options.Endpoint = new Uri(endpoint);
             var client = new OpenAIClient(
                 credential: new ApiKeyCredential(apiKey ?? string.Empty),
-                options: new OpenAIClientOptions
-                {
-                    Endpoint = new Uri(endpoint)
-                });
+                options: options);
 
             return client.GetChatClient(modelName);
         }
@@ -78,17 +79,19 @@ namespace Senparc.AI.AgentKernel.Kernels.KernelBuilderExtensions
         public static ChatClient AddDeepSeekChatCompletion(this IAIKernelBuilder kernelBuilder,
             string apiKey,
             string modelName,
-            string endpoint)
+            string endpoint,
+            OpenAIClientOptions? options = null)
         {
-            return kernelBuilder.AddOpenAICompatibleChatCompletion(apiKey, modelName, endpoint);
+            return kernelBuilder.AddOpenAICompatibleChatCompletion(apiKey, modelName, endpoint, options);
         }
 
         public static ChatClient AddXunFeiChatCompletion(this IAIKernelBuilder kernelBuilder,
             string apiKey,
             string modelName,
-            string endpoint)
+            string endpoint,
+            OpenAIClientOptions? options = null)
         {
-            return kernelBuilder.AddOpenAICompatibleChatCompletion(apiKey, modelName, endpoint);
+            return kernelBuilder.AddOpenAICompatibleChatCompletion(apiKey, modelName, endpoint, options);
         }
     }
 }

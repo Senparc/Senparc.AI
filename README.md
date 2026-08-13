@@ -133,7 +133,7 @@ var aiResult = await iWantToRun.RunAsync(aiRequest);
 
 文件夹 |  说明
 ------|--------
-Samples/Senparc.AI.Samples.AgentKernelConsoles | AgentKernel 命令行示例
+Samples/Senparc.AI.Samples.AgentKernelConsoles | AgentKernel 命令行示例（含 MAF Harness Agent）
 Samples/Senparc.AI.Samples.Consoles | 命令行
 Samples/Senparc.AI.Samples.Agents | Agent（智能体）测试，已集成 AutoGen
 
