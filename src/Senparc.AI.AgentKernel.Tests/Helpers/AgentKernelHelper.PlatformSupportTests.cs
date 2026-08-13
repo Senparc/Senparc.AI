@@ -1,10 +1,18 @@
+using Azure.AI.OpenAI;
+using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
+using Senparc.AI.AgentKernel;
+using Senparc.AI.AgentKernel.Handlers;
 using Senparc.AI.AgentKernel.Helpers;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
+using System.ClientModel.Primitives;
 using System.Net.Http;
+using System.Net;
+using System.Reflection;
+using System.Text;
 
 namespace Senparc.AI.AgentKernel.Tests.Helpers
 {
@@ -85,6 +93,54 @@ namespace Senparc.AI.AgentKernel.Tests.Helpers
 
             Assert.ThrowsExactly<SenparcAiException>(() =>
                 helper.ConfigTextEmbeddingGeneration("UnitTestUser", senparcAiSetting: setting));
+        }
+
+        [TestMethod]
+        public void AzureCompatibleClientOptions_ShouldUseTheHelperHttpClientTransport()
+        {
+            using var httpClient = new HttpClient();
+            var helper = new AgentKernelHelper(new SenparcAiSetting(), httpClient: httpClient);
+            var factory = typeof(AgentKernelHelper).GetMethod(
+                "CreateAzureOpenAIClientOptions",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+
+            Assert.IsNotNull(factory);
+            var options = factory.Invoke(helper, null) as AzureOpenAIClientOptions;
+            Assert.IsNotNull(options);
+            Assert.IsInstanceOfType(options.Transport, typeof(HttpClientPipelineTransport));
+        }
+
+        [TestMethod]
+        public async Task RunChatResponseAsync_ShouldUseTheConfiguredHttpClientPipeline()
+        {
+            var modelName = new ModelName { Chat = "unit-model" };
+            var setting = new SenparcAiSetting();
+            setting.SetNeuCharAI(new NeuCharAIKeys
+            {
+                ApiKey = "unit-key",
+                NeuCharEndpoint = "https://agentkernel.test/",
+                ModelName = modelName
+            });
+            setting.AzureOpenAIKeys = new AzureOpenAIKeys
+            {
+                ApiKey = "unit-key",
+                AzureEndpoint = "https://agentkernel.test/",
+                DeploymentName = "unit-deployment",
+                ModelName = modelName
+            };
+
+            var transport = new FixedChatResponseHandler();
+            using var httpClient = new HttpClient(transport);
+            var runner = await new AgentAiHandler(setting, httpClient: httpClient)
+                .IWantTo(setting)
+                .ConfigChatModel("transport-test", new ChatClientAgentOptions())
+                .BuildKernelWithAgentSessionAsync();
+
+            var response = await runner.RunChatResponseAsync("hello");
+
+            Assert.IsNotNull(transport.LastRequestUri);
+            Assert.AreEqual("agentkernel.test", transport.LastRequestUri.Host);
+            Assert.AreEqual("local-ok", response?.Text);
         }
 
         private static SenparcAiSetting CreateSetting(AiPlatform platform)
@@ -171,6 +227,30 @@ namespace Senparc.AI.AgentKernel.Tests.Helpers
             }
 
             return setting;
+        }
+
+        private sealed class FixedChatResponseHandler : HttpMessageHandler
+        {
+            public Uri? LastRequestUri { get; private set; }
+
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                LastRequestUri = request.RequestUri;
+                var body = """
+                    {
+                      "id":"chatcmpl-unit",
+                      "object":"chat.completion",
+                      "created":1700000000,
+                      "model":"unit-model",
+                      "choices":[{"index":0,"message":{"role":"assistant","content":"local-ok"},"finish_reason":"stop"}],
+                      "usage":{"prompt_tokens":1,"completion_tokens":1,"total_tokens":2}
+                    }
+                    """;
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body, Encoding.UTF8, "application/json")
+                });
+            }
         }
     }
 }

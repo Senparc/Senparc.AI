@@ -28,6 +28,7 @@ services.AddTransient<SttSample>();
 services.AddTransient<TtsSample>();
 services.AddTransient<McpSample>();
 services.AddTransient<A2ASample>();
+services.AddTransient<HarnessSample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -57,6 +58,7 @@ Console.WriteLine("[7] STT（Speech to Text）");
 Console.WriteLine("[8] TTS（Text to Speech）");
 Console.WriteLine("[9] MCP（LocalFunctionProxy / HostedServerTool）");
 Console.WriteLine("[10] A2A（LocalFunctionProxy）");
+Console.WriteLine("[11] Harness Agent（Todo / plan-execute / 上下文压缩）");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -118,6 +120,9 @@ switch (index)
         break;
     case "10":
         await serviceProvider.GetRequiredService<A2ASample>().RunAsync();
+        break;
+    case "11":
+        await serviceProvider.GetRequiredService<HarnessSample>().RunAsync();
         break;
     case "0":
         serviceProvider.GetRequiredService<SampleSetting>().Run();

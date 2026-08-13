@@ -230,9 +230,13 @@ namespace Senparc.AI.AgentKernel.Kernels
         //    }
         //}
 
-        internal async Task<AgentResponse?> InvokeChatAsync(string prompt, AgentSession session = null)
+        internal async Task<AgentResponse?> InvokeChatAsync(
+            string prompt,
+            AgentSession session = null,
+            ChatClientAgentRunOptions? options = null,
+            CancellationToken cancellationToken = default)
         {
-            return await ChatClientAgent.RunAsync(prompt, session ?? AgentSession);
+            return await ChatClientAgent.RunAsync(prompt, session ?? AgentSession, options, cancellationToken);
         }
 
         internal async Task<AgentResponse<T>> InvokeChatAsync<T>(string prompt, AgentSession session = null)
@@ -240,9 +244,13 @@ namespace Senparc.AI.AgentKernel.Kernels
             return await ChatClientAgent.RunAsync<T>(prompt, session ?? AgentSession);
         }
 
-        internal IAsyncEnumerable<AgentResponseUpdate> InvokeChatStreamingAsync(string prompt, AgentSession session = null)
+        internal IAsyncEnumerable<AgentResponseUpdate> InvokeChatStreamingAsync(
+            string prompt,
+            AgentSession session = null,
+            ChatClientAgentRunOptions? options = null,
+            CancellationToken cancellationToken = default)
         {
-            return ChatClientAgent.RunStreamingAsync(prompt, session ?? AgentSession);
+            return ChatClientAgent.RunStreamingAsync(prompt, session ?? AgentSession, options, cancellationToken);
         }
 
         /// <summary>

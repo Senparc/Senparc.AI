@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 namespace Senparc.AI.AgentKernel.Handlers
 {
@@ -32,6 +33,93 @@ namespace Senparc.AI.AgentKernel.Handlers
         #endregion
 
         #region 运行
+
+        /// <summary>
+        /// Executes the configured chat agent and preserves the provider exception for the caller.
+        /// This keeps the IWantTo prompt replacement and ChatOptions sanitisation contract, while
+        /// allowing protocol hosts such as A2A to return a real failure instead of an error string.
+        /// </summary>
+        public static Task<AgentResponse?> RunChatResponseAsync(
+            this IWantToRun iWantToRun,
+            string prompt,
+            AgentSession? agentSession = null,
+            ChatClientAgentRunOptions? options = null,
+            CancellationToken cancellationToken = default)
+        {
+            var request = iWantToRun.CreateRequest(prompt, agentSession);
+            return RunChatResponseAsync(iWantToRun, request, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Executes a prepared request and preserves the provider exception for the caller.
+        /// </summary>
+        public static async Task<AgentResponse?> RunChatResponseAsync(
+            this IWantToRun iWantToRun,
+            SenparcAiRequest request,
+            ChatClientAgentRunOptions? options = null,
+            CancellationToken cancellationToken = default)
+        {
+            var execution = PrepareChatExecution(iWantToRun, request);
+            return await execution.Kernel
+                .InvokeChatAsync(execution.Prompt, execution.Session, options, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Streams the configured chat agent through the IWantTo execution contract.
+        /// Provider exceptions are deliberately propagated so A2A, workflow and host code can keep
+        /// the transport status distinct from a normal Agent response.
+        /// </summary>
+        public static async IAsyncEnumerable<AgentResponseUpdate> RunChatStreamingAsync(
+            this IWantToRun iWantToRun,
+            string prompt,
+            AgentSession? agentSession = null,
+            ChatClientAgentRunOptions? options = null,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var request = iWantToRun.CreateRequest(prompt, agentSession);
+            await foreach (var update in RunChatStreamingAsync(iWantToRun, request, options, cancellationToken)
+                               .WithCancellation(cancellationToken)
+                               .ConfigureAwait(false))
+            {
+                yield return update;
+            }
+        }
+
+        /// <summary>
+        /// Streams a prepared request through the IWantTo execution contract.
+        /// </summary>
+        public static async IAsyncEnumerable<AgentResponseUpdate> RunChatStreamingAsync(
+            this IWantToRun iWantToRun,
+            SenparcAiRequest request,
+            ChatClientAgentRunOptions? options = null,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var execution = PrepareChatExecution(iWantToRun, request);
+            await foreach (var update in execution.Kernel
+                               .InvokeChatStreamingAsync(execution.Prompt, execution.Session, options, cancellationToken)
+                               .WithCancellation(cancellationToken)
+                               .ConfigureAwait(false))
+            {
+                yield return update;
+            }
+        }
+
+        private static (Senparc.AI.AgentKernel.Kernels.AiKernel Kernel, string Prompt, AgentSession? Session)
+            PrepareChatExecution(IWantToRun iWantToRun, SenparcAiRequest request)
+        {
+            ArgumentNullException.ThrowIfNull(iWantToRun);
+            ArgumentNullException.ThrowIfNull(request);
+
+            var kernel = iWantToRun.Kernel
+                ?? throw new SenparcAiException("IWantToRun has not built a chat kernel.");
+            var prompt = request.ReplacePrompt() ?? string.Empty;
+            var chatModelName = kernel.ModelName?.Chat
+                ?? iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting?.ModelName?.Chat;
+            ChatOptionsSanitizer.SanitizeForModel(kernel.ChatClientAgentOptions?.ChatOptions, chatModelName);
+
+            return (kernel, prompt, request.AgentSession);
+        }
 
         /// <summary>
         /// 运行
@@ -130,6 +218,7 @@ namespace Senparc.AI.AgentKernel.Handlers
                     */
 
                     result.OutputString = ex.Message;
+                    result.LastException = ex;
                     //TODO: 提供 Output 的泛型
                     //result.OutputString = agentResponse.RawRepresentation?.ToJson()?.TrimStart('\n') ?? "";
                     _ = new SenparcAiException("无法转换为指定类型：" + typeof(T).Name);
