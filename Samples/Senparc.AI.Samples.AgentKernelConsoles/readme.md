@@ -6,7 +6,7 @@
 
 | 菜单 | 说明 | 参考测试 |
 |------|------|----------|
-| Chat | 多轮对话 + AgentSession | `AgentAiHandlerTests` |
+| Chat | 多轮对话 + AgentSession；可选严格流式、严格单次响应与兼容入口 | `AgentAiHandlerTests` |
 | Completion | 单次 TextCompletion | `RunTest` / `SingleLineTest` |
 | Embedding [1] | 向量写入 + 相似检索 | `EmbeddingStoreTest` |
 | Embedding [2] | RAG + TextSearchProvider | `EmbeddingTest` |
@@ -35,6 +35,7 @@
 7. A2A 若使用 `LocalBaseUrl`，可配合 `PublicBaseUrl`（或环境变量 `A2A_PUBLIC_BASE_URL`）映射为公网 URL
 8. MCP 示例已抽象到 `Senparc.AI.AgentKernel.Mcp`（`McpToolsetBuilder` / `McpConfigurationExtensions`），A2A 示例已抽象到 `Senparc.AI.AgentKernel.A2A`（`A2AToolsetBuilder` / `A2AConfigurationExtensions`），Sample 仅保留交互与调试输出逻辑，默认读取 `SenparcAiSetting` 下对应配置
 9. Harness 示例复用当前选择的 Chat 配置，不需要增加 ApiKey；进入菜单后需按模型实际规格填写上下文窗口和单次输出 Token 上限
+10. Chat 示例默认使用严格流式 `RunChatStreamingAsync`；该入口保留 IWantTo 的 Prompt 替换、模型参数净化和 `HttpClient` 传输链路，并会让上游异常原样抛出。它适合 A2A、Workflow 等需要区分“调用失败”和“正常文本回复”的服务端场景；如需兼容旧行为，可在 Chat 菜单选择 `RunChatAsync`。
 
 ## Harness Agent
 
