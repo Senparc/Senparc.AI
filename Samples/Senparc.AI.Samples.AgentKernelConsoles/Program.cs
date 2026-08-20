@@ -27,6 +27,8 @@ services.AddTransient<ImageGenerateSample>();
 services.AddTransient<SttSample>();
 services.AddTransient<TtsSample>();
 services.AddTransient<McpSample>();
+services.AddTransient<A2ASample>();
+services.AddTransient<HarnessSample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -37,24 +39,26 @@ RegisterService.Start()
 Start:
 Console.WriteLine();
 Console.WriteLine("Senparc.AI AgentKernel Sample started");
-Console.WriteLine("Open-source repository:https://github.com/Senparc/Senparc.AI");
+Console.WriteLine("Open-source repository: https://github.com/Senparc/Senparc.AI");
 Console.WriteLine("-----------------------");
-Console.WriteLine($"Current model:{SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform} - {SampleSetting.CurrentSetting.Endpoint}");
-Console.WriteLine($"Current HttpClient logging:{(SampleSetting.EnableHttpClientLog ? "enabled" : "disabled")}");
-Console.WriteLine($"Current vector store:{SampleSetting.CurrentSetting.VectorDB?.Type} {SampleSetting.CurrentSetting.VectorDB?.ConnectionString}");
+Console.WriteLine($"Current model: {SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform} - {SampleSetting.CurrentSetting.Endpoint}");
+Console.WriteLine($"Current HttpClient logging: {(SampleSetting.EnableHttpClientLog ? "enabled" : "disabled")}");
+Console.WriteLine($"Current vector database: {SampleSetting.CurrentSetting.VectorDB?.Type} {SampleSetting.CurrentSetting.VectorDB?.ConnectionString}");
 Console.WriteLine("=======================");
 Console.WriteLine();
 Console.WriteLine("Enter a number to start the corresponding feature test:");
-Console.WriteLine("[0] Settings");
-Console.WriteLine("[1] Chat conversation(AgentSession multi-turn context)");
-Console.WriteLine("[2] Completion single-turn completion(without history context)");
-Console.WriteLine("[3] Embedding and vector retrieval");
+Console.WriteLine("[0] Open settings");
+Console.WriteLine("[1] Chat (multi-turn context with AgentSession)");
+Console.WriteLine("[2] Single Completion (no conversation history)");
+Console.WriteLine("[3] Embedding and vector search");
 Console.WriteLine("[4] GPT-Image-2 image generation");
 Console.WriteLine("[5] Planner task planning");
 Console.WriteLine("[6] PluginFromObject / Function Calling");
-Console.WriteLine("[7] STT(Speech to Text)");
+Console.WriteLine("[7] STT (Speech to Text)");
 Console.WriteLine("[8] TTS (Text to Speech)");
-Console.WriteLine("[9] MCP(Hosted MCP Server Tool)");
+Console.WriteLine("[9] MCP (LocalFunctionProxy / HostedServerTool)");
+Console.WriteLine("[10] A2A (LocalFunctionProxy)");
+Console.WriteLine("[11] Harness Agent (Todo / plan-execute / context compression)");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -71,9 +75,9 @@ switch (index)
         await serviceProvider.GetRequiredService<CompletionSample>().RunAsync();
         break;
     case "3":
-        Console.WriteLine("Select an Embedding sub-item:");
+        Console.WriteLine("Select an Embedding option:");
         Console.WriteLine("[1] Generate vectors and run similarity search");
-        Console.WriteLine("[2] RAG(TextSearchProvider)");
+        Console.WriteLine("[2] RAG (TextSearchProvider)");
         var sub = Console.ReadLine();
         try
         {
@@ -86,7 +90,7 @@ switch (index)
                     await serviceProvider.GetRequiredService<EmbeddingRagSample>().RunAsync();
                     break;
                 default:
-                    Console.WriteLine("Invalid number. Restarting.");
+                    Console.WriteLine("Invalid number. Please start again.");
                     break;
             }
         }
@@ -114,14 +118,20 @@ switch (index)
     case "9":
         await serviceProvider.GetRequiredService<McpSample>().RunAsync();
         break;
+    case "10":
+        await serviceProvider.GetRequiredService<A2ASample>().RunAsync();
+        break;
+    case "11":
+        await serviceProvider.GetRequiredService<HarnessSample>().RunAsync();
+        break;
     case "0":
         serviceProvider.GetRequiredService<SampleSetting>().Run();
         break;
     default:
-        Console.WriteLine("Invalid number. Restarting.");
+        Console.WriteLine("Invalid number. Please start again.");
         break;
 }
 
-Console.WriteLine("Restarting the sample menu.");
+Console.WriteLine("All right, let's start again.");
 Console.WriteLine();
 goto Start;

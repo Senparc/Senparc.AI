@@ -134,7 +134,7 @@ All quick-reference samples are located in the `/Samples/` folder.
 
 | Folder | Description |
 | --- | --- |
-| `Samples/Senparc.AI.Samples.AgentKernelConsoles` | AgentKernel command-line sample. |
+| `Samples/Senparc.AI.Samples.AgentKernelConsoles` | AgentKernel command-line sample, including MAF Harness Agent. |
 | `Samples/Senparc.AI.Samples.Consoles` | Command-line sample. |
 | `Samples/Senparc.AI.Samples.Agents` | Agent sample with AutoGen integration. |
 

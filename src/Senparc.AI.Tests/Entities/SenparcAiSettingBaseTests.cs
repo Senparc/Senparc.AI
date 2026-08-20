@@ -16,10 +16,10 @@ namespace Senparc.AI.Tests.Entities
         {
             var senparcAiSetting = new SenparcAiSettingBase();
 
-            //Do not apply any settings
+            // Do not configure anything.
             Assert.IsFalse(senparcAiSetting.IsOpenAiKeysSetted);
 
-            //Set ApiKey
+            // Configure the API key.
             senparcAiSetting.OpenAIKeys = new OpenAIKeys()
             {
                 ApiKey = "MyApiKey"
@@ -34,6 +34,14 @@ namespace Senparc.AI.Tests.Entities
             var senparcAiSetting = new SenparcAiSettingBase();
             Assert.IsNotNull(senparcAiSetting.McpServers);
             Assert.AreEqual(0, senparcAiSetting.McpServers.Count);
+        }
+
+        [TestMethod]
+        public void A2AAgents_Default_ShouldNotBeNull()
+        {
+            var senparcAiSetting = new SenparcAiSettingBase();
+            Assert.IsNotNull(senparcAiSetting.A2AAgents);
+            Assert.AreEqual(0, senparcAiSetting.A2AAgents.Count);
         }
     }
 }

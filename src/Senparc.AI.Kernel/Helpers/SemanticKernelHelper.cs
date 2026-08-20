@@ -24,7 +24,7 @@ using Senparc.CO2NET;
 namespace Senparc.AI.Kernel.Helpers
 {
     /// <summary>
-    /// SemanticKernel helper class
+    /// SemanticKernel helper class.
     /// </summary>
     public partial class SemanticKernelHelper
     {
@@ -47,8 +47,8 @@ namespace Senparc.AI.Kernel.Helpers
         /// </summary>
         /// <param name="aiSetting"></param>
         /// <param name="loggerFactory"></param>
-        /// <param name="httpClient">When null, automatically build <see cref="HttpClient" /> with <see cref="LoggingHttpMessageHandler"/></param>
-        /// <param name="enableLog">Whether to enable logging for <paramref name="httpClient"/>. Effective only when <paramref name="httpClient"/> is null and <see cref="LoggingHttpMessageHandler"/> is automatically built.</param>
+        /// <param name="httpClient">When null, automatically builds an <see cref="HttpClient" /> using <see cref="LoggingHttpMessageHandler"/>.</param>
+        /// <param name="enableLog">Whether to enable logging for <paramref name="httpClient"/>. This applies only when <paramref name="httpClient"/> is null and a <see cref="LoggingHttpMessageHandler"/> is created automatically.</param>
         public SemanticKernelHelper(ISenparcAiSetting? aiSetting = null, ILoggerFactory? loggerFactory = null, HttpClient httpClient = null, bool enableLog = false)
         {
             AiSetting = aiSetting ?? Senparc.AI.Config.SenparcAiSetting;
@@ -57,7 +57,7 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// Reset HttpClient
+        /// Resets the HttpClient.
         /// </summary>
         /// <param name="httpClient"></param>
         public void ResetHttpClient(HttpClient httpClient = null, bool enableLog = false)
@@ -73,7 +73,7 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// Get conversation ServiceId
+        /// Gets the chat ServiceId.
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="modelName"></param>
@@ -84,10 +84,10 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// Get the SemanticKernel object
+        /// Gets the SemanticKernel object.
         /// </summary>
-        /// <param name="kernelBuilderAction">Operations to insert into <see cref="KernelBuilder"/> before <see cref="KernelBuilder.Build()"/></param>
-        /// <param name="refresh" default="false">Whether the kernel needs to be refreshed</param>
+        /// <param name="kernelBuilderAction">An action to insert before <see cref="KernelBuilder"/> calls <see cref="KernelBuilder.Build()"/>.</param>
+        /// <param name="refresh" default="false">Whether to refresh the kernel.</param>
         /// <returns></returns>
         public Microsoft.SemanticKernel.Kernel GetKernel(Action<IKernelBuilder>? kernelBuilderAction = null, bool refresh = false)
         {
@@ -101,7 +101,7 @@ namespace Senparc.AI.Kernel.Helpers
 
 
         /// <summary>
-        /// Build a new Kernel object
+        /// Builds a new Kernel object.
         /// </summary>
         /// <param name="kernelBuilder"></param>
         /// <param name="kernelBuilderAction"></param>
@@ -120,7 +120,7 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// Reset SenparcAiSetting parameters
+        /// Resets the SenparcAiSetting parameters.
         /// </summary>
         /// <param name="aiSetting"></param>
         public void ResetSenparcAiSetting(ISenparcAiSetting aiSetting)
@@ -131,7 +131,7 @@ namespace Senparc.AI.Kernel.Helpers
         #region RequestSettings
 
         /// <summary>
-        /// Generate different ExecutionSettings objects for different AiPlatform types
+        /// Creates the appropriate ExecutionSettings object for each AiPlatform type.
         /// </summary>
         /// <param name="temperature"></param>
         /// <param name="topP"></param>
@@ -147,10 +147,18 @@ namespace Senparc.AI.Kernel.Helpers
 
             if (senparcAiSetting == null)
             {
-                throw new SenparcAiException("Global Senparc.AI.Config.SenparcAiSetting is not set. Provide the relevant configuration in the parameters.");
+                throw new SenparcAiException("Senparc.AI.Config.SenparcAiSetting is not configured globally. Provide the relevant configuration in the parameters.");
             }
 
             var aiPlatForm = senparcAiSetting.AiPlatform;
+            var chatModelName = senparcAiSetting.ModelName?.Chat;
+            var skipSampling = Senparc.AI.Helpers.ModelCapabilityHelper.DoesNotSupportTemperature(chatModelName);
+
+            if (skipSampling)
+            {
+                System.Console.WriteLine(
+                    $"[Debug] Model {chatModelName} does not support sampling parameters such as Temperature or TopP; GetExecutionSetting will ignore these fields.");
+            }
 
             var promptExecutiongSetting = aiPlatForm switch
             {
@@ -166,22 +174,29 @@ namespace Senparc.AI.Kernel.Helpers
                 //AiPlatform.AzureOpenAI =>
                 //AiPlatform.NeuCharAI =>
                 //AiPlatform.HuggingFace =>
-                _ => new OpenAIPromptExecutionSettings()
-                {
-                    Temperature = temperature,
-                    TopP = topP,
-                    MaxTokens = maxTokens,
-                    PresencePenalty = presencePenalty,
-                    FrequencyPenalty = frequencyPenalty,
-                    StopSequences = stopSequences,
-                },
+                _ => skipSampling
+                    ? new OpenAIPromptExecutionSettings()
+                    {
+                        // GPT-5+ and o-series models: do not set Temperature, TopP, PresencePenalty, or FrequencyPenalty.
+                        MaxTokens = maxTokens,
+                        StopSequences = stopSequences,
+                    }
+                    : new OpenAIPromptExecutionSettings()
+                    {
+                        Temperature = temperature,
+                        TopP = topP,
+                        MaxTokens = maxTokens,
+                        PresencePenalty = presencePenalty,
+                        FrequencyPenalty = frequencyPenalty,
+                        StopSequences = stopSequences,
+                    },
             };
 
             return promptExecutiongSetting;
         }
 
         /// <summary>
-        /// Generate different ExecutionSettings objects for different AiPlatform types
+        /// Creates the appropriate ExecutionSettings object for each AiPlatform type.
         /// </summary>
         /// <param name="promptConfigParameter"></param>
         /// <param name="senparcAiSetting"></param>

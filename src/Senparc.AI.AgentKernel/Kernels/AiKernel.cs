@@ -4,6 +4,7 @@ using OllamaSharp;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
 using Senparc.AI.AgentKernel.Handlers;
+using Senparc.AI.AgentKernel.Helpers;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Interfaces;
 using Senparc.CO2NET.Extensions;
@@ -85,6 +86,11 @@ namespace Senparc.AI.AgentKernel.Kernels
                     Name = "SenparcAgent",
                     Description = "You are a friendly assistant. Keep your answers brief"
                 };
+
+                // GPT-5+ and o-series reasoning models do not support sampling parameters such as Temperature, so remove them before creating the Agent.
+                ChatOptionsSanitizer.SanitizeForModel(
+                    ChatClientAgentOptions.ChatOptions,
+                    ModelName?.Chat);
 
                 this.ChatClientAgent = ChatClient switch
                 {
@@ -224,9 +230,13 @@ namespace Senparc.AI.AgentKernel.Kernels
         //    }
         //}
 
-        internal async Task<AgentResponse?> InvokeChatAsync(string prompt, AgentSession session = null)
+        internal async Task<AgentResponse?> InvokeChatAsync(
+            string prompt,
+            AgentSession session = null,
+            ChatClientAgentRunOptions? options = null,
+            CancellationToken cancellationToken = default)
         {
-            return await ChatClientAgent.RunAsync(prompt, session ?? AgentSession);
+            return await ChatClientAgent.RunAsync(prompt, session ?? AgentSession, options, cancellationToken);
         }
 
         internal async Task<AgentResponse<T>> InvokeChatAsync<T>(string prompt, AgentSession session = null)
@@ -234,9 +244,13 @@ namespace Senparc.AI.AgentKernel.Kernels
             return await ChatClientAgent.RunAsync<T>(prompt, session ?? AgentSession);
         }
 
-        internal IAsyncEnumerable<AgentResponseUpdate> InvokeChatStreamingAsync(string prompt, AgentSession session = null)
+        internal IAsyncEnumerable<AgentResponseUpdate> InvokeChatStreamingAsync(
+            string prompt,
+            AgentSession session = null,
+            ChatClientAgentRunOptions? options = null,
+            CancellationToken cancellationToken = default)
         {
-            return ChatClientAgent.RunStreamingAsync(prompt, session ?? AgentSession);
+            return ChatClientAgent.RunStreamingAsync(prompt, session ?? AgentSession, options, cancellationToken);
         }
 
         /// <summary>

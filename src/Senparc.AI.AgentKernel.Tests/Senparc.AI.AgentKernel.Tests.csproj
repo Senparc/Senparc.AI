@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <Version>1.0.1</Version>
+    <PackageReleaseNotes>
+      [2026-07-31] v1.0.1 Add System.Text.Json and dependency graph regression verification
+      1. Upgrade CO2NET AspNet and Redis test dependencies
+      2. Verify serialization behavior, assembly references, and that production project dependency graphs do not include Newtonsoft.Json
+    </PackageReleaseNotes>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -21,8 +27,8 @@
 	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="11.0.0-preview.4.26230.115" />
 	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="11.0.0-preview.4.26230.115" />
 	  <PackageReference Include="Moq" Version="4.20.72" />
-	  <PackageReference Include="Senparc.CO2NET.AspNet" Version="2.1.1" />
-	  <PackageReference Include="Senparc.CO2NET.Cache.Redis" Version="5.2.1" />
+	  <PackageReference Include="Senparc.CO2NET.AspNet" Version="2.1.4" />
+	  <PackageReference Include="Senparc.CO2NET.Cache.Redis" Version="5.3.0" />
     <ProjectReference Include="..\Senparc.AI.AgentKernel\Senparc.AI.AgentKernel.csproj" />
   </ItemGroup>
 

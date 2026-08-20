@@ -42,6 +42,11 @@ namespace Senparc.AI.Interfaces
         /// </summary>
         List<McpServerOption> McpServers { get; set; }
 
+        /// <summary>
+        /// A2A Agent configuration collection.
+        /// </summary>
+        List<A2AAgentOption> A2AAgents { get; set; }
+
         string Endpoint => AiPlatform switch
         {
             AiPlatform.OpenAI => OpenAIEndpoint,

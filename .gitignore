@@ -16,3 +16,10 @@ appsettings.Development.json
 Samples/Senparc.AI.Samples.Consoles/TTS-Output-*
 Samples/Senparc.AI.Samples.AgentKernelConsoles/Senparc.AI.Image-*.png
 Samples/Senparc.AI.Samples.AgentKernelConsoles/TTS-*.mp3
+**/Thumbs.db
+codex-skills/senparc-version-updater/SKILL.md
+codex-skills/senparc-version-updater/agents/openai.yaml
+codex-skills/senparc-version-updater/references/header-template.md
+codex-skills/senparc-version-updater/references/versioning-policy.md
+codex-skills/senparc-version-updater/scripts/senparc_version_scan.py
+codex-skills/senparc-version-updater/scripts/__pycache__/senparc_version_scan.cpython-313.pyc

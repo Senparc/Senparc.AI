@@ -2,6 +2,7 @@
 using Microsoft.Extensions.AI;
 using Senparc.AI.AgentKernel.Entities;
 using Senparc.AI.AgentKernel.Handlers;
+using Senparc.AI.AgentKernel.Helpers;
 using Senparc.AI.Entities;
 using Senparc.AI.Exceptions;
 using Senparc.CO2NET.Extensions;
@@ -10,12 +11,13 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 namespace Senparc.AI.AgentKernel.Handlers
 {
     public static partial class KernelConfigExtensions
     {
-        #region configuration
+        #region Configuration
 
         public static ChatClientAgentOptions CreateChatClientAgentOptions(this IWantToConfig iWantToConfig,   string agentName, string systemMessage, ChatOptions chatOptions = null)
         {
@@ -30,10 +32,97 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         #endregion
 
-        #region run
+        #region Run
 
         /// <summary>
-        /// run
+        /// Executes the configured chat agent and preserves the provider exception for the caller.
+        /// This keeps the IWantTo prompt replacement and ChatOptions sanitisation contract, while
+        /// allowing protocol hosts such as A2A to return a real failure instead of an error string.
+        /// </summary>
+        public static Task<AgentResponse?> RunChatResponseAsync(
+            this IWantToRun iWantToRun,
+            string prompt,
+            AgentSession? agentSession = null,
+            ChatClientAgentRunOptions? options = null,
+            CancellationToken cancellationToken = default)
+        {
+            var request = iWantToRun.CreateRequest(prompt, agentSession);
+            return RunChatResponseAsync(iWantToRun, request, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Executes a prepared request and preserves the provider exception for the caller.
+        /// </summary>
+        public static async Task<AgentResponse?> RunChatResponseAsync(
+            this IWantToRun iWantToRun,
+            SenparcAiRequest request,
+            ChatClientAgentRunOptions? options = null,
+            CancellationToken cancellationToken = default)
+        {
+            var execution = PrepareChatExecution(iWantToRun, request);
+            return await execution.Kernel
+                .InvokeChatAsync(execution.Prompt, execution.Session, options, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Streams the configured chat agent through the IWantTo execution contract.
+        /// Provider exceptions are deliberately propagated so A2A, workflow and host code can keep
+        /// the transport status distinct from a normal Agent response.
+        /// </summary>
+        public static async IAsyncEnumerable<AgentResponseUpdate> RunChatStreamingAsync(
+            this IWantToRun iWantToRun,
+            string prompt,
+            AgentSession? agentSession = null,
+            ChatClientAgentRunOptions? options = null,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var request = iWantToRun.CreateRequest(prompt, agentSession);
+            await foreach (var update in RunChatStreamingAsync(iWantToRun, request, options, cancellationToken)
+                               .WithCancellation(cancellationToken)
+                               .ConfigureAwait(false))
+            {
+                yield return update;
+            }
+        }
+
+        /// <summary>
+        /// Streams a prepared request through the IWantTo execution contract.
+        /// </summary>
+        public static async IAsyncEnumerable<AgentResponseUpdate> RunChatStreamingAsync(
+            this IWantToRun iWantToRun,
+            SenparcAiRequest request,
+            ChatClientAgentRunOptions? options = null,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var execution = PrepareChatExecution(iWantToRun, request);
+            await foreach (var update in execution.Kernel
+                               .InvokeChatStreamingAsync(execution.Prompt, execution.Session, options, cancellationToken)
+                               .WithCancellation(cancellationToken)
+                               .ConfigureAwait(false))
+            {
+                yield return update;
+            }
+        }
+
+        private static (Senparc.AI.AgentKernel.Kernels.AiKernel Kernel, string Prompt, AgentSession? Session)
+            PrepareChatExecution(IWantToRun iWantToRun, SenparcAiRequest request)
+        {
+            ArgumentNullException.ThrowIfNull(iWantToRun);
+            ArgumentNullException.ThrowIfNull(request);
+
+            var kernel = iWantToRun.Kernel
+                ?? throw new SenparcAiException("IWantToRun has not built a chat kernel.");
+            var prompt = request.ReplacePrompt() ?? string.Empty;
+            var chatModelName = kernel.ModelName?.Chat
+                ?? iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting?.ModelName?.Chat;
+            ChatOptionsSanitizer.SanitizeForModel(kernel.ChatClientAgentOptions?.ChatOptions, chatModelName);
+
+            return (kernel, prompt, request.AgentSession);
+        }
+
+        /// <summary>
+        /// Runs the request.
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <returns></returns>
@@ -43,7 +132,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// run
+        /// Runs the request.
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <returns></returns>
@@ -55,11 +144,11 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// run
+        /// Runs the request.
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
-        /// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item. Note: any non-null value triggers a streaming request.</param>
+        /// <param name="inStreamItemProceessing">Enables streaming and specifies the delegate to execute for each step of the asynchronous stream. A non-null value triggers a streaming request.</param>
         /// <returns></returns>
         public static Task<SenparcKernelAiResult<string>> RunChatAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<AgentResponseUpdate> inStreamItemProceessing = null)
         {
@@ -67,12 +156,12 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// Run, compatible with streaming (unified RunChat entry point)
+        /// Runs the request with streaming compatibility through the unified RunChat entry point.
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
-        /// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item. Note: any non-null value triggers a streaming request.</param>
-        /// <typeparam name="T">Specify the return result type</typeparam>
+        /// <param name="inStreamItemProceessing">Enables streaming and specifies the delegate to execute for each step of the asynchronous stream. A non-null value triggers a streaming request.</param>
+        /// <typeparam name="T">The specified result type.</typeparam>
         /// <returns></returns>
 
         public static async Task<SenparcKernelAiResult<T>> RunChatAsync<T>(this IWantToRun iWanToRun, SenparcAiRequest request, Action<AgentResponseUpdate> inStreamItemProceessing = null)
@@ -85,14 +174,18 @@ namespace Senparc.AI.AgentKernel.Handlers
 
             var prompt = request.RequestContent;
 
-            //Replace parameter
+            // Replace parameters.
             prompt = request.ReplacePrompt();
 
             var session = request.AgentSession;
             var functionPipline = request.FunctionPipeline;
             //var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
 
-            //Note: Context is required whenever Plugin and Function are used and an input identifier is included
+            // For GPT-5+ and similar models, ensure again that sampling parameters such as Temperature are absent before submission.
+            var chatModelName = kernel.ModelName?.Chat ?? iWantTo.SenparcAiSetting?.ModelName?.Chat;
+            ChatOptionsSanitizer.SanitizeForModel(kernel.ChatClientAgentOptions?.ChatOptions, chatModelName);
+
+            // When using a Plugin and Function with an input identifier, context is required.
 
             iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
             var storedArguments = iWanToRun.StoredAiArguments.AgentKernelArguments;
@@ -125,9 +218,10 @@ namespace Senparc.AI.AgentKernel.Handlers
                     */
 
                     result.OutputString = ex.Message;
-                    //TODO: Provide generic Output support
+                    result.LastException = ex;
+                    // TODO: Provide a generic Output type.
                     //result.OutputString = agentResponse.RawRepresentation?.ToJson()?.TrimStart('\n') ?? "";
-                    _ = new SenparcAiException("Cannot convert to the specified type: " + typeof(T).Name);
+                    _ = new SenparcAiException("Unable to convert to the specified type: " + typeof(T).Name);
                 }
                 result.Result = agentResponse;
             }
@@ -143,7 +237,7 @@ namespace Senparc.AI.AgentKernel.Handlers
                     await foreach (var item in result.StreamResult)
                     {
                         stringResult.Append(item);
-                        inStreamItemProceessing?.Invoke(item);//Execute stream callback
+                        inStreamItemProceessing?.Invoke(item);// Execute the stream.
 
                         try
                         {
@@ -176,10 +270,10 @@ namespace Senparc.AI.AgentKernel.Handlers
 
             #region MyRegion
 
-            /* Semantic Kernel legacy method, already deprecated)
+            /* Semantic Kernel-era method; deprecated.
             if (tempArguments != null && tempArguments.Count() != 0)
             {
-                ////Input the temporary context for this request
+                //// Enter the temporary context specific to this request.
                 //if (useStream)
                 //{
                 //    result.StreamResult =  kernel.InvokeStreamingAsync(functionPipline.FirstOrDefault(), tempArguments);
@@ -192,11 +286,11 @@ namespace Senparc.AI.AgentKernel.Handlers
             }
             else if (!prompt.IsNullOrEmpty())
             {
-                //tempArguments is empty
-                //Input plain text
+                // tempArguments is empty.
+                // Enter plain text.
                 if (functionPipline?.Length > 0)
                 {
-                    //Use Pipeline
+                    // Use the pipeline.
                     tempArguments = new() { ["input"] = prompt };
 
                     if (useStream)
@@ -205,17 +299,17 @@ namespace Senparc.AI.AgentKernel.Handlers
                     }
                     else
                     {
-                        //TODO: This method does not send body content to the server in the NeuCharAI interface
+                        // TODO: With the NeuCharAI API, this method does not send Body content to the server.
                         //functionResult = await kernel.InvokeAsync(functionPipline.First(), tempArguments);
                         agentResponse = await kernel.InvokeChatAsync(prompt);
                     }
                 }
                 else
                 {
-                    //Do not use Pipeline
+                    // Do not use the pipeline.
 
-                    //note:Even if prompt is passed directly as the first string parameter here, it is wrapped into Context,
-                    //      and assigned to the parameter whose key is INPUT
+                    // Even when prompt is passed directly as the first String parameter, it is wrapped in Context
+                    // and assigned to the parameter whose Key is INPUT.
                     //var kernelFunction = iWanToRun.CreateFunctionFromPrompt(prompt ?? "").function;
 
                     //if (useStream)
@@ -232,7 +326,7 @@ namespace Senparc.AI.AgentKernel.Handlers
             }
             else
             {
-                //Input context from cache
+                // Enter the context from the cache.
                 //botAnswer = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), storedArguments);
 
                 //if (useStream)
@@ -263,9 +357,9 @@ namespace Senparc.AI.AgentKernel.Handlers
                 }
                 catch (Exception)
                 {
-                    //TODO: Provide generic Output support
+                    // TODO: Provide a generic Output type.
                     result.OutputString = agentResponse.RawRepresentation?.ToJson()?.TrimStart('\n') ?? "";
-                    _ = new SenparcAiException("Cannot convert to the specified type: " + typeof(T).Name);
+                    _ = new SenparcAiException("Unable to convert to the specified type: " + typeof(T).Name);
                 }
                 result.Result = agentResponse;
             }
@@ -278,7 +372,7 @@ namespace Senparc.AI.AgentKernel.Handlers
                     await foreach (var item in result.StreamResult)
                     {
                         stringResult.Append(item);
-                        inStreamItemProceessing?.Invoke(item);//Execute stream callback
+                        inStreamItemProceessing?.Invoke(item);// Execute the stream.
                     }
                 }
 
@@ -294,14 +388,14 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         #endregion
 
-        //#region Vision model run
+        //#region Vision Model Execution
 
         ///// <summary>
-        ///// Run Vision model
+        ///// Runs a Vision model.
         ///// </summary>
         ///// <param name="iWanToRun"></param>
         ///// <param name="request"></param>
-        ///// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item. Note: any non-null value triggers a streaming request.</param>
+        ///// <param name="inStreamItemProceessing">Enables streaming and specifies the delegate to execute for each step of the asynchronous stream. A non-null value triggers a streaming request.</param>
         ///// <returns></returns>
         //public static Task<SenparcKernelAiResult<string>> RunVisionAsync(this IWantToRun iWanToRun,
         //    SenparcAiRequest request, ChatHistory chatHistory, List<IContentItem> contentList,
@@ -311,12 +405,12 @@ namespace Senparc.AI.AgentKernel.Handlers
         //}
 
         ///// <summary>
-        ///// Run Vision model
+        ///// Runs a Vision model.
         ///// </summary>
         ///// <param name="iWanToRun"></param>
         ///// <param name="request"></param>
-        ///// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item. Note: any non-null value triggers a streaming request.</param>
-        ///// <typeparam name="T">Specify the return result type</typeparam>
+        ///// <param name="inStreamItemProceessing">Enables streaming and specifies the delegate to execute for each step of the asynchronous stream. A non-null value triggers a streaming request.</param>
+        ///// <typeparam name="T">The specified result type.</typeparam>
         ///// <returns></returns>
 
         //public static async Task<SenparcKernelAiResult<T>> RunVisionAsync<T>(this IWantToRun iWanToRun,
@@ -333,7 +427,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //    var functionPipline = request.FunctionPipeline;
         //    //var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
 
-        //    //Note: Context is required whenever Plugin and Function are used and an input identifier is included
+        //    // When using a Plugin and Function with an input identifier, context is required.
 
         //    iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
         //    var storedArguments = iWanToRun.StoredAiArguments.AgentKernelArguments;
@@ -392,7 +486,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //            await foreach (var item in result.StreamResult)
         //            {
         //                stringResult.Append(item);
-        //                inStreamItemProceessing?.Invoke(item);//Execute stream callback
+        //                inStreamItemProceessing?.Invoke(item);// Execute the stream.
         //            }
         //        }
 
@@ -412,11 +506,11 @@ namespace Senparc.AI.AgentKernel.Handlers
 
 
         ///// <summary>
-        ///// Run Chat + Vision model
+        ///// Runs a Chat + Vision model.
         ///// </summary>
         ///// <param name="iWanToRun"></param>
         ///// <param name="request"></param>
-        ///// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item. Note: any non-null value triggers a streaming request.</param>
+        ///// <param name="inStreamItemProceessing">Enables streaming and specifies the delegate to execute for each step of the asynchronous stream. A non-null value triggers a streaming request.</param>
         ///// <returns></returns>
         //public static Task<SenparcKernelAiResult<string>> RunChatVisionAsync(this IWantToRun iWanToRun,
         //    SenparcAiRequest request, ChatHistory chatHistory, List<IContentItem> contentList,
@@ -427,7 +521,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //}
 
         ///// <summary>
-        ///// Run Chat + Vision model
+        ///// Runs a Chat + Vision model.
         ///// </summary>
         ///// <typeparam name="T"></typeparam>
         ///// <param name="iWanToRun"></param>
@@ -448,7 +542,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //    var kernel = helper.GetKernel();
         //    //var function = iWanToRun.KernelFunction;
 
-        //    //Note: Context is required whenever Plugin and Function are used and an input identifier is included
+        //    // When using a Plugin and Function with an input identifier, context is required.
 
         //    iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
         //    var storedArguments = iWanToRun.StoredAiArguments.AgentKernelArguments;
@@ -512,7 +606,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //            await foreach (var item in result.StreamResult)
         //            {
         //                stringResult.Append(item);
-        //                inStreamItemProceessing?.Invoke(item);//Execute stream callback
+        //                inStreamItemProceessing?.Invoke(item);// Execute the stream.
         //            }
         //        }
 

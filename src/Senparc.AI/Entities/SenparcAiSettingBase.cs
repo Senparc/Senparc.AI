@@ -11,19 +11,19 @@ using System.Text;
 namespace Senparc.AI.Entities
 {
     /// <summary>
-    /// SenparcAiSetting<T> base class
+    /// Base class for SenparcAiSetting&lt;T&gt;.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract record class SenparcAiSettingBase<T> : SenparcAiSettingBase, ISenparcAiSetting<T>
         where T : ISenparcAiSetting
     {
         /// <summary>
-        /// Multi-level configuration for different models
+        /// Multi-level configuration for different models.
         /// </summary>
         public virtual ConcurrentDictionary<string, T> Items { get; set; } = new ConcurrentDictionary<string, T>();
 
         /// <summary>
-        /// Get custom configuration
+        /// Gets custom configuration.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -35,93 +35,98 @@ namespace Senparc.AI.Entities
     }
 
     /// <summary>
-    /// SenparcAiSetting base class
+    /// Base class for SenparcAiSetting.
     /// </summary>
     public record class SenparcAiSettingBase : ISenparcAiSetting
     {
         /// <summary>
-        /// Whether debug mode is enabled
+        /// Whether debug mode is enabled.
         /// </summary>
         public virtual bool IsDebug { get; set; }
 
         /// <summary>
-        /// Vector database configuration
+        /// Vector database configuration.
         /// </summary>
         public VectorDB VectorDB { get; set; }
 
         /// <summary>
-        /// MCP Server configuration
+        /// MCP Server configuration.
         /// </summary>
         public List<McpServerOption> McpServers { get; set; } = new List<McpServerOption>();
 
         /// <summary>
-        /// Whether OpenAI is used
+        /// A2A Agent configuration.
+        /// </summary>
+        public List<A2AAgentOption> A2AAgents { get; set; } = new List<A2AAgentOption>();
+
+        /// <summary>
+        /// Whether OpenAI is in use.
         /// </summary>
         public virtual bool UseOpenAI => AiPlatform == AiPlatform.OpenAI;
 
         /// <summary>
-        /// Whether Azure OpenAI is used
+        /// Whether Azure OpenAI is in use.
         /// </summary>
         public virtual bool UseAzureOpenAI => AiPlatform == AiPlatform.AzureOpenAI;
 
         /// <summary>
-        /// Whether NeuCharAI is used
+        /// Whether NeuCharAI is in use.
         /// </summary>
         public virtual bool UseNeuCharAI => AiPlatform == AiPlatform.NeuCharAI;
 
         /// <summary>
-        /// Whether HuggingFace is used
+        /// Whether HuggingFace is in use.
         /// </summary>
         public virtual bool UseHuggingFace => AiPlatform == AiPlatform.HuggingFace;
 
         /// <summary>
-        /// Whether FastAPI is used
+        /// Whether FastAPI is in use.
         /// </summary>
         public virtual bool UseFastAPI => AiPlatform == AiPlatform.FastAPI;
 
         /// <summary>
-        /// Whether Ollama is used
+        /// Whether Ollama is in use.
         /// </summary>
         public virtual bool Ollama => AiPlatform == AiPlatform.Ollama;
 
         /// <summary>
-        /// Whether DeepSeek is used
+        /// Whether DeepSeek is in use.
         /// </summary>
         public virtual bool UseDeepSeek => AiPlatform == AiPlatform.DeepSeek;
 
         /// <summary>
-        /// Whether Anthropic is used
+        /// Whether Anthropic is in use.
         /// </summary>
         public virtual bool UseAnthropic => AiPlatform == AiPlatform.Anthropic;
 
         /// <summary>
-        /// Whether Gemini is used
+        /// Whether Gemini is in use.
         /// </summary>
         public virtual bool UseGemini => AiPlatform == AiPlatform.Gemini;
 
         /// <summary>
-        /// Whether Qwen is used (OpenAI-compatible)
+        /// Whether Qwen (OpenAI-compatible) is in use.
         /// </summary>
         public virtual bool UseQwen => AiPlatform == AiPlatform.Qwen;
 
         /// <summary>
-        /// Whether Kimi is used (OpenAI-compatible)
+        /// Whether Kimi (OpenAI-compatible) is in use.
         /// </summary>
         public virtual bool UseKimi => AiPlatform == AiPlatform.Kimi;
 
         /// <summary>
-        /// Whether XunFei is used (OpenAI-compatible)
+        /// Whether XunFei (OpenAI-compatible) is in use.
         /// </summary>
         public virtual bool UseXunFei => AiPlatform == AiPlatform.XunFei;
 
         /// <summary>
-        /// AI platform type
+        /// AI platform type.
         /// </summary>
         public virtual AiPlatform AiPlatform { get; set; }
 
         public virtual OpenAIKeys OpenAIKeys { get; set; }
         public virtual NeuCharAIKeys NeuCharAIKeys { get; set; }
-        //[Obsolete("Deprecated soon")]
+        //[Obsolete("Will be deprecated soon")]
         //public virtual NeuCharAIKeys NeuCharOpenAIKeys { get; set; }
         public virtual AzureOpenAIKeys AzureOpenAIKeys { get; set; }
         public virtual HuggingFaceKeys HuggingFaceKeys { get; set; }
@@ -137,7 +142,7 @@ namespace Senparc.AI.Entities
         public virtual XunFeiKeys XunFeiKeys { get; set; }
 
         /// <summary>
-        /// Azure OpenAI or OpenAI API key
+        /// Azure OpenAI or OpenAI API key.
         /// </summary>
         public virtual string ApiKey => AiPlatform switch
         {
@@ -187,7 +192,7 @@ namespace Senparc.AI.Entities
         public virtual string AzureEndpoint => AzureOpenAIKeys?.AzureEndpoint;
 
         /// <summary>
-        /// Azure OpenAI version
+        /// Azure OpenAI version number.
         /// </summary>
         public virtual string AzureOpenAIApiVersion => AzureOpenAIKeys?.AzureOpenAIApiVersion;
 
@@ -202,12 +207,12 @@ namespace Senparc.AI.Entities
         public virtual string NeuCharEndpoint => NeuCharAIKeys?.NeuCharEndpoint;
 
         /// <summary>
-        /// Azure OpenAI version
+        /// Azure OpenAI version number.
         /// </summary>
-        //[Obsolete("Deprecated. Use NeuCharAIApiVersion", true)]
+        //[Obsolete("Deprecated; use NeuCharAIApiVersion instead", true)]
         //public virtual string NeuCharOpenAIApiVersion => NeuCharAIKeys?.NeuCharAIApiVersion;
         /// <summary>
-        /// Azure OpenAI version
+        /// Azure OpenAI version number.
         /// </summary>
         public virtual string NeuCharAIApiVersion => NeuCharAIKeys?.NeuCharAIApiVersion;
 
@@ -261,6 +266,8 @@ namespace Senparc.AI.Entities
 
         public virtual bool IsMcpServersSetted => McpServers != null && McpServers.Count > 0;
 
+        public virtual bool IsA2AAgentsSetted => A2AAgents != null && A2AAgents.Count > 0;
+
        public virtual string Endpoint => AiPlatform switch
        {
         AiPlatform.OpenAI => OpenAIEndpoint,
@@ -284,12 +291,13 @@ namespace Senparc.AI.Entities
         {
             VectorDB = new VectorDB() { Type = VectorDBType.Default };
             McpServers = new List<McpServerOption>();
+            A2AAgents = new List<A2AAgentOption>();
         }
 
-        #region Quick configuration methods
+        #region Quick Configuration Methods
 
         /// <summary>
-        /// Set OpenAI
+        /// Configures OpenAI.
         /// </summary>
         /// <param name="openAIKeys"></param>
         public ISenparcAiSetting SetOpenAI(OpenAIKeys openAIKeys)
@@ -300,7 +308,7 @@ namespace Senparc.AI.Entities
         }
 
         ///<summary>
-        /// Set AzureOpenAI
+        /// Configures AzureOpenAI.
         /// </summary>
         public ISenparcAiSetting SetAzureOpenAI(AzureOpenAIKeys azureOpenAIKeys)
         {
@@ -310,7 +318,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// Set NeuCharAI
+        /// Configures NeuCharAI.
         /// </summary>
         /// <param name="neuCharAIKeys"></param>
         /// <returns></returns>
@@ -322,7 +330,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// Set HuggingFace
+        /// Configures HuggingFace.
         /// </summary>
         /// <param name="huggingFaceKeys"></param>
         /// <returns></returns>
@@ -335,7 +343,7 @@ namespace Senparc.AI.Entities
 
 
         /// <summary>
-        /// Set FastAPIKeys
+        /// Configures FastAPIKeys.
         /// </summary>
         /// <param name="fastAPIKeys"></param>
         /// <returns></returns>
@@ -347,7 +355,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// Set Ollama
+        /// Configures Ollama.
         /// </summary>
         /// <param name="ollamaAPIKeys"></param>
         /// <returns></returns>
@@ -359,7 +367,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// Set DeepSeek
+        /// Configures DeepSeek.
         /// </summary>
         /// <param name="deepSeekKeys"></param>
         /// <returns></returns>
@@ -371,7 +379,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// Set Anthropic
+        /// Configures Anthropic.
         /// </summary>
         /// <param name="anthropicKeys"></param>
         /// <returns></returns>
@@ -383,7 +391,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// Set Gemini
+        /// Configures Gemini.
         /// </summary>
         /// <param name="geminiKeys"></param>
         /// <returns></returns>
@@ -395,7 +403,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// Set Qwen (OpenAI-compatible)
+        /// Configures Qwen (OpenAI-compatible).
         /// </summary>
         /// <param name="qwenKeys"></param>
         /// <returns></returns>
@@ -407,7 +415,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// Set Kimi (OpenAI-compatible)
+        /// Configures Kimi (OpenAI-compatible).
         /// </summary>
         /// <param name="kimiKeys"></param>
         /// <returns></returns>
@@ -419,7 +427,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// Set XunFei (OpenAI-compatible)
+        /// Configures XunFei (OpenAI-compatible).
         /// </summary>
         /// <param name="xunFeiKeys"></param>
         /// <returns></returns>
@@ -431,7 +439,7 @@ namespace Senparc.AI.Entities
         }
 
         /// <summary>
-        /// Set another platform
+        /// Configures another platform.
         /// </summary>
         /// <returns></returns>
         public ISenparcAiSetting SetOtherPlatform()

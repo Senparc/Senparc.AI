@@ -116,7 +116,7 @@ public class IWantToRunExtensionRunChatTests : KernelTestBase
                 Tools = [
                    AIFunctionFactory.Create(functionCall.Now),
                    AIFunctionFactory.Create(functionCall.Echo),
-                   AIFunctionFactory.Create(functionCall.CalcPlus),
+                   AIFunctionFactory.Create(functionCall.CalcPlus)
                     ],
                 AllowMultipleToolCalls = true
             }
