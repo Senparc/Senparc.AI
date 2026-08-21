@@ -6,11 +6,11 @@ public static class SampleHelper
     {
         if (File.Exists("appsettings.Development.json"))
         {
-            Console.WriteLine("[调试] 使用 appsettings.Development.json");
+            Console.WriteLine("[Debug] use appsettings.Development.json");
             return "appsettings.Development.json";
         }
 
-        Console.WriteLine("[调试] 使用 appsettings.json");
+        Console.WriteLine("[Debug] use appsettings.json");
         return "appsettings.json";
     }
 
@@ -25,7 +25,7 @@ public static class SampleHelper
         var input = Console.ReadLine();
         if (!int.TryParse(input, out var index) || index < 0 || index >= values.Length)
         {
-            Console.WriteLine("序号无效，已选择第一项。");
+            Console.WriteLine("Invalid number. The first item was selected.");
             return values[0];
         }
 
@@ -42,7 +42,7 @@ public static class SampleHelper
         var input = Console.ReadLine();
         if (!int.TryParse(input, out var index) || index < 0 || index >= items.Length)
         {
-            Console.WriteLine("序号无效，已选择第一项。");
+            Console.WriteLine("Invalid number. The first item was selected.");
             return 0;
         }
 

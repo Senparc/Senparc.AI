@@ -1,5 +1,5 @@
 /**
-Last Modified: 20231207 - 修复中文乱码
+Last Modified: 20231207 - fixed Chinese encoding issues
 Modified By FelixJ
 */
 
@@ -42,12 +42,12 @@ namespace Senparc.AI.AgentKernel
         public PromptConfigParameter ParameterConfig { get; set; }
 
         /// <summary>
-        /// 单次请求的临时上下文
+        /// Temporary context for a single request
         /// </summary>
         public SenparcAiArguments TempAiArguments { get; set; }
 
         /// <summary>
-        /// 在 IWantTo 里面缓存的上下文
+        /// in IWantTo context cached inside
         /// </summary>
         public SenparcAiArguments StoreAiArguments => IWantToRun.StoredAiArguments;
         /// <summary>
@@ -55,22 +55,22 @@ namespace Senparc.AI.AgentKernel
         /// </summary>
         public AIFunction[] FunctionPipeline { get; set; }
         ///// <summary>
-        ///// Rqesut.ContextVariables 参数不会保存到上下文缓存中
+        ///// Rqesut.ContextVariables parameters are not saved to the context cache
         ///// </summary>
         //public ContextVariables TempContextVariables => TempAiContext?.Context as ContextVariables;
         ///// <summary>
-        ///// 是否储存上下文（ContextVariables 对象）
+        ///// whether to store context(ContextVariables object)
         ///// </summary>
         //public bool StoreContext => AiContext.StoreToContainer;
 
         public AgentSession AgentSession { get; set; }
 
         /// <summary>
-        /// 参数占位符前缀
+        /// parameterplaceholder prefix
         /// </summary>
         public string ArgumentPrefix { get; set; } = "{{";
         /// <summary>
-        /// 参数占位符后缀
+        /// parameterplaceholder suffix
         /// </summary>
         public string ArgumentSuffix { get; set; } = "}}";
 
@@ -96,10 +96,10 @@ namespace Senparc.AI.AgentKernel
         }
 
         /// <summary>
-        /// 替换 <see cref="StoreAiArguments"> 及 <see cref="TempAiArguments"/> 中的参数到 <see cref="RequestContent"/>
+        /// Replace parameters from <see cref="StoreAiArguments"/> and <see cref="TempAiArguments"/> into <see cref="RequestContent"/>
         /// </summary>
-        /// <param name="prefix">占位符前缀</param>
-        /// <param name="suffix">占位符后缀</param>
+        /// <param name="prefix">placeholder prefix</param>
+        /// <param name="suffix">placeholder suffix</param>
         /// <returns></returns>
         public string ReplacePrompt()
         {

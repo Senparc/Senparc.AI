@@ -30,9 +30,9 @@ namespace Senparc.AI.AgentKernel.Helpers
 
     public partial class AgentKernelHelper
     {
-        /* Config* 方法规则：
-        1. 相关方法为较底层的调用方法，会直接使用 Semantic Kernel 等模块接口
-        2. 所有 modelName、deploymentName，都是用字符串传入，如果留空，则使用 SenparcAiSetting 参数自动获取。
+        /* Config* method rules:
+        1. Related methods are lower-level call methods and directly use module interfaces such as Semantic Kernel
+        2. All modelName and deploymentName values are passed as strings. If left empty, they are read automatically from SenparcAiSetting.
        */
 
 
@@ -42,10 +42,10 @@ namespace Senparc.AI.AgentKernel.Helpers
 
 
         ///// <summary>
-        ///// 设置 Kernel，并配置 TextCompletion 模型
+        ///// Set Kernel and configure the TextCompletion model
         ///// </summary>
-        ///// <param name="userId">用户ID， 用于防止api滥用</param>
-        ///// <param name="modelName">模型名 modelId</param>
+        ///// <param name="userId">User ID, used to prevent API abuse</param>
+        ///// <param name="modelName">Model name modelId</param>
         ///// <param name="senparcAiSetting"></param>
         ///// <param name="kernelBuilder"></param>
         ///// <returns></returns>
@@ -62,10 +62,10 @@ namespace Senparc.AI.AgentKernel.Helpers
 
         //    kernelBuilder ??= Microsoft.SemanticKernel.Kernel.CreateBuilder();
 
-        //    //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
+        //    //TODO Need to check Kernel.TextCompletionServices.ContainsKey(serviceId). If it already exists, do not add it again.
 
         //    // var kernelBuilder = Microsoft.SemanticKernel.Kernel.Builder;
-        //    // 以上方法已经被SK标注为 Obsolete, 修改为SK推荐的方法
+        //    // The previous method has been marked obsolete by SK. Changed to the method recommended by SK.
 
         //    // use `senparcAiSetting` instead of using `AiSetting` from the config file by default
 
@@ -90,7 +90,7 @@ namespace Senparc.AI.AgentKernel.Helpers
         //        AiPlatform.HuggingFace => kernelBuilder.AddHuggingFaceTextGeneration(
         //                model: modelName,
         //                apiKey: null,
-        //                endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace 必须提供 Endpoint")),
+        //                endpoint: new Uri(senparcAiSetting.Endpoint ?? throw new SenparcAiException("HuggingFace requires Endpoint")),
         //                serviceId: null,
         //                httpClient: _httpClient),
         //        AiPlatform.FastAPI => kernelBuilder.AddFastAPIChatCompletion(
@@ -110,7 +110,7 @@ namespace Senparc.AI.AgentKernel.Helpers
         //                apiKey: senparcAiSetting.ApiKey,
         //                orgId: senparcAiSetting.OrganizationId,
         //                httpClient: _httpClient),
-        //        _ => throw new SenparcAiException($"ConfigTextCompletion 没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+        //        _ => throw new SenparcAiException($"ConfigTextCompletion does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
         //    };
 
         //    return kernelBuilder;

@@ -5,16 +5,16 @@ using System;
 namespace Senparc.AI.AgentKernel.Helpers
 {
     /// <summary>
-    /// 按模型能力清理 <see cref="ChatOptions"/>，避免向不支持的模型提交 Temperature 等采样参数。
+    /// Sanitizes <see cref="ChatOptions"/> according to model capabilities to avoid sending sampling parameters such as Temperature to unsupported models.
     /// </summary>
     public static class ChatOptionsSanitizer
     {
         /// <summary>
-        /// 若模型不支持 Temperature，则将相关采样参数置为 null（提交时不会出现该字段）。
+        /// Sets related sampling parameters to null when the model does not support Temperature, preventing those fields from being submitted.
         /// </summary>
-        /// <param name="chatOptions">待清理的 ChatOptions；为 null 时直接返回</param>
-        /// <param name="modelName">Chat 模型名</param>
-        /// <returns>是否移除了 Temperature（或其它采样参数）</returns>
+        /// <param name="chatOptions">The ChatOptions to sanitize; returns immediately when null.</param>
+        /// <param name="modelName">The Chat model name.</param>
+        /// <returns>Whether Temperature or another sampling parameter was removed.</returns>
         public static bool SanitizeForModel(ChatOptions? chatOptions, string? modelName)
         {
             if (chatOptions == null || !ModelCapabilityHelper.DoesNotSupportTemperature(modelName))
@@ -27,16 +27,16 @@ namespace Senparc.AI.AgentKernel.Helpers
             if (chatOptions.Temperature.HasValue)
             {
                 Console.WriteLine(
-                    $"[调试] 模型 {modelName} 不支持 Temperature（当前值={chatOptions.Temperature}），提交前已忽略该参数");
+                    $"[Debug] Model {modelName} does not support Temperature (current value={chatOptions.Temperature}); the parameter was ignored before submission.");
                 chatOptions.Temperature = null;
                 removed = true;
             }
 
-            // 同系列推理模型通常也不支持 top_p / presence_penalty / frequency_penalty
+            // Reasoning models in the same series usually do not support top_p, presence_penalty, or frequency_penalty either.
             if (chatOptions.TopP.HasValue)
             {
                 Console.WriteLine(
-                    $"[调试] 模型 {modelName} 不支持 TopP（当前值={chatOptions.TopP}），提交前已忽略该参数");
+                    $"[Debug] Model {modelName} does not support TopP (current value={chatOptions.TopP}); the parameter was ignored before submission.");
                 chatOptions.TopP = null;
                 removed = true;
             }
@@ -44,7 +44,7 @@ namespace Senparc.AI.AgentKernel.Helpers
             if (chatOptions.PresencePenalty.HasValue)
             {
                 Console.WriteLine(
-                    $"[调试] 模型 {modelName} 不支持 PresencePenalty（当前值={chatOptions.PresencePenalty}），提交前已忽略该参数");
+                    $"[Debug] Model {modelName} does not support PresencePenalty (current value={chatOptions.PresencePenalty}); the parameter was ignored before submission.");
                 chatOptions.PresencePenalty = null;
                 removed = true;
             }
@@ -52,7 +52,7 @@ namespace Senparc.AI.AgentKernel.Helpers
             if (chatOptions.FrequencyPenalty.HasValue)
             {
                 Console.WriteLine(
-                    $"[调试] 模型 {modelName} 不支持 FrequencyPenalty（当前值={chatOptions.FrequencyPenalty}），提交前已忽略该参数");
+                    $"[Debug] Model {modelName} does not support FrequencyPenalty (current value={chatOptions.FrequencyPenalty}); the parameter was ignored before submission.");
                 chatOptions.FrequencyPenalty = null;
                 removed = true;
             }

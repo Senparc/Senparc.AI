@@ -23,7 +23,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
             Assert.IsTrue(kernel.ConfigModels.Contains(Senparc.AI.ConfigModel.TextToImage));
             Assert.IsNotNull(kernel.ImageClient);
 
-            //var result = await iWantToRun.Kernel.ImageClient.("请帮我生成一张图片，内容是：一只可爱的猫咪在草地上玩耍。");
+            //var result = await iWantToRun.Kernel.ImageClient.("Generate an image of a cute cat playing on grass.");
         }
     }
 }

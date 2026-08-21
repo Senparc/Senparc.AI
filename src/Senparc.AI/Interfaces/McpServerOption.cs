@@ -1,26 +1,26 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Senparc.AI.Interfaces
 {
     /// <summary>
-    /// MCP 工具绑定模式。
+    /// MCP tool binding mode.
     /// </summary>
     public enum McpToolBindingMode
     {
         /// <summary>
-        /// 本地函数代理：模型调用本地函数，本进程再转发到 MCP。
+        /// Local function proxy: the model calls a local function, and this process forwards it to MCP.
         /// </summary>
         LocalFunctionProxy = 0,
 
         /// <summary>
-        /// Hosted MCP：模型服务端直接连接并调用 MCP Server。
+        /// Hosted MCP: the model service connects directly to and calls the MCP Server.
         /// </summary>
         HostedServerTool = 1
     }
 
     /// <summary>
-    /// MCP Server 配置。
+    /// MCP Server configuration.
     /// </summary>
     public class McpServerOption
     {

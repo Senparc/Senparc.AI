@@ -4,9 +4,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <Version>1.0.1</Version>
     <PackageReleaseNotes>
-      [2026-07-31] v1.0.1 升级 CO2NET 测试依赖
-      1、升级 Senparc.CO2NET.AspNet 至 2.1.4
-      2、升级 Senparc.CO2NET.Cache.Redis 至 5.3.0
+      [2026-07-31] v1.0.1 Upgrade CO2NET test dependencies
+      1. Upgrade Senparc.CO2NET.AspNet to 2.1.4
+      2. Upgrade Senparc.CO2NET.Cache.Redis to 5.3.0
     </PackageReleaseNotes>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

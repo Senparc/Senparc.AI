@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -47,7 +47,7 @@ namespace Senparc.AI.Kernel.HttpMessageHandlers
 
         public LoggingHttpMessageHandler(HttpMessageHandler innerHandler, bool enableLog = false) : base(innerHandler)
         {
-            //TODO: 增加 ILoggerFactory? loggerFactory = null
+            //TODO: add ILoggerFactory? loggerFactory = null
             EnableLog = enableLog;
         }
 
@@ -61,7 +61,7 @@ namespace Senparc.AI.Kernel.HttpMessageHandlers
                 contentStream.Seek(0, SeekOrigin.Begin);
                 using var streamReader = new StreamReader(contentStream);
                 var requestBody = await streamReader.ReadToEndAsync();
-                contentStream.Seek(0, SeekOrigin.Begin); // 重置流位置 
+                contentStream.Seek(0, SeekOrigin.Begin); // Reset stream position
 
                 Log($"Request Body: {requestBody}");
             }
@@ -72,7 +72,7 @@ namespace Senparc.AI.Kernel.HttpMessageHandlers
 
             if (EnableLog && response.Content != null)
             {
-                // 缓冲响应内容  
+                // Buffer response content
                 await response.Content.LoadIntoBufferAsync();
 
                 var contentStream = await response.Content.ReadAsStreamAsync();
@@ -81,7 +81,7 @@ namespace Senparc.AI.Kernel.HttpMessageHandlers
                 responseBody = await streamReader.ReadToEndAsync();
                 Log($"Response Body: {responseBody}");
 
-                // 创建一个新的 MemoryStream，以防止 ObjectDisposedException  
+                // Create a new MemoryStream to prevent ObjectDisposedException
                 contentStream.Seek(0, SeekOrigin.Begin);
                 var memoryStream = new MemoryStream();
                 await contentStream.CopyToAsync(memoryStream);

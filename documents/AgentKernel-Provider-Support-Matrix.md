@@ -83,9 +83,9 @@ For XunFei Spark HTTP/WebSocket documentation using URL-signature authentication
   - https://platform.kimi.ai/docs/guide/start-using-kimi-api
 - XunFei MaaS Coding Plan (supports OpenAI protocol):
   - https://www.xfyun.cn/doc/spark/CodingPlan.html
-- XunFei 推理服务 HTTP 协议（OpenAI Python 示例）:
+- XunFei inference service HTTP protocol (OpenAI Python example):
   - https://www.xfyun.cn/doc/spark/%E7%B2%BE%E8%B0%83%E6%9C%8D%E5%8A%A1API-http.html
-- XunFei 通用鉴权（appid / APIKey / APISecret 签名模式）:
+- XunFei general authentication (appid / APIKey / APISecret signature mode):
   - https://www.xfyun.cn/doc/spark/general_url_authentication.html
 - HuggingFace Inference Providers:
   - https://huggingface.co/docs/inference-providers/index

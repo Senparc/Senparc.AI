@@ -1,16 +1,16 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 using System.Net.Mail;
 using Senaprc.AI.Samples.Agents;
 
-Console.WriteLine("欢迎来到 Senparc.AI Agent 测试项目，点击任意键继续");
+Console.WriteLine("Welcome to the Senparc.AI Agent test project. Press any key to continue.");
 Console.ReadKey();
 
-Console.WriteLine("开始注册所有 Agents");
+Console.WriteLine("Start registering all Agents");
 AgentHelper.RegisterAllAgents();
-Console.WriteLine("注册完毕");
+Console.WriteLine("Registration completed");
 
-Console.WriteLine("请输入你的需求");
+Console.WriteLine("Enter your requirement");
 var request = Console.ReadLine();
 
-//完成现阶段计划
+//Complete the current-stage plan
 AgentHelper.AgentCollection["Guide"].Execute(new Dictionary<string, string> {  { "INPUT" , request } });

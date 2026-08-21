@@ -1,64 +1,64 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Senparc.AI.Entities.Keys
 {
     /// <summary>
-    /// Keys 基类
+    /// Keys base class
     /// </summary>
     [Serializable]
     public class BaseKeys
     {
         /// <summary>
-        /// 模型名称配置
+        /// model name configuration
         /// </summary>
         public ModelName ModelName { get; set; } = new ModelName();
     }
 
     /// <summary>
-    /// 模型名称配置
+    /// model name configuration
     /// </summary>
     [Serializable]
     public class ModelName
     {
         /// <summary>
-        /// 文本补全模型名称
+        /// text completion model name
         /// </summary>
         public string TextCompletion { get; set; }
 
         /// <summary>
-        /// Chat模型名称
+        /// Chat model name
         /// </summary>
         public string Chat { get; set; }
 
         /// <summary>
-        /// Embedding 模型名称
+        /// Embedding model name
         /// </summary>
         public string Embedding { get; set; }
 
         /// <summary>
-        /// Embedding 维数
+        /// Embedding dimensions
         /// </summary>
         public int? EmbeddingDimensions { get; set; }
 
         /// <summary>
-        /// 文生图 模型名称
+        /// text-to-image model name
         /// </summary>
         public string TextToImage { get; set; }
 
         /// <summary>
-        /// 图生文 模型名称
+        /// image-to-text model name
         /// </summary>
         public string ImageToText { get; set; }
 
         /// <summary>
-        /// 文本转语音 模型名称
+        /// text-to-speech model name
         /// </summary>
         public string TextToSpeech { get; set; }
 
         /// <summary>
-        /// 语音转文本 模型名称（Whisper）
+        /// speech-to-text model name(Whisper)
         /// </summary>
         public string SpeechToText { get; set; }
     }

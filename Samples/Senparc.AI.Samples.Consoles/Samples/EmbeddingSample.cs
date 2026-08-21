@@ -1,4 +1,4 @@
-﻿using Azure;
+using Azure;
 using Azure.Core;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
@@ -30,7 +30,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         [VectorStoreData(IsFullTextIndexed = true)]
         public string Description { get; set; }
 
-        [VectorStoreVector(Dimensions: 1536 /*根据模型调整，例如 text-embedding-ada-002 为 1536，Large 为 3072*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
+        [VectorStoreVector(Dimensions: 1536 /*Adjust based on the model; for example, text-embedding-ada-002 is 1536 and Large is 3072*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
         public ReadOnlyMemory<float>? DescriptionEmbedding { get; set; }
 
         [VectorStoreData(IsIndexed = true)]
@@ -50,20 +50,20 @@ namespace Senparc.AI.Samples.Consoles.Samples
         public EmbeddingSample(IAiHandler aiHandler)
         {
             _aiHandler = aiHandler;
-            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//Synchronize logging setting state
         }
 
         public async Task RunAsync(bool isRag = false)
         {
-            await Console.Out.WriteLineAsync("EmbeddingSample 开始运行。请输入需要 Embedding 的内容，输入 n 继续下一步。");
+            await Console.Out.WriteLineAsync("EmbeddingSample started.Enter the content to embed, or enter n to continue to the next step.");
 
-            await Console.Out.WriteLineAsync("请输入");
+            await Console.Out.WriteLineAsync("please enter");
 
 
             var aiSetting = _semanticAiHandler.SemanticKernelHelper.AiSetting;
             var vectorName = "senparc-vector-record-ai";
 
-            //测试 TextEmbedding
+            //Test TextEmbedding
             var iWantToRun = _semanticAiHandler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, _userId)
@@ -76,7 +76,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var modelName = textEmbeddingGenerationName(aiSetting);
 
-            //开始对话
+            //Start conversation
             var i = 0;
             while (true)
             {
@@ -103,7 +103,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             while (true)
             {
-                await Console.Out.WriteLineAsync("请提问：");
+                await Console.Out.WriteLineAsync("Enter a question:");
                 String question = Console.ReadLine();
                 if (question == "exit")
                 {
@@ -123,7 +123,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 var j = 0;
                 await foreach (var restulItem in vectorResult)
                 {
-                    await Console.Out.WriteLineAsync($"应答结果[{j + 1}]：");
+                    await Console.Out.WriteLineAsync($"Response result[{j + 1}]:");
                     await Console.Out.WriteLineAsync("  Id:\t\t" + restulItem.Record.Id);
                     await Console.Out.WriteLineAsync("  Description:\t\t" + restulItem.Record.Description);
                     await Console.Out.WriteLineAsync("  Id:\t\t" + string.Join(',', restulItem.Record.Tags));
@@ -135,7 +135,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 if (j == 0)
                 {
-                    await Console.Out.WriteLineAsync("无匹配结果");
+                    await Console.Out.WriteLineAsync("No matching results");
                 }
 
                 await Console.Out.WriteLineAsync();

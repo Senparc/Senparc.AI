@@ -16,16 +16,16 @@ namespace Senparc.AI.Tests.Entities
         {
             var senparcAiSetting = new SenparcAiSettingBase();
 
-            //不进行任何设置
+            // Do not configure anything.
             Assert.IsFalse(senparcAiSetting.IsOpenAiKeysSetted);
 
-            //设置 ApiKey
+            // Configure the API key.
             senparcAiSetting.OpenAIKeys = new OpenAIKeys()
             {
                 ApiKey = "MyApiKey"
             };
             Assert.IsTrue(senparcAiSetting.IsOpenAiKeysSetted);
-            
+
         }
 
         [TestMethod]

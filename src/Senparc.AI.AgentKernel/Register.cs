@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Senparc.AI.AgentKernel
 {
     /// <summary>
-    /// 注册 Senparc.AI
+    /// Register Senparc.AI
     /// </summary>
     public static class Register
     {
@@ -34,7 +34,7 @@ namespace Senparc.AI.AgentKernel
         }
 
         /// <summary>
-        /// 注册 Senparc.AI
+        /// Register Senparc.AI
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
@@ -48,7 +48,7 @@ namespace Senparc.AI.AgentKernel
 
             if (Config.SenparcAiSetting == null || Config.SenparcAiSetting.AiPlatform == AiPlatform.UnSet)
             {
-                //只在原始配置未设置的时候机型覆盖
+                //Only override the model when the original configuration is not set
                 Senparc.AI.Config.SenparcAiSetting = senparcAiSetting;
             }
             services.AddScoped<ISenparcAiSetting>(s => Config.SenparcAiSetting);
@@ -58,7 +58,7 @@ namespace Senparc.AI.AgentKernel
         }
 
         /// <summary>
-        /// 注册并运行 Senparc.AI
+        /// Register and run Senparc.AI
         /// </summary>
         /// <param name="registerService"></param>
         /// <param name="senparcAiSetting"></param>

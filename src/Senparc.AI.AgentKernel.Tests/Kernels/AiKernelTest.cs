@@ -25,7 +25,7 @@ namespace Senparc.AI.AgentKernel.Tests.Kernels
                                         .IWantTo()
                                         .ConfigModel(ConfigModel.Chat, "Jeffrey")
                                         .BuildKernel()
-                                        .RunChatAsync("你是一个助理负责回答我的问题，每行最多10个字。给我介绍一下苏州园林");
+                                        .RunChatAsync("You are an assistant responsible for answering my questions. Use at most 10 words per line. Introduce Suzhou gardens to me.");
 
             var result = response.Result;
 

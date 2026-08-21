@@ -5,13 +5,13 @@ using Senparc.AI.Interfaces;
 namespace Senparc.AI.AgentKernel.Tests.BaseSupport;
 
 /// <summary>
-/// RunChat / RunChatStreaming 集成测试共用辅助
+/// Shared helper for RunChat / RunChatStreaming integration tests
 /// </summary>
 internal static class RunChatTestHelper
 {
     public const string DefaultUserId = "Jeffrey";
-    public const string ShortPrompt = "用一句话介绍苏州园林。";
-    public const string FollowUpPrompt = "再补充一个景点名称。";
+    public const string ShortPrompt = "Introduce Suzhou gardens in one sentence.";
+    public const string FollowUpPrompt = "Add one more attraction name.";
 
     public static AgentAiHandler CreateHandler(ISenparcAiSetting? setting = null)
         => new AgentAiHandler(setting);
@@ -33,7 +33,7 @@ internal static class RunChatTestHelper
     }
 
     /// <summary>
-    /// NeuCharAI 网关通常不支持流式；其他平台默认支持。
+    /// The NeuCharAI gateway usually does not support streaming; other platforms support it by default.
     /// </summary>
     public static bool SupportsStreaming(ISenparcAiSetting setting)
         => setting.AiPlatform != AiPlatform.NeuCharAI;
@@ -43,14 +43,14 @@ internal static class RunChatTestHelper
         Assert.IsNotNull(response, message);
         Assert.IsTrue(
             !string.IsNullOrWhiteSpace(response.Text) || (response.Usage?.TotalTokenCount ?? 0) > 0,
-            message ?? "响应应包含文本或 Token 用量");
+            message ?? "The response should contain text or token usage");
         if (response.CreatedAt.HasValue)
         {
             Assert.IsTrue(
                 response.CreatedAt.Value.UtcDateTime > DateTime.UtcNow.AddMinutes(-10),
-                message ?? "CreatedAt 应在最近 10 分钟内");
+                message ?? "CreatedAt should be within the last 10 minutes");
 
-            Console.WriteLine($"用量 - Input：{response.Usage.InputTokenCount} Output: {response.Usage.OutputTokenCount}");
+            Console.WriteLine($"Usage - Input:{response.Usage.InputTokenCount} Output: {response.Usage.OutputTokenCount}");
         }
     }
 

@@ -16,7 +16,7 @@ namespace Senparc.AI.AgentKernel.HttpMessageHandlers
         }
 
         /// <summary>
-        /// 注册HttpMessageHandler，先注册的先调用
+        /// Register HttpMessageHandler. Earlier registrations are called first.
         /// </summary>
         /// <param name="handler"></param>
         /// <returns></returns>
@@ -27,7 +27,7 @@ namespace Senparc.AI.AgentKernel.HttpMessageHandlers
         }
 
         /// <summary>
-        /// 创建最终的HttpMessageHandler
+        /// Create the final HttpMessageHandler
         /// </summary>
         /// <returns></returns>
         public DelegatingHandler Build()

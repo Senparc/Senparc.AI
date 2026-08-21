@@ -12,18 +12,18 @@ public class SampleSetting
 
     private enum SettingItems
     {
-        退出 = 0,
-        选择模型 = 1,
-        启用或关闭HttpClient日志 = 2,
-        全部重置 = 3,
+        Exit = 0,
+        SelectModel = 1,
+        ToggleHttpClientLog = 2,
+        ResetAll = 3,
     }
 
     public void Run()
     {
         Console.Clear();
-        Console.WriteLine("[请选择设置内容]");
+        Console.WriteLine("[Select a setting]");
         Console.WriteLine();
-        Console.WriteLine($"* 启用 HttpClient 日志后可能影响部分接口行为。当前：{(EnableHttpClientLog ? "开启" : "关闭")}");
+        Console.WriteLine($"* Enabling HttpClient logs may affect some API behavior. Current:{(EnableHttpClientLog ? "enabled" : "disabled")}");
         Console.WriteLine();
 
         var currentChoose = SampleHelper.ChooseItems<SettingItems>();
@@ -31,23 +31,23 @@ public class SampleSetting
         var exit = false;
         switch (currentChoose)
         {
-            case SettingItems.退出:
+            case SettingItems.Exit:
                 exit = true;
                 break;
-            case SettingItems.选择模型:
+            case SettingItems.SelectModel:
                 ChooseModel();
                 break;
-            case SettingItems.启用或关闭HttpClient日志:
+            case SettingItems.ToggleHttpClientLog:
                 EnableHttpClientLog = !EnableHttpClientLog;
-                Console.WriteLine($"[调试] HttpClient 日志已{(EnableHttpClientLog ? "启用" : "关闭")}");
+                Console.WriteLine($"[Debug] HttpClient logging is now {(EnableHttpClientLog ? "enabled" : "disabled")}");
                 break;
-            case SettingItems.全部重置:
+            case SettingItems.ResetAll:
                 CurrentSettingKey = "Default";
                 EnableHttpClientLog = false;
                 exit = true;
                 break;
             default:
-                Console.WriteLine("请选择正确的选项");
+                Console.WriteLine("Select a valid option");
                 Run();
                 return;
         }
@@ -62,8 +62,8 @@ public class SampleSetting
 
     private static void ChooseModel()
     {
-        Console.WriteLine("[请选择模型配置]");
-        Console.WriteLine("说明：Default 使用 appsettings 中的 AiPlatform；其余项为各 *Keys 基础配置或 Items 子集。");
+        Console.WriteLine("[Select a model configuration]");
+        Console.WriteLine("Description: Default uses AiPlatform from appsettings. The remaining items are base *Keys configurations or Items subsets.");
         Console.WriteLine();
 
         var choices = ModelSettingCatalog.GetChoices();
@@ -72,11 +72,11 @@ public class SampleSetting
         CurrentSettingKey = choices[chosen].Key;
 
         var resolved = CurrentSetting;
-        Console.WriteLine($"[调试] 当前模型配置：{CurrentSettingKey} - {resolved.AiPlatform} - {resolved.Endpoint}");
+        Console.WriteLine($"[Debug] Current model configuration:{CurrentSettingKey} - {resolved.AiPlatform} - {resolved.Endpoint}");
         var chatModel = resolved.ModelName?.Chat;
         if (!chatModel.IsNullOrEmpty())
         {
-            Console.WriteLine($"[调试] Chat 模型：{chatModel}");
+            Console.WriteLine($"[Debug] Chat model:{chatModel}");
         }
     }
 }

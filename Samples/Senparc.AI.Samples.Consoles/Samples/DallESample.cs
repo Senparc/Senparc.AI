@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticKernel.TextToImage;
+using Microsoft.SemanticKernel.TextToImage;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Kernel.Handlers;
@@ -16,7 +16,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         public DallESample(IAiHandler aiHandler, IServiceProvider serviceProvider)
         {
             _aiHandler = aiHandler;
-            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//Synchronize logging setting state
             _serviceProvider = serviceProvider;
         }
 
@@ -37,11 +37,11 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 )
                )
             {
-                await Console.Out.WriteLineAsync("DallE 接口需要设置 OpenAI 或 AzureOpenAI ApiKey 后才能使用！");
+                await Console.Out.WriteLineAsync("The DALL-E API requires an OpenAI or Azure OpenAI ApiKey before use.");
                 return;
             }
 
-            await Console.Out.WriteLineAsync("DallE 3 开始运行，请输入需要生成图片的内容，输入 exit 退出，输入 s 保存上一张生成的图片。");
+            await Console.Out.WriteLineAsync("DALL-E 3 started. Enter the image generation prompt, enter exit to leave, or enter s to save the previous generated image.");
 
             var userId = "Jeffrey";
             var iWantTo = _semanticAiHandler.IWantTo(dalleSetting)
@@ -57,10 +57,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 Console.WriteLine();
                 if (request.Equals("S", StringComparison.OrdinalIgnoreCase))
                 {
-                    //保存图片
+                    //Save image
                     if (lastImageUrl.IsNullOrEmpty())
                     {
-                        await Console.Out.WriteLineAsync("尚无成功生成的图片！");
+                        await Console.Out.WriteLineAsync("No successfully generated image is available.");
                     }
 
                     var filePath = Senparc.CO2NET.Utilities.ServerUtility.ContentRootMapPath($"~/Senparc.AI.Dalle-{SystemTime.NowTicks}.jpg");
@@ -69,25 +69,25 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     {
                         await Senparc.CO2NET.HttpUtility.Get.DownloadAsync(_serviceProvider, lastImageUrl, fs);
                         await fs.FlushAsync();
-                        await Console.Out.WriteLineAsync("图片已保存：" + filePath);
+                        await Console.Out.WriteLineAsync("Image saved:" + filePath);
                     }
                 }
                 else
                 {
-                    await Console.Out.WriteLineAsync("生成中，请等待...");
+                    await Console.Out.WriteLineAsync("Generating, please wait...");
 
-                    //生成图片
+                    //Generate image
                     var imageDescription = request;// "A car fly in the sky, with a panda driver.";
                     lastImageUrl = await dallE.GenerateImageAsync(imageDescription, 1024, 1024);
 
-                    await Console.Out.WriteLineAsync("生成成功！Image URL:" + lastImageUrl);
+                    await Console.Out.WriteLineAsync("Generation succeeded. Image URL:" + lastImageUrl);
 
-                    //返回：
+                    //return:
                     //Image URL:https://oaidalleapiprodscus.blob.core.windows.net/private/org-Bp9B5eGmPFtwDsnIwCV7UjKO/user-1v2aYDuCvJZl0m94gVtYOloH/img-NvtqM7hTcevNKhjpYjVA3Bwl.png?st=2023-04-09T06%3A36%3A55Z&se=2023-04-09T08%3A36%3A55Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-04-08T19%3A47%3A37Z&ske=2023-04-09T19%3A47%3A37Z&sks=b&skv=2021-08-06&sig=YPSGt9EvAACViGuoDPWoJ/8rnfVy9xu512/blVEYOl0%3D
                 }
 
                 await Console.Out.WriteLineAsync();
-                await Console.Out.WriteLineAsync("请继续输入：");
+                await Console.Out.WriteLineAsync("Please continue entering input:");
 
             }
 

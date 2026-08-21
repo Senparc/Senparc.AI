@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -16,7 +16,7 @@ namespace Senparc.AI.Kernel.HttpMessageHandlers
         }
 
         /// <summary>
-        /// 注册HttpMessageHandler，先注册的先调用
+        /// Register HttpMessageHandler. Earlier registrations are called first.
         /// </summary>
         /// <param name="handler"></param>
         /// <returns></returns>
@@ -27,7 +27,7 @@ namespace Senparc.AI.Kernel.HttpMessageHandlers
         }
 
         /// <summary>
-        /// 创建最终的HttpMessageHandler
+        /// Create the final HttpMessageHandler
         /// </summary>
         /// <returns></returns>
         public DelegatingHandler Build()
@@ -35,7 +35,7 @@ namespace Senparc.AI.Kernel.HttpMessageHandlers
             DelegatingHandler wrapper = new ConcreteHttpMessageHandler();
             DelegatingHandler current = wrapper;
             HttpMessageHandler last = _handlers.Last();
-            
+
             foreach (DelegatingHandler handler in _handlers)
             {
                 if (handler == last)

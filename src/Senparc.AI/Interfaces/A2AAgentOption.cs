@@ -4,23 +4,23 @@ using System.Collections.Generic;
 namespace Senparc.AI.Interfaces
 {
     /// <summary>
-    /// A2A 工具绑定模式。
+    /// A2A tool binding mode.
     /// </summary>
     public enum A2AToolBindingMode
     {
         /// <summary>
-        /// 本地函数代理：模型调用本地函数，本进程再转发到 A2A Agent。
+        /// Local function proxy: the model calls a local function, and this process forwards the request to the A2A Agent.
         /// </summary>
         LocalFunctionProxy = 0,
 
         /// <summary>
-        /// 预留：未来可扩展为原生 A2A Agent 调用模式。
+        /// Reserved for a future native A2A Agent invocation mode.
         /// </summary>
         NativeA2AAgent = 1
     }
 
     /// <summary>
-    /// A2A Agent 配置。
+    /// A2A Agent configuration.
     /// </summary>
     public class A2AAgentOption
     {

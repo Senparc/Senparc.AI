@@ -27,7 +27,7 @@ namespace Senparc.AI.AgentKernel.Kernels
     public class AiKernel
     {
         public ConfigModel[] ConfigModels { get; set; }
-        public object ChatClient { get; set; }//TODO:进行一次封装
+        public object ChatClient { get; set; }//TODO:wrap once
         public object ImageClient { get; set; }
         public object EmbeddingClient { get; set; }
         public object SpeechToTextClient { get; set; }
@@ -87,7 +87,7 @@ namespace Senparc.AI.AgentKernel.Kernels
                     Description = "You are a friendly assistant. Keep your answers brief"
                 };
 
-                // GPT-5+ / o 系列推理模型不支持 Temperature 等采样参数，创建 Agent 前先剥离
+                // GPT-5+ and o-series reasoning models do not support sampling parameters such as Temperature, so remove them before creating the Agent.
                 ChatOptionsSanitizer.SanitizeForModel(
                     ChatClientAgentOptions.ChatOptions,
                     ModelName?.Chat);
@@ -156,7 +156,7 @@ namespace Senparc.AI.AgentKernel.Kernels
         //public async Task<AgentResponse<T>> RunChatAsync<T>(string prompt, AgentSession? agentSession = null)
         //{
         //    EnsureChatConfigModel();
-        //    //TODO: Session 统一管理
+        //    //TODO: Session unified management
         //    var session = agentSession ??= AgentSession;
         //    var result = await ChatClientAgent.RunAsync<T>(prompt, session);
         //    return result;
@@ -184,7 +184,7 @@ namespace Senparc.AI.AgentKernel.Kernels
         //}
 
         ///// <summary>
-        ///// 流式运行 Agent（MAF <see cref="ChatClientAgent.RunStreamingAsync"/>）
+        ///// Streaming run Agent(MAF <see cref="ChatClientAgent.RunStreamingAsync"/>)
         ///// </summary>
         //public IAsyncEnumerable<AgentResponseUpdate> RunChatStreamingAsync(string prompt, AgentSession? agentSession = null, ChatClientAgentRunOptions? options = null, CancellationToken cancellationToken = default)
         //{
@@ -280,14 +280,14 @@ namespace Senparc.AI.AgentKernel.Kernels
             // Support ImageClientDescriptor produced by KernelBuilderExtension
             if (ImageClient is OpenAI.Images.ImageClient client)
             {
-#pragma warning disable OPENAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning disable OPENAI001 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
                 var options = new OpenAI.Images.ImageGenerationOptions()
                 {
                     Size = new OpenAI.Images.GeneratedImageSize(width, height),
                     Quality = quality ?? OpenAI.Images.GeneratedImageQuality.MediumQuality,
                     //Style = style ?? OpenAI.Images.GeneratedImageStyle.Vivid,
                 };
-#pragma warning restore OPENAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning restore OPENAI001 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
 
                 if (imageCount <= 1)
                 {

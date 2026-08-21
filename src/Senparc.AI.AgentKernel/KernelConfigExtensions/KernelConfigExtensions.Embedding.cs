@@ -66,7 +66,7 @@ namespace Senparc.AI.AgentKernel.Handlers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Senparc.AIKernel Embedding 出错：");
+                Console.WriteLine("Senparc.AIKernel Embedding error:");
                 Console.WriteLine(ex);
                 throw;
             }

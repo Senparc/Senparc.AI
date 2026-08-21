@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Senparc.AI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -7,15 +7,15 @@ using System.Linq;
 namespace Senparc.AI.AgentKernel.Mcp
 {
     /// <summary>
-    /// MCP 配置扩展。
+    /// MCP configuration extensions.
     /// </summary>
     public static class McpConfigurationExtensions
     {
         /// <summary>
-        /// 从配置中读取 MCP Server 列表。
+        /// Read the MCP Server list from configuration.
         /// </summary>
         /// <param name="configuration"></param>
-        /// <param name="sectionPath">默认：SenparcAiSetting:McpServers</param>
+        /// <param name="sectionPath">Default: SenparcAiSetting:McpServers</param>
         /// <returns></returns>
         public static IReadOnlyList<McpServerOption> GetMcpServerOptions(this IConfiguration configuration, string sectionPath = "SenparcAiSetting:McpServers")
         {

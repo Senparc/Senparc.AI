@@ -38,32 +38,32 @@ RegisterService.Start()
 
 Start:
 Console.WriteLine();
-Console.WriteLine("Senparc.AI AgentKernel Sample 启动完毕");
-Console.WriteLine("开源地址：https://github.com/Senparc/Senparc.AI");
+Console.WriteLine("Senparc.AI AgentKernel Sample started");
+Console.WriteLine("Open-source repository: https://github.com/Senparc/Senparc.AI");
 Console.WriteLine("-----------------------");
-Console.WriteLine($"当前模型：{SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform} - {SampleSetting.CurrentSetting.Endpoint}");
-Console.WriteLine($"当前 HttpClient 日志：{(SampleSetting.EnableHttpClientLog ? "开启" : "关闭")}");
-Console.WriteLine($"当前向量库：{SampleSetting.CurrentSetting.VectorDB?.Type} {SampleSetting.CurrentSetting.VectorDB?.ConnectionString}");
+Console.WriteLine($"Current model: {SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform} - {SampleSetting.CurrentSetting.Endpoint}");
+Console.WriteLine($"Current HttpClient logging: {(SampleSetting.EnableHttpClientLog ? "enabled" : "disabled")}");
+Console.WriteLine($"Current vector database: {SampleSetting.CurrentSetting.VectorDB?.Type} {SampleSetting.CurrentSetting.VectorDB?.ConnectionString}");
 Console.WriteLine("=======================");
 Console.WriteLine();
-Console.WriteLine("请输入序号，开始对应功能测试：");
-Console.WriteLine("[0] 进入设置");
-Console.WriteLine("[1] Chat 对话（AgentSession 多轮上下文）");
-Console.WriteLine("[2] Completion 单次补全（无历史上下文）");
-Console.WriteLine("[3] Embedding 与向量检索");
-Console.WriteLine("[4] GPT-Image-2 绘图");
-Console.WriteLine("[5] Planner 任务计划");
+Console.WriteLine("Enter a number to start the corresponding feature test:");
+Console.WriteLine("[0] Open settings");
+Console.WriteLine("[1] Chat (multi-turn context with AgentSession)");
+Console.WriteLine("[2] Single Completion (no conversation history)");
+Console.WriteLine("[3] Embedding and vector search");
+Console.WriteLine("[4] GPT-Image-2 image generation");
+Console.WriteLine("[5] Planner task planning");
 Console.WriteLine("[6] PluginFromObject / Function Calling");
-Console.WriteLine("[7] STT（Speech to Text）");
-Console.WriteLine("[8] TTS（Text to Speech）");
-Console.WriteLine("[9] MCP（LocalFunctionProxy / HostedServerTool）");
-Console.WriteLine("[10] A2A（LocalFunctionProxy）");
-Console.WriteLine("[11] Harness Agent（Todo / plan-execute / 上下文压缩）");
+Console.WriteLine("[7] STT (Speech to Text)");
+Console.WriteLine("[8] TTS (Text to Speech)");
+Console.WriteLine("[9] MCP (LocalFunctionProxy / HostedServerTool)");
+Console.WriteLine("[10] A2A (LocalFunctionProxy)");
+Console.WriteLine("[11] Harness Agent (Todo / plan-execute / context compression)");
 Console.WriteLine();
 
 var index = Console.ReadLine();
 Console.WriteLine();
-await Console.Out.WriteLineAsync("任意时间输入 exit 可退出当前示例。");
+await Console.Out.WriteLineAsync("Enter exit at any time to leave the current sample.");
 Console.WriteLine();
 
 switch (index)
@@ -75,9 +75,9 @@ switch (index)
         await serviceProvider.GetRequiredService<CompletionSample>().RunAsync();
         break;
     case "3":
-        Console.WriteLine("请选择 Embedding 子项：");
-        Console.WriteLine("[1] 生成向量 + 相似度检索");
-        Console.WriteLine("[2] RAG（TextSearchProvider）");
+        Console.WriteLine("Select an Embedding option:");
+        Console.WriteLine("[1] Generate vectors and run similarity search");
+        Console.WriteLine("[2] RAG (TextSearchProvider)");
         var sub = Console.ReadLine();
         try
         {
@@ -90,7 +90,7 @@ switch (index)
                     await serviceProvider.GetRequiredService<EmbeddingRagSample>().RunAsync();
                     break;
                 default:
-                    Console.WriteLine("序号错误，请重新开始！");
+                    Console.WriteLine("Invalid number. Please start again.");
                     break;
             }
         }
@@ -104,7 +104,7 @@ switch (index)
         await serviceProvider.GetRequiredService<ImageGenerateSample>().RunAsync();
         break;
     case "5":
-        await NotSupportedSample.RunAsync("Planner 任务计划");
+        await NotSupportedSample.RunAsync("Planner task planning");
         break;
     case "6":
         await NotSupportedSample.RunAsync("PluginFromObject / Function Calling");
@@ -128,10 +128,10 @@ switch (index)
         serviceProvider.GetRequiredService<SampleSetting>().Run();
         break;
     default:
-        Console.WriteLine("序号错误，请重新开始！");
+        Console.WriteLine("Invalid number. Please start again.");
         break;
 }
 
-Console.WriteLine("好，让我们重新开始！");
+Console.WriteLine("All right, let's start again.");
 Console.WriteLine();
 goto Start;

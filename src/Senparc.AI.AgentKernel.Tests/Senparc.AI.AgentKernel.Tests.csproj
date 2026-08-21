@@ -4,9 +4,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <Version>1.0.1</Version>
     <PackageReleaseNotes>
-      [2026-07-31] v1.0.1 增加 System.Text.Json 与依赖图回归验证
-      1、升级 CO2NET AspNet 和 Redis 测试依赖
-      2、验证序列化行为、程序集引用及生产项目依赖图不包含 Newtonsoft.Json
+      [2026-07-31] v1.0.1 Add System.Text.Json and dependency graph regression verification
+      1. Upgrade CO2NET AspNet and Redis test dependencies
+      2. Verify serialization behavior, assembly references, and that production project dependency graphs do not include Newtonsoft.Json
     </PackageReleaseNotes>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>

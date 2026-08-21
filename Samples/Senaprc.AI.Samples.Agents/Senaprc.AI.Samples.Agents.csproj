@@ -5,9 +5,9 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Version>1.0.1</Version>
 		<PackageReleaseNotes>
-			[2026-07-31] v1.0.1 升级 CO2NET 并清理 Newtonsoft.Json 传递依赖
-			1、升级 CO2NET Core、APM 和 AspNet 组件至最新兼容版本
-			2、将 AutoGen 元包拆分为实际使用的 Core、Mistral 和 SemanticKernel 组件
+			[2026-07-31] v1.0.1 Upgrade CO2NET and remove the transitive Newtonsoft.Json dependency
+			1. Upgrade the CO2NET Core, APM, and AspNet components to the latest compatible versions
+			2. Replace the AutoGen metapackage with the Core, Mistral, and SemanticKernel components actually used
 		</PackageReleaseNotes>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>

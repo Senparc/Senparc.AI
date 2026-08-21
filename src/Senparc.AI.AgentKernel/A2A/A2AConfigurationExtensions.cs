@@ -7,15 +7,15 @@ using System.Linq;
 namespace Senparc.AI.AgentKernel.A2A
 {
     /// <summary>
-    /// A2A 配置扩展。
+    /// A2A configuration extensions.
     /// </summary>
     public static class A2AConfigurationExtensions
     {
         /// <summary>
-        /// 从配置中读取 A2A Agent 列表。
+        /// Reads the list of A2A Agents from configuration.
         /// </summary>
         /// <param name="configuration"></param>
-        /// <param name="sectionPath">默认：SenparcAiSetting:A2AAgents</param>
+        /// <param name="sectionPath">Default: SenparcAiSetting:A2AAgents</param>
         /// <returns></returns>
         public static IReadOnlyList<A2AAgentOption> GetA2AAgentOptions(this IConfiguration configuration, string sectionPath = "SenparcAiSetting:A2AAgents")
         {

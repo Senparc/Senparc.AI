@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +10,7 @@ namespace Senparc.AI
 It can give explicit instructions or say 'I don't know' if it does not have an answer.";
 
         /// <summary>
-        /// 获取给 Chat 用的 Prompt
+        /// Get the Prompt used for Chat
         /// </summary>
         /// <param name="systemMessage"></param>
         /// <param name="humanId"></param>

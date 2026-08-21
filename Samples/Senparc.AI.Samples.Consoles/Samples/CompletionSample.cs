@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel;
 using Senparc.AI.Entities;
 using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
@@ -23,14 +23,14 @@ namespace Senparc.AI.Samples.Consoles.Samples
         public CompletionSample(IAiHandler aiHandler)
         {
             _aiHandler = aiHandler;
-            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//Synchronize logging setting state
         }
 
         public async Task RunAsync()
         {
-            await Console.Out.WriteLineAsync(@"CompletionSample 开始运行，请输入对话内容（不具备历史上下文）。
+            await Console.Out.WriteLineAsync(@"CompletionSample started, Enter conversation content (without history context).
 
-输入 exit 退出。");
+Enter exit to leave.");
 
             var promptParameter = new PromptConfigParameter()
             {
@@ -41,8 +41,8 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             //var functionPrompt = @"{{$input}}";
 
-            //准备运行
-            var userId = "JeffreySu";//区分用户
+            //Prepare to run
+            var userId = "JeffreySu";//Distinguish users
             var iWantToRun =
                         _semanticAiHandler.IWantTo()
                         .ConfigModel(ConfigModel.TextCompletion, userId)
@@ -53,16 +53,16 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             var multiLineContent = new StringBuilder();
             var useMultiLine = false;
-            //开始对话
+            //Start conversation
             while (true)
             {
 
-                await Console.Out.WriteLineAsync("提示词：");
+                await Console.Out.WriteLineAsync("Prompt:");
                 var prompt = Console.ReadLine();
 
                 if (prompt.IsNullOrEmpty())
                 {
-                    await Console.Out.WriteLineAsync("请填写提示词！");
+                    await Console.Out.WriteLineAsync("Please enter a prompt.");
                     continue;
                 }
 
@@ -72,7 +72,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
                 else if (prompt.ToUpper() == "[ML]")
                 {
-                    await Console.Out.WriteLineAsync("识别到多行模式，请继续输入");
+                    await Console.Out.WriteLineAsync("Multiline mode detected. Continue entering text.");
                     useMultiLine = true;
                 }
 
@@ -85,7 +85,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                     }
                     else
                     {
-                        await Console.Out.WriteLineAsync("请继续输入，直到输入 [END] 停止...");
+                        await Console.Out.WriteLineAsync("Continue entering text until [END] is entered...");
                         prompt = Console.ReadLine();
                         multiLineContent.Append(prompt);
                     }
@@ -93,15 +93,15 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 var dt = SystemTime.Now;
 
-                //封装请求内容
+                //Wrap request content
                 var request = iWantToRun.CreateRequest(prompt, true);
 
-                await Console.Out.WriteLineAsync("回复：");
+                await Console.Out.WriteLineAsync("Response:");
 
                 var useStream = iWantToRun.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
                 if (useStream)
                 {
-                    //使用流式输出
+                    //Use streaming output
                     Action<StreamingKernelContent> streamItemProceessing = async item =>
                     {
                         await Console.Out.WriteAsync(item.ToString());
@@ -110,7 +110,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 }
                 else
                 {
-                    //使用整体输出
+                    //Use full output
                     var result = await iWantToRun.RunAsync(request);
                     await Console.Out.WriteLineAsync(result.OutputString);
                 }

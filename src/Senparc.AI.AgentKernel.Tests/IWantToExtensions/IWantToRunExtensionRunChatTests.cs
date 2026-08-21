@@ -50,7 +50,7 @@ public class IWantToRunExtensionRunChatTests : KernelTestBase
     {
         if (!RunChatTestHelper.SupportsStreaming(_senparcAiSetting))
         {
-            Assert.Inconclusive("当前 AiPlatform 不支持流式输出，已跳过。");
+            Assert.Inconclusive("current AiPlatform does not support streaming output, skipped.");
             return;
         }
 
@@ -72,7 +72,7 @@ public class IWantToRunExtensionRunChatTests : KernelTestBase
     {
         if (!RunChatTestHelper.SupportsStreaming(_senparcAiSetting))
         {
-            Assert.Inconclusive("当前 AiPlatform 不支持流式输出，已跳过。");
+            Assert.Inconclusive("current AiPlatform does not support streaming output, skipped.");
             return;
         }
 
@@ -109,7 +109,7 @@ public class IWantToRunExtensionRunChatTests : KernelTestBase
         {
             ChatOptions = new ChatOptions()
             {
-                Instructions = "你是一个会调用工具的机器人，负责使用工具（function-calling）处理问题，只要能够用工具，就不要用推理回答问题。",
+                Instructions = "You are an assistant that can call tools. Use function-calling tools to handle questions whenever possible instead of answering by reasoning alone.",
                 MaxOutputTokens = 2000,
                 TopP = 0.2f,
                 Temperature = 0.2f,
@@ -124,20 +124,20 @@ public class IWantToRunExtensionRunChatTests : KernelTestBase
 
         //Single Tool
         {
-            var result = await iWantToRun.RunChatAsync("请问现在几点钟？");
+            var result = await iWantToRun.RunChatAsync("What time is it now?");
             Console.WriteLine(result.OutputString);
             Assert.IsTrue(result.OutputString.Contains(SystemTime.Now.Year.ToString()));
         }
 
         //Multiple Tools
         {
-            var result = await iWantToRun.RunChatAsync("请问现在几点钟？把获取到的时间中，提取当前的年份数字，加上100形成一个新的数字，然后当作字符串进行处理，最后告诉我这个字符串结果。");
+            var result = await iWantToRun.RunChatAsync("What time is it now? Extract the current year from the obtained time, add 100 to form a new number, process it as a string, and finally tell me the string result.");
             Console.WriteLine(result.OutputString);
             Assert.IsTrue(result.OutputString.Contains((SystemTime.Now.Year + 100).ToString()));
             Assert.IsTrue(result.OutputString.Contains(functionCall.Name));
             Assert.IsTrue(result.OutputString.Contains(functionCall.Arguments));
 
-            Console.WriteLine("用量：" + result.Result.Usage.ToJson(true));
+            Console.WriteLine("Usage:" + result.Result.Usage.ToJson(true));
         }
 
 
@@ -152,19 +152,19 @@ public class FunctionCall
 
 
 
-    [Description("获取当前时间")]
+    [Description("Get current time")]
     public DateTime Now()
     {
         return DateTime.Now;
     }
 
-    [Description("计算两个数的和")]
+    [Description("Calculate the sum of two numbers")]
     public double CalcPlus(double x, double y)
     {
         return x + y;
     }
 
-    [Description("处理字符串")]
+    [Description("Process a string")]
     public string Echo(string input)
     {
         return $"Echo: {input} + {Name} +{Arguments}";
