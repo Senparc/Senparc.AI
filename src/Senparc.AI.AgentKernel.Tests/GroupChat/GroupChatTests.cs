@@ -24,10 +24,10 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             var iWRManager = await aiHandlerManager.IWantTo().ConfigChatModel("Jeffrey-1", new ChatClientAgentOptions()
             {
                 Name = "MagenticManager",
-                Description = "你是一位 Orchestrator，负责协调不同人讲话，并完成任务，每一轮需要有不同的人来发言",
+                Description = "You are an Orchestrator responsible for coordinating different speakers and completing the task. A different person should speak in each round.",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是一位 Orchestrator，负责协调所有对话，在一个智能体发言完毕后，再决定下一个发言的智能体，并且决定何时终止对话。请注意：next_speaker 必须和上一个发言人不同！",
+                    Instructions = "You are an Orchestrator responsible for coordinating all conversations. After one agent finishes speaking, decide the next speaking agent and when to end the conversation. Note: next_speaker must be different from the previous speaker.",
                     MaxOutputTokens = 1000
                 }
             }).BuildKernelWithAgentSessionAsync();
@@ -36,10 +36,10 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             var iWRTeacher = await aiHandlerTeacher.IWantTo().ConfigChatModel("Jeffrey-2", new ChatClientAgentOptions()
             {
                 Name = "Teacher",
-                Description="你是一位老师，负责按照要求出题。注意：你不能生成任何解题思路。",
+                Description = "You are a teacher responsible for creating questions as requested. Note: do not generate any solution steps.",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是一位老师，负责按照要求出题。注意：你不能生成任何解题思路。",
+                    Instructions = "You are a teacher responsible for creating questions as requested. Note: do not generate any solution steps.",
                     MaxOutputTokens = 1000
                 }
             }).BuildKernelWithAgentSessionAsync();
@@ -47,10 +47,10 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             var iWRStudentA = await aiHandlerStudentA.IWantTo().ConfigChatModel("Jeffrey-3", new ChatClientAgentOptions()
             {
                 Name = "StudentA",
-                Description = "你是一位学生，负责回答老师的问题，回答需要尽量简洁，只回答结果。",
+                Description = "You are a student responsible for answering the teacher's question. Keep the answer concise and return only the result.",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "尽量在20个字以内回答问题",
+                    Instructions = "Answer the question in no more than 20 words.",
                     MaxOutputTokens = 100
                 }
             }).BuildKernelWithAgentSessionAsync();
@@ -58,21 +58,21 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             var iWRStudentB = await aiHandlerStudentB.IWantTo().ConfigChatModel("Jeffrey-4", new ChatClientAgentOptions()
             {
                 Name = "StudentB",
-                Description = "你是一位学生，负责回答老师的问题，回答问题需要使用诗词的口吻",
+                Description = "You are a student responsible for answering the teacher's question. Answer in a poetic tone.",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是一位学生，负责回答老师的问题，回答问题需要使用诗词的口吻，最后翻译成英文",
+                    Instructions = "You are a student responsible for answering the teacher's question. Answer in a poetic tone, then translate it into English.",
                     MaxOutputTokens = 200
                 }
             }).BuildKernelWithAgentSessionAsync();
 
 
 
-            //AIAgent stuA = (iWRStudentB.Kernel.ChatClient as ChatClient).AsAIAgent("你是一位学生，负责用精简的语言回答问题", "StudentA", "你是一位学生，负责用精简的语言回答问题");
-            //AIAgent stuB = (iWRStudentB.Kernel.ChatClient as ChatClient).AsAIAgent("你是一位学生，负责用精简的语言回答问题，回答完问题后翻译成英文", "StudentB", "你是一位学生，负责用精简的语言回答问题，回答完问题后翻译成英文");
+            //AIAgent stuA = (iWRStudentB.Kernel.ChatClient as ChatClient).AsAIAgent("You are a student responsible for answering questions concisely", "StudentA", "You are a student responsible for answering questions concisely");
+            //AIAgent stuB = (iWRStudentB.Kernel.ChatClient as ChatClient).AsAIAgent("You are a student responsible for answering questions concisely, then translating the answer into English", "StudentB", "You are a student responsible for answering questions concisely, then translating the answer into English");
 
-#pragma warning disable IDE0059 // 不需要赋值
-#pragma warning disable MAAIW001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning disable IDE0059 // Assignment is not required
+#pragma warning disable MAAIW001 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
             Workflow workflow = new MagenticWorkflowBuilder(iWRManager.Kernel.ChatClientAgent)
                 .AddParticipants([
                     //stuA,stuB
@@ -80,7 +80,7 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
                         iWRStudentA.Kernel.ChatClientAgent,
                         iWRTeacher.Kernel.ChatClientAgent])
                 .WithName("Homework")
-                .WithDescription("组织成员进行对话")
+                .WithDescription("Organize members for conversation")
                 .RequirePlanSignoff(false)
                 .WithMaxRounds(10)
                 .WithMaxStalls(3)
@@ -91,9 +91,9 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             Console.WriteLine("ToMermaidString: \r\n" + workflow.ToMermaidString());
 
 
-            var taskPrompt = @"请按照如下过程解决问题：
-1. 请 Teacher 老师出一个鸡兔同笼的数学题，数字可以随机定义。老师只能出题，不能分析答案。
-2. 让所有学生 Students 依次回答（StudentA、StudentB）";
+            var taskPrompt = @"Solve the problem with the following process:
+1. Ask the Teacher to create a chickens-and-rabbits math problem with random numbers. The teacher may only provide the question and must not analyze the answer.
+2. Let all students answer in sequence: StudentA, then StudentB.";
 
             await using StreamingRun run = await InProcessExecution.RunStreamingAsync(workflow, new List<ChatMessage> { new(ChatRole.User, taskPrompt) });
 
@@ -185,8 +185,8 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
 
             Console.WriteLine("ChatMessages: " + list.Select(z => $"[{z.Role.Value}]: {z.Text}").ToJson(true));
 
-#pragma warning restore MAAIW001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-#pragma warning restore IDE0059 // 不需要赋值
+#pragma warning restore MAAIW001 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
+#pragma warning restore IDE0059 // Assignment is not required
 
         }
 
@@ -202,10 +202,10 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
 
             var iWRManager = await aiHandlerManager.IWantTo().ConfigChatModel("Manager", new ChatClientAgentOptions()
             {
-                Name = "群主",
+                Name = "Group Host",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是群主，负责协调所有对话，在一个智能体发言完毕后，再决定下一个发言的智能体，并且决定何时终止对话",
+                    Instructions = "You are the Group Host, responsible for coordinating all conversations, after one agent finishes speaking, then decide the next speaking agent, and decide when to end the conversation",
                     MaxOutputTokens = 1000
                 }
             }).BuildKernelWithAgentSessionAsync();
@@ -215,7 +215,7 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
                 Name = "Teacher",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是一位老师，负责出题，不用进行分析",
+                    Instructions = "You are a teacher responsible for creating questions. Do not analyze them.",
                     MaxOutputTokens = 1000
                 }
             }).BuildKernelWithAgentSessionAsync();
@@ -225,7 +225,7 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
                 Name = "StudentA",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是一位学生，负责回答老师的问题，回答需要尽量简洁，只回答结果。",
+                    Instructions = "You are a student responsible for answering the teacher's question. Keep the answer concise and return only the result.",
                     MaxOutputTokens = 1000
                 }
             }).BuildKernelWithAgentSessionAsync();
@@ -235,22 +235,22 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
                 Name = "StudentB",
                 ChatOptions = new ChatOptions()
                 {
-                    Instructions = "你是一位学生，负责回答老师的问题，回答问题需要使用诗词的口吻",
+                    Instructions = "You are a student responsible for answering the teacher's question. Answer in a poetic tone.",
                     MaxOutputTokens = 1000
                 }
             }).BuildKernelWithAgentSessionAsync();
 
-#pragma warning disable IDE0059 // 不需要赋值
-#pragma warning disable MAAIW001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning disable IDE0059 // Assignment is not required
+#pragma warning disable MAAIW001 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
             Workflow workflow = AgentWorkflowBuilder.BuildSequential([
                         iWRTeacher.Kernel.ChatClientAgent,
                         iWRStudentA.Kernel.ChatClientAgent,
                         iWRStudentB.Kernel.ChatClientAgent,
                         ]);
 
-            var taskPrompt = @"请按照如下过程解决问题：
-1. 请 Teacher 老师出一个鸡兔同笼的数学题，数字可以随机定义
-2. 让所有学生 Students 分别回答";
+            var taskPrompt = @"Solve the problem with the following process:
+1. Ask the Teacher to create a chickens-and-rabbits math problem with random numbers.
+2. Have all students answer separately";
 
             await using StreamingRun run = await InProcessExecution.RunStreamingAsync(workflow, new List<ChatMessage> { new(ChatRole.User, taskPrompt) });
 
@@ -330,8 +330,8 @@ namespace Senparc.AI.AgentKernel.Tests.GroupChat
             Console.WriteLine("========");
             Console.WriteLine("TotalTokenCount: " + totalTokenCount);
 
-#pragma warning restore MAAIW001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-#pragma warning restore IDE0059 // 不需要赋值
+#pragma warning restore MAAIW001 // Type is for evaluation only and may be changed or removed in a future update. Suppress this diagnostic to continue.
+#pragma warning restore IDE0059 // Assignment is not required
 
         }
     }

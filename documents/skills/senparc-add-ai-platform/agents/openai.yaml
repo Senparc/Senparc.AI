@@ -1,4 +1,4 @@
 interface:
   display_name: "Senparc Add AI Platform"
-  short_description: "在 Senparc.AI 与 AgentKernel 中新增/升级 AI 平台接入，含参数、映射、测试与文档校验。"
+  short_description: "Add or upgrade AI platform integration in Senparc.AI and AgentKernel, including parameters, mappings, tests, and documentation checks."
   default_prompt: "Use this skill when adding or upgrading an AI provider in Senparc.AI or Senparc.AI.AgentKernel; enforce provider-specific parameters, endpoint/auth mapping, and required tests/docs."

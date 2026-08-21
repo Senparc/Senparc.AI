@@ -37,7 +37,7 @@ namespace Senparc.AI.AgentKernel.Tests.KernelConfigExtensions
         public string SourceLink { get; set; } = string.Empty;
         //[VectorStoreData(IsFullTextIndexed = true)]
         public string Text { get; set; } = string.Empty;
-        //[VectorStoreVector(dimensions: 3072 /*根据模型调整，例如 text-embedding-ada-002 为 1536，Large 为 3072*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
+        //[VectorStoreVector(dimensions: 3072 /*Adjust based on the model; for example, text-embedding-ada-002 is 1536 and Large is 3072*/, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw)]
         public ReadOnlyMemory<float> Embedding { get; set; } = null;
     }
 

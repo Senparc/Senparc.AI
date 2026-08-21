@@ -1,4 +1,4 @@
-using Microsoft.Agents.AI;
+﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
 using Senparc.AI.Interfaces;
@@ -11,16 +11,16 @@ using System.Threading.Tasks;
 namespace Senparc.AI.AgentKernel.Mcp
 {
     /// <summary>
-    /// MCP 工具集构建器。
+    /// MCP toolset builder.
     /// </summary>
     public static class McpToolsetBuilder
     {
         public const string DefaultPublicBaseUrlEnvName = "MCP_PUBLIC_BASE_URL";
 
-        public const string DefaultSystemPrompt = "你是一个会主动调用 MCP 工具的助手。凡是可以通过工具完成的问题，优先调用工具并给出结果。";
+        public const string DefaultSystemPrompt = "You are an assistant that proactively calls MCP tools. For any request that can be completed with tools, prefer calling tools and return the result.";
 
         /// <summary>
-        /// 根据配置准备 MCP 工具集合（用于 ChatOptions.Tools）。
+        /// Prepare the MCP tool collection from configuration (for ChatOptions.Tools).
         /// </summary>
         public static async Task<McpToolsetResult> PrepareAsync(McpServerOption option, string? resolvedSseUrl = null)
         {
@@ -29,12 +29,12 @@ namespace Senparc.AI.AgentKernel.Mcp
             resolvedSseUrl ??= ResolveSseUrl(option);
             if (string.IsNullOrWhiteSpace(resolvedSseUrl))
             {
-                throw new InvalidOperationException("未解析到可用的 SSE URL。");
+                throw new InvalidOperationException("No available SSE URL was resolved.");
             }
 
             if (!Uri.TryCreate(resolvedSseUrl, UriKind.Absolute, out var mcpUri))
             {
-                throw new InvalidOperationException($"SSE URL 无效：{resolvedSseUrl}");
+                throw new InvalidOperationException($"Invalid SSE URL: {resolvedSseUrl}");
             }
 
             var bindingMode = option.GetBindingMode();
@@ -76,7 +76,7 @@ namespace Senparc.AI.AgentKernel.Mcp
         }
 
         /// <summary>
-        /// 生成 MCP 场景常用的 ChatClientAgentOptions。
+        /// Generate common ChatClientAgentOptions for MCP scenarios.
         /// </summary>
         public static ChatClientAgentOptions CreateChatClientAgentOptions(
             IReadOnlyList<AITool> chatTools,
@@ -108,7 +108,7 @@ namespace Senparc.AI.AgentKernel.Mcp
         }
 
         /// <summary>
-        /// 通过 MCP 构建结果直接生成 ChatClientAgentOptions。
+        /// Generate ChatClientAgentOptions directly from an MCP build result.
         /// </summary>
         public static ChatClientAgentOptions CreateChatClientAgentOptions(
             this McpToolsetResult result,
@@ -124,8 +124,8 @@ namespace Senparc.AI.AgentKernel.Mcp
         }
 
         /// <summary>
-        /// 解析可用 SSE 地址：
-        /// SseUrl(公网) > LocalSseUrl + PublicBaseUrl/环境变量映射 > LocalSseUrl(原值)。
+        /// Resolve the available SSE address:
+        /// SseUrl (public) > LocalSseUrl + PublicBaseUrl/environment variable mapping > LocalSseUrl (original value).
         /// </summary>
         public static string? ResolveSseUrl(McpServerOption option, string publicBaseUrlEnvName = DefaultPublicBaseUrlEnvName)
         {
@@ -161,7 +161,7 @@ namespace Senparc.AI.AgentKernel.Mcp
         }
 
         /// <summary>
-        /// 用公网 Base URL 替换本地地址的域名/端口，保留原 LocalSseUrl 的路径和查询参数。
+        /// Replace the local address domain/port with the public Base URL while preserving the original LocalSseUrl path and query parameters.
         /// </summary>
         public static bool TryMergePublicBaseUrl(string publicBaseUrl, string localSseUrl, out string mergedUrl, out string error)
         {
@@ -170,13 +170,13 @@ namespace Senparc.AI.AgentKernel.Mcp
 
             if (!Uri.TryCreate(publicBaseUrl, UriKind.Absolute, out var publicUri))
             {
-                error = $"PublicBaseUrl 不是合法 URL：{publicBaseUrl}";
+                error = $"PublicBaseUrl is not a valid URL: {publicBaseUrl}";
                 return false;
             }
 
             if (!Uri.TryCreate(localSseUrl, UriKind.Absolute, out var localUri))
             {
-                error = $"LocalSseUrl 不是合法 URL：{localSseUrl}";
+                error = $"LocalSseUrl is not a valid URL: {localSseUrl}";
                 return false;
             }
 
@@ -191,7 +191,7 @@ namespace Senparc.AI.AgentKernel.Mcp
         }
 
         /// <summary>
-        /// 判断 URL 是否为本地回环地址。
+        /// Determine whether the URL is a local loopback address.
         /// </summary>
         public static bool IsLocalAddress(string url)
         {

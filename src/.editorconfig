@@ -1,4 +1,4 @@
-﻿[*.cs]
+[*.cs]
 
-# IDE0058: 永远不会使用表达式值
+# IDE0058: Expression value is never used
 dotnet_diagnostic.IDE0058.severity = none

@@ -1,4 +1,4 @@
-﻿using Senparc.AI.Interfaces;
+using Senparc.AI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,18 +6,18 @@ using System.Text;
 namespace Senparc.AI
 {
     /// <summary>
-    /// Senparc.AI 配置
+    /// Senparc.AI configuration
     /// </summary>
     public static class Config
     {
         /// <summary>
-        /// 当前配置
+        /// current configuration
         /// </summary>
         public static ISenparcAiSetting SenparcAiSetting { get; set; }
 
         static Config()
         {
-            ////初始化 SenparcAiSettings
+            ////Initialize SenparcAiSettings
             //SenparcAiSettings = new SenparcAiSetting();
         }
     }

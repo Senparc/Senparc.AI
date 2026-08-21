@@ -7,7 +7,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// Embedding 生成与向量检索，参考 KernelConfigExtensions.EmbeddingTests.EmbeddingStoreTest。
+/// Embedding generation and vector search. See KernelConfigExtensions.EmbeddingTests.EmbeddingStoreTest.
 /// </summary>
 public class EmbeddingSample
 {
@@ -28,12 +28,12 @@ public class EmbeddingSample
     {
         if (_aiHandler is not AgentAiHandler agentHandler)
         {
-            throw new InvalidOperationException("当前示例需要 AgentAiHandler。");
+            throw new InvalidOperationException("This sample requires AgentAiHandler.");
         }
 
         var setting = SampleSetting.CurrentSetting;
-        Console.WriteLine("EmbeddingSample：先生成向量并写入内存向量库，再进行相似度检索。");
-        Console.WriteLine("录入阶段：每行输入一段文本，输入 n 进入检索阶段。");
+        Console.WriteLine("EmbeddingSample:Generate vectors, write them to the in-memory vector store, then run similarity search.");
+        Console.WriteLine("Input stage: enter one text segment per line. Enter n to start the search stage.");
         Console.WriteLine();
 
         var iWantToRun = agentHandler.IWantTo(setting)
@@ -46,7 +46,7 @@ public class EmbeddingSample
         var id = 1ul;
         while (true)
         {
-            Console.WriteLine($"[{id}] 请输入文本（n 结束录入）：");
+            Console.WriteLine($"[{id}] Enter text(n finish input):");
             var text = Console.ReadLine();
             if (text == "n")
             {
@@ -69,16 +69,16 @@ public class EmbeddingSample
             ]);
 
             var vec = await iWantToRun.GetEmbeddingAsync(text);
-            Console.WriteLine($"[调试] 已写入 doc-{id}，向量维度：{vec.Length}");
+            Console.WriteLine($"[Debug] Written doc-{id}, vector dimensions:{vec.Length}");
             id++;
         }
 
         Console.WriteLine();
-        Console.WriteLine("检索阶段：输入问题，输入 exit 退出。");
+        Console.WriteLine("Retrieval phase: enter a question, or enter exit to leave.");
 
         while (true)
         {
-            Console.WriteLine("请提问：");
+            Console.WriteLine("Enter a question:");
             var question = Console.ReadLine();
             if (question.IsNullOrEmpty())
             {
@@ -96,7 +96,7 @@ public class EmbeddingSample
             foreach (var item in hits)
             {
                 j++;
-                Console.WriteLine($"应答结果[{j}]：");
+                Console.WriteLine($"Response result[{j}]:");
                 Console.WriteLine($"  Id: {item.SourceId}");
                 Console.WriteLine($"  Name: {item.SourceName}");
                 Console.WriteLine($"  Text: {item.Text}");
@@ -105,10 +105,10 @@ public class EmbeddingSample
 
             if (j == 0)
             {
-                Console.WriteLine("无匹配结果");
+                Console.WriteLine("No matching results");
             }
 
-            Console.WriteLine($"[调试] 检索耗时 {(DateTime.Now - dt).TotalMilliseconds}ms");
+            Console.WriteLine($"[Debug] Search elapsed time {(DateTime.Now - dt).TotalMilliseconds}ms");
             Console.WriteLine();
         }
     }

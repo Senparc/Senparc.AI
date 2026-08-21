@@ -5,9 +5,9 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Version>1.0.1</Version>
 		<PackageReleaseNotes>
-			[2026-07-31] v1.0.1 对齐 CO2NET 最新组件版本
-			1、升级 Core、AspNet、CsRedis 和 WebApi 依赖以统一运行时版本
-			2、保持 Semantic Kernel 与 SenMapic 示例的现有使用方式
+			[2026-07-31] v1.0.1 Align with the latest CO2NET component versions
+			1. Upgrade Core, AspNet, CsRedis, and WebApi dependencies to unify runtime versions
+			2. Preserve the existing usage patterns in the Semantic Kernel and SenMapic samples
 		</PackageReleaseNotes>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>

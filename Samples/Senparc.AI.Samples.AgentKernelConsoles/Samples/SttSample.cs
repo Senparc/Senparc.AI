@@ -7,7 +7,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// Speech-To-Text 示例（Whisper）。
+/// Speech-to-text sample using Whisper.
 /// </summary>
 public class SttSample
 {
@@ -26,15 +26,15 @@ public class SttSample
     {
         if (_aiHandler is not AgentAiHandler agentHandler)
         {
-            throw new InvalidOperationException("当前示例需要 AgentAiHandler。");
+            throw new InvalidOperationException("This sample requires AgentAiHandler.");
         }
 
         agentHandler.AgentKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);
 
-        Console.WriteLine("STT（Speech-To-Text）示例");
-        Console.WriteLine("支持输入格式：flac, m4a, mp3, mp4, mpeg, mpga, oga, ogg, wav, webm");
-        Console.WriteLine("输入音频文件路径，输入 exit 退出。");
-        Console.WriteLine("提示：可先尝试 `../../../STT-Test.m4a`。");
+        Console.WriteLine("STT (Speech-to-Text) sample");
+        Console.WriteLine("Supported input formats: flac, m4a, mp3, mp4, mpeg, mpga, oga, ogg, wav, webm");
+        Console.WriteLine("Enter an audio file path, or enter exit to leave.");
+        Console.WriteLine("Tip: try `../../../STT-Test.m4a` first.");
         Console.WriteLine();
 
         var iWantToRun = agentHandler.IWantTo(SampleSetting.CurrentSetting)
@@ -43,7 +43,7 @@ public class SttSample
 
         while (true)
         {
-            Console.WriteLine("音频文件路径：");
+            Console.WriteLine("Audio file path:");
             var audioFilePath = Console.ReadLine();
             if (audioFilePath.IsNullOrEmpty())
             {
@@ -57,12 +57,12 @@ public class SttSample
 
             if (!File.Exists(audioFilePath))
             {
-                Console.WriteLine("文件不存在，请重试。");
+                Console.WriteLine("File does not exist. Please try again.");
                 Console.WriteLine();
                 continue;
             }
 
-            Console.WriteLine("识别语言（可空，默认自动识别；例如 zh/en）：");
+            Console.WriteLine("Recognition language (optional; empty uses automatic detection, for example zh/en):");
             var language = Console.ReadLine();
 
             try
@@ -75,18 +75,18 @@ public class SttSample
                 var result = await iWantToRun.Kernel.SpeechToTextAsync(audioFilePath, options);
 
                 Console.WriteLine();
-                Console.WriteLine($"识别结果(耗时：{SystemTime.DiffTotalMS(dt1)}ms)：");
+                Console.WriteLine($"Recognition result (elapsed: {SystemTime.DiffTotalMS(dt1)}ms):");
                 Console.WriteLine(result.Value.Text);
-                Console.WriteLine($"[调试] Language={result.Value.Language}, Duration={result.Value.Duration}");
+                Console.WriteLine($"[Debug] Language={result.Value.Language}, Duration={result.Value.Duration}");
                 Console.WriteLine();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("识别失败：" + ex.Message);
+                Console.WriteLine("Recognition failed: " + ex.Message);
                 Console.WriteLine();
             }
         }
 
-        Console.WriteLine("STT 示例结束。");
+        Console.WriteLine("STT sample ended.");
     }
 }

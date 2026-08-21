@@ -1,5 +1,5 @@
 /**
-Last Modified: 20231207 - 修复中文乱码
+Last Modified: 20231207 - fixed Chinese encoding issues
 Modified By FelixJ
 */
 
@@ -38,12 +38,12 @@ namespace Senparc.AI.Kernel
         public PromptConfigParameter ParameterConfig { get; set; }
 
         /// <summary>
-        /// 单次请求的临时上下文
+        /// Temporary context for a single request
         /// </summary>
         public SenparcAiArguments TempAiArguments { get; set; }
 
         /// <summary>
-        /// 在 IWantTo 里面缓存的上下文
+        /// in IWantTo context cached inside
         /// </summary>
         public SenparcAiArguments StoreAiArguments => IWantToRun.StoredAiArguments;
         /// <summary>
@@ -51,11 +51,11 @@ namespace Senparc.AI.Kernel
         /// </summary>
         public KernelFunction[] FunctionPipeline { get; set; }
         ///// <summary>
-        ///// Rqesut.ContextVariables 参数不会保存到上下文缓存中
+        ///// Rqesut.ContextVariables parameters are not saved to the context cache
         ///// </summary>
         //public ContextVariables TempContextVariables => TempAiContext?.Context as ContextVariables;
         ///// <summary>
-        ///// 是否储存上下文（ContextVariables 对象）
+        ///// whether to store context(ContextVariables object)
         ///// </summary>
         //public bool StoreContext => AiContext.StoreToContainer;
 

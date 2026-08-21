@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.IdentityModel.Abstractions;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Text;
@@ -31,16 +31,16 @@ namespace Senparc.AI.Samples.Consoles.Samples
     {
 
         /// <summary>
-        /// 使用 RAG 问答
+        /// Use RAG question answering
         /// </summary>
         /// <returns></returns>
         public async Task RunRagAsync(IServiceProvider serviceProvider)
         {
-            Console.WriteLine("请输入文件路径（.txt，.md 等文本文件），或文件目录（自动扫描其下所有 .txt 或 .md 文件），或 URL（自动下载网页内容），输入 end 停止输入，进入下一步");
+            Console.WriteLine("Enter a file path (.txt, .md, or another text file), a directory path (automatically scans all .txt or .md files under it), or a URL (automatically downloads web content). Enter end to stop and continue to the next step.");
 
             //RAG
             List<KeyValuePair<ContentType, string>> contentMap = new List<KeyValuePair<ContentType, string>>();
-            //输入文件路径
+            //Input file path
             string filePath = Console.ReadLine();
             while (filePath != "end")
             {
@@ -48,24 +48,24 @@ namespace Senparc.AI.Samples.Consoles.Samples
                 //&& (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
                 if (filePath.ToUpper().StartsWith("HTTP://") || filePath.ToUpper().StartsWith("HTTPS://"))
                 {
-                    Console.WriteLine("开始获取网页内容");
-                    // 如果是URL，下载网页内容
+                    Console.WriteLine("Start fetching web content");
+                    // If this is a URL, download web content
 
-                    // 检查URL是否有深度和数量限制
+                    // Check whether the URL has depth and count limits
                     int depth = 1;
                     int maxCount = 1;
                     var match = Regex.Match(filePath, @">{0,}(\d*)$");
                     if (match.Success)
                     {
-                        depth = Math.Max(1, match.Value.Count(c => c == '>')); // 获取>的数量作为深度
-                        if (!int.TryParse(match.Groups[1].Value, out maxCount)) // 获取数字作为最大数量
+                        depth = Math.Max(1, match.Value.Count(c => c == '>')); // Use the number of > characters as depth
+                        if (!int.TryParse(match.Groups[1].Value, out maxCount)) // Use the number as the maximum count
                         {
                             maxCount = 1;
                         }
-                        // 移除URL中的深度和数量标记
+                        // Remove depth and count markers from the URL
                         filePath = filePath.Substring(0, filePath.Length - match.Value.Length);
                     }
-                    Console.WriteLine($"设置抓取深度：{depth}，最大抓取数量：{maxCount}");
+                    Console.WriteLine($"Set crawl depth:{depth}, maximum crawl count:{maxCount}");
                     var engine = new SenMapicEngine(
                             serviceProvider: serviceProvider,
                             urls: new[] { filePath },
@@ -86,35 +86,35 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                         var requestSuccess = urlData.Result == 200;
 
-                        var logStr = $"下载网页内容{(requestSuccess ? "成功" : "失败")}。" +
-                            (requestSuccess ? $"字符数：{urlData.MarkDownHtmlContent?.Length}" : $"错误代码：{item.Value.Result}") +
+                        var logStr = $"Download web content{(requestSuccess ? "succeeded" : "failed")}." +
+                            (requestSuccess ? $"character count:{urlData.MarkDownHtmlContent?.Length}" : $"error code:{item.Value.Result}") +
                             $"\t URL:{item.Key.ToLower()}";
 
                         if (!requestSuccess)
                         {
-                            logStr += $" 来源：{urlData.ParentUrl} （链接：{urlData.LinkText}）";
+                            logStr += $" source:{urlData.ParentUrl} (link:{urlData.LinkText})";
                         }
 
-                        SenparcTrace.SendCustomLog("RAG日志", logStr);
+                        SenparcTrace.SendCustomLog("RAG log", logStr);
                         Console.WriteLine(logStr);
                     }
                 }
                 else
                 {
-                    // 如果是普通文件路径
+                    // If this is a normal file path
                     contentMap.Add(new KeyValuePair<ContentType, string>(ContentType.File, filePath));
                 }
-                Console.WriteLine("请继续输入，直到输入 end 停止...");
+                Console.WriteLine("Continue entering values until end is entered...");
                 filePath = Console.ReadLine();
             }
 
-            Console.WriteLine("正在处理信息...");
+            Console.WriteLine("Processing information...");
 
-            //新建Handler
+            //Create handler
             var embeddingAiSetting = ((SenparcAiSetting)SampleSetting.CurrentSetting) with { AiPlatform = AiPlatform.AzureOpenAI };
             var embeddingAiHandler = new SemanticAiHandler(embeddingAiSetting);
 
-            //测试 TextEmbedding
+            //Test TextEmbedding
             var iWantToRunEmbedding = embeddingAiHandler
                  .IWantTo()
                  .ConfigModel(ConfigModel.TextEmbedding, _userId)
@@ -179,16 +179,16 @@ namespace Senparc.AI.Samples.Consoles.Samples
                        Match match = Regex.Match(ex.Message, pattern);
                        if (match.Success)
                        {
-                           Console.WriteLine($"等待冷却 {match.Value} 秒");
+                           Console.WriteLine($"Waiting for cooldown {match.Value} seconds");
                        }
                        goto MemoryStore;
                    }
 
                });
 
-            Console.WriteLine($"处理完成(文件数：{contentMap.Count}，段落数：{i})");
+            Console.WriteLine($"Processing completed(file count:{contentMap.Count}, paragraph count:{i})");
 
-            Console.WriteLine("请开始对话");
+            Console.WriteLine("Start the conversation");
 
             string question = "";
             StringBuilder results = new StringBuilder();
@@ -201,14 +201,14 @@ namespace Senparc.AI.Samples.Consoles.Samples
             };
 
             var systemMessage = @$"## SystemMessage
-你是一位咨询机器人，你将根据我所提供的“提问”以及“备选信息”组织语言，生成一段给我的回复。
-请注意：“备选信息”来自于 Embedding 检索获得的一系列有和“提问”有关联的结果，因此也可能有多条，每一条备选信息使用 ////// 表示这一条信息的开头，****** 表示这一条信息的结尾。在 ****** 后会有一个数字，表示这条信息和“提问”内容的相关性。也就是说，////// 和 ****** 中间的内容才是对你推理有用的内容。
+You are a consulting assistant. Use the Question and candidate information I provide to compose a Response.
+Note: candidate information comes from Embedding search results related to the Question, so there may be multiple entries. Each candidate entry starts with ////// and ends with ******. A number after ****** indicates relevance to the Question. Only the content between ////// and ****** is useful for reasoning.
 
-## 准则
-你必须：
- - 将回答内容严格限制在我所提供给你的备选信息中（开头和结尾标记中间的内容），其中越靠前的备选信息可信度越高，相关性不属于答案内容本身，因此在组织语言的过程中必须将其忽略。
- - 严格从“备选信息”中挑选和“提问”有关的信息，不要输出没有相关依据的信息，不允许生成不存在的信息。
- - 你收到的信息中可能会包含我们的历史对话记录，你可以参考历史记录，并且根据我最后一次提问的内容以及“备选信息”进行回答。";
+## Guidelines
+You must:
+ - Strictly limit the answer to the candidate information I provide, specifically the content between the start and end markers. Earlier candidate information is more credible. Relevance scores are not part of the answer and must be ignored when composing the response.
+ - Strictly select information related to the question from the candidate information. Do not output unsupported information, and do not generate nonexistent information.
+ - The information you receive may include our conversation history. You may refer to it, then answer based on my latest Question and the candidate information.";
 
             var iWantToRunChat = _semanticAiHandler.ChatConfig(parameter,
                                  userId: "Jeffrey",
@@ -217,12 +217,12 @@ namespace Senparc.AI.Samples.Consoles.Samples
                                  senparcAiSetting: null);
             while (true)
             {
-                Console.WriteLine("提问：");
+                Console.WriteLine("Question:");
                 question = Console.ReadLine();
 
                 if (question.Trim().IsNullOrEmpty())
                 {
-                    Console.WriteLine("请输入有效内容");
+                    Console.WriteLine("Enter valid content");
                     continue;
                 }
                 else if (question == "exit")
@@ -246,30 +246,30 @@ namespace Senparc.AI.Samples.Consoles.Samples
 ******{item.Score}");
                 }
 
-                SenparcTrace.SendCustomLog("RAG日志", $@"提问：{question}，耗时：{(DateTime.Now - questionDt).TotalMilliseconds}ms
-结果：
+                SenparcTrace.SendCustomLog("RAG log", $@"Question:{question}, Elapsed time:{(DateTime.Now - questionDt).TotalMilliseconds}ms
+Result:
 {results.ToString()}
 ");
 
                 Console.WriteLine();
 
-                Console.Write("回答：");
+                Console.Write("Answer:");
 
-                var input = @$"### 提问：{question}
-### 备选答案：
+                var input = @$"### Question:{question}
+### Candidate answers:
 {results.ToString()}";
 
                 var useStream = iWantToRunChat.IWantToBuild.IWantToConfig.IWantTo.SenparcAiSetting.AiPlatform != AiPlatform.NeuCharAI;
                 if (useStream)
                 {
-                    //使用流式输出
+                    //Use streaming output
 
-                    var originalColor = Console.ForegroundColor;//原始颜色
+                    var originalColor = Console.ForegroundColor;//Original color
                     Action<StreamingKernelContent> streamItemProceessing = async item =>
                     {
                         await Console.Out.WriteAsync(item.ToString());
 
-                        //每个流式输出改变一次颜色
+                        //Change color for each streamed output
                         if (Console.ForegroundColor == originalColor)
                         {
                             Console.ForegroundColor = ConsoleColor.Green;
@@ -280,10 +280,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
                         }
                     };
 
-                    //输出结果
+                    //Output result
                     SenparcAiResult result = await _semanticAiHandler.ChatAsync(iWantToRunChat, input, streamItemProceessing);
 
-                    //复原颜色
+                    //Restore color
                     Console.ForegroundColor = originalColor;
                 }
                 else

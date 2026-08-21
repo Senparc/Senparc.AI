@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.SemanticKernel;
@@ -8,7 +8,7 @@ namespace Senparc.AI.Kernel.Helpers
     internal static class ExtensionHelper
     {
         /// <summary>
-        /// 设置 KernelArguments
+        /// setting KernelArguments
         /// </summary>
         /// <param name="kernelArguments"></param>
         /// <param name="key"></param>

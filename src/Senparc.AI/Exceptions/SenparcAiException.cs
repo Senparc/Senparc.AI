@@ -1,4 +1,4 @@
-﻿using Senparc.AI.Trace;
+using Senparc.AI.Trace;
 using Senparc.CO2NET.Exceptions;
 using Senparc.CO2NET.Trace;
 using System;
@@ -8,7 +8,7 @@ using System.Text;
 namespace Senparc.AI.Exceptions
 {
     /// <summary>
-    /// SenparcAI 异常
+    /// SenparcAI exception
     /// </summary>
     public class SenparcAiException : BaseException
     {
@@ -22,11 +22,11 @@ namespace Senparc.AI.Exceptions
         /// <summary>
         /// WeixinException
         /// </summary>
-        /// <param name="message">异常消息</param>
-        /// <param name="inner">内部异常信息</param>
-        /// <param name="logged">是否已经使用Trace记录日志，如果没有，WeixinException会进行概要记录</param>
+        /// <param name="message">exception message</param>
+        /// <param name="inner">inner exception information</param>
+        /// <param name="logged">Whether Trace has already recorded the log. If not, WeixinException records a summary.</param>
         public SenparcAiException(string message, Exception inner, bool logged = false)
-            : base(message, inner, true/* 标记为日志已记录 */)
+            : base(message, inner, true/* mark as log recorded */)
         {
             if (!logged)
             {

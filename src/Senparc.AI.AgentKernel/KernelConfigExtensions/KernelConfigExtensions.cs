@@ -1,7 +1,7 @@
 /**
 * Last Modified: 20231207 By FelixJ
-* 修改了一些拼写错误
-* 更新了部分方法的XML注释以符合代码
+* Fixed several spelling errors
+* Updated some XML comments to match the code
 */
 
 
@@ -36,12 +36,12 @@ using static Senparc.AI.Interfaces.VectorDB;
 namespace Senparc.AI.AgentKernel.Handlers
 {
     /// <summary>
-    /// Kernel 及模型设置的扩展类
+    /// Extension class for Kernel and model settings
     /// </summary>
     public static partial class KernelConfigExtension
     {
 
-        #region 初始化
+        #region Initialize
 
         public static IWantToConfig IWantTo(this AgentAiHandler handler, ISenparcAiSetting senparcAiSetting = null)
         {
@@ -51,15 +51,15 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         #endregion
 
-        #region 配置 Kernel 生成条件
+        #region Configure Kernel creation conditions
 
         /// <summary>
-        /// 配置模型
+        /// Configure model
         /// </summary>
         /// <param name="iWantToConfig"></param>
         /// <param name="configModel"></param>
         /// <param name="userId"></param>
-        /// <param name="modelName">模型名称配置，如果为 null，则从配置中自动获取</param>
+        /// <param name="modelName">Model name configuration. If null, it is read automatically from configuration.</param>
         /// <param name="senparcAiSetting"></param>
         /// <param name="deploymentName"></param>
         /// <returns></returns>
@@ -118,10 +118,10 @@ namespace Senparc.AI.AgentKernel.Handlers
                     kernelBuilder = iWantTo.AgentKernelHelper.ConfigTextToSpeech(userId, modelNameStr, senparcAiSetting, existedKernelBuilder, GetDeploymentName(modelNameStr));
                     break;
                 default:
-                    throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel);
+                    throw new SenparcAiException("Unhandled ConfigModel type: " + configModel);
             }
 
-            iWantTo.KernelBuilder = kernelBuilder; //进行 Config 必须提供 Kernel
+            iWantTo.KernelBuilder = kernelBuilder; //Kernel is required before Config
             iWantTo.UserId = userId;
             iWantTo.ModelName = modelNameStr;
             return iWantToConfig;
@@ -169,10 +169,10 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         ///// <summary>
-        ///// 添加 TextCompletion 配置
+        ///// Add TextCompletion configuration
         ///// </summary>
         ///// <param name="iWantToConfig"></param>
-        ///// <param name="modelName">如果为 null，则从先前配置中读取</param>
+        ///// <param name="modelName">If null, read from the previous configuration</param>
         ///// <returns></returns>
         ///// <exception cref="SenparcAiException"></exception>
         //public static IWantToConfig AddTextCompletion(this IWantToConfig iWantToConfig, string? modelName = null)
@@ -185,7 +185,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         //    modelName ??= iWantToConfig.IWantTo.ModelName;
         //    var serviceId = skHelper.GetServiceId(userId, modelName);
 
-        //    //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
+        //    //TODO Need to check Kernel.TextCompletionServices.ContainsKey(serviceId). If it already exists, do not add it again.
 
         //    kernel.Config.AddTextCompletionService(serviceId, k =>
         //        aiPlatForm switch
@@ -194,7 +194,7 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         //            AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, aiSetting.AzureEndpoint, aiSetting.ApiKey, aiSetting.AzureOpenAIApiVersion),
 
-        //            _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+        //            _ => throw new SenparcAiException($"does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
         //        }
         //    );
 
@@ -373,14 +373,14 @@ namespace Senparc.AI.AgentKernel.Handlers
 
         #endregion
 
-        #region 运行准备
+        #region Run preparation
 
         /// <summary>
-        /// 创建请求实体
+        /// Create a request entity
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="requestContent"></param>
-        /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
+        /// <param name="useAllRegisteredFunctions">Whether to use all registered or created Functions</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
         public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, string? requestContent, AgentSession agentSession, bool useAllRegisteredFunctions = false,
@@ -390,7 +390,7 @@ namespace Senparc.AI.AgentKernel.Handlers
 
             if (useAllRegisteredFunctions && iWantToRun.Functions.Count > 0)
             {
-                //合并已经注册的对象
+                //Merge registered objects
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new AIFunction[0]).ToArray();
             }
 
@@ -399,10 +399,10 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// 创建请求实体，使用上下文，不提供单独的 prompt
+        /// Create a request entity with context and without a separate prompt
         /// </summary> 
         /// <param name="iWantToRun"></param>
-        /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
+        /// <param name="useAllRegisteredFunctions">Whether to use all registered or created Functions</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
         public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, AgentSession agentSession = null, bool useAllRegisteredFunctions = false, params AIFunction[] pipeline)
@@ -411,7 +411,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// 创建请求实体（不使用所有已经注册、创建过的 Function，也不储存行下文）
+        /// Create a request entity without all registered or created Functions and without storing context
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="requestContent"></param>
@@ -423,11 +423,11 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// 创建请求实体
+        /// Create a request entity
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="arguments"></param>
-        /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
+        /// <param name="useAllRegisteredFunctions">Whether to use all registered or created Functions</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
         public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, AgentKernelArguments arguments, AgentSession agentSession = null,
@@ -437,7 +437,7 @@ namespace Senparc.AI.AgentKernel.Handlers
 
             if (useAllRegisteredFunctions && iWantToRun.Functions.Count > 0)
             {
-                //合并已经注册的对象
+                //Merge registered objects
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new AIFunction[0]).ToArray();
             }
 
@@ -446,7 +446,7 @@ namespace Senparc.AI.AgentKernel.Handlers
         }
 
         /// <summary>
-        /// 创建请求实体（不使用所有已经注册、创建过的 Function，也不储存行下文）
+        /// Create a request entity without all registered or created Functions and without storing context
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="contextVariables"></param>

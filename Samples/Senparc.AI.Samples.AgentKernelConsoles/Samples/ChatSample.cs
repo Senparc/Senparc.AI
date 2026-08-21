@@ -1,14 +1,14 @@
 /*----------------------------------------------------------------
     Copyright (C) 2026 Senparc
 
-    文件名：ChatSample.cs
-    文件功能描述：演示基于 AgentKernel 的多轮聊天会话配置与交互流程。
+    File: ChatSample.cs
+    Description: Demonstrates configuring and interacting with an AgentKernel-based multi-turn chat session.
 
 
-    创建标识：Senparc - 20260521
+    Created by: Senparc - 20260521
 
-    修改标识：Senparc - 20260813
-    修改描述：v1.3.0 增加严格 IWantToRun 执行模式示例
+    Modified by: Senparc - 20260813
+    Change description: v1.3.0 added strict IWantToRun execution mode examples.
 
 ----------------------------------------------------------------*/
 using Microsoft.Agents.AI;
@@ -21,7 +21,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// 多轮对话示例，参考 AgentAiHandlerTests.ConversationTestWithDefaultSession。
+/// Multi-turn chat example based on AgentAiHandlerTests.ConversationTestWithDefaultSession.
 /// </summary>
 public class ChatSample
 {
@@ -48,7 +48,7 @@ public class ChatSample
             return agentHandler;
         }
 
-        throw new InvalidOperationException("当前示例需要 AgentAiHandler，请确认已调用 AddSenparcAI。");
+        throw new InvalidOperationException("This sample requires AgentAiHandler. Confirm that AddSenparcAI has been called.");
     }
 
     public async Task RunAsync()
@@ -57,8 +57,8 @@ public class ChatSample
         var agentHandler = GetHandler(_aiHandler);
         agentHandler.AgentKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);
 
-        Console.WriteLine("ChatSample 开始运行（Microsoft Agent Framework + AgentSession）");
-        Console.WriteLine("[聊天设置 1/2] 请输入 System Message，留空则使用默认：");
+        Console.WriteLine("ChatSample started (Microsoft Agent Framework + AgentSession)");
+        Console.WriteLine("[Chat setting 1/2] Enter the System Message, or leave it blank to use the default:");
         Console.WriteLine("------ System Message Start ------");
         Console.WriteLine(Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE);
         Console.WriteLine("------ System Message End ------");
@@ -67,15 +67,15 @@ public class ChatSample
             ? Senparc.AI.DefaultSetting.DEFAULT_SYSTEM_MESSAGE
             : systemMessage;
 
-        Console.WriteLine("[聊天设置 2/2] 会话模式：");
-        Console.WriteLine("[1] 共享 AgentSession（同一 BuildKernel，保留上下文，推荐）");
-        Console.WriteLine("[2] 每轮新建 Session（无上下文，用于对比测试）");
+        Console.WriteLine("[Chat setting 2/2] Session mode:");
+        Console.WriteLine("[1] Shared AgentSession (same BuildKernel, retains context, recommended)");
+        Console.WriteLine("[2] New Session for each turn (no context, for comparison testing)");
         var sessionMode = Console.ReadLine() == "2" ? SessionMode.PerRequest : SessionMode.Shared;
 
-        Console.WriteLine("[聊天设置 3/3] 执行方式：");
-        Console.WriteLine("[1] 严格流式 RunChatStreamingAsync（推荐；上游异常会原样抛出）");
-        Console.WriteLine("[2] 严格单次 RunChatResponseAsync（上游异常会原样抛出）");
-        Console.WriteLine("[3] 兼容 RunChatAsync（保留历史错误封装行为）");
+        Console.WriteLine("[Chat setting 3/3] Execution mode:");
+        Console.WriteLine("[1] Strict streaming RunChatStreamingAsync (recommended; upstream exceptions are rethrown unchanged)");
+        Console.WriteLine("[2] Strict single-response RunChatResponseAsync (upstream exceptions are rethrown unchanged)");
+        Console.WriteLine("[3] Compatible RunChatAsync (preserves legacy error-wrapping behavior)");
         var executionMode = Console.ReadLine() switch
         {
             "2" => ChatExecutionMode.StrictResponse,
@@ -85,16 +85,16 @@ public class ChatSample
 
         var chatOptions = new ChatClientAgentOptions
         {
-            ChatOptions = new() 
-            { 
-                Instructions = systemMessage, 
-                Temperature=0.2f // Senparc.AI 会自动忽略不被支持的参数（如使用 GPT-5.6 模型）
+            ChatOptions = new()
+            {
+                Instructions = systemMessage,
+                Temperature=0.2f // Senparc.AI automatically ignores unsupported parameters, such as when using a GPT-5.6 model.
             }
         };
 
         Console.WriteLine();
-        Console.WriteLine($"配置完成。当前执行方式：{GetExecutionModeDisplayName(executionMode)}。输入 exit 退出对话。");
-        Console.WriteLine($"[调试] HttpClient 日志：{(SampleSetting.EnableHttpClientLog ? "开启" : "关闭")}；所有模式均使用 AgentKernelHelper 已配置的 HttpClient 传输链路。");
+        Console.WriteLine($"Configuration complete. Current execution mode: {GetExecutionModeDisplayName(executionMode)}. Enter exit to leave the chat.");
+        Console.WriteLine($"[Debug] HttpClient logging: {(SampleSetting.EnableHttpClientLog ? "enabled" : "disabled")}; all modes use the HttpClient transport chain configured by AgentKernelHelper.");
         Console.WriteLine("---------------------------------");
 
         var userId = "Jeffrey";
@@ -109,16 +109,16 @@ public class ChatSample
                 .ConfigChatModel(userId, chatOptions)
                 .BuildKernelWithAgentSessionAsync();
             agentSession = sharedRun.Kernel.AgentSession;
-            Console.WriteLine($"[调试] AgentSession 已创建：{agentSession != null}");
+            Console.WriteLine($"[Debug] AgentSession created: {agentSession != null}");
         }
 
         while (true)
         {
-            Console.WriteLine($"[{round + 1}] 人类：");
+            Console.WriteLine($"[{round + 1}] Human:");
             var input = Console.ReadLine();
             if (input.IsNullOrEmpty())
             {
-                Console.WriteLine("[请输入有效内容]");
+                Console.WriteLine("[Enter valid content]");
                 continue;
             }
 
@@ -128,7 +128,7 @@ public class ChatSample
             }
 
             round++;
-            Console.WriteLine($"[{round}] 机器：");
+            Console.WriteLine($"[{round}] Assistant:");
 
             try
             {
@@ -142,7 +142,7 @@ public class ChatSample
                     iWantToRun = agentHandler.IWantTo(SampleSetting.CurrentSetting)
                         .ConfigModel(ConfigModel.Chat, userId)
                         .BuildKernel(chatOptions);
-                    agentSession = iWantToRun.Kernel.AgentSession;//实际为 null
+                    agentSession = iWantToRun.Kernel.AgentSession;// Actually null.
                 }
 
                 switch (executionMode)
@@ -163,10 +163,10 @@ public class ChatSample
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($"发生错误（{GetExecutionModeDisplayName(executionMode)}）：{ex.GetBaseException().Message}");
+                Console.WriteLine($"An error occurred ({GetExecutionModeDisplayName(executionMode)}): {ex.GetBaseException().Message}");
                 if (executionMode != ChatExecutionMode.Compatibility)
                 {
-                    SampleHelper.PrintNote("严格模式不会将上游失败伪装为正常文本回复，适合 A2A、Workflow 和服务端调用方。");
+                    SampleHelper.PrintNote("Strict modes do not disguise upstream failures as normal text responses, making them suitable for A2A, Workflows, and server-side callers.");
                 }
             }
 
@@ -195,7 +195,7 @@ public class ChatSample
     private static async Task RunStrictResponseAsync(IWantToRun iWantToRun, string input, AgentSession? agentSession)
     {
         var response = await iWantToRun.RunChatResponseAsync(input, agentSession);
-        Console.WriteLine(response?.Text ?? "[未收到文本回复]");
+        Console.WriteLine(response?.Text ?? "[No text response received]");
         PrintUsage(response?.Usage);
     }
 
@@ -207,17 +207,17 @@ public class ChatSample
             Console.Write(update.Text);
         };
 
-        // 旧入口的参数标注未允许 null，但其默认值和实现均支持无 Session 的单轮执行。
+        // The legacy entry point does not annotate this parameter as nullable, but its default value and implementation support single-turn execution without a Session.
         var result = await iWantToRun.RunChatAsync(input, agentSession!, updateFun);
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine();
 
         if (result.Result is null)
         {
-            Console.WriteLine($"[兼容结果] {result.OutputString}");
+            Console.WriteLine($"[Compatibility result] {result.OutputString}");
             if (result.LastException is not null)
             {
-                SampleHelper.PrintNote($"[兼容模式已记录异常] {result.LastException.GetBaseException().Message}");
+                SampleHelper.PrintNote($"[Exception recorded by compatibility mode] {result.LastException.GetBaseException().Message}");
             }
 
             return;
@@ -228,14 +228,14 @@ public class ChatSample
 
     private static void PrintUsage(UsageDetails? usage)
     {
-        Console.WriteLine($"[调试] Tokens — input: {usage?.InputTokenCount}, output: {usage?.OutputTokenCount}, total: {usage?.TotalTokenCount}");
+        Console.WriteLine($"[Debug] Tokens - input: {usage?.InputTokenCount}, output: {usage?.OutputTokenCount}, total: {usage?.TotalTokenCount}");
     }
 
     private static string GetExecutionModeDisplayName(ChatExecutionMode executionMode) => executionMode switch
     {
-        ChatExecutionMode.StrictStreaming => "严格流式",
-        ChatExecutionMode.StrictResponse => "严格单次响应",
-        ChatExecutionMode.Compatibility => "兼容入口",
+        ChatExecutionMode.StrictStreaming => "strict streaming",
+        ChatExecutionMode.StrictResponse => "strict single response",
+        ChatExecutionMode.Compatibility => "compatibility entry point",
         _ => executionMode.ToString()
     };
 

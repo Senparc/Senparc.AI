@@ -1,14 +1,14 @@
 /*----------------------------------------------------------------
     Copyright (C) 2026 Senparc
 
-    文件名：HarnessSample.cs
-    文件功能描述：演示 Microsoft Agent Framework HarnessAgent 的创建与命令行交互。
+    File: HarnessSample.cs
+    Description: Demonstrates creating a Microsoft Agent Framework HarnessAgent and interacting with it from the command line.
 
 
-    创建标识：Senparc - 20260808
+    Created by: Senparc - 20260808
 
 ----------------------------------------------------------------*/
-#pragma warning disable MAAI001 // Microsoft.Agents.AI.Harness 1.8 中的部分 API 仍标记为实验性。
+#pragma warning disable MAAI001 // Some APIs in Microsoft.Agents.AI.Harness 1.8 are still marked as experimental.
 
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -21,7 +21,7 @@ using OpenAIChatClient = OpenAI.Chat.ChatClient;
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// HarnessAgent 命令行示例。
+/// HarnessAgent command-line example.
 /// </summary>
 public class HarnessSample
 {
@@ -40,26 +40,26 @@ public class HarnessSample
         var agentHandler = GetHandler(_aiHandler);
         agentHandler.AgentKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);
 
-        Console.WriteLine("HarnessSample 开始运行（Microsoft Agent Framework HarnessAgent）");
-        Console.WriteLine("准确扩展方法为 IChatClient.AsHarnessAgent(...)。本示例默认关闭文件、Skills 和 Hosted Web Search 权限。");
+        Console.WriteLine("HarnessSample started (Microsoft Agent Framework HarnessAgent)");
+        Console.WriteLine("The exact extension method is IChatClient.AsHarnessAgent(...). This sample disables file, Skills, and Hosted Web Search permissions by default.");
         Console.WriteLine();
 
-        Console.WriteLine("请输入 Agent 专属指令，留空则使用默认：");
-        const string defaultInstructions = "你是一名严谨的中文助手。复杂任务先规划，再逐项执行并清晰汇报结果。";
-        Console.WriteLine($"默认：{defaultInstructions}");
+        Console.WriteLine("Enter Agent-specific instructions, or leave the input blank to use the default:");
+        const string defaultInstructions = "You are a rigorous assistant. Plan complex tasks first, then execute them step by step and report the results clearly.";
+        Console.WriteLine($"Default: {defaultInstructions}");
         var instructions = Console.ReadLine();
         instructions = instructions.IsNullOrEmpty() ? defaultInstructions : instructions;
 
         var maxContextWindowTokens = ReadPositiveInt(
-            $"模型上下文窗口 Token 上限（默认 {DefaultMaxContextWindowTokens}）：",
+            $"Model context-window Token limit (default {DefaultMaxContextWindowTokens}):",
             DefaultMaxContextWindowTokens);
         var maxOutputTokens = ReadPositiveInt(
-            $"模型单次输出 Token 上限（默认 {DefaultMaxOutputTokens}）：",
+            $"Per-response model Token limit (default {DefaultMaxOutputTokens}):",
             DefaultMaxOutputTokens);
 
         if (maxOutputTokens >= maxContextWindowTokens)
         {
-            Console.WriteLine("输出 Token 上限必须小于上下文窗口上限，已返回主菜单。");
+            Console.WriteLine("The output Token limit must be lower than the context-window limit. Returning to the main menu.");
             return;
         }
 
@@ -72,7 +72,7 @@ public class HarnessSample
             OpenAIChatClient client => client.AsIChatClient(),
             IChatClient client => client,
             var client => throw new NotSupportedException(
-                $"HarnessSample 暂不支持 ChatClient 类型：{client?.GetType().FullName ?? "null"}")
+                $"HarnessSample does not currently support ChatClient type: {client?.GetType().FullName ?? "null"}")
         };
 
         AIAgent agent = chatClient.AsHarnessAgent(
@@ -87,8 +87,8 @@ public class HarnessSample
                     Instructions = instructions
                 },
 
-                // Harness 1.8 默认会为以下能力创建本地目录或添加特定模型工具。
-                // Sample 采用最小权限默认值；需要时请在受控目录中显式开启。
+                // Harness 1.8 creates local directories or adds model-specific tools for the following capabilities by default.
+                // The sample uses least-privilege defaults; enable them explicitly in a controlled directory when needed.
                 DisableFileAccess = true,
                 DisableFileMemory = true,
                 DisableAgentSkillsProvider = true,
@@ -100,17 +100,17 @@ public class HarnessSample
         var todoProvider = agent.GetService<TodoProvider>();
 
         Console.WriteLine();
-        Console.WriteLine("Harness 已启动。可用命令：");
-        Console.WriteLine("  /mode                 查看当前模式");
-        Console.WriteLine("  /mode plan|execute    切换规划/执行模式");
-        Console.WriteLine("  /todos                查看 Harness Todo 列表");
-        Console.WriteLine("  exit                  返回主菜单");
-        Console.WriteLine("工具执行若需要权限，命令行会逐项请求确认。");
+        Console.WriteLine("Harness started. Available commands:");
+        Console.WriteLine("  /mode                 View the current mode");
+        Console.WriteLine("  /mode plan|execute    Switch between plan and execute modes");
+        Console.WriteLine("  /todos                View the Harness Todo list");
+        Console.WriteLine("  exit                  Return to the main menu");
+        Console.WriteLine("When tool execution requires permission, the command line requests confirmation for each item.");
 
         while (true)
         {
             Console.WriteLine();
-            Console.Write("人类：");
+            Console.Write("Human: ");
             var input = Console.ReadLine();
 
             if (input is null || input.Equals("exit", StringComparison.OrdinalIgnoreCase))
@@ -128,7 +128,7 @@ public class HarnessSample
                 continue;
             }
 
-            Console.Write("机器：");
+            Console.Write("Assistant: ");
             try
             {
                 await RunAgentTurnAsync(agent, session, [new ChatMessage(ChatRole.User, input)]);
@@ -136,7 +136,7 @@ public class HarnessSample
             catch (Exception ex)
             {
                 Console.WriteLine();
-                Console.WriteLine($"发生错误：{ex}");
+                Console.WriteLine($"An error occurred: {ex}");
             }
         }
     }
@@ -144,7 +144,7 @@ public class HarnessSample
     private static AgentAiHandler GetHandler(IAiHandler handler)
     {
         return handler as AgentAiHandler
-            ?? throw new InvalidOperationException("当前示例需要 AgentAiHandler，请确认已调用 AddSenparcAI。");
+            ?? throw new InvalidOperationException("This sample requires AgentAiHandler. Confirm that AddSenparcAI has been called.");
     }
 
     private static int ReadPositiveInt(string prompt, int defaultValue)
@@ -161,7 +161,7 @@ public class HarnessSample
             return value;
         }
 
-        Console.WriteLine($"输入无效，使用默认值 {defaultValue}。");
+        Console.WriteLine($"Invalid input; using the default value {defaultValue}.");
         return defaultValue;
     }
 
@@ -175,18 +175,18 @@ public class HarnessSample
         {
             if (todoProvider is null)
             {
-                Console.WriteLine("TodoProvider 不可用。");
+                Console.WriteLine("TodoProvider is unavailable.");
                 return true;
             }
 
             var todos = await todoProvider.GetAllTodosAsync(session);
             if (todos.Count == 0)
             {
-                Console.WriteLine("当前没有 Todo。");
+                Console.WriteLine("There are currently no Todos.");
                 return true;
             }
 
-            Console.WriteLine("Todo 列表：");
+            Console.WriteLine("Todo list:");
             foreach (var item in todos)
             {
                 Console.WriteLine($"  [{(item.IsComplete ? "x" : " ")}] #{item.Id} {item.Title} {item.Description}");
@@ -203,21 +203,21 @@ public class HarnessSample
 
         if (modeProvider is null)
         {
-            Console.WriteLine("AgentModeProvider 不可用。");
+            Console.WriteLine("AgentModeProvider is unavailable.");
             return true;
         }
 
         var parts = input.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         if (parts.Length == 1)
         {
-            Console.WriteLine($"当前模式：{modeProvider.GetMode(session)}");
+            Console.WriteLine($"Current mode: {modeProvider.GetMode(session)}");
             return true;
         }
 
         try
         {
             modeProvider.SetMode(session, parts[1]);
-            Console.WriteLine($"已切换到 {parts[1]} 模式。");
+            Console.WriteLine($"Switched to {parts[1]} mode.");
         }
         catch (ArgumentException ex)
         {
@@ -269,11 +269,11 @@ public class HarnessSample
                     ? functionCall.Name
                     : request.ToolCall.GetType().Name;
 
-                Console.Write($"工具 {toolName} 请求执行，是否允许？[y/N] ");
+                Console.Write($"Tool {toolName} requests execution. Allow it? [y/N] ");
                 var approved = Console.ReadLine()?.Equals("y", StringComparison.OrdinalIgnoreCase) == true;
                 var response = request.CreateResponse(
                     approved,
-                    approved ? "用户通过命令行确认执行" : "用户拒绝执行");
+                    approved ? "The user approved execution from the command line" : "The user denied execution");
                 responses.Add(new ChatMessage(ChatRole.User, [response]));
             }
 

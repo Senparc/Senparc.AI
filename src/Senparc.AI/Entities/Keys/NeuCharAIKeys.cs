@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Senparc.AI.Entities.Keys;
@@ -10,7 +10,7 @@ namespace Senparc.AI
         public string ApiKey { get; set; }
         public string NeuCharEndpoint { get; set; }
         /// <summary>
-        /// NeuCharOpenAIApiVersion，固定值
+        /// NeuCharOpenAIApiVersion, fixed value
         /// </summary>
         public string NeuCharAIApiVersion { get; set; } = "2022-12-01";
     }

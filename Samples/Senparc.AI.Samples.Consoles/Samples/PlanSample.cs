@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Planning;
 using Microsoft.SemanticKernel.Planning.Handlebars;
@@ -21,7 +21,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
         public PlanSample(IAiHandler aiHandler)
         {
             _aiHandler = aiHandler;
-            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//同步日志设置状态
+            _semanticAiHandler.SemanticKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);//Synchronize logging setting state
         }
 
         public async Task RunAsync()
@@ -29,10 +29,10 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
             while (true)
             {
-                await Console.Out.WriteLineAsync("PlanSample 开始运行。请输入需要生成的内容：");
+                await Console.Out.WriteLineAsync("PlanSample started.Enter the content to generate:");
 
 
-                await Console.Out.WriteLineAsync("请输入");
+                await Console.Out.WriteLineAsync("please enter");
 
                 var iWantToRun = _semanticAiHandler
                                .IWantTo()
@@ -81,7 +81,7 @@ namespace Senparc.AI.Samples.Consoles.Samples
 
                 Console.ReadLine();
 
-                //新建计划，并执行 Plan：
+                //Create a new plan and execute the plan:
 
                 string prompt = @"
 {{$input}}
@@ -99,7 +99,7 @@ Rewrite the above in the style of Codeing.
                 Console.WriteLine("Updated plan:\n");
                 // Execute the plan
 
-                var newContext = iWantToRun.CreateNewArguments();//TODO: 直返会一个对象？
+                var newContext = iWantToRun.CreateNewArguments();//TODO: return an object directly?
                 var newResult = await newPlan.InvokeAsync(iWantToRun.Kernel, newContext.arguments);
 
                 Console.WriteLine("Plan results:");
@@ -110,7 +110,7 @@ Rewrite the above in the style of Codeing.
 
                 await Console.Out.WriteLineAsync();
 
-                await Console.Out.WriteLineAsync("输入 exit 退出 Planner 测试，任意内容继续");
+                await Console.Out.WriteLineAsync("Enter exit to leave the Planner test, or enter any other content to continue");
 
                 if (Console.ReadLine().ToUpper() == "EXIT")
                 {

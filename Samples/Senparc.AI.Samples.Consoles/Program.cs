@@ -11,10 +11,10 @@ using Senparc.CO2NET.RegisterServices;
 var configBuilder = new ConfigurationBuilder();
 var appsettingsJsonFileName = SampleHelper.GetAppSettingsFile();//"appsettings.json"
 configBuilder.AddJsonFile(appsettingsJsonFileName, false, false);
-Console.WriteLine("完成 appsettings.json 添加");
+Console.WriteLine("appsettings.json added");
 
 var config = configBuilder.Build();
-Console.WriteLine("完成 ServiceCollection 和 ConfigurationBuilder 初始化");
+Console.WriteLine("ServiceCollection and ConfigurationBuilder initialized");
 
 var services = new ServiceCollection();
 
@@ -44,37 +44,37 @@ IRegisterService register = RegisterService.Start()
 
 Start:
 Console.WriteLine();
-Console.WriteLine("Senparc.AI Sample 启动完毕");
-Console.WriteLine("开源地址：https://github.com/Senparc/Senparc.AI");
+Console.WriteLine("Senparc.AI Sample started");
+Console.WriteLine("Open-source repository:https://github.com/Senparc/Senparc.AI");
 Console.WriteLine("-----------------------");
-Console.WriteLine($"当前模型：{SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform} - {SampleSetting.CurrentSetting.Endpoint}");
-Console.WriteLine($"当前 HttpClient 日志开关：{(SampleSetting.EnableHttpClientLog ? "开启" : "关闭")}");
-Console.WriteLine($"当前向量数据库设置：{SampleSetting.CurrentSetting.VectorDB.Type} {SampleSetting.CurrentSetting.VectorDB.ConnectionString}");
+Console.WriteLine($"Current model:{SampleSetting.CurrentSettingKey} - {SampleSetting.CurrentSetting.AiPlatform} - {SampleSetting.CurrentSetting.Endpoint}");
+Console.WriteLine($"Current HttpClient logging switch:{(SampleSetting.EnableHttpClientLog ? "enabled" : "disabled")}");
+Console.WriteLine($"Current vector database setting:{SampleSetting.CurrentSetting.VectorDB.Type} {SampleSetting.CurrentSetting.VectorDB.ConnectionString}");
 Console.WriteLine("=======================");
 Console.WriteLine();
-Console.WriteLine("请输入序号，开始对应功能测试：");
-Console.WriteLine("[0] 进入设置");
-Console.WriteLine("[1] Chat 对话机器人");
-Console.WriteLine("[2] Completion 任务机器人");
-Console.WriteLine("[3] 执行 Embedding 任务（RAG）");
-Console.WriteLine("[4] Dall·E 绘图（需要配置 OpenAI 或 AzureOpenAI）");
-Console.WriteLine("[5] Planner 任务计划");
-Console.WriteLine("[6] PluginFromObject 测试");
-Console.WriteLine("[7] STT（Speach to Text）测试");
-Console.WriteLine("[8] TTS（Text to Speech）测试");
+Console.WriteLine("Enter a number to start the corresponding feature test:");
+Console.WriteLine("[0] Settings");
+Console.WriteLine("[1] Chat bot");
+Console.WriteLine("[2] Completion bot");
+Console.WriteLine("[3] Run Embedding task(RAG)");
+Console.WriteLine("[4] DallE image generation(requires OpenAI or AzureOpenAI configuration)");
+Console.WriteLine("[5] Planner task planning");
+Console.WriteLine("[6] PluginFromObject test");
+Console.WriteLine("[7] STT (Speech to Text) test");
+Console.WriteLine("[8] TTS (Text to Speech) test");
 Console.WriteLine();
 
 var index = Console.ReadLine();
 Console.WriteLine();
 
-await Console.Out.WriteLineAsync("任意时间输入 exit 退出选择并重新开始。");
+await Console.Out.WriteLineAsync("Enter exit at any time to leave the selection and restart.");
 Console.WriteLine();
 
 switch (index)
 {
     case "1":
         {
-            //对话机器人 Sample
+            //Chat assistant sample
             var chatSample = serviceProvider.GetRequiredService<ChatSample>();
             await chatSample.RunAsync();
         }
@@ -89,9 +89,9 @@ switch (index)
     case "3":
         {
             //Embedding Sample
-            Console.WriteLine("请输入需要，进入对应 Embedding测试：");
-            Console.WriteLine("[1] 普通 Embedding + 查询");
-            Console.WriteLine("[2] 检索增强生成（RAG）");
+            Console.WriteLine("Select the Embedding test to run:");
+            Console.WriteLine("[1] Standard Embedding + query");
+            Console.WriteLine("[2] Retrieval-augmented generation(RAG)");
             index = Console.ReadLine();
             Console.WriteLine();
             try
@@ -112,7 +112,7 @@ switch (index)
                         }
                         break;
                     default:
-                        Console.WriteLine("序号错误，请重新开始！");
+                        Console.WriteLine("Invalid number. Restarting.");
                         break;
                 }
             }
@@ -167,10 +167,10 @@ switch (index)
         }
         break;
     default:
-        Console.WriteLine("序号错误，请重新开始！");
+        Console.WriteLine("Invalid number. Restarting.");
         break;
 }
 
-Console.WriteLine("好，让我们重新开始！");
+Console.WriteLine("Restarting the sample menu.");
 Console.WriteLine();
 goto Start;

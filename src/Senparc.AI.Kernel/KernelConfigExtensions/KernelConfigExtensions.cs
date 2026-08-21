@@ -1,7 +1,7 @@
 /**
 * Last Modified: 20231207 By FelixJ
-* 修改了一些拼写错误
-* 更新了部分方法的XML注释以符合代码
+* Fixed several spelling errors
+* Updated some XML comments to match the code
 */
 
 
@@ -33,11 +33,11 @@ using static Senparc.AI.Interfaces.VectorDB;
 namespace Senparc.AI.Kernel.Handlers
 {
     /// <summary>
-    /// Kernel 及模型设置的扩展类
+    /// Extension class for Kernel and model settings
     /// </summary>
     public static partial class KernelConfigExtension
     {
-        #region 初始化
+        #region Initialize
 
         public static IWantToConfig IWantTo(this SemanticAiHandler handler, ISenparcAiSetting senparcAiSetting = null)
         {
@@ -47,15 +47,15 @@ namespace Senparc.AI.Kernel.Handlers
 
         #endregion
 
-        #region 配置 Kernel 生成条件
+        #region Configure Kernel creation conditions
 
         /// <summary>
-        /// 配置模型
+        /// Configure model
         /// </summary>
         /// <param name="iWantToConfig"></param>
         /// <param name="configModel"></param>
         /// <param name="userId"></param>
-        /// <param name="modelName">模型名称配置，如果为 null，则从配置中自动获取</param>
+        /// <param name="modelName">Model name configuration. If null, it is read automatically from configuration.</param>
         /// <param name="senparcAiSetting"></param>
         /// <param name="deploymentName"></param>
         /// <returns></returns>
@@ -104,22 +104,22 @@ namespace Senparc.AI.Kernel.Handlers
                 case AI.ConfigModel.TextToImage:
                     modelNameStr = modelName.TextToImage;
                     kernelBuilder = iWantTo.SemanticKernelHelper.ConfigImageGeneration(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
-                    //Console.WriteLine($"[调试]GetDeploymentName：{modelNameStr} / {GetDeploymentName(modelNameStr)}");
-                    //Console.WriteLine($"[调试]{senparcAiSetting.AiPlatform}-{senparcAiSetting.AzureOpenAIKeys.DeploymentName}-{senparcAiSetting.AzureOpenAIKeys.AzureEndpoint}\r\n{senparcAiSetting.AzureOpenAIKeys.ModelName.ToJson(true)}");
+                    //Console.WriteLine($"[Debug]GetDeploymentName:{modelNameStr} / {GetDeploymentName(modelNameStr)}");
+                    //Console.WriteLine($"[Debug]{senparcAiSetting.AiPlatform}-{senparcAiSetting.AzureOpenAIKeys.DeploymentName}-{senparcAiSetting.AzureOpenAIKeys.AzureEndpoint}\r\n{senparcAiSetting.AzureOpenAIKeys.ModelName.ToJson(true)}");
                     break;
                 case AI.ConfigModel.SpeechToText:
-                    modelNameStr = modelName.SpeechToText ?? "whisper"; // 默认使用 whisper
+                    modelNameStr = modelName.SpeechToText ?? "whisper"; // Use whisper by default
                     kernelBuilder = iWantTo.SemanticKernelHelper.ConfigAudioToText(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
                     break;
                 case AI.ConfigModel.TextToSpeech:
-                    modelNameStr = modelName.TextToSpeech ?? "tts"; // 默认使用 tts
+                    modelNameStr = modelName.TextToSpeech ?? "tts"; // Use tts by default
                     kernelBuilder = iWantTo.SemanticKernelHelper.ConfigTextToAudio(userId, existedKernelBuilder, modelNameStr, senparcAiSetting, GetDeploymentName(modelNameStr));
                     break;
                 default:
-                    throw new SenparcAiException("未处理当前 ConfigModel 类型：" + configModel);
+                    throw new SenparcAiException("Unhandled ConfigModel type: " + configModel);
             }
 
-            iWantTo.KernelBuilder = kernelBuilder; //进行 Config 必须提供 Kernel
+            iWantTo.KernelBuilder = kernelBuilder; //Kernel is required before Config
             iWantTo.UserId = userId;
             iWantTo.ModelName = modelNameStr;
             return iWantToConfig;
@@ -127,10 +127,10 @@ namespace Senparc.AI.Kernel.Handlers
 
 
         ///// <summary>
-        ///// 添加 TextCompletion 配置
+        ///// Add TextCompletion configuration
         ///// </summary>
         ///// <param name="iWantToConfig"></param>
-        ///// <param name="modelName">如果为 null，则从先前配置中读取</param>
+        ///// <param name="modelName">If null, read from the previous configuration</param>
         ///// <returns></returns>
         ///// <exception cref="SenparcAiException"></exception>
         //public static IWantToConfig AddTextCompletion(this IWantToConfig iWantToConfig, string? modelName = null)
@@ -143,7 +143,7 @@ namespace Senparc.AI.Kernel.Handlers
         //    modelName ??= iWantToConfig.IWantTo.ModelName;
         //    var serviceId = skHelper.GetServiceId(userId, modelName);
 
-        //    //TODO 需要判断 Kernel.TextCompletionServices.ContainsKey(serviceId)，如果存在则不能再添加
+        //    //TODO Need to check Kernel.TextCompletionServices.ContainsKey(serviceId). If it already exists, do not add it again.
 
         //    kernel.Config.AddTextCompletionService(serviceId, k =>
         //        aiPlatForm switch
@@ -152,7 +152,7 @@ namespace Senparc.AI.Kernel.Handlers
 
         //            AiPlatform.AzureOpenAI => new AzureTextCompletion(modelName, aiSetting.AzureEndpoint, aiSetting.ApiKey, aiSetting.AzureOpenAIApiVersion),
 
-        //            _ => throw new SenparcAiException($"没有处理当前 {nameof(AiPlatform)} 类型：{aiPlatForm}")
+        //            _ => throw new SenparcAiException($"does not handle current {nameof(AiPlatform)} type:{aiPlatForm}")
         //        }
         //    );
 
@@ -344,14 +344,14 @@ namespace Senparc.AI.Kernel.Handlers
 
         #endregion
 
-        #region 运行准备
+        #region Run preparation
 
         /// <summary>
-        /// 创建请求实体
+        /// Create a request entity
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="requestContent"></param>
-        /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
+        /// <param name="useAllRegisteredFunctions">Whether to use all registered or created Functions</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
         public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, string? requestContent, bool useAllRegisteredFunctions = false,
@@ -361,7 +361,7 @@ namespace Senparc.AI.Kernel.Handlers
 
             if (useAllRegisteredFunctions && iWantToRun.Functions.Count > 0)
             {
-                //合并已经注册的对象
+                //Merge registered objects
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new KernelFunction[0]).ToArray();
             }
 
@@ -371,10 +371,10 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 创建请求实体，使用上下文，不提供单独的 prompt
-        /// </summary> 
+        /// Create a request entity with context and without a separate prompt
+        /// </summary>
         /// <param name="iWantToRun"></param>
-        /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
+        /// <param name="useAllRegisteredFunctions">Whether to use all registered or created Functions</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
         public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, bool useAllRegisteredFunctions = false, params KernelFunction[] pipeline)
@@ -383,7 +383,7 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 创建请求实体（不使用所有已经注册、创建过的 Function，也不储存行下文）
+        /// Create a request entity without all registered or created Functions and without storing context
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="requestContent"></param>
@@ -395,11 +395,11 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 创建请求实体
+        /// Create a request entity
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="arguments"></param>
-        /// <param name="useAllRegisteredFunctions">是否使用所有已经注册、创建过的 Function</param>
+        /// <param name="useAllRegisteredFunctions">Whether to use all registered or created Functions</param>
         /// <param name="pipeline"></param>
         /// <returns></returns>
         public static SenparcAiRequest CreateRequest(this IWantToRun iWantToRun, KernelArguments arguments,
@@ -409,7 +409,7 @@ namespace Senparc.AI.Kernel.Handlers
 
             if (useAllRegisteredFunctions && iWantToRun.Functions.Count > 0)
             {
-                //合并已经注册的对象
+                //Merge registered objects
                 pipeline = iWantToRun.Functions.Union(pipeline ?? new KernelFunction[0]).ToArray();
             }
 
@@ -419,7 +419,7 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 创建请求实体（不使用所有已经注册、创建过的 Function，也不储存行下文）
+        /// Create a request entity without all registered or created Functions and without storing context
         /// </summary>
         /// <param name="iWantToRun"></param>
         /// <param name="contextVariables"></param>
@@ -432,12 +432,12 @@ namespace Senparc.AI.Kernel.Handlers
 
         #endregion
 
-        #region 运行阶段，或对生成后的 Kernel 进行补充设置
+        #region Run stage or supplemental settings after Kernel generation
 
-        #region 对上下文的管理
+        #region Context management
 
         /// <summary>
-        /// 设置上下文
+        /// Set context
         /// </summary>
         /// <param name="request"></param>
         /// <param name="key"></param>
@@ -451,7 +451,7 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 设置上下文
+        /// Set context
         /// </summary>
         /// <param name="request"></param>
         /// <param name="key"></param>
@@ -465,7 +465,7 @@ namespace Senparc.AI.Kernel.Handlers
 
 
         /// <summary>
-        /// 获取上下文的值
+        /// Get a context value
         /// </summary>
         /// <param name="request"></param>
         /// <param name="key"></param>
@@ -477,7 +477,7 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 获取上下文的值
+        /// Get a context value
         /// </summary>
         /// <param name="request"></param>
         /// <param name="key"></param>
@@ -490,14 +490,14 @@ namespace Senparc.AI.Kernel.Handlers
 
         #endregion
 
-        #region 运行
+        #region run
 
         /// <summary>
-        /// 运行
+        /// run
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
-        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
+        /// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item. Note: any non-null value triggers a streaming request.</param>
         /// <returns></returns>
         public static Task<SenparcKernelAiResult<string>> RunAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
@@ -505,12 +505,12 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 运行
+        /// run
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
-        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
-        /// <typeparam name="T">指定返回结果类型</typeparam>
+        /// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item. Note: any non-null value triggers a streaming request.</param>
+        /// <typeparam name="T">Specify the return result type</typeparam>
         /// <returns></returns>
 
         public static async Task<SenparcKernelAiResult<T>> RunAsync<T>(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
@@ -524,7 +524,7 @@ namespace Senparc.AI.Kernel.Handlers
             var functionPipline = request.FunctionPipeline;
             //var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
 
-            //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
+            //Note: Context is required whenever Plugin and Function are used and an input identifier is included
 
             iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
             var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
@@ -537,7 +537,7 @@ namespace Senparc.AI.Kernel.Handlers
 
             if (tempArguments != null && tempArguments.Count() != 0)
             {
-                //输入特定的本次请求临时上下文
+                //Input the temporary context for this request
                 if (useStream)
                 {
                     result.StreamResult = kernel.InvokeStreamingAsync(functionPipline.FirstOrDefault(), tempArguments);
@@ -550,11 +550,11 @@ namespace Senparc.AI.Kernel.Handlers
             }
             else if (!prompt.IsNullOrEmpty())
             {
-                //tempArguments 为空
-                //输入纯文字
+                //tempArguments is empty
+                //Input plain text
                 if (functionPipline?.Length > 0)
                 {
-                    //使用 Pipleline
+                    //Use Pipeline
                     tempArguments = new() { ["input"] = prompt };
 
                     if (useStream)
@@ -563,16 +563,16 @@ namespace Senparc.AI.Kernel.Handlers
                     }
                     else
                     {
-                        //TODO: 此方法在 NeuCharAI 接口中，不会给服务器传送 Body 内容
+                        //TODO: This method does not send body content to the server in the NeuCharAI interface
                         functionResult = await kernel.InvokeAsync(functionPipline.First(), tempArguments);
                     }
                 }
                 else
                 {
-                    //不适用 Pipline
+                    //Do not use Pipeline
 
-                    //注意：此处即使直接输入 prompt 作为第一个 String 参数，也会被封装到 Context，
-                    //      并赋值给 Key 为 INPUT 的参数
+                    //note:Even if prompt is passed directly as the first string parameter here, it is wrapped into Context,
+                    //      and assigned to the parameter whose key is INPUT
                     //var kernelFunction = iWanToRun.CreateFunctionFromPrompt(prompt ?? "").function;
 
                     if (useStream)
@@ -589,7 +589,7 @@ namespace Senparc.AI.Kernel.Handlers
             }
             else
             {
-                //输入缓存中的上下文
+                //Input context from cache
                 //botAnswer = await kernel.InvokeAsync(functionPipline.FirstOrDefault(), storedArguments);
 
                 if (useStream)
@@ -620,9 +620,9 @@ namespace Senparc.AI.Kernel.Handlers
                 }
                 catch (Exception)
                 {
-                    //TODO: 提供 Output 的泛型
+                    //TODO: Provide generic Output support
                     result.OutputString = functionResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
-                    _ = new SenparcAiException("无法转换为指定类型：" + typeof(T).Name);
+                    _ = new SenparcAiException("Cannot convert to the specified type: " + typeof(T).Name);
                 }
                 result.Result = functionResult;
             }
@@ -635,7 +635,7 @@ namespace Senparc.AI.Kernel.Handlers
                     await foreach (var item in result.StreamResult)
                     {
                         stringResult.Append(item);
-                        inStreamItemProceessing?.Invoke(item);//执行流
+                        inStreamItemProceessing?.Invoke(item);//Execute stream callback
                     }
                 }
 
@@ -648,11 +648,11 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 使用 Stream（流）的方式运行
+        /// Run with Stream
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
-        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。</param>
+        /// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item.</param>
         /// <returns></returns>
         public static Task<SenparcKernelAiResult<string>> RunStreamAsync(this IWantToRun iWanToRun, SenparcAiRequest request, Action<StreamingKernelContent> inStreamItemProceessing = null)
         {
@@ -661,7 +661,7 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 运行
+        /// run
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="iWanToRun"></param>
@@ -684,7 +684,7 @@ namespace Senparc.AI.Kernel.Handlers
             }
             catch (Exception)
             {
-                //TODO: 提供 Output 的泛型
+                //TODO: Provide generic Output support
                 result.OutputString = kernelResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
             }
 
@@ -694,7 +694,7 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 运行
+        /// run
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="iWanToRun"></param>
@@ -724,9 +724,9 @@ namespace Senparc.AI.Kernel.Handlers
             }
             catch (Exception)
             {
-                //TODO: 提供 Output 的泛型
+                //TODO: Provide generic Output support
                 result.OutputString = kernelResult.GetValue<object>()?.ToJson()?.TrimStart('\n') ?? "";
-                _ = new SenparcAiException("无法转换为指定类型：" + typeof(T).Name);
+                _ = new SenparcAiException("Cannot convert to the specified type: " + typeof(T).Name);
             }
 
             result.Result = kernelResult.GetValue<T>();
@@ -737,14 +737,14 @@ namespace Senparc.AI.Kernel.Handlers
 
         #endregion
 
-        #region Vision 模型运行
+        #region Vision model run
 
         /// <summary>
-        /// 运行 Vision 模型
+        /// Run Vision model
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
-        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
+        /// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item. Note: any non-null value triggers a streaming request.</param>
         /// <returns></returns>
         public static Task<SenparcKernelAiResult<string>> RunVisionAsync(this IWantToRun iWanToRun,
             SenparcAiRequest request, ChatHistory chatHistory, List<IContentItem> contentList,
@@ -754,12 +754,12 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 运行 Vision 模型
+        /// Run Vision model
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
-        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
-        /// <typeparam name="T">指定返回结果类型</typeparam>
+        /// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item. Note: any non-null value triggers a streaming request.</param>
+        /// <typeparam name="T">Specify the return result type</typeparam>
         /// <returns></returns>
 
         public static async Task<SenparcKernelAiResult<T>> RunVisionAsync<T>(this IWantToRun iWanToRun,
@@ -776,7 +776,7 @@ namespace Senparc.AI.Kernel.Handlers
             var functionPipline = request.FunctionPipeline;
             //var serviceId = helper.GetServiceId(iWantTo.UserId, iWantTo.ModelName);
 
-            //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
+            //Note: Context is required whenever Plugin and Function are used and an input identifier is included
 
             iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
             var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
@@ -835,7 +835,7 @@ namespace Senparc.AI.Kernel.Handlers
                     await foreach (var item in result.StreamResult)
                     {
                         stringResult.Append(item);
-                        inStreamItemProceessing?.Invoke(item);//执行流
+                        inStreamItemProceessing?.Invoke(item);//Execute stream callback
                     }
                 }
 
@@ -855,11 +855,11 @@ namespace Senparc.AI.Kernel.Handlers
 
 
         /// <summary>
-        /// 运行 Chat + Vision 模型
+        /// Run Chat + Vision model
         /// </summary>
         /// <param name="iWanToRun"></param>
         /// <param name="request"></param>
-        /// <param name="inStreamItemProceessing">启用流，并指定遍历异步流每一步需要执行的委托。注意：只要此项不为 null，则会触发流式的请求。</param>
+        /// <param name="inStreamItemProceessing">Enable streaming and specify the delegate to execute for each async stream item. Note: any non-null value triggers a streaming request.</param>
         /// <returns></returns>
         public static Task<SenparcKernelAiResult<string>> RunChatVisionAsync(this IWantToRun iWanToRun,
             SenparcAiRequest request, ChatHistory chatHistory, List<IContentItem> contentList,
@@ -870,7 +870,7 @@ namespace Senparc.AI.Kernel.Handlers
         }
 
         /// <summary>
-        /// 运行 Chat + Vision 模型
+        /// Run Chat + Vision model
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="iWanToRun"></param>
@@ -891,7 +891,7 @@ namespace Senparc.AI.Kernel.Handlers
             var kernel = helper.GetKernel();
             //var function = iWanToRun.KernelFunction;
 
-            //注意：只要使用了 Plugin 和 Function，并且包含输入标识，就需要使用上下文
+            //Note: Context is required whenever Plugin and Function are used and an input identifier is included
 
             iWanToRun.StoredAiArguments ??= new SenparcAiArguments();
             var storedArguments = iWanToRun.StoredAiArguments.KernelArguments;
@@ -955,7 +955,7 @@ namespace Senparc.AI.Kernel.Handlers
                     await foreach (var item in result.StreamResult)
                     {
                         stringResult.Append(item);
-                        inStreamItemProceessing?.Invoke(item);//执行流
+                        inStreamItemProceessing?.Invoke(item);//Execute stream callback
                     }
                 }
 

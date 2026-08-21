@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Senparc.AI.AgentKernel.A2A
 {
     /// <summary>
-    /// A2A 工具集准备结果。
+    /// Result of preparing an A2A toolset.
     /// </summary>
     public sealed class A2AToolsetResult : IAsyncDisposable
     {
@@ -30,7 +30,7 @@ namespace Senparc.AI.AgentKernel.A2A
         public string? CardDiscoveryError { get; init; }
 
         /// <summary>
-        /// LocalFunctionProxy 模式下用于执行工具调用的 A2A 客户端。
+        /// A2A client used to execute tool calls in LocalFunctionProxy mode.
         /// </summary>
         internal IA2AClient? RuntimeA2AClient { get; init; }
 

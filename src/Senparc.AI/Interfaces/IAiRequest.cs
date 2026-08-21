@@ -1,4 +1,4 @@
-﻿using Senparc.AI.Entities;
+using Senparc.AI.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,28 +6,28 @@ using System.Text;
 namespace Senparc.AI.Interfaces
 {
     /// <summary>
-    /// 请求数据接口
+    /// request data API
     /// </summary>
     public interface IAiRequest<TContext> where TContext : IAiContext
     {
         /// <summary>
-        /// 用户标识
+        /// user identifier
         /// </summary>
         string UserId { get; set; }
         ///// <summary>
-        ///// 调用模型的名称
+        ///// Called model name
         ///// </summary>
         //string ModelName { get; set; }
         /// <summary>
-        /// 请求内容，如 prompt
+        /// request content, such as prompt
         /// </summary>
         string RequestContent { get; set; }
         /// <summary>
-        /// 参数定义
+        /// Parameter definition
         /// </summary>
         PromptConfigParameter ParameterConfig { get; set; }
         /// <summary>
-        /// 上下文
+        /// context
         /// </summary>
         TContext TempAiArguments { get; set; }
     }

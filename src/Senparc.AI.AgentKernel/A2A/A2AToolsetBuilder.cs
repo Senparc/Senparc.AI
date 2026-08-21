@@ -15,16 +15,16 @@ using System.Threading.Tasks;
 namespace Senparc.AI.AgentKernel.A2A
 {
     /// <summary>
-    /// A2A 工具集构建器。
+    /// A2A toolset builder.
     /// </summary>
     public static class A2AToolsetBuilder
     {
         public const string DefaultPublicBaseUrlEnvName = "A2A_PUBLIC_BASE_URL";
 
-        public const string DefaultSystemPrompt = "你是一个会主动调用 A2A 工具的助手。凡是可以通过工具完成的问题，优先调用工具并给出结果。";
+        public const string DefaultSystemPrompt = "You are an assistant that proactively calls A2A tools. Prefer using a tool whenever it can complete the request, and then provide the result.";
 
         /// <summary>
-        /// 根据配置准备 A2A 工具集合（用于 ChatOptions.Tools）。
+        /// Prepares an A2A tool collection from configuration for use in ChatOptions.Tools.
         /// </summary>
         public static async Task<A2AToolsetResult> PrepareAsync(A2AAgentOption option, string? resolvedBaseUrl = null)
         {
@@ -33,18 +33,18 @@ namespace Senparc.AI.AgentKernel.A2A
             resolvedBaseUrl ??= ResolveBaseUrl(option);
             if (string.IsNullOrWhiteSpace(resolvedBaseUrl))
             {
-                throw new InvalidOperationException("未解析到可用的 A2A Base URL。");
+                throw new InvalidOperationException("No usable A2A Base URL could be resolved.");
             }
 
             if (!Uri.TryCreate(resolvedBaseUrl, UriKind.Absolute, out var baseUri))
             {
-                throw new InvalidOperationException($"A2A Base URL 无效：{resolvedBaseUrl}");
+                throw new InvalidOperationException($"Invalid A2A Base URL: {resolvedBaseUrl}");
             }
 
             var bindingMode = option.GetBindingMode();
             if (bindingMode != A2AToolBindingMode.LocalFunctionProxy)
             {
-                throw new NotSupportedException($"当前版本暂仅支持 {A2AToolBindingMode.LocalFunctionProxy} 模式。");
+                throw new NotSupportedException($"This version currently supports only {A2AToolBindingMode.LocalFunctionProxy} mode.");
             }
 
             var httpClient = CreateHttpClient(option.AuthorizationBearerToken);
@@ -65,7 +65,7 @@ namespace Senparc.AI.AgentKernel.A2A
             if (agentCard == null)
             {
                 httpClient.Dispose();
-                throw new InvalidOperationException($"A2A Agent Card 获取失败：{cardDiscoveryError ?? "未知错误"}");
+                throw new InvalidOperationException($"Failed to retrieve the A2A Agent Card: {cardDiscoveryError ?? "unknown error"}");
             }
 
             A2ASdk.IA2AClient? a2aClient = null;
@@ -107,7 +107,7 @@ namespace Senparc.AI.AgentKernel.A2A
         }
 
         /// <summary>
-        /// 生成 A2A 场景常用的 ChatClientAgentOptions。
+        /// Creates ChatClientAgentOptions commonly used for A2A scenarios.
         /// </summary>
         public static ChatClientAgentOptions CreateChatClientAgentOptions(
             IReadOnlyList<AITool> chatTools,
@@ -139,7 +139,7 @@ namespace Senparc.AI.AgentKernel.A2A
         }
 
         /// <summary>
-        /// 通过 A2A 构建结果直接生成 ChatClientAgentOptions。
+        /// Creates ChatClientAgentOptions directly from an A2A build result.
         /// </summary>
         public static ChatClientAgentOptions CreateChatClientAgentOptions(
             this A2AToolsetResult result,
@@ -155,8 +155,8 @@ namespace Senparc.AI.AgentKernel.A2A
         }
 
         /// <summary>
-        /// 解析可用 Base URL：
-        /// BaseUrl(公网) > LocalBaseUrl + PublicBaseUrl/环境变量映射 > LocalBaseUrl(原值)。
+        /// Resolves a usable Base URL:
+        /// BaseUrl (public) &gt; LocalBaseUrl mapped through PublicBaseUrl or an environment variable &gt; the original LocalBaseUrl.
         /// </summary>
         public static string? ResolveBaseUrl(A2AAgentOption option, string publicBaseUrlEnvName = DefaultPublicBaseUrlEnvName)
         {
@@ -192,7 +192,7 @@ namespace Senparc.AI.AgentKernel.A2A
         }
 
         /// <summary>
-        /// 用公网 Base URL 替换本地地址的域名/端口，保留原 LocalBaseUrl 的路径和查询参数。
+        /// Replaces the host and port of a local address with the public Base URL while preserving the LocalBaseUrl path and query string.
         /// </summary>
         public static bool TryMergePublicBaseUrl(string publicBaseUrl, string localBaseUrl, out string mergedUrl, out string error)
         {
@@ -201,13 +201,13 @@ namespace Senparc.AI.AgentKernel.A2A
 
             if (!Uri.TryCreate(publicBaseUrl, UriKind.Absolute, out var publicUri))
             {
-                error = $"PublicBaseUrl 不是合法 URL：{publicBaseUrl}";
+                error = $"PublicBaseUrl is not a valid URL: {publicBaseUrl}";
                 return false;
             }
 
             if (!Uri.TryCreate(localBaseUrl, UriKind.Absolute, out var localUri))
             {
-                error = $"LocalBaseUrl 不是合法 URL：{localBaseUrl}";
+                error = $"LocalBaseUrl is not a valid URL: {localBaseUrl}";
                 return false;
             }
 
@@ -222,7 +222,7 @@ namespace Senparc.AI.AgentKernel.A2A
         }
 
         /// <summary>
-        /// 判断 URL 是否为本地回环地址。
+        /// Determines whether a URL uses a local loopback address.
         /// </summary>
         public static bool IsLocalAddress(string url)
         {
@@ -264,8 +264,8 @@ namespace Senparc.AI.AgentKernel.A2A
             var tools = new List<AITool>();
             var prefix = SanitizeToolName(string.IsNullOrWhiteSpace(option.Name) ? option.AgentName ?? "a2a" : option.Name, "a2a");
 
-            // 始终提供一个通用发送工具，保证没有 skills 时也能可调用。
-            tools.Add(BuildSendTool(client, $"{prefix}_send_message", $"发送消息到 A2A Agent（{card.Name ?? option.Name}）。", null));
+            // Always provide a general send tool so the Agent remains callable even when it has no skills.
+            tools.Add(BuildSendTool(client, $"{prefix}_send_message", $"Send a message to the A2A Agent ({card.Name ?? option.Name}).", null));
 
             var skills = card.Skills?.ToList() ?? new List<A2ASdk.AgentSkill>();
             if (option.AllowedSkills.Count > 0)
@@ -279,8 +279,8 @@ namespace Senparc.AI.AgentKernel.A2A
                 var idOrName = skill.Id ?? skill.Name ?? "skill";
                 var toolName = $"{prefix}_{SanitizeToolName(idOrName, "skill")}";
                 var toolDescription = string.IsNullOrWhiteSpace(skill.Description)
-                    ? $"调用 A2A Skill：{skill.Name ?? skill.Id}"
-                    : $"{skill.Description}（A2A Skill：{skill.Name ?? skill.Id}）";
+                    ? $"Call A2A Skill: {skill.Name ?? skill.Id}"
+                    : $"{skill.Description} (A2A Skill: {skill.Name ?? skill.Id})";
 
                 tools.Add(BuildSendTool(client, toolName, toolDescription, skill));
             }
@@ -294,7 +294,7 @@ namespace Senparc.AI.AgentKernel.A2A
             {
                 if (string.IsNullOrWhiteSpace(input))
                 {
-                    return "请输入要发送给 A2A Agent 的内容。";
+                    return "Enter the content to send to the A2A Agent.";
                 }
 
                 var payload = BuildPayload(input, skill);
@@ -322,7 +322,7 @@ namespace Senparc.AI.AgentKernel.A2A
             }
 
             var name = string.IsNullOrWhiteSpace(skill.Name) ? skill.Id : skill.Name;
-            return $"请优先使用技能「{name}」处理请求：\n{input}";
+            return $"Prefer using the skill '{name}' to handle this request:\n{input}";
         }
 
         private static string ExtractResponseText(A2ASdk.SendMessageResponse response)
@@ -331,7 +331,7 @@ namespace Senparc.AI.AgentKernel.A2A
             {
                 A2ASdk.SendMessageResponseCase.Message => ExtractMessageText(response.Message),
                 A2ASdk.SendMessageResponseCase.Task => ExtractTaskText(response.Task),
-                _ => "A2A 返回了未知响应类型。"
+                _ => "A2A returned an unknown response type."
             };
         }
 
@@ -339,7 +339,7 @@ namespace Senparc.AI.AgentKernel.A2A
         {
             if (task == null)
             {
-                return "A2A 返回了空任务。";
+                return "A2A returned an empty task.";
             }
 
             var lines = new List<string>();
@@ -380,7 +380,7 @@ namespace Senparc.AI.AgentKernel.A2A
 
             if (lines.Count == 0)
             {
-                return $"A2A 任务状态：{task.Status?.State}";
+                return $"A2A task status: {task.Status?.State}";
             }
 
             return string.Join("\n", lines.Distinct());

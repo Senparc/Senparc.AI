@@ -1,4 +1,4 @@
-﻿using Senparc.AI.Interfaces;
+using Senparc.AI.Interfaces;
 using Senparc.AI.Kernel;
 using Senparc.AI.Samples.Consoles;
 
@@ -12,13 +12,13 @@ public class SampleSetting
 
     private enum SettingItems
     {
-        退出 = 0,
-        选择模型 = 1,
-        自定义模型 = 2,
-        设置背景颜色 = 3,
-        设置字体颜色 = 4,
-        启用或关闭HttpClient日志=5,
-        全部重置=6,
+        Exit = 0,
+        SelectModel = 1,
+        CustomModel = 2,
+        SetBackgroundColor = 3,
+        SetForegroundColor = 4,
+        ToggleHttpClientLog=5,
+        ResetAll=6,
     }
 
     private void SetModelAsync()
@@ -27,7 +27,7 @@ public class SampleSetting
     }
 
     /// <summary>
-    /// 修改 Console 背景颜色
+    /// Change Console background color
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
@@ -38,7 +38,7 @@ public class SampleSetting
     }
 
     /// <summary>
-    /// 修改 Console 字体颜色
+    /// Change Console foreground color
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
@@ -56,9 +56,9 @@ public class SampleSetting
     public void RunAsync()
     {
         Console.Clear();
-        Console.WriteLine("[请选择设置内容]");
+        Console.WriteLine("[Select a setting]");
         Console.WriteLine();
-        Console.WriteLine($"*请注意：设置 HttpClient 日之后，可能无法使用 Stream 方式获取返回内容。当前状态：{(EnableHttpClientLog?"启用":"关闭")}");
+        Console.WriteLine($"*Note: after enabling HttpClient logging, Stream mode may not be able to get returned content. Current status:{(EnableHttpClientLog?"enabled":"disabled")}");
         Console.WriteLine();
 
         SettingItems currentChoose = SampleHelper.ChooseItems<SettingItems>();
@@ -66,34 +66,34 @@ public class SampleSetting
         var exit = false;
         switch (currentChoose)
         {
-            case SettingItems.退出:
+            case SettingItems.Exit:
                 exit = true;
                 break;
-            case SettingItems.选择模型:
-                Console.WriteLine("[请选择模型配置]");
+            case SettingItems.SelectModel:
+                Console.WriteLine("[Select a model configuration]");
                 ChooseModel();
                 break;
-            case SettingItems.自定义模型:
+            case SettingItems.CustomModel:
                 SetModelAsync();
                 break;
-            case SettingItems.设置背景颜色:
+            case SettingItems.SetBackgroundColor:
                 BackgroundColor = SetBackgroundColorAsync();
                 break;
-            case SettingItems.设置字体颜色:
+            case SettingItems.SetForegroundColor:
                 ForceColor = SetForegroundColorAsync();
                 break;
-            case SettingItems.启用或关闭HttpClient日志:
+            case SettingItems.ToggleHttpClientLog:
                 EnableHttpClientLog =!EnableHttpClientLog;
-                Console.WriteLine($"HttpClient 日志已{(EnableHttpClientLog?"启用":"关闭")}");
+                Console.WriteLine($"HttpClient logging is now {(EnableHttpClientLog?"enabled":"disabled")}");
                 break;
-            case SettingItems.全部重置:
+            case SettingItems.ResetAll:
                 BackgroundColor = ConsoleColor.Black;
                 ForceColor = ConsoleColor.White;
                 CurrentSettingKey = "Default";
                 exit = true;
                 break;
             default:
-                Console.Out.WriteLineAsync("请选择正确的选项");
+                Console.Out.WriteLineAsync("Select a valid option");
                 RunAsync();
                 break;
         }
@@ -113,7 +113,7 @@ public class SampleSetting
 
     private void ChooseModel()
     {
-        Console.WriteLine("说明：Default 使用 appsettings 中的 AiPlatform；其余项为各 *Keys 基础配置或 Items 子集。");
+        Console.WriteLine("Description: Default uses AiPlatform from appsettings. The remaining items are base *Keys configurations or Items subsets.");
         Console.WriteLine();
 
         var choices = ModelSettingCatalog.GetChoices();
@@ -122,6 +122,6 @@ public class SampleSetting
         CurrentSettingKey = choices[chosen].Key;
 
         var resolved = CurrentSetting;
-        Console.WriteLine($"当前已选中模型配置：{CurrentSettingKey} - {resolved.AiPlatform} - {resolved.Endpoint}");
+        Console.WriteLine($"Selected model configuration:{CurrentSettingKey} - {resolved.AiPlatform} - {resolved.Endpoint}");
     }
 }

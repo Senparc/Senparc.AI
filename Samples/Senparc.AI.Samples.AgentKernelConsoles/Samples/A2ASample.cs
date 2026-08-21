@@ -8,7 +8,7 @@ using Senparc.CO2NET.Extensions;
 namespace Senparc.AI.Samples.AgentKernelConsoles.Samples;
 
 /// <summary>
-/// A2A 示例：将远端 A2A Agent 的能力包装为本地 AIFunction（LocalFunctionProxy）。
+/// A2A example: wraps the capabilities of a remote A2A Agent as local AIFunctions (LocalFunctionProxy).
 /// </summary>
 public class A2ASample
 {
@@ -29,19 +29,19 @@ public class A2ASample
     {
         if (_aiHandler is not AgentAiHandler agentHandler)
         {
-            throw new InvalidOperationException("当前示例需要 AgentAiHandler。");
+            throw new InvalidOperationException("This sample requires AgentAiHandler.");
         }
 
         agentHandler.AgentKernelHelper.ResetHttpClient(enableLog: SampleSetting.EnableHttpClientLog);
 
-        Console.WriteLine("A2A Sample：通过 LocalFunctionProxy 将远端 A2A Agent 能力映射为本地函数工具。");
-        Console.WriteLine("提示：如需让外网访问本地 A2A 地址，可配置 PublicBaseUrl 或环境变量 A2A_PUBLIC_BASE_URL。");
+        Console.WriteLine("A2A Sample: maps remote A2A Agent capabilities to local function tools through LocalFunctionProxy.");
+        Console.WriteLine("Tip: To make a local A2A address externally accessible, configure PublicBaseUrl or the A2A_PUBLIC_BASE_URL environment variable.");
         Console.WriteLine();
 
         var agentOptions = GetAgentOptionsFromSetting();
         if (agentOptions.Count == 0)
         {
-            SampleHelper.PrintNote("[提示] 未发现 SenparcAiSetting.A2AAgents 配置，已跳过。");
+            SampleHelper.PrintNote("[Note] No SenparcAiSetting.A2AAgents configuration was found; skipping.");
             PrintConfigTemplate();
             return;
         }
@@ -55,7 +55,7 @@ public class A2ASample
         var resolvedBaseUrl = A2AToolsetBuilder.ResolveBaseUrl(selected);
         if (string.IsNullOrWhiteSpace(resolvedBaseUrl))
         {
-            SampleHelper.PrintNote("[提示] 未解析到可用的 BaseUrl。");
+            SampleHelper.PrintNote("[Note] No usable BaseUrl could be resolved.");
             PrintAgentFixHint(selected);
             return;
         }
@@ -63,21 +63,21 @@ public class A2ASample
 
         if (selected.RequirePublicUrl && A2AToolsetBuilder.IsLocalAddress(effectiveBaseUrl))
         {
-            SampleHelper.PrintNote("[提示] 检测到本地地址，若需外网访问请映射为公网地址。");
+            SampleHelper.PrintNote("[Note] A local address was detected. Map it to a public address if external access is required.");
             PrintExposeUrlHint(effectiveBaseUrl);
 
-            Console.WriteLine("可选：请输入公网 Base URL（如 https://xxxx.trycloudflare.com），回车表示继续使用当前地址：");
+            Console.WriteLine("Optional: enter a public Base URL, such as https://xxxx.trycloudflare.com, or press Enter to continue using the current address:");
             var runtimePublicBaseUrl = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(runtimePublicBaseUrl))
             {
                 if (A2AToolsetBuilder.TryMergePublicBaseUrl(runtimePublicBaseUrl, effectiveBaseUrl, out var mergedUrl, out var error))
                 {
                     effectiveBaseUrl = mergedUrl;
-                    Console.WriteLine($"[调试] 运行时公网地址映射成功：{effectiveBaseUrl}");
+                    Console.WriteLine($"[Debug] Runtime public-address mapping succeeded: {effectiveBaseUrl}");
                 }
                 else
                 {
-                    Console.WriteLine($"[调试] 运行时公网地址无效：{error}");
+                    Console.WriteLine($"[Debug] Invalid runtime public address: {error}");
                 }
             }
         }
@@ -86,31 +86,31 @@ public class A2ASample
         PrintToolDiscoveryDebug(selected, toolset);
 
         var chatOptions = toolset.CreateChatClientAgentOptions(selected.SystemPrompt);
-        Console.WriteLine($"[调试] A2A ToolBindingMode: {toolset.BindingMode}");
-        Console.WriteLine($"[调试] A2A Local AIFunction 数量: {toolset.ChatTools.Count}");
+        Console.WriteLine($"[Debug] A2A ToolBindingMode: {toolset.BindingMode}");
+        Console.WriteLine($"[Debug] Number of local A2A AIFunctions: {toolset.ChatTools.Count}");
         foreach (var item in toolset.ChatTools)
         {
-            Console.WriteLine($"[调试] A2A Local AIFunction: {item.Name}");
+            Console.WriteLine($"[Debug] Local A2A AIFunction: {item.Name}");
         }
 
-        Console.WriteLine($"[调试] AgentCard.Name: {toolset.AgentCard.Name}");
-        Console.WriteLine($"[调试] AgentCard.Version: {toolset.AgentCard.Version}");
-        Console.WriteLine($"[调试] Base URL: {toolset.ResolvedBaseUrl}");
-        Console.WriteLine("[调试] 正在创建 AgentSession...");
+        Console.WriteLine($"[Debug] AgentCard.Name: {toolset.AgentCard.Name}");
+        Console.WriteLine($"[Debug] AgentCard.Version: {toolset.AgentCard.Version}");
+        Console.WriteLine($"[Debug] Base URL: {toolset.ResolvedBaseUrl}");
+        Console.WriteLine("[Debug] Creating AgentSession...");
 
         var iWantToRun = await agentHandler.IWantTo(SampleSetting.CurrentSetting)
             .ConfigChatModel(UserId, chatOptions)
             .BuildKernelWithAgentSessionAsync();
 
         var session = iWantToRun.Kernel.AgentSession
-            ?? throw new InvalidOperationException("AgentSession 创建失败。");
+            ?? throw new InvalidOperationException("Failed to create AgentSession.");
 
-        Console.WriteLine("配置完成。输入 exit 退出。");
+        Console.WriteLine("Configuration complete. Enter exit to quit.");
         Console.WriteLine();
 
         while (true)
         {
-            Console.WriteLine("人类：");
+            Console.WriteLine("Human:");
             var input = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(input))
             {
@@ -122,28 +122,28 @@ public class A2ASample
                 break;
             }
 
-            Console.WriteLine("机器：");
+            Console.WriteLine("Assistant:");
             try
             {
                 var result = await iWantToRun.RunChatAsync(input, session);
                 Console.WriteLine(result.Result.Text);
-                Console.WriteLine($"[调试] Tokens — total: {result.Result.Usage?.TotalTokenCount}");
+                Console.WriteLine($"[Debug] Tokens - total: {result.Result.Usage?.TotalTokenCount}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("发生错误：" + ex.Message);
-                SampleHelper.PrintNote("如与 A2A 调用相关，请检查 BaseUrl 可达性、鉴权头与 AgentCard 地址。");
+                Console.WriteLine("An error occurred: " + ex.Message);
+                SampleHelper.PrintNote("For A2A-related failures, check BaseUrl reachability, the authorization header, and the AgentCard address.");
             }
 
             Console.WriteLine();
         }
 
-        Console.WriteLine("A2A 示例结束。");
+        Console.WriteLine("A2A sample finished.");
     }
 
     private static A2AAgentOption? ChooseAgent(IReadOnlyList<A2AAgentOption> agents)
     {
-        Console.WriteLine("请选择 A2A Agent：");
+        Console.WriteLine("Select an A2A Agent:");
         var labels = agents.Select(s =>
         {
             var endpoint = s.BaseUrl.IsNullOrEmpty() ? s.LocalBaseUrl : s.BaseUrl;
@@ -156,28 +156,28 @@ public class A2ASample
 
     private static void PrintToolDiscoveryDebug(A2AAgentOption option, A2AToolsetResult toolset)
     {
-        Console.WriteLine($"[调试] 配置项 AllowedSkills（白名单）: {option.AllowedSkills.Count}");
+        Console.WriteLine($"[Debug] Configured AllowedSkills (allowlist): {option.AllowedSkills.Count}");
         if (option.AllowedSkills.Count > 0)
         {
             foreach (var skillName in option.AllowedSkills)
             {
-                Console.WriteLine($"[调试] 配置白名单技能: {skillName}");
+                Console.WriteLine($"[Debug] Allowlisted skill: {skillName}");
             }
         }
         else
         {
-            Console.WriteLine("[调试] 配置 AllowedSkills 为空：将读取 AgentCard 的全部 skills（同时保留通用 send_message 工具）。");
+            Console.WriteLine("[Debug] AllowedSkills is empty: all AgentCard skills will be loaded while retaining the general send_message tool.");
         }
 
         if (!toolset.CardDiscoveryError.IsNullOrEmpty())
         {
-            Console.WriteLine($"[调试] AgentCard 获取提示：{toolset.CardDiscoveryError}");
+            Console.WriteLine($"[Debug] AgentCard retrieval note: {toolset.CardDiscoveryError}");
         }
 
-        Console.WriteLine($"[调试] AgentCard 实际 skills 数: {toolset.DiscoveredSkillNames.Count}");
+        Console.WriteLine($"[Debug] Actual number of AgentCard skills: {toolset.DiscoveredSkillNames.Count}");
         foreach (var skillName in toolset.DiscoveredSkillNames)
         {
-            Console.WriteLine($"[调试] AgentCard Skill: {skillName}");
+            Console.WriteLine($"[Debug] AgentCard Skill: {skillName}");
         }
     }
 
@@ -189,25 +189,25 @@ public class A2ASample
         }
 
         var origin = $"{uri.Scheme}://{uri.Host}:{uri.Port}";
-        SampleHelper.PrintNote("可使用反向隧道暴露本地地址：");
+        SampleHelper.PrintNote("A reverse tunnel can expose the local address:");
         Console.WriteLine($"- cloudflared: cloudflared tunnel --url {origin}");
         Console.WriteLine($"- ngrok: ngrok http {uri.Port}");
-        Console.WriteLine($"完成后将公网域名写入 PublicBaseUrl，或设置环境变量 {A2AToolsetBuilder.DefaultPublicBaseUrlEnvName}。");
+        Console.WriteLine($"When complete, write the public domain to PublicBaseUrl or set the {A2AToolsetBuilder.DefaultPublicBaseUrlEnvName} environment variable.");
         Console.WriteLine();
     }
 
     private static void PrintConfigTemplate()
     {
-        Console.WriteLine("示例配置（appsettings.json）：");
+        Console.WriteLine("Example configuration (appsettings.json):");
         Console.WriteLine("\"SenparcAiSetting\": { \"A2AAgents\": [ { \"Name\": \"Remote-A2A\", \"BaseUrl\": \"https://your-agent.example.com/a2a\", \"ToolBindingMode\": \"LocalFunctionProxy\" } ] }");
         Console.WriteLine();
     }
 
     private static void PrintAgentFixHint(A2AAgentOption option)
     {
-        Console.WriteLine($"当前配置：{option.Name}");
-        Console.WriteLine("请至少配置 BaseUrl（公网）或 LocalBaseUrl（本地）之一。");
-        Console.WriteLine("如配置 LocalBaseUrl，可配合 PublicBaseUrl / A2A_PUBLIC_BASE_URL 自动转换。");
+        Console.WriteLine($"Current configuration: {option.Name}");
+        Console.WriteLine("Configure at least one of BaseUrl (public) or LocalBaseUrl (local).");
+        Console.WriteLine("When LocalBaseUrl is configured, use PublicBaseUrl or A2A_PUBLIC_BASE_URL for automatic conversion.");
         Console.WriteLine();
     }
 

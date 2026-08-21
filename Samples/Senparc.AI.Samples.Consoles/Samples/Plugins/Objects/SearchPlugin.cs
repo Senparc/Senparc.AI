@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -19,13 +19,13 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
         public SearchPlugin(IServiceProvider serviceProvider = null, IWantToRun iWantToRun = null, SemanticAiHandler semanticAiHandler = null)
         {
             this._serviceProvider = serviceProvider;
-            this._iWantToRun = iWantToRun;//此处传入 iWantToRun 对象，可以在 Function 中继续调用 AI 接口
+            this._iWantToRun = iWantToRun;//Pass the iWantToRun object here so the AI API can continue to be called from the Function
             this._semanticAiHandler = semanticAiHandler;
         }
 
-        //KernelFunction 可以使用静态方法，也可以使用实例方法
+        //KernelFunction can use a static method or an instance method
 
-        [KernelFunction, Description("获取 URL")]
+        [KernelFunction, Description("Get URL")]
         public async Task<string> GetURL(KernelArguments arguments)
         {
             string[] urls = new[] {
@@ -34,22 +34,22 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
                 "https://weixin.senparc.com/QA"
             };
 
-            //随机获取一个URL
+            //Randomly get a URL
             var url = urls[new Random().Next(0, urls.Length)];
-            //储存到上下文中
+            //Store in context
             arguments["url"] = url;
 
-            await Console.Out.WriteLineAsync($"随机获取 URL：{url}");
+            await Console.Out.WriteLineAsync($"Randomly get URL:{url}");
 
             return url;
         }
 
-        [KernelFunction, Description("网页爬虫")]
+        [KernelFunction, Description("Web crawler")]
         public static async Task<GetHtmlResult> GetHtml(
             KernelArguments arguments,
              [Description("URL")]
             string url,
-             [Description("请求头（GET/POST）")]
+             [Description("Request header (GET/POST)")]
             string method="GET"
          )
         {
@@ -71,42 +71,42 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
                 result.CostMS = SystemTime.DiffTotalMS(startTime);
                 result.Url = url;
 
-                arguments["html"] = htmlContent;//将结果存入上下文，以便后续使用
+                arguments["html"] = htmlContent;//Store the result in context for later use
             }
             catch (Exception)
             {
                 throw;
             }
 
-            await Console.Out.WriteLineAsync("完成 HTML 抓取");
+            await Console.Out.WriteLineAsync("HTML fetch completed");
             await Console.Out.WriteLineAsync("==========================");
-            await Console.Out.WriteLineAsync("【从 Function 外部读取】");
-            await Console.Out.WriteLineAsync($"URL： {result.Url}");
-            await Console.Out.WriteLineAsync($"耗时：{result.CostMS}ms");
-            await Console.Out.WriteLineAsync($"HTML：{result.HTML}");
+            await Console.Out.WriteLineAsync("[Read from outside the Function]");
+            await Console.Out.WriteLineAsync($"URL: {result.Url}");
+            await Console.Out.WriteLineAsync($"Elapsed time:{result.CostMS}ms");
+            await Console.Out.WriteLineAsync($"HTML:{result.HTML}");
 
             return result;
         }
 
-        [KernelFunction, Description("网页内容总结")]
+        [KernelFunction, Description("Web content summary")]
         public async Task<string> GetSummary(
             KernelArguments arguments,
             [Description("Html")]
             string html
             )
         {
-            Console.WriteLine("正在生成 HTML 内容摘要");
-            //HTML 去除所有HTML标签，仅保留文字
+            Console.WriteLine("Generating HTML content summary");
+            //Remove all HTML tags and keep only text
             var rawHtml = html.Length > 1000 ? html.Substring(0, 1000) : html;// System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", "").Substring(0,300);
 
             arguments["html"] = rawHtml;
 
-            //完成 Kernel 基础设置
+            //Kernel base setup completed
             var (iWantToRun, newFunction) =
                  _semanticAiHandler.IWantTo()
                  .ConfigModel(ConfigModel.TextCompletion, "Jeffrey")
                  .BuildKernel()
-                 .CreateFunctionFromPrompt("请从以下 HTML 代码中摘取重要信息，形成一段网页内容的总结：{{$html}}", promptConfigPara: new Entities.PromptConfigParameter()
+                 .CreateFunctionFromPrompt("Extract important information from the following HTML and create a web content summary: {{$html}}", promptConfigPara: new Entities.PromptConfigParameter()
                  {
                      MaxTokens = 5000,
                      Temperature = 0.7,
@@ -125,7 +125,7 @@ namespace Senparc.AI.Samples.Consoles.Samples.Plugins
 
             var result = await iWantToRun.RunAsync(request);
             await Console.Out.WriteLineAsync("======================");
-            await Console.Out.WriteLineAsync("内容总结：" + result.Output);
+            await Console.Out.WriteLineAsync("Content summary:" + result.Output);
             return result.Output;
 
         }

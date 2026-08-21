@@ -1,14 +1,14 @@
 ﻿/*----------------------------------------------------------------
     Copyright (C) 2026 Senparc
 
-    文件名：OpenAIKeys.cs
-    文件功能描述：定义 OpenAI 服务访问所需的密钥与可选终结点配置。
+    File: OpenAIKeys.cs
+    Description: Defines the keys and optional endpoint configuration required to access the OpenAI service.
 
 
-    创建标识：Senparc - 20230420
+    Created by: Senparc - 20230420
 
-    修改标识：Senparc - 20260731
-    修改描述：v0.27.4 改用 System.Text.Json 序列化特性并保留空终结点忽略行为
+    Modified by: Senparc - 20260731
+    Change description: v0.27.4 switched to System.Text.Json serialization attributes while preserving omission of an empty endpoint.
 
 ----------------------------------------------------------------*/
 using System;

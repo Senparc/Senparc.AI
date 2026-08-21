@@ -1,17 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transformer Token 生成原理可视化</title>
-    <style>
-        body { 
-            margin: 0; 
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Visualization of Transformer Token generation principle</title>
+<style>
+        body {
+            margin: 0;
             overflow: hidden;
             font-family: Arial, sans-serif;
         }
-        #canvas { 
-            width: 100%; 
+        #canvas {
+            width: 100%;
             height: 100%;
             position: fixed;
         }
@@ -64,45 +65,45 @@
             color: white;
             padding: 15px;
             border-radius: 5px;
-            display: none; /* 默认隐藏 */
+            display: none; /* Hidden by default */
             width: 280px;
         }
-        
+
         .parameter-section {
             margin-bottom: 20px;
         }
-        
+
         .parameter-section:last-child {
             margin-bottom: 0;
         }
-        
+
         .parameter-section h4 {
             margin-top: 0;
             margin-bottom: 10px;
         }
-        
+
         .slider-container {
             display: flex;
             align-items: center;
             margin-top: 10px;
         }
-        
+
         .slider {
             flex-grow: 1;
             margin: 0 10px;
         }
-        
+
         .disabled-token {
             color: #888888 !important;
             text-decoration: line-through;
         }
-        
+
         .param-description {
             font-size: 12px;
             margin-top: 5px;
             line-height: 1.3;
         }
-        
+
         #probability-chart {
             position: absolute;
             bottom: 20px;
@@ -111,15 +112,15 @@
             border-radius: 5px;
             padding: 10px;
             display: none;
-            width: 550px;  /* 恢复更紧凑的宽度 */
-            height: 320px; /* 保持高度 */
+            width: 550px;  /* Restore more compact width */
+            height: 320px; /* keep altitude */
         }
-        
+
         #chart-canvas {
             width: 100%;
             height: 100%;
         }
-        
+
         .chart-title {
             color: white;
             text-align: center;
@@ -127,7 +128,7 @@
             margin-bottom: 5px;
             font-size: 16px;
         }
-        
+
         #copyright {
                     position: absolute;
             bottom: 10px;
@@ -139,68 +140,64 @@
             pointer-events: none;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
-        
+
         #copyright a {
             pointer-events: auto;
         }
     </style>
 </head>
 <body>
-    <div id="canvas"></div>
-    <div id="info">
-        <h2>Transformer Token 生成原理</h2>
-        <p id="step-description">欢迎来到 Transformer 模型可视化！点击"开始"按钮开始演示。</p>
-    </div>
-    <div id="controls">
-        <button class="step-btn" id="start-btn">开始</button>
-        <button class="step-btn" id="prev-btn" disabled>上一步</button>
-        <button class="step-btn" id="next-btn" disabled>下一步</button>
-        <button class="step-btn" id="reset-btn">重置</button>
-    </div>
-    <div id="parameters-control">
-        <h3>生成参数控制</h3>
-        
-        <!-- Top-P 控制区域 -->
-        <div class="parameter-section">
-            <h4>Top-P 采样</h4>
-            <div class="slider-container">
-                <span>0</span>
-                <input type="range" min="0" max="1" step="0.05" value="0.6" class="slider" id="topP-slider">
-                <span>1</span>
-            </div>
-            <div id="topP-value">当前值: 0.6</div>
-            <p class="param-description">只保留累积概率不超过此值的候选词</p>
-        </div>
-        
-        <!-- Temperature 控制区域 -->
-        <div class="parameter-section">
-            <h4>Temperature</h4>
-            <div class="slider-container">
-                <span>0</span>
-                <input type="range" min="0" max="2" step="0.1" value="1.0" class="slider" id="temperature-slider">
-                <span>2</span>
-            </div>
-            <div id="temperature-value">当前值: 1.0</div>
-            <p class="param-description">调整随机性：低温生成更确定性结果，高温增加创造性和多样性</p>
-        </div>
-    </div>
-    <div id="probability-chart">
-        <h3 class="chart-title">候选词概率分布</h3>
-        <canvas id="chart-canvas"></canvas>
-    </div>
-
-    <!-- 在body最后添加版权信息 -->
-    <div id="copyright">
-        <span>© Senparc</span>
-        <span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documents/AI-Knowledge/Transformer" target="_blank" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">GitHub</a></span>
-    </div>
-
-    <!-- 引入本地 Three.js 文件 -->
-    <script src="js/three.min.js"></script>
-    <script src="js/OrbitControls.js"></script>
-    <script src="js/CSS2DRenderer.js"></script>
-    <script>
-        // Three.js 初始化和场景设置
+<div id="canvas"></div>
+<div id="info">
+<h2>Transformer Token generation principle</h2>
+<p id="step-description">Welcome to Transformer model visualization! Click the "Start" button to start the demonstration.</p>
+</div>
+<div id="controls">
+<button class="step-btn" id="start-btn">start</button>
+<button class="step-btn" disabled="" id="prev-btn">Previous step</button>
+<button class="step-btn" disabled="" id="next-btn">Next step</button>
+<button class="step-btn" id="reset-btn">reset</button>
+</div>
+<div id="parameters-control">
+<h3>Generate parameter control</h3>
+ Top-P control area
+<div class="parameter-section">
+<h4>Top-P sampling</h4>
+<div class="slider-container">
+<span>0</span>
+<input class="slider" id="topP-slider" max="1" min="0" step="0.05" type="range" value="0.6"/>
+<span>1</span>
+</div>
+<div id="topP-value">Current value: 0.6</div>
+<p class="param-description">Only retain candidate words whose cumulative probability does not exceed this value</p>
+</div>
+ Temperature control area
+<div class="parameter-section">
+<h4>Temperature</h4>
+<div class="slider-container">
+<span>0</span>
+<input class="slider" id="temperature-slider" max="2" min="0" step="0.1" type="range" value="1.0"/>
+<span>2</span>
+</div>
+<div id="temperature-value">Current value: 1.0</div>
+<p class="param-description">Adjust randomness: low temperatures produce more deterministic results, high temperatures increase creativity and variety</p>
+</div>
+</div>
+<div id="probability-chart">
+<h3 class="chart-title">Candidate word probability distribution</h3>
+<canvas id="chart-canvas"></canvas>
+</div>
+ Add copyright information at the end of the body
+<div id="copyright">
+<span>© Senparc</span>
+<span> | <a href="https://github.com/Senparc/Senparc.AI/tree/main/documents/AI-Knowledge/Transformer" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;" target="_blank">GitHub</a></span>
+</div>
+ Import the local Three.js file
+<script src="js/three.min.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/CSS2DRenderer.js"></script>
+<script>
+        // Three.js initialization and scene setup
         let scene, camera, renderer, labelRenderer, controls;
         let currentStep = 0;
         const steps = [];
@@ -208,196 +205,196 @@
         const labels = [];
         const attentionLines = [];
         const tokenColors = {
-            input: 0x3498db,  // 蓝色
-            attention: 0xe74c3c,  // 红色
-            intermediate: 0xf39c12,  // 橙色
-            output: 0x2ecc71,  // 绿色
-            next: 0x9b59b6     // 紫色
+            input: 0x3498db,  // blue
+            attention: 0xe74c3c,  // red
+            intermediate: 0xf39c12,  // orange color
+            output: 0x2ecc71,  // green
+            next: 0x9b59b6     // Purple
         };
-        
-        // 步骤描述
+
+        // Step description
         const stepDescriptions = [
-            "步骤 1: 输入文本被分割成 token。每个彩色方块代表一个 token。",
-            "步骤 2: Self-Attention 机制使每个 token 关注序列中的其他 token。",
-            "步骤 3: 通过注意力权重计算，token 融合上下文信息。",
-            "步骤 4: 前馈神经网络处理每个 token 的表示。",
-            "步骤 5: 基于已有 token，模型预测下一个最可能的 token。",
-            "步骤 6: 选择概率最高（或最匹配当前设置）的 token 作为下一个输出。",
-            "步骤 7: 新生成的 token 被添加到序列中，用于下一轮预测。"
+            "Step 1: The input text is split into tokens. Each colored square represents a token.",
+            "Step 2: The Self-Attention mechanism makes each token pay attention to other tokens in the sequence.",
+            "Step 3: Through attention weight calculation, the token integrates contextual information.",
+            "Step 4: Feedforward neural network processes the representation of each token.",
+            "Step 5: Based on existing tokens, the model predicts the next most likely token.",
+            "Step 6: Select the token with the highest probability (or best match the current setting) as the next output.",
+            "Step 7: The newly generated token is added to the sequence and used for the next round of prediction."
         ];
-        
-        // 创建一个新数组来追踪权重标签对象
+
+        // Create a new array to track weight label objects
         const weightLabels = [];
-        
-        // 添加一些全局变量来跟踪用户交互
-        let candidateTokens = []; // 存储候选token对象
-        let selectedCandidateIndex = -1; // 用户选择的候选token索引
-        let raycaster, mouse; // 用于鼠标交互
-        let isSelectionMode = false; // 是否处于选择模式
-        let userSelectedToken = null; // 用户最终选择的候选词
-        let topPValue = 0.6; // 默认 Top-P 值
-        let temperatureValue = 1.0; // 默认温度值
-        let originalProbabilities = [0.35, 0.21, 0.10, 0.09, 0.07, 0.06, 0.05, 0.04, 0.03]; // 原始概率
-        let adjustedProbabilities = [...originalProbabilities]; // 调整后的概率
-        let cumulativeProbabilities = []; // 存储累积概率
-        
-        // 添加全局变量用于图表
+
+        // Add some global variables to track user interactions
+        let candidateTokens = []; // Store candidate token objects
+        let selectedCandidateIndex = -1; // Index of candidate tokens selected by the user
+        let raycaster, mouse; // for mouse interaction
+        let isSelectionMode = false; // Whether in selection mode
+        let userSelectedToken = null; // The candidate words finally selected by the user
+        let topPValue = 0.6; // Default Top-P value
+        let temperatureValue = 1.0; // Default temperature value
+        let originalProbabilities = [0.35, 0.21, 0.10, 0.09, 0.07, 0.06, 0.05, 0.04, 0.03]; // original probability
+        let adjustedProbabilities = [...originalProbabilities]; // adjusted probability
+        let cumulativeProbabilities = []; // Store cumulative probability
+
+        // Add global variables for charts
         let probabilityChart = null;
-        
-        // 初始化 Three.js 场景
+
+        // Initialize the Three.js scene
         function init() {
-            // 创建场景
+            // Create a scene
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x121212);
-            
-            // 创建相机
+
+            // Create camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.z = 10;
-            // 创建渲染器
+            // Create renderer
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.getElementById('canvas').appendChild(renderer.domElement);
-            
-            // 创建CSS2D渲染器用于标签
+
+            // Create a CSS2D renderer for tags
             labelRenderer = new THREE.CSS2DRenderer();
             labelRenderer.setSize(window.innerWidth, window.innerHeight);
             labelRenderer.domElement.style.position = 'absolute';
             labelRenderer.domElement.style.top = '0px';
             labelRenderer.domElement.style.pointerEvents = 'none';
             document.getElementById('canvas').appendChild(labelRenderer.domElement);
-            
-            // 添加控制
+
+            // Add control
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.1;
-            
-            // 添加光源
+
+            // Add light source
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
             scene.add(ambientLight);
-            
+
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
             directionalLight.position.set(1, 1, 1);
             scene.add(directionalLight);
-            
-            // 窗口大小调整
+
+            // Window resizing
             window.addEventListener('resize', onWindowResize, false);
-            
-            // 设置按钮事件
+
+            // Set button event
             document.getElementById('start-btn').addEventListener('click', startDemo);
             document.getElementById('prev-btn').addEventListener('click', prevStep);
             document.getElementById('next-btn').addEventListener('click', nextStep);
             document.getElementById('reset-btn').addEventListener('click', resetDemo);
-            
-            // 创建动画步骤
+
+            // Create animation steps
             createSteps();
-            
-            // 初始化射线投射器和鼠标向量，用于拾取对象
+
+            // Initialize raycaster and mouse vectors for picking objects
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
-            
-            // 添加鼠标事件监听器
+
+            // Add mouse event listener
             renderer.domElement.addEventListener('mousemove', onMouseMove, false);
             renderer.domElement.addEventListener('click', onClick, false);
-            
-            // 开始渲染循环
+
+            // Start rendering loop
             animate();
-            
-            // 更新图表容器尺寸
+
+            // Update chart container dimensions
             updateChartContainerSize();
         }
-        
-        // 创建所有动画步骤
+
+        // Create all animation steps
         function createSteps() {
-            // 在这里定义每个步骤的场景设置和动画
-            
-            // 步骤1: 展示输入 tokens
+            // Define scene setup and animation for each step here
+
+            // Step 1: Display input tokens
             steps.push(() => {
                 clearScene();
-                const inputText = "我 爱 中 国";
+                const inputText = "I love China";
                 createInputTokens(inputText);
                 updateDescription(0);
             });
-            
-            // 步骤2: 展示 Self-Attention
+
+            // Step 2: Demonstrate Self-Attention
             steps.push(() => {
                 animateSelfAttention();
                 updateDescription(1);
             });
-            
-            // 步骤3: 注意力权重计算
+
+            // Step 3: Attention weight calculation
             steps.push(() => {
                 animateAttentionWeights();
                 updateDescription(2);
             });
-            
-            // 步骤4: 前馈网络处理
+
+            // Step 4: Feedforward network processing
             steps.push(() => {
                 animateFeedForward();
                 updateDescription(3);
             });
-            
-            // 步骤5: 预测下一个 token
+
+            // Step 5: Predict the next token
             steps.push(() => {
                 animateNextTokenPrediction();
                 updateDescription(4);
             });
-            
-            // 步骤6: 选择最高概率的 token
+
+            // Step 6: Select the token with the highest probability
             steps.push(() => {
                 animateTokenSelection();
                 updateDescription(5);
             });
-            
-            // 步骤7: 添加新 token 到序列
+
+            // Step 7: Add new token to sequence
             steps.push(() => {
                 animateAddNewToken();
                 updateDescription(6);
             });
         }
-        
-        // 创建输入 tokens
+
+        // Create input tokens
         function createInputTokens(text) {
             const words = text.split(' ');
             tokens.length = 0;
-            
+
             for (let i = 0; i < words.length; i++) {
                 const tokenGeometry = new THREE.BoxGeometry(1, 1, 1);
                 const tokenMaterial = new THREE.MeshPhongMaterial({ color: tokenColors.input });
                 const token = new THREE.Mesh(tokenGeometry, tokenMaterial);
-                
+
                 token.position.x = (i - (words.length - 1) / 2) * 2;
                 token.position.y = 0;
                 scene.add(token);
                 tokens.push(token);
-                
-                // 添加 token 文本标签
+
+                // Add token text label
                 addTextLabel(token, words[i], token.position.y + 1.2);
             }
         }
-        
-        // 修改addTextLabel函数，添加水平偏移参数
+
+        // Modify the addTextLabel function and add the horizontal offset parameter
         function addTextLabel(parent, text, yOffset = 1.2, showProbability = false, probability = null, xOffset = 0) {
             const labelDiv = document.createElement('div');
             labelDiv.className = 'label';
             labelDiv.textContent = text;
-            
+
             if (showProbability && probability !== null) {
                 const probSpan = document.createElement('span');
                 probSpan.className = 'probability';
                 probSpan.textContent = ` (${probability.toFixed(2)})`;
                 labelDiv.appendChild(probSpan);
             }
-            
+
             const label = new THREE.CSS2DObject(labelDiv);
-            label.position.set(xOffset, yOffset, 0); // 添加水平偏移
+            label.position.set(xOffset, yOffset, 0); // Add horizontal offset
             parent.add(label);
             labels.push(label);
             return label;
         }
-        
-        // 各个动画步骤的函数
+
+        // Functions for each animation step
         function animateSelfAttention() {
-            // 可视化 self-attention 连接
+            // Visualizing self-attention connections
             for (let i = 0; i < tokens.length; i++) {
                 for (let j = 0; j < tokens.length; j++) {
                     if (i !== j) {
@@ -407,159 +404,159 @@
                 }
             }
         }
-        
+
         function animateAttentionWeights() {
-            // 清除之前的注意力线
+            // Clear previous line of attention
             attentionLines.forEach(line => scene.remove(line));
             attentionLines.length = 0;
-            
-            // 清除之前的权重标签
+
+            // Clear previous weight labels
             weightLabels.forEach(obj => scene.remove(obj));
             weightLabels.length = 0;
-            
-            // 添加带权重的注意力线
+
+            // Add weighted attention lines
             const weights = [
                 [0, 0.1, 0.3, 0.6],
                 [0.2, 0, 0.4, 0.5],
                 [0.3, 0.3, 0, 0.4],
                 [0.5, 0.3, 0.2, 0]
             ];
-            
+
             for (let i = 0; i < tokens.length; i++) {
-                // 更新 token 颜色
+                // Update token color
                 tokens[i].material.color.set(tokenColors.attention);
-                
-                // 添加带权重的连线
+
+                // Add weighted connections
                 for (let j = 0; j < tokens.length; j++) {
                     if (i !== j) {
                         const weight = weights[i][j];
                         const line = createAttentionLine(tokens[i], tokens[j], weight);
                         attentionLines.push(line);
-                        
-                        // 添加权重标签
+
+                        // Add weight label
                         const midPoint = new THREE.Vector3().addVectors(
-                            tokens[i].position, 
+                            tokens[i].position,
                             tokens[j].position
                         ).multiplyScalar(0.5);
-                        
-                        // 创建权重标签的父对象
+
+                        // Create a parent object for the weight label
                         const weightObj = new THREE.Object3D();
                         weightObj.position.copy(midPoint);
                         scene.add(weightObj);
-                        
-                        // 将权重标签对象添加到追踪数组
+
+                        // Add weight label object to tracking array
                         weightLabels.push(weightObj);
-                        
-                        // 计算偏移，避免标签重叠
-                        // 基于i和j计算一个微小的偏移，使相邻的权重标签不会完全重叠
+
+                        // Calculate offset to avoid overlapping labels
+                        // Calculate a slight offset based on i and j so that adjacent weight labels do not completely overlap
                         const offsetY = 0.3 + ((i * tokens.length + j) % 3) * 0.2;
                         const offsetX = ((i + j) % 2) * 0.2 - 0.1;
-                        
-                        // 权重标签上移并根据位置稍微错开
+
+                        // Weight labels moved up and slightly staggered based on position
                         addTextLabel(weightObj, weight.toFixed(1), offsetY, false, null, offsetX);
                     }
                 }
             }
         }
-        
+
         function animateFeedForward() {
-            // 移除注意力线和标签
+            // Remove attention lines and labels
             attentionLines.forEach(line => scene.remove(line));
             attentionLines.length = 0;
-            
-            // 用神经网络层的可视化替代
+
+            // Replaced with visualization of neural network layers
             for (let i = 0; i < tokens.length; i++) {
-                // 改变 token 颜色
+                // Change token color
                 tokens[i].material.color.set(tokenColors.intermediate);
-                
-                // 添加前馈网络可视化 (简化版)
+
+                // Add feedforward network visualization (simplified version)
                 const ffnWidth = 1.2;
                 const ffnHeight = 2;
-                
+
                 const ffnGeometry = new THREE.BoxGeometry(ffnWidth, ffnHeight, 0.2);
-                const ffnMaterial = new THREE.MeshPhongMaterial({ 
-                    color: 0xaaaaaa, 
-                    transparent: true, 
-                    opacity: 0.7 
+                const ffnMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xaaaaaa,
+                    transparent: true,
+                    opacity: 0.7
                 });
                 const ffn = new THREE.Mesh(ffnGeometry, ffnMaterial);
-                
+
                 ffn.position.x = tokens[i].position.x;
                 ffn.position.y = tokens[i].position.y + 2.5;
-                ffn.position.z = tokens[i].position.z - 0.5; // 稍微靠后
+                ffn.position.z = tokens[i].position.z - 0.5; // slightly further back
                 scene.add(ffn);
-                
-                // 添加连接输入 token 到 FFN 的线
+
+                // Add a line connecting input token to FFN
                 const points1 = [];
                 points1.push(new THREE.Vector3(tokens[i].position.x, tokens[i].position.y + 0.5, tokens[i].position.z));
                 points1.push(new THREE.Vector3(ffn.position.x, ffn.position.y - ffnHeight/2, ffn.position.z));
-                
+
                 const lineGeometry1 = new THREE.BufferGeometry().setFromPoints(points1);
                 const lineMaterial1 = new THREE.LineBasicMaterial({ color: 0xaaaaaa });
                 const line1 = new THREE.Line(lineGeometry1, lineMaterial1);
                 scene.add(line1);
                 attentionLines.push(line1);
-                
-                // 添加连接 FFN 到 token 的线
+
+                // Add a line connecting FFN to token
                 const points2 = [];
                 points2.push(new THREE.Vector3(ffn.position.x, ffn.position.y + ffnHeight/2, ffn.position.z));
                 points2.push(new THREE.Vector3(tokens[i].position.x, tokens[i].position.y, tokens[i].position.z));
-                
+
                 const lineGeometry2 = new THREE.BufferGeometry().setFromPoints(points2);
                 const lineMaterial2 = new THREE.LineBasicMaterial({ color: 0xaaaaaa });
                 const line2 = new THREE.Line(lineGeometry2, lineMaterial2);
                 scene.add(line2);
                 attentionLines.push(line2);
-                
-                // 添加 FFN 标签
+
+                // Add FFN tag
                 addTextLabel(ffn, "FFN", 0);
             }
         }
-        
+
         function animateNextTokenPrediction() {
-            
-            // 保持备选词不变
-            const candidates = ["的", "人", "繁", "万", "民", "家", "爱", "们", "好"];
-            // 使用全局变量的值，确保一致性
+
+            // Keep alternative words unchanged
+            const candidates = ["of", "people", "Traditional", "Ten thousand", "civil", "Home", "like", "them", "good"];
+            // Use the value of a global variable to ensure consistency
             const probabilities = [...originalProbabilities];
-            
-            // 清空候选token数组
+
+            // Clear the candidate token array
             candidateTokens = [];
-            
-            // 调整候选词的垂直间距
+
+            // Adjust the vertical spacing of candidate words
             const verticalSpacing = Math.min(1.2, 10 / candidates.length);
-            
-            // 在原有 tokens 右侧创建候选 tokens
+
+            // Create candidate tokens to the right of the original tokens
             for (let i = 0; i < candidates.length; i++) {
                 const tokenGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-                const tokenMaterial = new THREE.MeshPhongMaterial({ 
+                const tokenMaterial = new THREE.MeshPhongMaterial({
                     color: tokenColors.next,
                     transparent: true,
                     opacity: 0.7 + (0.3 * (1 - i/candidates.length))
                 });
                 const token = new THREE.Mesh(tokenGeometry, tokenMaterial);
-                
+
                 token.position.x = tokens[tokens.length-1].position.x + 2;
-                // 调整垂直位置计算，使候选词平均分布
+                // Adjust vertical position calculation so that candidate words are evenly distributed
                 token.position.y = 4 - i * verticalSpacing;
                 scene.add(token);
-                
-                // 将候选token添加到数组中，用于交互
+
+                // Add candidate tokens to the array for interaction
                 candidateTokens.push(token);
-                
-                // 添加候选 token 文本和概率
+
+                // Add candidate token text and probability
                 addTextLabel(token, candidates[i], 0, true, probabilities[i]);
             }
-            
-            // 添加线条连接原始序列和候选token
+
+            // Add lines connecting the original sequence and candidate tokens
             const lastToken = tokens[tokens.length-1];
             for (let i = 0; i < candidateTokens.length; i++) {
                 const points = [];
                 points.push(new THREE.Vector3(lastToken.position.x + 0.5, lastToken.position.y, lastToken.position.z));
                 points.push(new THREE.Vector3(candidateTokens[i].position.x - 0.4, candidateTokens[i].position.y, 0));
-                
+
                 const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-                const lineMaterial = new THREE.LineBasicMaterial({ 
+                const lineMaterial = new THREE.LineBasicMaterial({
                     color: 0xaaaaaa,
                     transparent: true,
                     opacity: 0.5 + (0.5 * (1 - i/candidateTokens.length))
@@ -569,213 +566,213 @@
                 attentionLines.push(line);
             }
         }
-        
-        // 添加相机平移动画函数
+
+        // Add camera pan animation function
         function animateCameraMove(offsetX = 0, offsetY = 0, offsetZ = 0) {
-            // 保存原始位置和目标
+            // Save original position and destination
             const startPosition = camera.position.clone();
             const startTarget = controls.target.clone();
-            
-            // 计算目标位置和目标点
+
+            // Calculate target position and target point
             const targetPosition = startPosition.clone().add(new THREE.Vector3(offsetX, offsetY, offsetZ));
             const targetTarget = startTarget.clone().add(new THREE.Vector3(offsetX, offsetY, 0));
-            
-            // 设置动画属性
+
+            // Set animation properties
             let startTime = null;
-            const duration = 1000; // 1秒的动画时间
-            
-            // 定义动画函数
+            const duration = 1000; // 1 second animation time
+
+            // Define animation function
             function animateCamera(timestamp) {
                 if (!startTime) startTime = timestamp;
                 const elapsed = timestamp - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
-                // 使用缓动函数使动画更自然
+
+                // Use easing functions to make animations more natural
                 const easeProgress = easeInOutCubic(progress);
-                
-                // 更新相机位置
+
+                // Update camera position
                 camera.position.lerpVectors(startPosition, targetPosition, easeProgress);
                 controls.target.lerpVectors(startTarget, targetTarget, easeProgress);
                 controls.update();
-                
-                // 继续动画直到完成
+
+                // Continue animation until complete
                 if (progress < 1) {
                     requestAnimationFrame(animateCamera);
                 }
             }
-            
-            // 启动动画
+
+            // Start animation
             requestAnimationFrame(animateCamera);
         }
-        
-        // 添加相机水平旋转动画函数
+
+        // Add camera horizontal rotation animation function
         function animateCameraRotation(angleInDegrees = 30, duration = 1500) {
-            // 保存初始状态
+            // Save initial state
             const startPosition = camera.position.clone();
             const startTarget = controls.target.clone();
-            
-            // 计算旋转角度（弧度）
+
+            // Calculate rotation angle (radians)
             const angleInRadians = angleInDegrees * (Math.PI / 180);
-            
-            // 计算目标位置
-            // 使用三角函数绕Y轴旋转相机
+
+            // Calculate target position
+            // Rotate camera around Y axis using trigonometric functions
             const radius = startPosition.distanceTo(startTarget);
             const startAngle = Math.atan2(startPosition.x - startTarget.x, startPosition.z - startTarget.z);
             const endAngle = startAngle + angleInRadians;
-            
-            // 设置动画参数
+
+            // Set animation parameters
             let startTime = null;
-            
+
             function animateRotation(timestamp) {
                 if (!startTime) startTime = timestamp;
                 const elapsed = timestamp - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
-                // 使用缓动函数使动画平滑
+
+                // Use easing functions to smooth animations
                 const easeProgress = easeInOutCubic(progress);
-                
-                // 计算当前角度
+
+                // Calculate current angle
                 const currentAngle = startAngle + (endAngle - startAngle) * easeProgress;
-                
-                // 更新相机位置
+
+                // Update camera position
                 const newX = startTarget.x + radius * Math.sin(currentAngle);
                 const newZ = startTarget.z + radius * Math.cos(currentAngle);
-                
+
                 camera.position.set(newX, startPosition.y, newZ);
-                
-                // 确保相机始终看向目标点
+
+                // Make sure the camera is always looking towards the target point
                 camera.lookAt(startTarget);
                 controls.update();
-                
-                // 继续动画直到完成
+
+                // Continue animation until complete
                 if (progress < 1) {
                     requestAnimationFrame(animateRotation);
                 }
             }
-            
-            // 启动动画
+
+            // Start animation
             requestAnimationFrame(animateRotation);
         }
-        
+
         function animateTokenSelection() {
 
-                       // 添加相机平移动画 - 向右移动视角
+                       // Add camera pan animation - move perspective to the right
                        animateCameraMove(6, 0, 0);
 
-            // 启用选择模式，允许用户通过鼠标选择
+            // Enables selection mode, allowing the user to select with the mouse
             isSelectionMode = true;
             selectedCandidateIndex = -1;
             userSelectedToken = null;
-            
-            // 显示提示信息
-            document.getElementById('step-description').textContent = 
-                "请用鼠标选择一个候选词作为下一个词。使用 Top-P 和 Temperature 参数调整候选词范围和概率分布。";
-            
-            // 禁用下一步按钮，直到用户做出选择
+
+            // Show prompt message
+            document.getElementById('step-description').textContent =
+                "Please use your mouse to select a candidate word as the next word. Use the Top-P and Temperature parameters to adjust the candidate word range and probability distribution.";
+
+            // Disable next button until user makes selection
             document.getElementById('next-btn').disabled = true;
-            
-            // 显示合并的控制区域，而不是单独的控制区域
+
+            // Show merged control areas instead of separate control areas
             document.getElementById('parameters-control').style.display = 'block';
             document.getElementById('probability-chart').style.display = 'block';
-            
-            // 重设滑动条事件监听器，避免重复绑定
+
+            // Reset the slider event listener to avoid repeated binding
             resetSliders();
-            
-            // 应用初始参数并绘制图表
+
+            // Apply initial parameters and plot the graph
             applyModelParameters(topPValue, temperatureValue);
-            
-            // 添加滑动条事件监听器
+
+            // Add slider event listener
             document.getElementById('topP-slider').addEventListener('input', handleParameterChange);
             document.getElementById('temperature-slider').addEventListener('input', handleParameterChange);
         }
-        
+
         function animateAddNewToken() {
-            // 如果用户没有选择，使用默认词
+            // If the user has no choice, use the default word
             if (selectedCandidateIndex === -1) {
-                selectedCandidateIndex = 0; // 默认选择第一个候选词
+                selectedCandidateIndex = 0; // The first candidate word is selected by default
             }
-            
-            // 获取选中的词
-            // 更新引用，确保和animateNextTokenPrediction中的数组一致
-            const candidates = ["的", "人", "繁", "万", "民", "家", "爱", "们", "好"];
+
+            // Get selected word
+            // Update the reference to ensure it is consistent with the array in animateNextTokenPrediction
+            const candidates = ["of", "people", "Traditional", "Ten thousand", "civil", "Home", "like", "them", "good"];
             const selectedWord = candidates[selectedCandidateIndex];
-            
-            // 保留当前tokens引用
+
+            // Keep references to current tokens
             const preservedTokens = [...tokens];
-            
-            // 获取当前选中位置（用户选择的位置）
+
+            // Get the currently selected position (the position selected by the user)
             const selectedToken = (userSelectedToken) ? userSelectedToken : candidateTokens[0];
             const selectedPos = new THREE.Vector3(
-                selectedToken.position.x + 2, // 在选中token右侧
-                selectedToken.position.y, // 与选中token同高度
+                selectedToken.position.x + 2, // On the right side of the selected token
+                selectedToken.position.y, // Same height as the selected token
                 0
             );
-            
-            // 完全重建场景
+
+            // Completely reconstruct the scene
             clearScene(true);
-            
-            // 恢复主光源
+
+            // Restore main light source
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
             scene.add(ambientLight);
-            
+
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
             directionalLight.position.set(1, 1, 1);
             scene.add(directionalLight);
-            
-            // 恢复已存在的tokens
+
+            // Restore existing tokens
             tokens.length = 0;
-            
+
             for (let i = 0; i < preservedTokens.length; i++) {
                 const oldToken = preservedTokens[i];
-                
-                // 创建新token
+
+                // Create new token
                 const tokenGeometry = new THREE.BoxGeometry(1, 1, 1);
                 const tokenMaterial = new THREE.MeshPhongMaterial({ color: tokenColors.input });
                 const newToken = new THREE.Mesh(tokenGeometry, tokenMaterial);
-                
-                // 复制位置信息
+
+                // Copy location information
                 newToken.position.copy(oldToken.position);
                 scene.add(newToken);
                 tokens.push(newToken);
-                
-                // 重新添加标签
+
+                // Re-label
                 let tokenText = "";
-                if (i === 0) tokenText = "我";
-                else if (i === 1) tokenText = "爱";
-                else if (i === 2) tokenText = "中";
-                else if (i === 3) tokenText = "国";
-                
+                if (i === 0) tokenText = "I";
+                else if (i === 1) tokenText = "like";
+                else if (i === 2) tokenText = "middle";
+                else if (i === 3) tokenText = "country";
+
                 addTextLabel(newToken, tokenText, 1.2);
             }
-            
-            // 创建新token - 使用用户选择的词
+
+            // Create new token - using user selected word
             const newTokenGeometry = new THREE.BoxGeometry(1, 1, 1);
-            const newTokenMaterial = new THREE.MeshPhongMaterial({ 
+            const newTokenMaterial = new THREE.MeshPhongMaterial({
                 color: tokenColors.output,
                 transparent: true,
                 opacity: 0.9
             });
             const newToken = new THREE.Mesh(newTokenGeometry, newTokenMaterial);
-            
-            // 初始位置设为选中位置
+
+            // The initial position is set to the selected position
             newToken.position.copy(selectedPos);
             scene.add(newToken);
             tokens.push(newToken);
-            
-            // 添加用户选择的词标签
+
+            // Add user-selected word tags
             addTextLabel(newToken, selectedWord, 1.2);
-            
-            // 定义目标位置（序列末尾）
+
+            // Define target position (end of sequence)
             const targetX = tokens[tokens.length-2].position.x + 2;
             const targetY = 0;
-            
-            // 创建指示移动方向的虚线
+
+            // Create a dashed line indicating the direction of movement
             const points = [];
             points.push(new THREE.Vector3(selectedPos.x, selectedPos.y, 0));
             points.push(new THREE.Vector3(targetX, targetY, 0));
-            
+
             const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-            const lineMaterial = new THREE.LineDashedMaterial({ 
+            const lineMaterial = new THREE.LineDashedMaterial({
                 color: 0xffffff,
                 dashSize: 0.3,
                 gapSize: 0.1,
@@ -783,195 +780,195 @@
                 opacity: 0.6
             });
             const line = new THREE.Line(lineGeometry, lineMaterial);
-            line.computeLineDistances(); // 必须调用此方法使虚线生效
+            line.computeLineDistances(); // This method must be called to make the dashed line take effect
             scene.add(line);
-            
-            // 添加动画，将"的"从选择位置移动到序列末尾
+
+            // Add animation to move "of" from selection position to end of sequence
             let startTime = null;
-            const animationDuration = 1500; // 1.5秒
-            
+            const animationDuration = 1500; // 1.5 seconds
+
             function animateMove(timestamp) {
                 if (!startTime) startTime = timestamp;
                 const elapsed = timestamp - startTime;
                 const progress = Math.min(elapsed / animationDuration, 1);
-                
-                // 使用缓动函数使动画更自然
+
+                // Use easing functions to make animations more natural
                 const easeProgress = easeInOutCubic(progress);
-                
-                // 计算当前位置
+
+                // Calculate current position
                 const currentX = selectedPos.x + (targetX - selectedPos.x) * easeProgress;
                 const currentY = selectedPos.y + (targetY - selectedPos.y) * easeProgress;
-                
-                // 更新token位置
+
+                // Update token location
                 newToken.position.x = currentX;
                 newToken.position.y = currentY;
-                
-                // 逐渐从绿色变为蓝色
+
+                // gradually changes from green to blue
                 const colorStart = new THREE.Color(tokenColors.output);
                 const colorEnd = new THREE.Color(tokenColors.input);
                 const currentColor = colorStart.clone().lerp(colorEnd, easeProgress);
                 newToken.material.color = currentColor;
-                
-                // 动画完成后，移除路径线并重新居中
+
+                // Once the animation is complete, remove the path lines and re-center
                 if (progress < 1) {
                     requestAnimationFrame(animateMove);
                 } else {
-                    // 动画完成，移除路径线
+                    // Animation completed, path lines removed
                     scene.remove(line);
-                    
-                    // 重新调整整个序列的位置使其居中
+
+                    // Reposition the entire sequence to center it
                     const offset = (tokens.length - 1) / 2;
                     for (let i = 0; i < tokens.length; i++) {
-                        // 创建居中动画
+                        // Create a centered animation
                         animateTokenToCenter(tokens[i], (i - offset) * 2);
                     }
                 }
             }
-            
-            // 启动动画
+
+            // Start animation
             requestAnimationFrame(animateMove);
         }
-        
-        // 将token移动到居中位置的动画
+
+        // Animation that moves the token to the center position
         function animateTokenToCenter(token, targetX) {
             const startX = token.position.x;
             let startTime = null;
-            const duration = 800; // 0.8秒
-            
+            const duration = 800; // 0.8 seconds
+
             function animate(timestamp) {
                 if (!startTime) startTime = timestamp;
                 const elapsed = timestamp - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
-                // 使用缓动函数
+
+                // Use the easing function
                 const easeProgress = easeInOutCubic(progress);
-                
-                // 更新位置
+
+                // Update location
                 token.position.x = startX + (targetX - startX) * easeProgress;
-                
+
                 if (progress < 1) {
                     requestAnimationFrame(animate);
                 }
             }
-            
+
             requestAnimationFrame(animate);
         }
-        
-        // 缓动函数，使动画更自然
+
+        // Easing function to make animation more natural
         function easeInOutCubic(t) {
             return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         }
-        
-        // 修改clearScene函数允许完全重置
+
+        // Modify clearScene function to allow full reset
         function clearScene(fullReset = false) {
-            // 保留相机位置
+            // Preserve camera position
             const cameraPosition = camera.position.clone();
             const cameraTarget = controls.target.clone();
-            
-            // 移除所有对象
-            while(scene.children.length > 0) { 
-                scene.remove(scene.children[0]); 
+
+            // Remove all objects
+            while(scene.children.length > 0) {
+                scene.remove(scene.children[0]);
             }
-            
-            // 在完全重置时，清除所有数组
+
+            // On full reset, clear all arrays
             if (fullReset) {
                 tokens.length = 0;
                 labels.length = 0;
                 attentionLines.length = 0;
-                weightLabels.length = 0; // 清除权重标签数组
-                
-                // 清空labelRenderer
+                weightLabels.length = 0; // Clear weight label array
+
+                // Clear labelRenderer
                 while(labelRenderer.domElement.firstChild) {
                     labelRenderer.domElement.removeChild(labelRenderer.domElement.firstChild);
                 }
             }
-            
-            // 重新添加光源
+
+            // Add light source again
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
             scene.add(ambientLight);
-            
+
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
             directionalLight.position.set(1, 1, 1);
             scene.add(directionalLight);
-            
-            // 恢复相机位置
+
+            // Restore camera position
             camera.position.copy(cameraPosition);
             controls.target.copy(cameraTarget);
         }
-        
-        // 创建注意力连接线
+
+        // Create attention connecting lines
         function createAttentionLine(token1, token2, weight = 0.3) {
             const points = [];
             points.push(new THREE.Vector3(token1.position.x, token1.position.y, token1.position.z));
             points.push(new THREE.Vector3(token2.position.x, token2.position.y, token2.position.z));
-            
+
             const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-            const lineMaterial = new THREE.LineBasicMaterial({ 
-                color: 0xffffff, 
-                transparent: true, 
-                opacity: weight 
+            const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: weight
             });
             const line = new THREE.Line(lineGeometry, lineMaterial);
             scene.add(line);
-            
+
             return line;
         }
-        
-        // 更新步骤描述
+
+        // Update step description
         function updateDescription(stepIndex) {
             document.getElementById('step-description').textContent = stepDescriptions[stepIndex];
         }
-        
-        // 窗口大小调整
+
+        // Window resizing
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
             labelRenderer.setSize(window.innerWidth, window.innerHeight);
         }
-        
-        // 动画循环
+
+        // animation loop
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
             renderer.render(scene, camera);
             labelRenderer.render(scene, camera);
         }
-        
-        // 鼠标移动事件处理
+
+        // Mouse move event handling
         function onMouseMove(event) {
-            // 只在第6步（选择token阶段）处理
+            // Only processed in step 6 (token selection phase)
             if (!isSelectionMode) return;
-            
-            // 计算鼠标在归一化设备坐标中的位置 (-1 到 +1)
+
+            // Calculate the mouse position in normalized device coordinates (-1 to +1)
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-            
-            // 更新射线投射器
+
+            // Update ray caster
             raycaster.setFromCamera(mouse, camera);
-            
-            // 检查射线与候选token的相交
+
+            // Check the intersection of the ray with the candidate token
             const intersects = raycaster.intersectObjects(candidateTokens);
-            
-            // 恢复所有候选token的原始颜色
+
+            // Restore the original colors of all candidate tokens
             candidateTokens.forEach(token => {
                 if (!token.userData.disabled) {
                     token.material.color.set(tokenColors.next);
                     token.material.opacity = 0.7;
                 } else {
-                    // 灰色保持不变
+                    // Gray remains unchanged
                     token.material.color.set(0x888888);
                     token.material.opacity = 0.4;
                 }
             });
-            
-            // 如果有相交，高亮第一个相交的对象
+
+            // If there is an intersection, highlight the first intersecting object
             if (intersects.length > 0) {
                 const intersected = intersects[0].object;
-                
-                // 只高亮未禁用的token
+
+                // Only highlight non-disabled tokens
                 if (!intersected.userData.disabled) {
-                    intersected.material.color.set(0xffcc00); // 高亮颜色
+                    intersected.material.color.set(0xffcc00); // Highlight color
                     intersected.material.opacity = 1;
                     document.body.style.cursor = 'pointer';
                 } else {
@@ -981,144 +978,144 @@
                 document.body.style.cursor = 'default';
             }
         }
-        
-        // 鼠标点击事件处理
+
+        // Mouse click event handling
         function onClick(event) {
-            // 只在第6步（选择token阶段）处理
+            // Only processed in step 6 (token selection phase)
             if (!isSelectionMode) return;
-            
-            // 计算鼠标位置
+
+            // Calculate mouse position
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-            
-            // 更新射线投射器
+
+            // Update ray caster
             raycaster.setFromCamera(mouse, camera);
-            
-            // 检查射线与候选token的相交
+
+            // Check the intersection of the ray with the candidate token
             const intersects = raycaster.intersectObjects(candidateTokens);
-            
-            // 如果有相交，处理选择
+
+            // If there is an intersection, process the selection
             if (intersects.length > 0) {
                 const selected = intersects[0].object;
-                
-                // 只允许选择未禁用的token
+
+                // Only allow selection of non-disabled tokens
                 if (!selected.userData.disabled) {
                     const index = candidateTokens.indexOf(selected);
-                    
+
                     if (index !== -1) {
                         selectedCandidateIndex = index;
                         userSelectedToken = selected;
-                        
-                        // 显示选择的token
+
+                        // Show selected token
                         displaySelectedToken(selected);
-                        
-                        // 禁用选择模式
+
+                        // Disable selection mode
                         isSelectionMode = false;
                         document.body.style.cursor = 'default';
-                        
-                        // 隐藏控制器和图表
+
+                        // Hide controllers and charts
                         document.getElementById('parameters-control').style.display = 'none';
                         document.getElementById('probability-chart').style.display = 'none';
-                        
-                        // 启用下一步按钮
+
+                        // Enable next button
                         document.getElementById('next-btn').disabled = false;
                     }
                 }
             }
         }
-        
-        // 显示用户选择的token
+
+        // Display the token selected by the user
         function displaySelectedToken(selectedToken) {
-            // 获取选中的候选词文本和概率
+            // Get the text and probability of the selected candidate word
             const candidateIndex = candidateTokens.indexOf(selectedToken);
-            const candidates = ["的", "人", "繁", "万", "民", "家", "爱", "们", "好"];
-            
-            // 使用调整后的概率，而不是原始概率
+            const candidates = ["of", "people", "Traditional", "Ten thousand", "civil", "Home", "like", "them", "good"];
+
+            // Use adjusted probabilities instead of raw probabilities
             const selectedWord = candidates[candidateIndex];
             const selectedProb = adjustedProbabilities[candidateIndex];
-            
-            // 创建选中token的副本，显示在右侧
+
+            // Create a copy of the selected token, displayed on the right
             const selectedTokenGeometry = new THREE.BoxGeometry(1, 1, 1);
             const selectedTokenMaterial = new THREE.MeshPhongMaterial({ color: tokenColors.output });
             const displayToken = new THREE.Mesh(selectedTokenGeometry, selectedTokenMaterial);
-            
-            // 放在选中的候选词右侧 (而不是固定位置)
-            displayToken.position.x = selectedToken.position.x + 2; // 在选中token右侧2个单位
-            displayToken.position.y = selectedToken.position.y; // 与选中的token在同一高度
+
+            // Place it to the right of the selected candidate word (instead of a fixed position)
+            displayToken.position.x = selectedToken.position.x + 2; // 2 units to the right of the selected token
+            displayToken.position.y = selectedToken.position.y; // At the same height as the selected token
             scene.add(displayToken);
-            
-            // 添加标签
+
+            // Add tag
             addTextLabel(displayToken, selectedWord, 0, true, selectedProb);
-            
-            // 添加从选中位置到右侧位置的连线
+
+            // Add a line from the selected position to the right position
             const points = [];
             points.push(new THREE.Vector3(selectedToken.position.x, selectedToken.position.y, selectedToken.position.z));
             points.push(new THREE.Vector3(displayToken.position.x, displayToken.position.y, displayToken.position.z));
-            
+
             const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-            const lineMaterial = new THREE.LineBasicMaterial({ 
+            const lineMaterial = new THREE.LineBasicMaterial({
                 color: tokenColors.output,
                 linewidth: 2
             });
             const line = new THREE.Line(lineGeometry, lineMaterial);
             scene.add(line);
             attentionLines.push(line);
-            
-            // 添加箭头 - 位置基于选中的候选词
+
+            // Add arrow - position based on selected candidate word
             const arrowGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
             const arrowMaterial = new THREE.MeshPhongMaterial({ color: tokenColors.output });
             const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-            
-            // 计算线的中点
+
+            // Calculate the midpoint of a line
             const midPoint = new THREE.Vector3().addVectors(
                 selectedToken.position,
                 displayToken.position
             ).multiplyScalar(0.5);
-            
+
             arrow.position.copy(midPoint);
-            arrow.rotation.z = -Math.PI / 2; // 指向右侧
+            arrow.rotation.z = -Math.PI / 2; // Point to the right
             scene.add(arrow);
             attentionLines.push(arrow);
         }
-        
-        // 开始演示
+
+        // Start presentation
         function startDemo() {
             currentStep = 0;
-            
-            // 禁用按钮，防止多次点击
+
+            // Disable button to prevent multiple clicks
             document.getElementById('start-btn').disabled = true;
 
-            // 立即初始化场景，避免黑屏
-            // 这样相机旋转时就已经有内容可见了
+            // Initialize the scene immediately to avoid black screen
+            // This way the content will already be visible when the camera rotates
             steps[currentStep]();
-            
-            // 首次执行时只禁用前进和后退按钮
+
+            // Only the forward and back buttons are disabled on first execution
             document.getElementById('prev-btn').disabled = true;
             document.getElementById('next-btn').disabled = true;
-            
-            // 再执行相机旋转动画，使用较短的持续时间
-            animateCameraRotation(25, 1000); // 向右旋转25度，持续1秒
-            
-            // 在动画完成后启用下一步按钮
+
+            // Then perform the camera rotation animation, using a shorter duration
+            animateCameraRotation(25, 1000); // Rotate 25 degrees to the right for 1 second
+
+            // Enable next button after animation completes
             setTimeout(() => {
                 document.getElementById('next-btn').disabled = false;
-            }, 1100); // 稍微长于动画时间，确保动画完成
+            }, 1100); // Slightly longer than the animation time to ensure the animation is completed
         }
-        
-        // 上一步
+
+        // Previous step
         function prevStep() {
             if (currentStep > 0) {
-                // 隐藏控制器和图表
+                // Hide controllers and charts
                 document.getElementById('parameters-control').style.display = 'none';
                 document.getElementById('probability-chart').style.display = 'none';
-                
+
                 currentStep--;
-                
-                // 如果从第4步回到第5步，相机向左移回原位
+
+                // If you return to step 5 from step 4, the camera moves back to the left
                 if (currentStep === 4) {
-                    animateCameraMove(3, 0, 0); // 向左移动，抵消之前的右移
+                    animateCameraMove(3, 0, 0); // Move to the left, canceling the previous move to the right
                 }
-                
+
                 steps[currentStep]();
                 document.getElementById('next-btn').disabled = false;
                 if (currentStep === 0) {
@@ -1126,84 +1123,84 @@
                 }
             }
         }
-        
-        // 下一步
+
+        // Next step
         function nextStep() {
             if (currentStep < steps.length - 1) {
                 currentStep++;
-                
-                // 当前步骤处理逻辑保持在steps数组的函数中
+
+                // The current step processing logic is kept in the function of the steps array.
                 steps[currentStep]();
-                
+
                 document.getElementById('prev-btn').disabled = false;
                 if (currentStep === steps.length - 1) {
                     document.getElementById('next-btn').disabled = true;
                 }
             }
         }
-        
-        // 重置演示
+
+        // reset demo
         function resetDemo() {
-            // 隐藏控制器和图表
+            // Hide controllers and charts
             document.getElementById('parameters-control').style.display = 'none';
             document.getElementById('probability-chart').style.display = 'none';
-            
+
             clearScene(true);
             currentStep = -1;
-            
-            // 重置相机到默认位置和角度
+
+            // Reset camera to default position and angle
             camera.position.set(0, 0, 10);
             controls.target.set(0, 0, 0);
             controls.update();
-            
+
             document.getElementById('start-btn').disabled = false;
             document.getElementById('prev-btn').disabled = true;
             document.getElementById('next-btn').disabled = true;
-            document.getElementById('step-description').textContent = 
-                '欢迎来到 Transformer 模型可视化！点击"开始"按钮开始演示。';
+            document.getElementById('step-description').textContent =
+                'Welcome to Transformer model visualization! Click the "Start" button to start the demonstration.';
         }
-        
-        // 处理参数变化的函数
+
+        // Functions that handle parameter changes
         function handleParameterChange(event) {
             if (event.target.id === 'topP-slider') {
                 topPValue = parseFloat(event.target.value);
-                document.getElementById('topP-value').textContent = `当前值: ${topPValue.toFixed(2)}`;
+                document.getElementById('topP-value').textContent = `Current value: ${topPValue.toFixed(2)}`;
             } else if (event.target.id === 'temperature-slider') {
                 temperatureValue = parseFloat(event.target.value);
-                document.getElementById('temperature-value').textContent = `当前值: ${temperatureValue.toFixed(1)}`;
+                document.getElementById('temperature-value').textContent = `Current value: ${temperatureValue.toFixed(1)}`;
             }
-            
-            console.log(`参数更新: Top-P=${topPValue.toFixed(2)}, Temperature=${temperatureValue.toFixed(1)}`);
+
+            console.log(`Parameter update: Top-P=${topPValue.toFixed(2)}, Temperature=${temperatureValue.toFixed(1)}`);
             applyModelParameters(topPValue, temperatureValue);
         }
-        
-        // 重置滑动条，防止重复绑定事件
+
+        // Reset the slider to prevent repeated binding events
         function resetSliders() {
             const topPSlider = document.getElementById('topP-slider');
             const tempSlider = document.getElementById('temperature-slider');
-            
-            // 克隆并替换滑动条
+
+            // Clone and replace slider
             const topPClone = topPSlider.cloneNode(true);
             const tempClone = tempSlider.cloneNode(true);
-            
+
             topPSlider.parentNode.replaceChild(topPClone, topPSlider);
             tempSlider.parentNode.replaceChild(tempClone, tempSlider);
-            
-            // 设置初始值
+
+            // Set initial value
             document.getElementById('topP-slider').value = topPValue;
             document.getElementById('temperature-slider').value = temperatureValue;
-            document.getElementById('topP-value').textContent = `当前值: ${topPValue.toFixed(2)}`;
-            document.getElementById('temperature-value').textContent = `当前值: ${temperatureValue.toFixed(1)}`;
+            document.getElementById('topP-value').textContent = `Current value: ${topPValue.toFixed(2)}`;
+            document.getElementById('temperature-value').textContent = `Current value: ${temperatureValue.toFixed(1)}`;
         }
-        
-        // 统一处理 Top-P 和 Temperature 的应用
+
+        // Unified processing of Top-P and Temperature applications
         function applyModelParameters(topP, temperature) {
-            const candidates = ["的", "人", "繁", "万", "民", "家", "爱", "们", "好"];
-            
-            // 第1步：应用温度调整概率分布 - 保持原始顺序
+            const candidates = ["of", "people", "Traditional", "Ten thousand", "civil", "Home", "like", "them", "good"];
+
+            // Step 1: Apply temperature-adjusted probability distribution - keep original order
             adjustedProbabilities = applyTemperature(originalProbabilities, temperature);
-            
-            // 第2步：准备索引和排序 - 但保留原始索引信息
+
+            // Step 2: Prepare for indexing and sorting - but keep original index information
             const indexedProbs = [];
             for (let i = 0; i < adjustedProbabilities.length; i++) {
                 indexedProbs.push({
@@ -1212,163 +1209,163 @@
                     word: candidates[i]
                 });
             }
-            
-            // 按调整后的概率排序 - 仅用于Top-P计算，不影响显示顺序
+
+            // Sort by adjusted probability - only used in Top-P calculations, does not affect display order
             const sortedProbs = [...indexedProbs].sort((a, b) => b.probability - a.probability);
-            
-            // 第3步：应用 Top-P 截断
+
+            // Step 3: Apply Top-P Truncation
             let cumulativeSum = 0;
             let cutoffIndex = sortedProbs.length;
-            
+
             for (let i = 0; i < sortedProbs.length; i++) {
                 cumulativeSum += sortedProbs[i].probability;
                 sortedProbs[i].cumulative = cumulativeSum;
-                
+
                 if (cumulativeSum > topP) {
-                    cutoffIndex = i + 1; // 包含使累积概率超过阈值的词
+                    cutoffIndex = i + 1; // contains words that cause the cumulative probability to exceed the threshold
                     break;
                 }
             }
-            
-            // 确保至少保留一个候选词
+
+            // Make sure to keep at least one candidate word
             if (cutoffIndex === 0 && sortedProbs.length > 0) {
                 cutoffIndex = 1;
             }
-            
-            // 创建保留集合 - 使用原始索引
+
+            // Create a retained collection - using original index
             const indicesToKeep = new Set();
             for (let i = 0; i < cutoffIndex; i++) {
                 indicesToKeep.add(sortedProbs[i].originalIndex);
             }
-            
-            // 调试输出
-            console.log(`应用参数: Top-P=${topP.toFixed(2)}, Temperature=${temperature.toFixed(1)}`);
-            console.log("调整后的概率分布 (原始顺序):");
+
+            // debug output
+            console.log(`Application parameters: Top-P=${topP.toFixed(2)}, Temperature=${temperature.toFixed(1)}`);
+            console.log("Adjusted probability distribution (original order):");
             indexedProbs.forEach(item => {
-                console.log(`${item.word}: ${item.probability.toFixed(4)} (保留: ${indicesToKeep.has(item.originalIndex)})`);
+                console.log(`${item.word}: ${item.probability.toFixed(4)} (reserved: ${indicesToKeep.has(item.originalIndex)})`);
             });
-            
-            // 更新界面 - 使用原始顺序的概率数组
+
+            // Update interface - Probability array using original order
             updateTokenDisplay(indicesToKeep, adjustedProbabilities);
-            
-            // 更新概率分布图表
+
+            // Update probability distribution chart
             updateProbabilityChart(candidates, adjustedProbabilities, indicesToKeep);
         }
-        
-        // 应用温度调整概率分布
+
+        // Apply temperature-adjusted probability distribution
         function applyTemperature(probs, temperature) {
-            // 当温度为0时，直接返回确定性分布
+            // When the temperature is 0, the deterministic distribution is returned directly
             if (temperature <= 0) {
-                // 找到最高概率的索引
+                // Find the index with the highest probability
                 const maxIndex = probs.indexOf(Math.max(...probs));
-                // 创建新数组，最高概率处为1，其他为0
+                // Create a new array with 1 at the highest probability and 0 elsewhere.
                 return probs.map((_, i) => i === maxIndex ? 1.0 : 0.0);
             }
-            
-            // 模拟 logits
+
+            // Simulate logits
             const logits = probs.map(p => Math.log(p));
-            
-            // 应用温度缩放
+
+            // Apply temperature scaling
             const scaledLogits = logits.map(l => l / temperature);
-            
-            // 计算最大值用于数值稳定性
+
+            // Calculate maximum value for numerical stability
             const maxLogit = Math.max(...scaledLogits);
-            
-            // 计算 exp(logits/T)
+
+            // Calculate exp(logits/T)
             const expLogits = scaledLogits.map(l => Math.exp(l - maxLogit));
-            
-            // 计算总和用于归一化
+
+            // Compute the sum for normalization
             const sumExpLogits = expLogits.reduce((a, b) => a + b, 0);
-            
-            // 应用 softmax 获得新的概率分布
+
+            // Apply softmax to obtain new probability distribution
             const newProbs = expLogits.map(e => e / sumExpLogits);
-            
+
             return newProbs;
         }
-        
-        // 更新候选词显示
+
+        // Update candidate word display
         function updateTokenDisplay(indicesToKeep, probabilities) {
-            // 更新所有候选词的状态和显示概率
+            // Update the status and display probability of all candidate words
             for (let i = 0; i < candidateTokens.length; i++) {
                 const token = candidateTokens[i];
                 if (!token) continue;
-                
-                // 获取调整后的概率 - 直接使用索引i，确保与原始顺序一致
+
+                // Get adjusted probabilities - use index i directly, ensuring consistency with original order
                 const newProb = probabilities[i];
-                
-                // 获取或创建标签
+
+                // Get or create tags
                 let label = token.children.length > 0 ? token.children[0] : null;
-                
-                // 如果需要更新标签中的概率
+
+                // If you need to update the probability in the label
                 if (label && label.element) {
-                    // 从标签中移除旧的概率显示
+                    // Remove old probability display from labels
                     while (label.element.firstChild) {
                         label.element.removeChild(label.element.firstChild);
                     }
-                    
-                    // 添加新的文本和概率 - 使用固定的候选词数组，保持顺序一致
-                    const candidates = ["的", "人", "繁", "万", "民", "家", "爱", "们", "好"];
+
+                    // Add new text and probabilities - use a fixed array of candidate words, keeping the order consistent
+                    const candidates = ["of", "people", "Traditional", "Ten thousand", "civil", "Home", "like", "them", "good"];
                     label.element.textContent = candidates[i];
-                    
+
                     const probSpan = document.createElement('span');
                     probSpan.className = 'probability';
                     probSpan.textContent = ` (${newProb.toFixed(2)})`;
                     label.element.appendChild(probSpan);
                 }
-                
-                // 更新显示状态
+
+                // Update display status
                 if (indicesToKeep.has(i)) {
-                    // 启用保留的词
+                    // Enable reserved words
                     token.material.color.set(tokenColors.next);
-                    // 设置透明度与调整后的概率成正比
-                    token.material.opacity = 0.5 + 0.5 * newProb; 
+                    // Set transparency proportional to adjusted probability
+                    token.material.opacity = 0.5 + 0.5 * newProb;
                     token.userData.disabled = false;
                     token.material.needsUpdate = true;
-                    
+
                     if (label && label.element) {
                         label.element.classList.remove('disabled-token');
                     }
                 } else {
-                    // 禁用排除的词
+                    // Disable excluded words
                     token.material.color.set(0x888888);
                     token.material.opacity = 0.4;
                     token.userData.disabled = true;
                     token.material.needsUpdate = true;
-                    
+
                     if (label && label.element) {
                         label.element.classList.add('disabled-token');
                     }
                 }
             }
         }
-        
-        // 修改绘制概率分布图表的函数，添加 Top-P 阈值线
+
+        // Modify the function for drawing probability distribution charts and add a Top-P threshold line
         function updateProbabilityChart(candidates, probabilities, indicesToKeep) {
             const canvas = document.getElementById('chart-canvas');
             const ctx = canvas.getContext('2d');
-            
-            // 清除画布
+
+            // clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 设置画布尺寸使其与CSS尺寸匹配
+
+            // Set canvas dimensions to match CSS dimensions
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
-            
-            // 增加边距，为标签留出足够空间
+
+            // Increase margins to leave enough space for labels
             const margin = {
-                left: 50,    // 增加左边距，为Y轴标签留空间
-                right: 100,  // 增加右边距，为Top-P说明留空间
-                top: 30,     // 增加顶部边距
-                bottom: 50   // 增加底部边距，为X轴标签留空间
+                left: 50,    // Increase the left margin to leave space for the Y-axis label
+                right: 100,  // Increase the right margin to leave space for the Top-P description
+                top: 30,     // Increase top margin
+                bottom: 50   // Increase bottom margin to leave space for X-axis labels
             };
-            
-            // 图表区域尺寸
+
+            // Chart area size
             const chartWidth = canvas.width - margin.left - margin.right;
             const chartHeight = canvas.height - margin.top - margin.bottom;
             const barSpacing = 10;
             const barWidth = (chartWidth - (candidates.length - 1) * barSpacing) / candidates.length;
-            
-            // 绘制坐标轴
+
+            // draw axes
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -1376,67 +1373,67 @@
             ctx.lineTo(margin.left, margin.top + chartHeight);
             ctx.lineTo(margin.left + chartWidth, margin.top + chartHeight);
             ctx.stroke();
-            
-            // 绘制水平虚线和概率标签 - 固定刻度为0到1
+
+            // Draw horizontal dashed lines and probability labels - fixed scale from 0 to 1
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
             ctx.lineWidth = 1;
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
             ctx.font = '12px Arial';
             ctx.fillStyle = '#ffffff';
-            
-            // 绘制固定的Y轴刻度
-            const yAxisSteps = 10; // 10个刻度: 0, 0.1, 0.2, ..., 1.0
+
+            // Draw fixed Y-axis scale
+            const yAxisSteps = 10; // 10 scales: 0, 0.1, 0.2, ..., 1.0
             for (let i = 0; i <= yAxisSteps; i++) {
                 const y = margin.top + chartHeight - (i * chartHeight / yAxisSteps);
                 const probValue = (i / yAxisSteps).toFixed(1); // 0.0, 0.1, 0.2, ..., 1.0
-                
-                // 绘制水平虚线
+
+                // Draw a horizontal dashed line
                 ctx.beginPath();
                 ctx.moveTo(margin.left, y);
                 ctx.lineTo(margin.left + chartWidth, y);
                 ctx.setLineDash([5, 5]);
                 ctx.stroke();
                 ctx.setLineDash([]);
-                
-                // 绘制概率标签 - 向左移动，避免与Y轴标题重叠
+
+                // Plot probability labels - moved to the left to avoid overlapping with Y-axis titles
                 ctx.fillText(probValue, margin.left - 10, y);
             }
-            
-            // 绘制概率条和标签
+
+            // Draw probability bars and labels
             for (let i = 0; i < candidates.length; i++) {
                 const x = margin.left + i * (barWidth + barSpacing);
                 const probability = probabilities[i];
-                
-                // 直接使用概率值计算高度
+
+                // Calculate height directly using probability value
                 const barHeight = probability * chartHeight;
-                
-                // 判断词是否被保留
+
+                // Determine whether the word is retained
                 const isKept = indicesToKeep.has(i);
-                
-                // 设置颜色：保留的词使用紫色，排除的词使用灰色
+
+                // Set color: purple for reserved words, gray for excluded words
                 if (isKept) {
-                    ctx.fillStyle = '#9b59b6'; // 紫色
+                    ctx.fillStyle = '#9b59b6'; // Purple
                 } else {
-                    ctx.fillStyle = '#888888'; // 灰色
+                    ctx.fillStyle = '#888888'; // grey
                 }
-                
-                // 绘制概率条
+
+                // Draw probability bars
                 ctx.fillRect(x, margin.top + chartHeight - barHeight, barWidth, barHeight);
-                
-                // 绘制概率数值 (在柱子顶部)
+
+                // Plot probability values ​​(on top of bars)
                 ctx.textAlign = 'center';
                 ctx.fillStyle = '#ffcc00';
                 ctx.font = '12px Arial';
-                
-                // 确保概率标签显示在柱子上方
+
+                // Make sure the probability labels appear above the bars
                 const labelY = margin.top + chartHeight - barHeight - 5;
                 ctx.fillText(probability.toFixed(2), x + barWidth / 2, labelY);
-                
-                // 绘制候选词标签 - 移到横坐标下方
+
+                // Draw candidate word labels - move below the abscissa
                 ctx.save();
                 ctx.translate(x + barWidth / 2, margin.top + chartHeight + 15);
-                ctx.rotate(Math.PI / 4); // 旋转45度，避免文字重叠
+                ctx.rotate(Math.PI / 4); // Rotate 45 degrees to avoid overlapping text
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = isKept ? '#ffffff' : '#888888';
@@ -1444,8 +1441,8 @@
                 ctx.fillText(candidates[i], 0, 0);
                 ctx.restore();
             }
-            
-            // 添加Y轴标题 - 垂直放置在左侧边缘
+
+            // Add Y axis title - placed vertically on the left edge
             ctx.save();
             ctx.translate(15, margin.top + chartHeight / 2);
             ctx.rotate(-Math.PI / 2);
@@ -1453,75 +1450,75 @@
             ctx.textBaseline = 'middle';
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 14px Arial';
-            ctx.fillText('概率值', 0, 0);
+            ctx.fillText('probability value', 0, 0);
             ctx.restore();
-            
-            // 添加X轴标题 - 水平放置在底部中央
+
+            // Add X-axis title - placed horizontally at bottom center
             ctx.textAlign = 'center';
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 14px Arial';
-            ctx.fillText('候选词', margin.left + chartWidth / 2, margin.top + chartHeight + 35);
-            
-            // 添加温度和Top-P参数标识
+            ctx.fillText('Candidate words', margin.left + chartWidth / 2, margin.top + chartHeight + 35);
+
+            // Add temperature and Top-P parameter identification
             ctx.textAlign = 'left';
             ctx.font = '12px Arial';
             ctx.fillText(`Temperature: ${temperatureValue.toFixed(1)}, Top-P: ${topPValue.toFixed(2)}`, margin.left, 15);
-            
-            // 添加 Top-P 阈值水平线
+
+            // Add Top-P Threshold Horizontal Line
             const topPY = margin.top + chartHeight - (topPValue * chartHeight);
-            
-            // 绘制 Top-P 线
+
+            // Draw Top-P line
             ctx.beginPath();
             ctx.moveTo(margin.left, topPY);
             ctx.lineTo(margin.left + chartWidth, topPY);
-            ctx.strokeStyle = '#ff3333'; // 红色
+            ctx.strokeStyle = '#ff3333'; // red
             ctx.lineWidth = 2;
-            ctx.setLineDash([8, 4]); // 更明显的虚线
+            ctx.setLineDash([8, 4]); // More obvious dotted lines
             ctx.stroke();
             ctx.setLineDash([]);
-            
-            // 添加 Top-P 标签 - 移到右侧边缘，避免重叠
+
+            // Add Top-P label - move to right edge to avoid overlapping
             ctx.fillStyle = '#ff3333';
             ctx.textAlign = 'right';
             ctx.textBaseline = 'bottom';
             ctx.font = 'bold 14px Arial';
             ctx.fillText(`Top-P: ${topPValue.toFixed(2)}`, margin.left + chartWidth - 10, topPY - 5);
-            
-            // 右侧Top-P说明区域
-            // 获取排序后的累积概率
+
+            // Top-P description area on the right
+            // Get the cumulative probability after sorting
             const sortedIndices = [...Array(probabilities.length).keys()]
                 .sort((a, b) => probabilities[b] - probabilities[a]);
-            
+
             let cumulativeSum = 0;
             let cutoffIndex = -1;
-            
+
             for (let i = 0; i < sortedIndices.length; i++) {
                 cumulativeSum += probabilities[sortedIndices[i]];
-                
+
                 if (cumulativeSum > topPValue) {
                     cutoffIndex = i;
                     break;
                 }
             }
-            
-            // 如果有截断，在图表右侧添加说明
+
+            // If there are truncation, add a description to the right of the chart
             if (cutoffIndex !== -1 && cutoffIndex < sortedIndices.length - 1) {
                 const arrowY = margin.top + chartHeight / 2;
-                
+
                 ctx.fillStyle = '#ff3333';
                 ctx.textAlign = 'right';
                 ctx.textBaseline = 'middle';
                 ctx.font = '12px Arial';
-                
-                // 绘制文本说明，位置调整到图表外
-                ctx.fillText('Top-P 截断', canvas.width - 10, arrowY - 20);
-                ctx.fillText(`保留前 ${cutoffIndex + 1} 个词`, canvas.width - 10, arrowY);
-                ctx.fillText(`累积概率: ${cumulativeSum.toFixed(2)}`, canvas.width - 10, arrowY + 20);
+
+                // Draw text description and adjust the position outside the chart
+                ctx.fillText('Top-P truncation', canvas.width - 10, arrowY - 20);
+                ctx.fillText(`Keep the first ${cutoffIndex + 1} words`, canvas.width - 10, arrowY);
+                ctx.fillText(`Cumulative probability: ${cumulativeSum.toFixed(2)}`, canvas.width - 10, arrowY + 20);
             }
         }
-        
-        // 调整图表容器的CSS尺寸
-        // 需要在HTML中更新样式
+
+        // Adjust CSS dimensions of chart container
+        // Need to update styles in HTML
         function updateChartContainerSize() {
             const styleElement = document.createElement('style');
             styleElement.textContent = `
@@ -1533,14 +1530,14 @@
                     border-radius: 5px;
                     padding: 10px;
                     display: none;
-                    width: 550px;  /* 恢复更紧凑的宽度 */
-                    height: 320px; /* 保持高度 */
+                    width: 550px; /* Restore a more compact width */
+                    height: 320px; /* maintain height */
                 }
             `;
             document.head.appendChild(styleElement);
         }
-        
-        // 页面加载完成后初始化
+
+        // Initialized after the page is loaded
         window.onload = init;
     </script>
 </body>

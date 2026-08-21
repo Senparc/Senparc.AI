@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +11,7 @@ namespace Senparc.AI.Agents.AgentExtensions
     {
         public static Graph Start(IEnumerable<Transition>? transitions = null)
         {
-            //TODO: 这里应该提供不带参数的构造函数，已经提交 PR，等待合并
+            //TODO: A parameterless constructor should be provided here. A PR has already been submitted and is waiting to be merged.
             var graph = new Graph(transitions ?? new List<Transition>());
             return graph;
         }

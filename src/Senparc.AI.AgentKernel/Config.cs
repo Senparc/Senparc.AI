@@ -1,12 +1,12 @@
 ﻿namespace Senparc.AI.AgentKernel
 {
     /// <summary>
-    /// Senparc.AI 配置
+    /// Senparc.AI configuration
     /// </summary>
     public static class Config
     {
         /// <summary>
-        /// 当前配置
+        /// current configuration
         /// </summary>
         public static SenparcAiSetting SenparcAiSetting
             => (SenparcAiSetting)Senparc.AI.Config.SenparcAiSetting;

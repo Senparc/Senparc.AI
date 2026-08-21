@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -58,40 +58,40 @@ namespace Senparc.AI.Kernel.Helpers
         }
 
         /// <summary>
-        /// 从内容中尝试获取图片的 Base64 编码
+        /// Try to get image Base64 encoding from content
         /// </summary>
         /// <param name="serviceProvider"></param>
-        /// <param name="content">支持多行文本</param>
+        /// <param name="content">Supports multiline text</param>
         /// <returns></returns>
         public static async Task<List<IContentItem>> TryGetImagesBase64FromContent(this IServiceProvider serviceProvider, string content)
         {
-            // 定义返回的列表  
+            // Define the returned list
             List<IContentItem> result = new List<IContentItem>();
 
-            // 定义正则表达式匹配模式  
+            // Define the regular expression matching pattern
             string pattern = @">>>[ ]*(?<url>http(s)?://([\w-]+\.)+[\w-]+(/[\w-./?%&=]*)?)";
 
-            // 使用正则表达式匹配所有符合条件的内容  
+            // Use the regular expression to match all qualifying item content
             var matches = Regex.Matches(content, pattern);
 
-            // 初始位置  
+            // Initial position
             int lastIndex = 0;
 
-            // 遍历所有匹配  
+            // Iterate all matches
             foreach (Match match in matches)
             {
-                // 获取当前匹配位置  
+                // Get the current match position
                 int matchIndex = match.Index;
 
-                // 获取匹配前的内容  
+                // Get the content before the match
                 string beforeMatch = content.Substring(lastIndex, matchIndex - lastIndex);
                 if (!string.IsNullOrEmpty(beforeMatch))
                 {
                     result.Add(new ContentItem_Text { Type = ContentType.Text, TextContent = beforeMatch });
                 }
 
-                // 添加匹配的 URL 部分  
-                var imageUrl = match.Result("${url}");// 提取 URL  
+                // Add the matched URL section
+                var imageUrl = match.Result("${url}");// Extract URL
                 var imageData = await serviceProvider.GetBase64Images(imageUrl);
                 //result.Add(new ContentItem_ImageBse64 { Type = ContentType.Image, ImageData = new ReadOnlyMemory<byte>() });
                 result.Add(new ContentItem_ImageUrl
@@ -100,18 +100,18 @@ namespace Senparc.AI.Kernel.Helpers
                     image_url = new ImageUrl() { Url = Convert.ToBase64String(imageData.ToArray()) }
                 });
 
-                // 更新最后匹配位置  
+                // Update the last match position
                 lastIndex = matchIndex + match.Length;
             }
 
-            // 处理最后一部分  
+            // Process the last section
             if (lastIndex < content.Length)
             {
                 string remainingContent = content.Substring(lastIndex);
                 result.Add(new ContentItem_Text { Type = ContentType.Text, TextContent = remainingContent });
             }
 
-            // 返回结果列表  
+            // Return the result list
             return result;
         }
     }
