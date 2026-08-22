@@ -1,5 +1,7 @@
 # Senparc.AI
 
+**English** · [简体中文](README.zh-CN.md)
+
 Senparc.AI is the AI extension package for the Senparc ecosystem. It currently focuses on LLM interaction and provides shared .NET abstractions for chat, text completion, embeddings, speech, image generation, Semantic Kernel integration, Microsoft Agent Framework integration, and agent workflows.
 
 ## Project Overview
