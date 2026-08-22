@@ -193,7 +193,8 @@ Enter `4` on the main screen to start the DALL-E image generation workflow.
 
 The result is returned as a URL. Enter `s` to save the generated image locally.
 
-<img width="957" height="979" alt="embedding-reference-operation" src="https://github.com/user-attachments/assets/c47477a3-bf6a-47e2-ad85-b3df1c87c93a" />
+<img width="1902" height="1762" alt="dalle-save-operation-en" src="https://github.com/user-attachments/assets/d4ba571d-97cb-43bb-b547-894174b318de" />
+
 
 Note: the URL returned by the API is temporary and should not be used as a persistent display URL. Save the image promptly if you need to keep it.
 
