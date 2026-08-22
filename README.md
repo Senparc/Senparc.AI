@@ -126,7 +126,9 @@ var aiResult = await iWantToRun.RunAsync(aiRequest);
 // aiResult.Result example: China has a population of about 1.4 billion.
 ```
 
-![Chat sample](docs/readme-images/chat-sample-en.png)
+<img width="1246" height="818" alt="chat-sample-en" src="https://github.com/user-attachments/assets/3b26c647-6a66-4a36-847e-30819dad31f9" />
+
+
 
 ## Samples
 
@@ -144,7 +146,8 @@ All quick-reference samples are located in the `/Samples/` folder.
 
 Open `Senparc.AI.sln`, set the API key and platform parameters in `appsettings.json`, then start the `Senparc.AI.Samples.Consoles` project.
 
-![Open solution](docs/readme-images/open-solution-en.png)
+<img width="1602" height="954" alt="open-solution-en" src="https://github.com/user-attachments/assets/441714ca-5d43-4acb-9bbc-fc2f62e4e9cb" />
+
 
 ### 2. Operations
 
@@ -152,13 +155,15 @@ Open `Senparc.AI.sln`, set the API key and platform parameters in `appsettings.j
 
 Enter `1` to start the chat workflow.
 
-![Chat operation](docs/readme-images/chat-operation-en.png)
+<img width="1476" height="1954" alt="chat-operation-en" src="https://github.com/user-attachments/assets/3c7b2121-f717-479d-ad6d-efb0669dc4ff" />
+
 
 #### 2.2 TextCompletion
 
 Enter `2` on the main screen to start the TextCompletion workflow.
 
-![Text completion operation](docs/readme-images/text-completion-operation-en.png)
+<img width="1434" height="990" alt="text-completion-operation-en" src="https://github.com/user-attachments/assets/37c90c3a-a127-4601-a4b6-e567aa6ab3a3" />
+
 
 #### 2.3 Embedding
 
@@ -168,29 +173,31 @@ Enter `3` on the main screen to start the Embedding workflow. Embedding supports
 
 Select `1` to enter the standard Embedding test. Input information is separated by three English colons. After entering the information, enter `n` to start the chat test.
 
-![Embedding standard operation](docs/readme-images/embedding-standard-operation-en.png)
+<img width="1416" height="1332" alt="embedding-standard-operation-en" src="https://github.com/user-attachments/assets/36a0f0f8-6d2c-4154-b403-098643d0ff3a" />
+
 
 ##### 2.3.2 Reference Embedding Information
 
 Select `2` to enter the reference Embedding test. Input information is separated by three English colons. After entering the information, enter `n` to start the chat test.
 
-![Embedding reference operation](docs/readme-images/embedding-reference-operation-en.png)
+<img width="1914" height="1958" alt="embedding-reference-operation-en" src="https://github.com/user-attachments/assets/abd3e3f4-a938-4204-964f-b9ec0b938e3d" />
+
 
 #### 2.4 DALL-E Image Generation
 
 Enter `4` on the main screen to start the DALL-E image generation workflow.
 
-![DALL-E operation](docs/readme-images/dalle-operation-en.png)
+<img width="1882" height="1284" alt="dalle-operation-en" src="https://github.com/user-attachments/assets/554602a1-743a-4d7d-8083-1be8fa0a2c46" />
 
 The result is returned as a URL. Enter `s` to save the generated image locally.
 
-![DALL-E save operation](docs/readme-images/dalle-save-operation-en.png)
+<img width="957" height="979" alt="embedding-reference-operation" src="https://github.com/user-attachments/assets/c47477a3-bf6a-47e2-ad85-b3df1c87c93a" />
 
 Note: the URL returned by the API is temporary and should not be used as a persistent display URL. Save the image promptly if you need to keep it.
 
 ## Unit Tests
 
-![Unit tests](docs/readme-images/unit-tests-en.png)
+<img width="996" height="1758" alt="unit-tests-en" src="https://github.com/user-attachments/assets/8b655552-2950-4817-b0f4-4ad5a4471adc" />
 
 ## TODO
 
