@@ -66,7 +66,7 @@ Restore with the local package folder before building NCF:
 
 ```bash
 dotnet restore tools/NcfSimulatedSite/Tests/Senparc.Areas.Admin.Tests/Senparc.Areas.Admin.Tests.csproj \
-  --source "/Volumes/DevelopAndData/SenparcProjects/Senparc.AI Group/Senaprc.AI/BuildOutPut" \
+  --source "<path-to-Senparc.AI>/BuildOutPut" \
   --source https://api.nuget.org/v3/index.json
 ```
 
