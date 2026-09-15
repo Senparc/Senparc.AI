@@ -8,7 +8,7 @@
 
 ----------------------------------------------------------------*/
 
-﻿#pragma warning disable MAAI001
+#pragma warning disable MAAI001
 
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
