@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>0.1.14-preview3</Version>
+		<Version>0.1.14-preview5</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>13.0</LangVersion>
@@ -68,9 +68,11 @@
 				3. Keep the Harness integration isolated from the legacy Senparc.AI.Kernel package.
 				[2026-09-11] v0.1.14-preview1 Persist native Harness session state
 				1. Expose AgentKernelHarness.SerializeSessionAsync and restore serialized sessions through BuildHarnessAgentAsync.
-				[2026-09-16] v0.1.14-preview3 Harness provider compatibility
-				1. Sanitize native Harness ChatOptions with the shared model capability rules.
-				2. Use a non-streaming NeuCharAI request and convert the complete response to AgentResponseUpdate values through AgentKernelHarness.RunStreaming.
+				[2026-09-17] v0.1.14-preview4 Require native Harness streaming
+				1. Keep the shared ChatOptions model capability sanitizer before native Harness construction.
+				2. Route every AgentKernelHarness.RunStreaming call directly to MAF RunStreamingAsync so providers cannot be silently downgraded to buffered responses.
+				[2026-09-17] v0.1.14-preview5 Normalize NeuChar model aliases before sampling-parameter filtering
+				1. Filter Temperature, TopP, PresencePenalty, and FrequencyPenalty for NeuChar-prefixed GPT-5 aliases such as NeuChar-gpt-5.6-luna.
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>

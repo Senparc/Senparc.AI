@@ -17,7 +17,7 @@ namespace Senparc.AI.AgentKernel.Helpers
         /// <returns>Whether Temperature or another sampling parameter was removed.</returns>
         public static bool SanitizeForModel(ChatOptions? chatOptions, string? modelName)
         {
-            if (chatOptions == null || !ModelCapabilityHelper.DoesNotSupportTemperature(modelName))
+            if (chatOptions == null || !DoesNotSupportSamplingParameters(modelName))
             {
                 return false;
             }
@@ -58,6 +58,30 @@ namespace Senparc.AI.AgentKernel.Helpers
             }
 
             return removed;
+        }
+
+        private static bool DoesNotSupportSamplingParameters(string? modelName)
+        {
+            if (ModelCapabilityHelper.DoesNotSupportTemperature(modelName))
+            {
+                return true;
+            }
+
+            if (string.IsNullOrWhiteSpace(modelName))
+            {
+                return false;
+            }
+
+            var normalized = modelName.Trim();
+            foreach (var prefix in new[] { "NeuChar-", "NeuCharAI-" })
+            {
+                if (normalized.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return ModelCapabilityHelper.DoesNotSupportTemperature(normalized[prefix.Length..]);
+                }
+            }
+
+            return false;
         }
     }
 }

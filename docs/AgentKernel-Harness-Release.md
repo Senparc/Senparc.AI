@@ -22,15 +22,15 @@ The default options are least privilege:
 Harness requests also use AgentKernel's shared model compatibility boundary:
 
 - `BuildHarnessAgentAsync(...)` sanitizes Harness `ChatOptions` for models that reject sampling parameters such as `Temperature` and `TopP`.
-- `AgentKernelHarness.RunStreaming(...)` keeps a streaming update contract for callers. For providers without stable streaming support, currently `NeuCharAI`, it executes a normal Harness request and converts the complete `AgentResponse` to `AgentResponseUpdate` values.
-- Harness, tool invocation, approval, session serialization, resume, and fork semantics remain enabled for the non-streaming provider path. Only token-level transport streaming is unavailable.
+- `AgentKernelHarness.RunStreaming(...)` always uses the native MAF streaming transport.
+- A provider that cannot stream is treated as a real provider error; AgentKernel does not silently replace streaming with a buffered response.
 
 ## Current Package Status
 
 The package is published as:
 
 ```text
-Senparc.AI.AgentKernel 0.1.14-preview3
+Senparc.AI.AgentKernel 0.1.14-preview5
 ```
 
 The preview suffix is intentional because the current MAF Harness dependency is:
@@ -53,15 +53,15 @@ dotnet build src/Senparc.AI.AgentKernel/Senparc.AI.AgentKernel.csproj --no-resto
 The project has `GeneratePackageOnBuild` enabled for Release. The package is generated under:
 
 ```text
-BuildOutPut/Senparc.AI.AgentKernel.0.1.14-preview3.nupkg
+BuildOutPut/Senparc.AI.AgentKernel.0.1.14-preview5.nupkg
 ```
 
 Verify the package dependency before publishing:
 
 ```bash
-unzip -p BuildOutPut/Senparc.AI.AgentKernel.0.1.14-preview3.nupkg '*.nuspec' \
+unzip -p BuildOutPut/Senparc.AI.AgentKernel.0.1.14-preview5.nupkg '*.nuspec' \
   | rg 'Microsoft.Agents.AI.Harness|Senparc.AI.AgentKernel'
-unzip -t BuildOutPut/Senparc.AI.AgentKernel.0.1.14-preview3.nupkg
+unzip -t BuildOutPut/Senparc.AI.AgentKernel.0.1.14-preview5.nupkg
 ```
 
 ## Installing the Local Package in NCF

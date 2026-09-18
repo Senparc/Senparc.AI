@@ -60,4 +60,24 @@ public class ChatOptionsSanitizerTests
         Assert.IsFalse(removed);
         Assert.IsNull(options.Temperature);
     }
+
+    [TestMethod]
+    public void SanitizeForModel_NeuCharGpt5Alias_RemovesUnsupportedSamplingParameters()
+    {
+        var options = new ChatOptions
+        {
+            Temperature = 0.4f,
+            TopP = 0.9f,
+            PresencePenalty = 0.2f,
+            FrequencyPenalty = 0.3f
+        };
+
+        var removed = ChatOptionsSanitizer.SanitizeForModel(options, "NeuChar-gpt-5.6-luna");
+
+        Assert.IsTrue(removed);
+        Assert.IsNull(options.Temperature);
+        Assert.IsNull(options.TopP);
+        Assert.IsNull(options.PresencePenalty);
+        Assert.IsNull(options.FrequencyPenalty);
+    }
 }
