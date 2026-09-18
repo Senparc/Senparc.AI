@@ -7,7 +7,7 @@
     Created by: Senparc - 20260911
 
     Modified by: Senparc - 20260916
-    Description: v0.1.14-preview3 unified Harness model parameter and transport compatibility
+    Description: v0.1.14-preview4 require native Harness streaming transport
 
 ----------------------------------------------------------------*/
 
@@ -23,7 +23,6 @@ using Senparc.AI.Interfaces;
 using Senparc.AI.AgentKernel.Kernels;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,11 +74,10 @@ public sealed class AgentKernelHarnessOptions
 /// </summary>
 public sealed class AgentKernelHarness
 {
-    internal AgentKernelHarness(AIAgent agent, AgentSession session, bool supportsStreaming)
+    internal AgentKernelHarness(AIAgent agent, AgentSession session)
     {
         Agent = agent;
         Session = session;
-        SupportsStreaming = supportsStreaming;
     }
 
     /// <summary>
@@ -91,21 +89,6 @@ public sealed class AgentKernelHarness
     /// The session used by the agent.
     /// </summary>
     public AgentSession Session { get; }
-
-    /// <summary>
-    /// Whether the selected provider supports stable streaming responses.
-    /// </summary>
-    public bool SupportsStreaming { get; }
-
-    /// <summary>
-    /// Determines whether a provider can use the streaming Harness transport.
-    /// NeuCharAI currently uses the non-streaming transport and is converted to
-    /// response updates by <see cref="RunStreaming"/>.
-    /// </summary>
-    public static bool SupportsStreamingFor(ISenparcAiSetting? setting)
-    {
-        return setting?.AiPlatform != AiPlatform.NeuCharAI;
-    }
 
     /// <summary>
     /// Native MAF mode provider, when enabled.
@@ -129,16 +112,15 @@ public sealed class AgentKernelHarness
     }
 
     /// <summary>
-    /// Runs one Harness request through the provider-compatible update transport,
-    /// including tool calls and approval content. Providers without stable
-    /// streaming support return their complete response as response updates.
+    /// Streams one Harness request through the native MAF streaming transport,
+    /// including tool calls and approval content.
     /// </summary>
     public IAsyncEnumerable<AgentResponseUpdate> RunStreaming(
         IEnumerable<MafChatMessage> messages,
         AgentRunOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        return RunStreamingCompatibleAsync(messages, options, cancellationToken);
+        return Agent.RunStreamingAsync(messages, Session, options, cancellationToken);
     }
 
     /// <summary>
@@ -151,33 +133,6 @@ public sealed class AgentKernelHarness
         return Agent.SerializeSessionAsync(Session, serializerOptions, cancellationToken);
     }
 
-    private async IAsyncEnumerable<AgentResponseUpdate> RunStreamingCompatibleAsync(
-        IEnumerable<MafChatMessage> messages,
-        AgentRunOptions? options,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
-    {
-        if (SupportsStreaming)
-        {
-            await foreach (var update in Agent.RunStreamingAsync(
-                               messages,
-                               Session,
-                               options,
-                               cancellationToken)
-                           .WithCancellation(cancellationToken)
-                           .ConfigureAwait(false))
-            {
-                yield return update;
-            }
-
-            yield break;
-        }
-
-        var response = await RunAsync(messages, options, cancellationToken).ConfigureAwait(false);
-        foreach (var update in response.ToAgentResponseUpdates())
-        {
-            yield return update;
-        }
-    }
 }
 
 #pragma warning restore MAAI001
@@ -221,8 +176,7 @@ public static class AgentKernelHarnessExtensions
                 : await agent.CreateSessionAsync(cancellationToken).ConfigureAwait(false));
         return new AgentKernelHarness(
             agent,
-            session,
-            AgentKernelHarness.SupportsStreamingFor(kernel.SenparcAiSetting));
+            session);
     }
 
     /// <summary>

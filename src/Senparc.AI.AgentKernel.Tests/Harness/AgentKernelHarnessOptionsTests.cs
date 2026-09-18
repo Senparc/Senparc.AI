@@ -1,8 +1,5 @@
 using Microsoft.Agents.AI;
-using Senparc.AI;
-using Senparc.AI.AgentKernel;
 using Senparc.AI.AgentKernel.Harness;
-using Senparc.AI.Entities.Keys;
 
 namespace Senparc.AI.AgentKernel.Tests.Harness;
 
@@ -32,23 +29,4 @@ public class AgentKernelHarnessOptionsTests
         Assert.IsTrue(options.MaxOutputTokens < options.MaxContextWindowTokens);
     }
 
-    [TestMethod]
-    public void SupportsStreamingFor_NeuCharAI_UsesCompatibleNonStreamingTransport()
-    {
-        var setting = new SenparcAiSetting
-        {
-            AiPlatform = AiPlatform.NeuCharAI,
-            NeuCharAIKeys = new NeuCharAIKeys
-            {
-                ModelName = new ModelName
-                {
-                    Chat = "gpt-5.6-luna"
-                }
-            }
-        };
-
-        Assert.IsFalse(AgentKernelHarness.SupportsStreamingFor(setting));
-        setting.AiPlatform = AiPlatform.OpenAI;
-        Assert.IsTrue(AgentKernelHarness.SupportsStreamingFor(setting));
-    }
 }
