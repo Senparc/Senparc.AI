@@ -8,6 +8,7 @@ using Senparc.AI.Entities;
 using Senparc.AI.Entities.Keys;
 using Senparc.AI.Exceptions;
 using Senparc.AI.Interfaces;
+using Senparc.AI.AgentKernel.Usage;
 using Senparc.CO2NET;
 using System;
 using System.Collections.Generic;
@@ -107,6 +108,8 @@ namespace Senparc.AI.AgentKernel.Helpers
         public AiKernel BuildKernel(IAIKernelBuilder kernelBuilder, ChatClientAgentOptions chatClientAgentOptions = null, Action<IAIKernelBuilder>? kernelBuilderAction = null)
         {
             kernelBuilderAction?.Invoke(kernelBuilder);
+
+            kernelBuilder.UsageObserver ??= AgentKernelUsageRegistry.DefaultObserver;
 
             if (loggerFactory != null)
             {

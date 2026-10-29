@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using System.ClientModel;
 using OpenAI.Audio;
 using OpenAI.Images;
+using Senparc.AI.AgentKernel.Usage;
 
 namespace Senparc.AI.AgentKernel.Kernels
 {
@@ -46,11 +47,18 @@ namespace Senparc.AI.AgentKernel.Kernels
 
         public bool AgentInited { get; set; }
 
-        public AiKernel(IServiceProvider serviceProvider, ISenparcAiSetting senparcAiSetting, ConfigModel[] configModels, object chatClient, object imageClient, object embeddingClient, object speechToTextClient, object textToSpeechClient, string embeddingCollectionName, ChatClientAgentOptions chatClientAgentOptions)
+        public AiKernel(IServiceProvider serviceProvider, ISenparcAiSetting senparcAiSetting, ConfigModel[] configModels, object chatClient, object imageClient, object embeddingClient, object speechToTextClient, object textToSpeechClient, string embeddingCollectionName, ChatClientAgentOptions chatClientAgentOptions, IAIUsageObserver? usageObserver = null, string? usageSource = null, AIUsageContext? usageContext = null)
         {
             this.ServiceProvider = serviceProvider;
             this.SenparcAiSetting = senparcAiSetting;
-            this.ChatClient = chatClient;
+            var context = usageContext ?? new AIUsageContext
+            {
+                Source = usageSource ?? chatClientAgentOptions?.Name,
+                ModelName = senparcAiSetting.ModelName?.Chat,
+                DeploymentName = senparcAiSetting.DeploymentName,
+                Platform = senparcAiSetting.AiPlatform
+            };
+            this.ChatClient = WrapChatClient(chatClient, usageObserver, context);
             this.ImageClient = imageClient;
             this.ConfigModels = configModels;
             this.EmbeddingClient = embeddingClient;
@@ -62,6 +70,24 @@ namespace Senparc.AI.AgentKernel.Kernels
             this.EmbeddingDimensions = ModelName.EmbeddingDimensions ?? 0;
             this.CreateAIAgent();
             this.CreateEmbeddingGenerator();
+        }
+
+        private static object WrapChatClient(
+            object chatClient,
+            IAIUsageObserver? usageObserver,
+            AIUsageContext context)
+        {
+            if (usageObserver is null || chatClient is null)
+            {
+                return chatClient;
+            }
+
+            return chatClient switch
+            {
+                IChatClient client => UsageTrackingChatClient.Wrap(client, usageObserver, context),
+                ChatClient client => UsageTrackingChatClient.Wrap(client.AsIChatClient(), usageObserver, context),
+                _ => chatClient
+            };
         }
 
         //TODO:Set Agent information
