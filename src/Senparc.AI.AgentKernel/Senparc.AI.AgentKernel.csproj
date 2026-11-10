@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>0.1.16</Version>
+		<Version>0.1.17</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>13.0</LangVersion>
@@ -81,6 +81,9 @@
 				1. Move Harness, Workflows, and OpenAI packages to 1.28.0; Foundry and A2A hosting follow 1.28.0-preview.261106.1.
 				2. Adapt HarnessAgent creation to HarnessAgentOptions, including context-window compaction and opt-in file access.
 				3. Add offline multi-agent coverage for group chat broadcast, sequential, concurrent, and handoff workflows.
+			[2026-11-11] v0.1.17 Fix HarnessAgent creation for Microsoft Agent Framework 1.28
+				1. Call AsHarnessAgent(HarnessAgentOptions); the removed (int, int, HarnessAgentOptions) overload caused MethodNotFound in AdminChat.
+				2. Give a repeated empty Todo status a unique revision so context compaction keeps the next user turn.
 		</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Senparc/Senparc.AI</RepositoryUrl>
 		<Configurations>Debug;Release;Test</Configurations>
