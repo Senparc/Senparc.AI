@@ -14,6 +14,7 @@ using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Senparc.AI.AgentKernel;
 using Senparc.AI.AgentKernel.Handlers;
+using Senparc.AI.AgentKernel.Harness;
 using Senparc.AI.Interfaces;
 using Senparc.CO2NET.Extensions;
 using OpenAIChatClient = OpenAI.Chat.ChatClient;
@@ -75,22 +76,24 @@ public class HarnessSample
                 $"HarnessSample does not currently support ChatClient type: {client?.GetType().FullName ?? "null"}")
         };
 
-        AIAgent agent = chatClient.AsHarnessAgent(new HarnessAgentOptions
+        var harnessOptions = new HarnessAgentOptions
+        {
+            Name = "SenparcAgentKernelHarness",
+            Description = "Senparc.AI AgentKernel Harness command-line sample",
+            MaxContextWindowTokens = maxContextWindowTokens,
+            MaxOutputTokens = maxOutputTokens,
+            ChatOptions = new ChatOptions
             {
-                Name = "SenparcAgentKernelHarness",
-                Description = "Senparc.AI AgentKernel Harness command-line sample",
-                MaxContextWindowTokens = maxContextWindowTokens,
-                MaxOutputTokens = maxOutputTokens,
-                ChatOptions = new ChatOptions
-                {
-                    Instructions = instructions
-                },
+                Instructions = instructions
+            },
 
-                // File access is opt-in through FileAccessStore. File memory, Skills, and Hosted Web Search stay disabled.
-                DisableFileMemory = true,
-                DisableAgentSkillsProvider = true,
-                DisableWebSearch = true
-            });
+            // File access is opt-in through FileAccessStore. File memory, Skills, and Hosted Web Search stay disabled.
+            DisableFileMemory = true,
+            DisableAgentSkillsProvider = true,
+            DisableWebSearch = true
+        };
+        harnessOptions.UseCompactionSafeTodoList();
+        AIAgent agent = chatClient.AsHarnessAgent(harnessOptions);
 
         var session = await agent.CreateSessionAsync();
         var modeProvider = agent.GetService<AgentModeProvider>();
