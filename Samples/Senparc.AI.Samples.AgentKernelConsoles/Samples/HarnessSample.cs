@@ -8,7 +8,7 @@
     Created by: Senparc - 20260808
 
 ----------------------------------------------------------------*/
-#pragma warning disable MAAI001 // Some APIs in Microsoft.Agents.AI.Harness 1.8 are still marked as experimental.
+#pragma warning disable MAAI001 // Harness context providers remain experimental in Microsoft.Agents.AI.Harness 1.28.
 
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -75,21 +75,18 @@ public class HarnessSample
                 $"HarnessSample does not currently support ChatClient type: {client?.GetType().FullName ?? "null"}")
         };
 
-        AIAgent agent = chatClient.AsHarnessAgent(
-            maxContextWindowTokens,
-            maxOutputTokens,
-            new HarnessAgentOptions
+        AIAgent agent = chatClient.AsHarnessAgent(new HarnessAgentOptions
             {
                 Name = "SenparcAgentKernelHarness",
                 Description = "Senparc.AI AgentKernel Harness command-line sample",
+                MaxContextWindowTokens = maxContextWindowTokens,
+                MaxOutputTokens = maxOutputTokens,
                 ChatOptions = new ChatOptions
                 {
                     Instructions = instructions
                 },
 
-                // Harness 1.8 creates local directories or adds model-specific tools for the following capabilities by default.
-                // The sample uses least-privilege defaults; enable them explicitly in a controlled directory when needed.
-                DisableFileAccess = true,
+                // File access is opt-in through FileAccessStore. File memory, Skills, and Hosted Web Search stay disabled.
                 DisableFileMemory = true,
                 DisableAgentSkillsProvider = true,
                 DisableWebSearch = true
@@ -210,13 +207,13 @@ public class HarnessSample
         var parts = input.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         if (parts.Length == 1)
         {
-            Console.WriteLine($"Current mode: {modeProvider.GetMode(session)}");
+            Console.WriteLine($"Current mode: {await modeProvider.GetModeAsync(session)}");
             return true;
         }
 
         try
         {
-            modeProvider.SetMode(session, parts[1]);
+            await modeProvider.SetModeAsync(session, parts[1]);
             Console.WriteLine($"Switched to {parts[1]} mode.");
         }
         catch (ArgumentException ex)

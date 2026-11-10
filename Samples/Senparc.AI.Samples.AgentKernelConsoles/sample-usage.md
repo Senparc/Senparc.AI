@@ -35,13 +35,21 @@ dotnet Senparc.AI.Samples.AgentKernelConsoles.dll
 
 ## Harness Agent
 
-Enter `11` at the main menu to start Harness. The exact API is `IChatClient.AsHarnessAgent(...)` from `Microsoft.Agents.AI.Harness`. The sample uses Harness `1.8.0-preview.260528.1`, matching AgentKernel MAF `1.8.0`.
+Enter `11` at the main menu to start Harness. The exact API is `IChatClient.AsHarnessAgent(HarnessAgentOptions)` from `Microsoft.Agents.AI.Harness` 1.28.0. Context-window and output token limits are properties of `HarnessAgentOptions`. File access is opt-in through `FileAccessStore`.
+
+Enter `12` for multi-agent orchestration. Option `[1]` runs group chat, sequential, and concurrent builders with a scripted chat client and does not call a model. The same offline path can be started directly:
+
+```bash
+dotnet run --project Samples/Senparc.AI.Samples.AgentKernelConsoles -- --offline-multi-agent
+```
+
+Options `[2]` through `[6]` use the current Chat model for group chat, sequential, concurrent, handoff, and Magentic.
 
 Available commands: `/mode`, `/mode plan`, `/mode execute`, `/todos`, and `exit`.
 
 The sample disables Harness file access, file memory, Skills scanning, and Hosted Web Search by default. It retains context compression, Todo, plan/execute modes, and human tool approval. To enable file capabilities, explicitly configure `FileAccessStore` and `FileMemoryStore` to point only to dedicated directories.
 
-Official references: [MAF Harness Samples](https://github.com/microsoft/agent-framework/tree/main/dotnet/samples/02-agents/Harness) and [Harness NuGet](https://www.nuget.org/packages/Microsoft.Agents.AI.Harness/1.8.0-preview.260528.1).
+Official references: [MAF Harness Samples](https://github.com/microsoft/agent-framework/tree/main/dotnet/samples/02-agents/Harness) and [Agent Framework 1.28.0](https://www.nuget.org/packages/Microsoft.Agents.AI/1.28.0).
 
 ## Differences From The Kernel Console Sample
 

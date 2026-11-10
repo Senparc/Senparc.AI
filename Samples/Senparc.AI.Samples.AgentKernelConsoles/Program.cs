@@ -7,6 +7,12 @@ using Senparc.AI.Samples.AgentKernelConsoles.Samples;
 using Senparc.CO2NET;
 using Senparc.CO2NET.RegisterServices;
 
+if (args.Contains("--offline-multi-agent"))
+{
+    await MultiAgentOrchestrationSample.RunOfflineAsync();
+    return;
+}
+
 var configBuilder = new ConfigurationBuilder();
 var appsettingsJsonFileName = SampleHelper.GetAppSettingsFile();
 configBuilder.AddJsonFile(appsettingsJsonFileName, optional: false, reloadOnChange: false);
@@ -29,6 +35,7 @@ services.AddTransient<TtsSample>();
 services.AddTransient<McpSample>();
 services.AddTransient<A2ASample>();
 services.AddTransient<HarnessSample>();
+services.AddTransient<MultiAgentOrchestrationSample>();
 
 var serviceProvider = services.BuildServiceProvider();
 
@@ -59,6 +66,7 @@ Console.WriteLine("[8] TTS (Text to Speech)");
 Console.WriteLine("[9] MCP (LocalFunctionProxy / HostedServerTool)");
 Console.WriteLine("[10] A2A (LocalFunctionProxy)");
 Console.WriteLine("[11] Harness Agent (Todo / plan-execute / context compression)");
+Console.WriteLine("[12] Multi-agent orchestration (GroupChat / Sequential / Concurrent / Handoff / Magentic)");
 Console.WriteLine();
 
 var index = Console.ReadLine();
@@ -123,6 +131,9 @@ switch (index)
         break;
     case "11":
         await serviceProvider.GetRequiredService<HarnessSample>().RunAsync();
+        break;
+    case "12":
+        await serviceProvider.GetRequiredService<MultiAgentOrchestrationSample>().RunAsync();
         break;
     case "0":
         serviceProvider.GetRequiredService<SampleSetting>().Run();

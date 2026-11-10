@@ -9,6 +9,9 @@
     Modified by: Senparc - 20260916
     Description: v0.1.14-preview4 require native Harness streaming transport
 
+    Modified by: Senparc - 20261111
+    Description: v0.1.16 adapt Microsoft Agent Framework Harness 1.28
+
 ----------------------------------------------------------------*/
 
 #pragma warning disable MAAI001
@@ -61,7 +64,7 @@ public sealed class AgentKernelHarnessOptions
         {
             Name = name,
             Description = description,
-            DisableFileAccess = true,
+            // MAF 1.14+ treats file access as opt-in through FileAccessStore.
             DisableFileMemory = true,
             DisableAgentSkillsProvider = true,
             DisableWebSearch = true
@@ -162,13 +165,12 @@ public static class AgentKernelHarnessExtensions
 
         var chatClient = AsIChatClient(kernel);
         var harnessOptions = options.HarnessOptions ?? AgentKernelHarnessOptions.CreateLeastPrivilegeOptions();
+        harnessOptions.MaxContextWindowTokens ??= options.MaxContextWindowTokens;
+        harnessOptions.MaxOutputTokens ??= options.MaxOutputTokens;
         ChatOptionsSanitizer.SanitizeForModel(
             harnessOptions.ChatOptions,
             kernel.ModelName?.Chat);
-        var agent = chatClient.AsHarnessAgent(
-            options.MaxContextWindowTokens,
-            options.MaxOutputTokens,
-            harnessOptions);
+        var agent = chatClient.AsHarnessAgent(harnessOptions);
 
         var session = agentSession
             ?? (serializedSession.HasValue

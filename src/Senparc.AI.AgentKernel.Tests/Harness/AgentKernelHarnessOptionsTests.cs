@@ -11,7 +11,9 @@ public class AgentKernelHarnessOptionsTests
     {
         var options = AgentKernelHarnessOptions.CreateLeastPrivilegeOptions();
 
-        Assert.IsTrue(options.DisableFileAccess);
+#pragma warning disable MAAI001
+        Assert.IsNull(options.FileAccessStore);
+#pragma warning restore MAAI001
         Assert.IsTrue(options.DisableFileMemory);
         Assert.IsTrue(options.DisableAgentSkillsProvider);
         Assert.IsTrue(options.DisableWebSearch);
