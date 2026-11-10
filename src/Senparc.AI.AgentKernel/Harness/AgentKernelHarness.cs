@@ -9,6 +9,12 @@
     Modified by: Senparc - 20260916
     Description: v0.1.14-preview4 require native Harness streaming transport
 
+    Modified by: Senparc - 20261111
+    Description: v0.1.16 adapt Microsoft Agent Framework Harness 1.28
+
+    Modified by: Senparc - 20261111
+    Description: Keep Harness compaction from dropping a user turn when the todo status text repeats
+
 ----------------------------------------------------------------*/
 
 #pragma warning disable MAAI001
@@ -23,6 +29,7 @@ using Senparc.AI.Interfaces;
 using Senparc.AI.AgentKernel.Kernels;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,7 +68,7 @@ public sealed class AgentKernelHarnessOptions
         {
             Name = name,
             Description = description,
-            DisableFileAccess = true,
+            // MAF 1.14+ treats file access as opt-in through FileAccessStore.
             DisableFileMemory = true,
             DisableAgentSkillsProvider = true,
             DisableWebSearch = true
@@ -161,14 +168,15 @@ public static class AgentKernelHarnessExtensions
         ValidateOptions(options);
 
         var chatClient = AsIChatClient(kernel);
-        var harnessOptions = options.HarnessOptions ?? AgentKernelHarnessOptions.CreateLeastPrivilegeOptions();
+        var harnessOptions = CopyHarnessOptions(
+            options.HarnessOptions ?? AgentKernelHarnessOptions.CreateLeastPrivilegeOptions());
+        harnessOptions.MaxContextWindowTokens ??= options.MaxContextWindowTokens;
+        harnessOptions.MaxOutputTokens ??= options.MaxOutputTokens;
+        harnessOptions.UseCompactionSafeTodoList();
         ChatOptionsSanitizer.SanitizeForModel(
             harnessOptions.ChatOptions,
             kernel.ModelName?.Chat);
-        var agent = chatClient.AsHarnessAgent(
-            options.MaxContextWindowTokens,
-            options.MaxOutputTokens,
-            harnessOptions);
+        var agent = chatClient.AsHarnessAgent(harnessOptions);
 
         var session = agentSession
             ?? (serializedSession.HasValue
@@ -197,6 +205,115 @@ public static class AgentKernelHarnessExtensions
             _ => throw new NotSupportedException(
                 $"The configured AgentKernel ChatClient type '{kernel.ChatClient?.GetType().FullName ?? "null"}' cannot be adapted to MAF IChatClient.")
         };
+    }
+
+    private static HarnessAgentOptions CopyHarnessOptions(HarnessAgentOptions source)
+    {
+        return new HarnessAgentOptions
+        {
+            Id = source.Id,
+            Name = source.Name,
+            Description = source.Description,
+            MaxContextWindowTokens = source.MaxContextWindowTokens,
+            MaxOutputTokens = source.MaxOutputTokens,
+            CompactionStrategy = source.CompactionStrategy,
+            DisableCompaction = source.DisableCompaction,
+            ChatOptions = source.ChatOptions,
+            HarnessInstructions = source.HarnessInstructions,
+            ChatHistoryProvider = source.ChatHistoryProvider,
+            AIContextProviders = source.AIContextProviders,
+            LoopEvaluators = source.LoopEvaluators,
+            LoopAgentOptions = source.LoopAgentOptions,
+            MaximumIterationsPerRequest = source.MaximumIterationsPerRequest,
+            DisableToolAutoApproval = source.DisableToolAutoApproval,
+            ToolApprovalAgentOptions = source.ToolApprovalAgentOptions,
+            DisableApprovalNotRequiredFunctionBypassing = source.DisableApprovalNotRequiredFunctionBypassing,
+            DisableApprovalResponseBinding = source.DisableApprovalResponseBinding,
+            DisableFileMemory = source.DisableFileMemory,
+            FileMemoryStore = source.FileMemoryStore,
+            FileAccessStore = source.FileAccessStore,
+            FileAccessProviderOptions = source.FileAccessProviderOptions,
+            DisableWebSearch = source.DisableWebSearch,
+            DisableTodoProvider = source.DisableTodoProvider,
+            DisableAgentModeProvider = source.DisableAgentModeProvider,
+            AgentModeProviderOptions = source.AgentModeProviderOptions,
+            DisableAgentSkillsProvider = source.DisableAgentSkillsProvider,
+            AgentSkillsSource = source.AgentSkillsSource,
+            DisableOpenTelemetry = source.DisableOpenTelemetry,
+            OpenTelemetrySourceName = source.OpenTelemetrySourceName,
+            BackgroundAgents = source.BackgroundAgents,
+            BackgroundAgentsProviderOptions = source.BackgroundAgentsProviderOptions
+        };
+    }
+
+    /// <summary>
+    /// Keeps a new user turn visible when MAF compaction is enabled together with the default todo list.
+    /// </summary>
+    /// <remarks>
+    /// MAF 1.28 <c>CompactionMessageIndex.Update</c> treats an unchanged final message as "nothing new"
+    /// and leaves the previous index in place. The default todo provider appends the same
+    /// "### Current todo list / none yet" user message on every turn, so the real user text is dropped.
+    /// A unique revision on that status message makes the final message change without hiding the list.
+    /// </remarks>
+    public static void UseCompactionSafeTodoList(this HarnessAgentOptions harnessOptions)
+    {
+        ArgumentNullException.ThrowIfNull(harnessOptions);
+        if (!IsCompactionEnabled(harnessOptions) || harnessOptions.DisableTodoProvider)
+        {
+            return;
+        }
+
+        if (harnessOptions.AIContextProviders?.OfType<TodoProvider>().Any() == true)
+        {
+            return;
+        }
+
+        harnessOptions.DisableTodoProvider = true;
+        var providers = harnessOptions.AIContextProviders?.ToList() ?? [];
+#pragma warning disable MAAI001
+        providers.Add(new TodoProvider(new TodoProviderOptions
+        {
+            TodoListMessageBuilder = FormatCompactionSafeTodoList
+        }));
+#pragma warning restore MAAI001
+        harnessOptions.AIContextProviders = providers;
+    }
+
+    private static bool IsCompactionEnabled(HarnessAgentOptions harnessOptions)
+    {
+        if (harnessOptions.DisableCompaction)
+        {
+            return false;
+        }
+
+        return harnessOptions.CompactionStrategy is not null
+            || (harnessOptions.MaxContextWindowTokens is not null && harnessOptions.MaxOutputTokens is not null);
+    }
+
+    private static string FormatCompactionSafeTodoList(IReadOnlyList<TodoItem> items)
+    {
+        var builder = new StringBuilder("### Current todo list");
+        if (items.Count == 0)
+        {
+            builder.Append("\n- none yet");
+        }
+        else
+        {
+            foreach (var item in items)
+            {
+                builder.Append("\n- ")
+                    .Append(item.Id)
+                    .Append(item.IsComplete ? " [done] " : " [open] ")
+                    .Append(item.Title);
+                if (!string.IsNullOrWhiteSpace(item.Description))
+                {
+                    builder.Append(": ").Append(item.Description);
+                }
+            }
+        }
+
+        builder.Append("\ncontext-revision: ").Append(Guid.NewGuid().ToString("N"));
+        return builder.ToString();
     }
 
     private static void ValidateOptions(AgentKernelHarnessOptions options)
