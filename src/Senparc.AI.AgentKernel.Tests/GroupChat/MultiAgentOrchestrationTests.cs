@@ -85,12 +85,13 @@ public class MultiAgentOrchestrationTests
     [TestMethod]
     public async Task Handoff_BuildsAStableWorkflow()
     {
-        var triage = ScriptedAgent("Triage", "triage-ack");
-        var billing = ScriptedAgent("Billing", "billing-ack");
+        var triage = CreateAgent("Triage", new ScriptedChatClient(string.Empty, requestHandoff: true));
+        var billingClient = new ScriptedChatClient("billing-ack");
+        var billing = CreateAgent("Billing", billingClient);
         var workflow = AgentWorkflowBuilder
             .CreateHandoffBuilderWith(triage)
             .WithHandoff(triage, billing, "Hand off billing questions.")
-            .WithTerminationCondition(history => history.Any(message => (message.Text ?? string.Empty).Contains("ack", StringComparison.Ordinal)))
+            .WithTerminationCondition(history => history.Any(message => (message.Text ?? string.Empty).Contains("billing-ack", StringComparison.Ordinal)))
             .WithName("OfflineHandoff")
             .Build();
 
@@ -98,12 +99,18 @@ public class MultiAgentOrchestrationTests
 
         Assert.IsNotNull(workflow);
         Assert.IsFalse(events.OfType<WorkflowErrorEvent>().Any(), FormatErrors(events));
-        Assert.IsTrue(ContainsText(events, "triage-ack") || ContainsText(events, "billing-ack"));
+        Assert.IsGreaterThan(0, billingClient.RequestCount, "Billing should be invoked after Triage hands off.");
+        Assert.IsTrue(ContainsText(events, "billing-ack"));
     }
 
     private static AIAgent ScriptedAgent(string name, string reply)
     {
-        return new ScriptedChatClient(reply).AsAIAgent(new ChatClientAgentOptions
+        return CreateAgent(name, new ScriptedChatClient(reply));
+    }
+
+    private static AIAgent CreateAgent(string name, ScriptedChatClient chatClient)
+    {
+        return chatClient.AsAIAgent(new ChatClientAgentOptions
         {
             Name = name,
             Description = name,
@@ -198,11 +205,26 @@ public class MultiAgentOrchestrationTests
 
     private sealed class ScriptedChatClient(string reply) : IChatClient
     {
+        private readonly bool _requestHandoff = false;
+
+        public ScriptedChatClient(string reply, bool requestHandoff) : this(reply)
+        {
+            _requestHandoff = requestHandoff;
+        }
+
+        public int RequestCount { get; private set; }
+
         public Task<ChatResponse> GetResponseAsync(
             IEnumerable<ChatMessage> messages,
             ChatOptions? options = null,
             CancellationToken cancellationToken = default)
         {
+            RequestCount++;
+            if (_requestHandoff)
+            {
+                return Task.FromResult(new ChatResponse(new ChatMessage(ChatRole.Assistant, [CreateHandoffCall(options)])));
+            }
+
             return Task.FromResult(new ChatResponse(new ChatMessage(ChatRole.Assistant, reply)));
         }
 
@@ -211,8 +233,25 @@ public class MultiAgentOrchestrationTests
             ChatOptions? options = null,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            RequestCount++;
+            if (_requestHandoff)
+            {
+                yield return new ChatResponseUpdate(ChatRole.Assistant, [CreateHandoffCall(options)]);
+                yield break;
+            }
+
             yield return new ChatResponseUpdate(ChatRole.Assistant, reply);
             await Task.CompletedTask;
+        }
+
+        private static FunctionCallContent CreateHandoffCall(ChatOptions? options)
+        {
+            var handoffTool = options?.Tools.OfType<AIFunction>().SingleOrDefault()
+                ?? throw new InvalidOperationException("The scripted Triage response expected a handoff tool.");
+            return new FunctionCallContent(
+                "handoff-call",
+                handoffTool.Name,
+                new Dictionary<string, object?> { ["reasonForHandoff"] = "The user needs help with billing." });
         }
 
         public object? GetService(Type serviceType, object? serviceKey = null)
