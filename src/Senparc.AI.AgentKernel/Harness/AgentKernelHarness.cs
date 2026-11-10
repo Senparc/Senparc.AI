@@ -164,7 +164,8 @@ public static class AgentKernelHarnessExtensions
         ValidateOptions(options);
 
         var chatClient = AsIChatClient(kernel);
-        var harnessOptions = options.HarnessOptions ?? AgentKernelHarnessOptions.CreateLeastPrivilegeOptions();
+        var harnessOptions = CopyHarnessOptions(
+            options.HarnessOptions ?? AgentKernelHarnessOptions.CreateLeastPrivilegeOptions());
         harnessOptions.MaxContextWindowTokens ??= options.MaxContextWindowTokens;
         harnessOptions.MaxOutputTokens ??= options.MaxOutputTokens;
         ChatOptionsSanitizer.SanitizeForModel(
@@ -198,6 +199,45 @@ public static class AgentKernelHarnessExtensions
             ChatClient client => client.AsIChatClient(),
             _ => throw new NotSupportedException(
                 $"The configured AgentKernel ChatClient type '{kernel.ChatClient?.GetType().FullName ?? "null"}' cannot be adapted to MAF IChatClient.")
+        };
+    }
+
+    private static HarnessAgentOptions CopyHarnessOptions(HarnessAgentOptions source)
+    {
+        return new HarnessAgentOptions
+        {
+            Id = source.Id,
+            Name = source.Name,
+            Description = source.Description,
+            MaxContextWindowTokens = source.MaxContextWindowTokens,
+            MaxOutputTokens = source.MaxOutputTokens,
+            CompactionStrategy = source.CompactionStrategy,
+            DisableCompaction = source.DisableCompaction,
+            ChatOptions = source.ChatOptions,
+            HarnessInstructions = source.HarnessInstructions,
+            ChatHistoryProvider = source.ChatHistoryProvider,
+            AIContextProviders = source.AIContextProviders,
+            LoopEvaluators = source.LoopEvaluators,
+            LoopAgentOptions = source.LoopAgentOptions,
+            MaximumIterationsPerRequest = source.MaximumIterationsPerRequest,
+            DisableToolAutoApproval = source.DisableToolAutoApproval,
+            ToolApprovalAgentOptions = source.ToolApprovalAgentOptions,
+            DisableApprovalNotRequiredFunctionBypassing = source.DisableApprovalNotRequiredFunctionBypassing,
+            DisableApprovalResponseBinding = source.DisableApprovalResponseBinding,
+            DisableFileMemory = source.DisableFileMemory,
+            FileMemoryStore = source.FileMemoryStore,
+            FileAccessStore = source.FileAccessStore,
+            FileAccessProviderOptions = source.FileAccessProviderOptions,
+            DisableWebSearch = source.DisableWebSearch,
+            DisableTodoProvider = source.DisableTodoProvider,
+            DisableAgentModeProvider = source.DisableAgentModeProvider,
+            AgentModeProviderOptions = source.AgentModeProviderOptions,
+            DisableAgentSkillsProvider = source.DisableAgentSkillsProvider,
+            AgentSkillsSource = source.AgentSkillsSource,
+            DisableOpenTelemetry = source.DisableOpenTelemetry,
+            OpenTelemetrySourceName = source.OpenTelemetrySourceName,
+            BackgroundAgents = source.BackgroundAgents,
+            BackgroundAgentsProviderOptions = source.BackgroundAgentsProviderOptions
         };
     }
 
